@@ -67,6 +67,11 @@ namespace KMA.Tests.Presentation
             var s=Scheduler();Enqueue(s,Event("fall"),null,2.5f);Tick(s,.7f);
             Assert.That(Text(s),Is.EqualTo("Đứng dậy và tiếp tục ngay."));Tick(s,1.8f);Assert.That(Text(s),Is.Null);
         }
+        [Test] public void RepeatingMandatoryHintRefreshesTheCurrentResponse()
+        {
+            var s=Scheduler();Assert.That(Enqueue(s,Event("hint","hint",1,0,0)),Is.True);
+            Assert.That(Enqueue(s,Event("hint","hint",1,0,0)),Is.True,"mandatory responses must refresh while still visible");
+        }
         [Test] public void MandatoryChessFeedbackIsNotThrottled()
         {
             var s=Scheduler();Assert.That(Enqueue(s,Event("hint","hint",2,0,0)),Is.True);Tick(s,3);

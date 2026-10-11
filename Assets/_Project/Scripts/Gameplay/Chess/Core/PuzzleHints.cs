@@ -10,8 +10,8 @@ namespace KMA.Gameplay.Chess
             ChessMove.TryParseUci(puzzle.nodes[node].moves[0].uci, out ChessMove move);
             string piece = PieceName(Piece.TypeOf(position[move.From]));
             return level == 2
-                ? $"Xem quân {piece} ở {Square.Name(move.From)}."
-                : $"Đi {piece} từ {Square.Name(move.From)} đến {Square.Name(move.To)}.";
+                ? $"Xem lại quân {piece} ở {Square.Name(move.From)}."
+                : $"Đi {piece} từ {Square.Name(move.From)} đến {Square.Name(move.To)}. Tôi đã chỉ rõ rồi.";
         }
 
         public static string PieceName(int type) => type switch

@@ -44,7 +44,7 @@ namespace KMA.Gameplay.Chess
             Machine.PhaseChanged += OnPhaseChanged;
             Machine.MoveCommitted += OnMoveCommitted;
             Machine.MistakeMade += OnMistake;
-            Machine.IllegalMoveRejected += _ => hud.Toast("Nước này không hợp lệ.");
+            Machine.IllegalMoveRejected += _ => hud.Toast("Nước đi không hợp lệ. Chọn ô khác.");
             Machine.GradingFailed += OnGradingFailed;
             Machine.Finished += OnFinished;
         }
@@ -55,7 +55,7 @@ namespace KMA.Gameplay.Chess
             hud.StartButton.onClick.AddListener(BeginAttempt);
             hud.HintButton.onClick.AddListener(RevealHint);
             var panel = FindFirstObjectByType<ResultPanel>(FindObjectsInactive.Include);
-            if (panel != null) panel.SetTitles("CHIẾU HẾT!", "CHƯA ĐẠT");
+            if (panel != null) panel.SetTitles("CHIẾU HẾT", "CHƯA ĐẠT");
             hud.SetObjective(Machine.MaxPlayerMoves);
             hud.SetMistakes(0, Machine.MaxMistakes);
             hud.SetClock(Machine.Clock.Remaining);
@@ -66,16 +66,21 @@ namespace KMA.Gameplay.Chess
             board.Render(Machine.Position, null);
             cast.SetStudent("idle");
             cast.SetTeacher("idleBoss");
-            cast.Say($"Chiếu hết trong {CountWord(Machine.MaxPlayerMoves)} nước. Em có {ChessGuide.TimeWords(Machine.Clock.Limit)}.", 6f);
+            var dialogue=GetComponent<ChessDialogueAdapter>();
+            if(dialogue!=null)dialogue.Configure(this,GetComponent<GameplayDialogueHost>(),cast);
+            else cast.Say($"{CountWord(Machine.MaxPlayerMoves)} nước, {ChessGuide.TimeWords(Machine.Clock.Limit)} suy nghĩ. Tôi không chấm điểm cho việc ngồi nhìn.",6f);
             RefreshInput();
         }
 
         public void BeginAttempt()
         {
             if (Machine.Phase != ChessFinalPhase.Intro) return;
+            var dialogue=GetComponent<ChessDialogueAdapter>();
+            if(dialogue!=null && !dialogue.OpeningReady)return;
             hud.ShowIntro(false);
             SetTutorialGate(false);
             Machine.Begin();
+            dialogue?.Began();
         }
 
         protected override void Update()
@@ -112,8 +117,9 @@ namespace KMA.Gameplay.Chess
         {
             string text = Machine.RevealNextHint();
             if (text == null) return;
-            cast.SetTeacher("taunt");
-            cast.Say(text, 8f);
+            var dialogue=GetComponent<ChessDialogueAdapter>();
+            if(dialogue!=null)dialogue.Hint(text);
+            else {cast.SetTeacher("taunt");cast.Say(text,8f);}
             hud.SetHintAvailable(Machine.HintLevel < PuzzleHints.MaxLevel);
         }
 
@@ -144,16 +150,15 @@ namespace KMA.Gameplay.Chess
             hud.SetTurn(phase);
             hud.SetHintAvailable(phase == ChessFinalPhase.PlayerTurn && Machine.HintLevel < PuzzleHints.MaxLevel);
             // Each submit clears the hurt pose; a mistake sets it again right after.
-            if (phase == ChessFinalPhase.Validating && !resolving) cast.SetStudent("idle");
+
             // The whistle sequence after a mistake already ends on strictLook, so it is left to finish.
-            if (phase == ChessFinalPhase.PlayerTurn && !resolving && !cast.TeacherSequenceRunning)
-                cast.SetTeacher("strictLook");
+
             RefreshInput();
         }
 
         void OnMoveCommitted(ChessMove move, bool byPlayer)
         {
-            if (byPlayer) board.Render(Machine.Position, move);
+            if (byPlayer) { board.Render(Machine.Position, move); if(!resolving)cast.SetStudent("idle"); }
         }
 
         void OnMistake(int mistakes)
@@ -164,14 +169,15 @@ namespace KMA.Gameplay.Chess
             GameAudio.Play(GameSound.Whistle);
             int left = Machine.MaxMistakes - mistakes;
             if (left < 0) return;
-            cast.PlayTeacher("whistle0", "whistle1", "strictLook");
-            cast.Say(left == 1 ? "Còn một lần sửa." : "Chưa đúng. Em xem lại.");
+            var dialogue=GetComponent<ChessDialogueAdapter>();
+            if(dialogue!=null)dialogue.Mistake(mistakes);
+            else {cast.PlayTeacher("whistle0","whistle1",mistakes==1?"strictLook":"angry");cast.Say(mistakes==1?"Sai rồi. Còn một lần sửa, nghĩ kỹ trước khi đi.":"Hai lần sai rồi. Sai thêm một lần là dừng bài.");}
         }
 
         void OnGradingFailed(string message)
         {
             Debug.LogError("[KMA] Chess puzzle data error: " + message);
-            hud.Toast("Đề có lỗi. Em đi lại nước khác nhé.");
+            hud.Toast("Không thể chấm nước đi này do lỗi dữ liệu. Bàn cờ giữ nguyên.");
             board.Render(Machine.Position, Machine.LastMove);
         }
 
@@ -190,16 +196,16 @@ namespace KMA.Gameplay.Chess
             {
                 cast.SetStudent("cheer0");
                 cast.SetTeacher("cheer0");
-                cast.Say("Được, em qua.");
+
             }
             else
             {
                 bool timeUp = Machine.FailReason == ChessFailReason.TimeUp;
-                hud.SetTurnText(timeUp ? "Hết giờ" : "Hết lượt sửa");
+                hud.SetTurnText(timeUp ? "Hết giờ" : "Quá số lần sửa");
                 cast.SetStudent("hurt");
-                cast.SetTeacher("strictLook");
-                cast.Say(timeUp ? "Hết giờ." : "Sai quá số lần rồi.");
+                cast.SetTeacher(timeUp?"handsOnHips":"angry");
             }
+            GetComponent<ChessDialogueAdapter>()?.FinishDialogue(solved);
             yield return new WaitForSeconds(resultDelaySeconds);
             Finish(BuildResult(solved));
         }

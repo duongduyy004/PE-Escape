@@ -10,7 +10,7 @@
   "timeLimitSeconds": 90,
   "maxRecoverableMistakes": 2,
   "difficulty": "Normal",
-  "ideaHint": "Chiếu trước để ép Vua đen, rồi Tượng sẽ yểm trợ Hậu.",
+  "ideaHint": "Chiếu để ép vua đen rời góc. Tượng đang hỗ trợ hậu; nhìn cả hai quân.",
   "verifiedBy": "python-chess 1.11.2 + Stockfish 19 depth 18",
   "nodes": [
     {

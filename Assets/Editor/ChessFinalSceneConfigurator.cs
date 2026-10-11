@@ -27,17 +27,17 @@ namespace KMA.EditorTools
         // pause button, and the 3:4 avatar box matches the 192x256 poses so caps and ponytails stay whole.
         const float StudentX = .1f, TeacherX = .9f;
         static readonly Vector2 AvatarSize = new Vector2(360f, 480f);
-        static readonly string[] StudentPoses = { "idle", "hurt", "cheer0", "cheer1" };
+        static readonly string[] StudentPoses = { "idle", "hurt", "cheer0", "cheer1", "fear", "think", "happy", "disappointed" };
         static readonly string[] TeacherPoses =
-            { "idleBoss", "strictLook", "chessThink", "chessMove", "whistle0", "whistle1", "taunt", "cheer0" };
+            { "idleBoss", "strictLook", "chessThink", "chessMove", "whistle0", "whistle1", "taunt", "cheer0", "command", "angry", "scoreWrite", "handsOnHips", "scoreHold" };
         // Pose keys the controller asks for → the supplement art drawing them; other keys draw the file of the same name.
         static readonly Dictionary<string, string> StudentArt = new Dictionary<string, string>
         {
-            { "idle", "think" }, { "hurt", "disappointed" }, { "cheer0", "celebrate" }, { "cheer1", "happy" }
+            { "idle", "think" }, { "hurt", "disappointed" }, { "cheer0", "happy" }, { "cheer1", "happy" }
         };
         static readonly Dictionary<string, string> TeacherArt = new Dictionary<string, string>
         {
-            { "idleBoss", "handsOnHips" }, { "taunt", "angry" }, { "chessThink", "think" }, { "cheer0", "congratulate" }
+            { "idleBoss", "handsOnHips" }, { "taunt", "taunt" }, { "chessThink", "think" }, { "cheer0", "scoreWrite" }
         };
 
         [MenuItem("KMA/Chess Final/Build Scene")]
@@ -124,8 +124,8 @@ namespace KMA.EditorTools
             Image teacher = Avatar(parent, "Teacher", TeacherX, Art(CharacterArt.Boss, TeacherArt, "idleBoss"));
             // The art looks right; she stands right of the board, so mirror her to look at it.
             teacher.rectTransform.localScale = new Vector3(-1f, 1f, 1f);
-            NameTag(parent, "StudentName", "Tân Thủ", StudentX);
-            NameTag(parent, "TeacherName", "Cô Thể Chất", TeacherX);
+            NameTag(parent, "StudentName", "SV năm 1", StudentX);
+            NameTag(parent, "TeacherName", "Giảng viên thể chất", TeacherX);
             ChipHandle mistakes = UiKit.Chip(parent, "Mistakes", "Sai: 0/2");
             UiKit.Place(mistakes.Background.rectTransform, new Vector2(StudentX, .78f), centre, Vector2.zero, new Vector2(240f, 60f));
             Image bubble = UiKit.Panel(parent, "SpeechBubble");
@@ -178,6 +178,10 @@ namespace KMA.EditorTools
 
             var controller = Object.FindFirstObjectByType<ChessFinalController>();
             controller.Configure(board, hud, cast, promotion);
+            var dialogue=controller.gameObject.AddComponent<GameplayDialogueHost>();dialogue.Configure(GameplayDialogueLibrary.LoadDefault(),cast);cast.BindDialogue(dialogue);
+            var adapter=controller.gameObject.AddComponent<ChessDialogueAdapter>();
+            DialoguePresentationAuthoring.WireOpening(controller,dialogue,adapter);
+            var serializedAdapter=new SerializedObject(adapter);serializedAdapter.FindProperty("view").objectReferenceValue=cast;serializedAdapter.ApplyModifiedPropertiesWithoutUndo();
             foreach (Object dirty in new Object[] { controller, board, hud, cast, promotion, hudRoot })
                 EditorUtility.SetDirty(dirty);
             EditorSceneManager.MarkSceneDirty(scene);

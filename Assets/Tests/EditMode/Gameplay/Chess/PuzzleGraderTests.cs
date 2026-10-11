@@ -83,8 +83,8 @@ namespace KMA.Tests.Gameplay.Chess
             PuzzleDefinition puzzle = ScholarTwoMover();
             ChessPosition start = ChessPosition.FromFen(puzzle.startFen);
             Assert.That(PuzzleHints.For(puzzle, 0, start, 1), Is.EqualTo("Nhắm vào ô f7."));
-            Assert.That(PuzzleHints.For(puzzle, 0, start, 2), Is.EqualTo("Xem quân Hậu ở d1."));
-            Assert.That(PuzzleHints.For(puzzle, 0, start, 3), Is.EqualTo("Đi Hậu từ d1 đến h5."));
+            Assert.That(PuzzleHints.For(puzzle, 0, start, 2), Is.EqualTo("Xem lại quân Hậu ở d1."));
+            Assert.That(PuzzleHints.For(puzzle, 0, start, 3), Is.EqualTo("Đi Hậu từ d1 đến h5. Tôi đã chỉ rõ rồi."));
         }
     }
 }

@@ -23,6 +23,8 @@ namespace KMA.Tests.Gameplay.Chess
             yield return null;
             controller = Object.FindFirstObjectByType<ChessFinalController>();
             board = Object.FindFirstObjectByType<ChessBoardView>();
+            var opening=Object.FindFirstObjectByType<KMA.Gameplay.UI.GameplayOpeningFlow>();
+            if(opening!=null)yield return new WaitUntil(()=>opening.IsComplete);
             result = null;
             controller.Completed += r => result = r;
         }

@@ -124,7 +124,7 @@ namespace KMA.Tests.Gameplay.Chess
             machine.Begin();
             Assert.That(machine.RevealNextHint(), Is.EqualTo("Nhắm vào ô f7."));
             machine.RevealNextHint();
-            Assert.That(machine.RevealNextHint(), Is.EqualTo("Đi Hậu từ d1 đến h5."));
+            Assert.That(machine.RevealNextHint(), Is.EqualTo("Đi Hậu từ d1 đến h5. Tôi đã chỉ rõ rồi."));
             Assert.That(machine.HintUsed, Is.True);
             machine.Submit(Uci("d1f3"));
             machine.Tick(20f);

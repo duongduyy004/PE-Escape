@@ -50,7 +50,7 @@ namespace KMA.Gameplay.Chess
             ChessFinalPhase.Completed => "Hoàn thành",
             ChessFinalPhase.Paused => "Tạm dừng",
             ChessFinalPhase.Failed => turn.text,
-            _ => "Đọc đề rồi bấm Bắt đầu"
+            _ => "Đọc đề, sau đó bấm Bắt đầu"
         });
 
         public void Toast(string text, float seconds = 1.6f)

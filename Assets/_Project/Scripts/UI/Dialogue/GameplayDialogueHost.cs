@@ -24,12 +24,16 @@ namespace KMA.Gameplay.UI
     return scheduler.Enqueue(e,valid,budgetSeconds);
    } catch(Exception ex){if(!reported){reported=true;Debug.LogError("[KMA] Gameplay dialogue unavailable: "+ex.Message);}return false;}
   }
-  public bool EmitText(string id,string words,float seconds=2.5f)
+  public bool EmitText(string id,string words,float seconds=2.5f,Func<bool> valid=null)
   {
    if(library==null || !library.TryGet(id,out var source))return false;
    var original=source.Lines[source.Lines.Length-1];
-   return scheduler.Enqueue(new GameplayDialogueEvent {Id=id,Priority=source.Priority,MaximumPlays=source.MaximumPlays,ReactionGroup=source.ReactionGroup,
-    Lines=new[]{new GameplayDialogueLine {Speaker=original.Speaker,Text=words,DurationSeconds=seconds,Poses=original.Poses,Icon=original.Icon}}});
+   return scheduler.Enqueue(new GameplayDialogueEvent {Id=id,Priority=source.Priority,MaximumPlays=source.MaximumPlays,ReactionGroup=source.ReactionGroup,CooldownSeconds=source.CooldownSeconds,
+    Lines=new[]{new GameplayDialogueLine {Speaker=original.Speaker,Text=words,DurationSeconds=seconds,Poses=original.Poses,Icon=original.Icon}}},valid);
+  }
+  public bool EmitLine(GameplayDialogueLine line)
+  {
+   return scheduler.Enqueue(new GameplayDialogueEvent { Id="manual", Priority=DialoguePriority.Technical,MaximumPlays=0,Lines=new[]{line} });
   }
   void Update()
   {

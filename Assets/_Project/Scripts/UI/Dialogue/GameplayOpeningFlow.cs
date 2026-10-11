@@ -14,6 +14,7 @@ namespace KMA.Gameplay.UI
         bool configured, emitted;
         int configuredFrame;
         MinigameGuideHost guide;
+        public bool IsComplete => emitted && !configured;
         void Awake() { if (game != null) hold = game.AcquireStartHold("opening dialogue"); }
         public void Configure(MinigameBase source, GameplayDialogueHost dialogue, string id,
             IReadOnlyDictionary<string,string> values = null)

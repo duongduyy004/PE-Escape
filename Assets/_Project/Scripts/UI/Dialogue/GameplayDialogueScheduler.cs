@@ -24,7 +24,12 @@ namespace KMA.Gameplay.UI
         {
             if(value==null || value.Lines==null || value.Lines.Length==0 || budgetSeconds<=0 ||
                 float.IsNaN(budgetSeconds) || !Allowed(value) || (valid!=null && !valid()) ||
-                active?.Event.Id==value.Id || pending.Any(r=>r.Event.Id==value.Id)) return false;
+                (value.MaximumPlays!=0 && (active?.Event.Id==value.Id || pending.Any(r=>r.Event.Id==value.Id)))) return false;
+            if(value.MaximumPlays==0)
+            {
+                pending.RemoveAll(x=>x.Event.Id==value.Id);
+                if(active?.Event.Id==value.Id)Hide();
+            }
             var r=new Request {Event=value,Valid=valid,Until=clock+budgetSeconds};
             if(value.Priority==DialoguePriority.Result) Clear();
             else if(active!=null && value.Priority>active.Event.Priority) Hide();
