@@ -7,6 +7,16 @@ namespace KMA.Gameplay.UI
     [CreateAssetMenu(menuName = "KMA/UI Theme", fileName = "UITheme")]
     public sealed class UITheme : ScriptableObject
     {
+        [Serializable] public sealed class DialogueStyle
+        {
+            public Vector2 size = new Vector2(460f, 156f);
+            public Vector2 anchor = new Vector2(1f, .9f);
+            public Vector2 offset = new Vector2(-80f, -16f);
+            public float portraitWidth = 90f, padding = 12f, nameSize = 18f, textSize = 20f, iconSize = 32f;
+        }
+        [SerializeField] DialogueStyle dialogue = new DialogueStyle();
+        public DialogueStyle Dialogue => dialogue;
+
         [SerializeField] private Color primary = new Color32(0xFF, 0x59, 0x5E, 0xFF);
         [SerializeField] private Color accent = new Color32(0xFF, 0xCA, 0x3A, 0xFF);
         [SerializeField] private Color background = new Color32(0x19, 0x82, 0xC4, 0xFF);
