@@ -13,6 +13,16 @@ namespace KMA.Gameplay
         [SerializeField] float countdownSeconds = 3f;
         MinigameLifecycle lifecycle;
         float nextCountdownSound;
+        readonly MinigameStartGate startGate = new MinigameStartGate();
+        System.IDisposable legacyStartHold;
+        public bool StartPreparationReady => startGate.CanStart;
+        public System.IDisposable AcquireStartHold(string owner)
+        {
+            Lifecycle?.SetTutorialGate(true);
+            return startGate.Hold(owner);
+        }
+        public void RequestStart() => startGate.RequestStart();
+        void OpenPreparedStart() => Lifecycle?.SetTutorialGate(false);
 
         protected MinigameLifecycle Lifecycle
         {
@@ -41,9 +51,24 @@ namespace KMA.Gameplay
         /// The scene configurator paints its own camera background, so the shared assembler keeps it.
         public virtual bool OwnsCameraBackground => false;
 
-        public void SetTutorialGate(bool closed) => Lifecycle?.SetTutorialGate(closed);
+        public void SetTutorialGate(bool closed)
+        {
+            if (closed) legacyStartHold ??= AcquireStartHold("legacy intro");
+            else
+            {
+                RequestStart();
+                legacyStartHold?.Dispose();
+                legacyStartHold = null;
+            }
+        }
 
-        protected virtual void Awake() => Lifecycle = new MinigameLifecycle(tutorialSeconds, countdownSeconds);
+        protected virtual void Awake()
+        {
+            Lifecycle = new MinigameLifecycle(tutorialSeconds, countdownSeconds);
+            startGate.Ready += OpenPreparedStart;
+            if (startGate.IsHeld) Lifecycle.SetTutorialGate(true);
+            else if (startGate.CanStart) OpenPreparedStart();
+        }
 
         protected virtual void Update()
         {

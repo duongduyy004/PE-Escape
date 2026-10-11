@@ -74,7 +74,7 @@ namespace KMA.Gameplay
             resultSubmitted = false;
             lastResult = null;
             hud.HideStart();
-            SetTutorialGate(false);
+            SetTutorialGate(false); // Requests once; independent preparation holds remain closed.
             return true;
         }
 

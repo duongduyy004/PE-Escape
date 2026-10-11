@@ -12,6 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ec003bed006fea6285856503fd24ee3, type: 3}
   m_Name: UITheme
   m_EditorClassIdentifier: 
+  dialogue:
+    size: {x: 460, y: 156}
+    anchor: {x: 1, y: 0.9}
+    offset: {x: -80, y: -16}
+    portraitWidth: 90
+    padding: 12
+    nameSize: 18
+    textSize: 20
+    iconSize: 32
   primary: {r: 1, g: 0.34901962, b: 0.36862746, a: 1}
   accent: {r: 1, g: 0.7921569, b: 0.22745098, a: 1}
   background: {r: 0.09803922, g: 0.50980395, b: 0.76862746, a: 1}

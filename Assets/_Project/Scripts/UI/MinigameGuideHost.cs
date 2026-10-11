@@ -18,6 +18,7 @@ namespace KMA.Gameplay.UI
 
         public MinigameGuidePanel Panel => panel;
         public IMinigameGuideSource Source => source;
+        public event System.Action<GuideMode> Closed;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetStatics()
@@ -102,6 +103,7 @@ namespace KMA.Gameplay.UI
         {
             if (mode == GuideMode.FirstRun && source != null)
                 seenStore.MarkSeen(source.GuideKey);
+            Closed?.Invoke(mode);
         }
     }
 }

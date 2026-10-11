@@ -106,7 +106,7 @@ namespace KMA.Gameplay.UI
             if (source.OwnsStartGate)
                 FindSprintStartPresentation()?.Bind(source);
             else if (!source.UsesSharedTutorial)
-                source.SetTutorialGate(false);
+                source.RequestStart();
         }
 
         static ISprintStartPresentation FindSprintStartPresentation()
