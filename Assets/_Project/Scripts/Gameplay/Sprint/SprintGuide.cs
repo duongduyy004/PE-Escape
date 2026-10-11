@@ -7,25 +7,25 @@ namespace KMA.Gameplay
     {
         public const string Key = nameof(SubjectId.Sprint);
         public const string Controls =
-            "Bấm TRÁI rồi PHẢI luân phiên để chạy. Giữ nhịp đều để lên CHUỖI và BỨT TỐC. Ngừng bấm là chậm lại.";
+            "Bấm TRÁI rồi PHẢI, luân phiên để chạy. Giữ nhịp đúng để tăng chuỗi và bứt tốc. Ngừng bấm thì tốc độ giảm.";
         public const string RaceRules =
-            "Bấm sai bên thì mất chuỗi và gần như không tăng tốc. Hết giờ chưa về đích là trượt. " +
-            "Điểm tính theo độ chính xác, thứ hạng và thời gian còn dư.";
+            "Bấm nhầm bên sẽ mất chuỗi và tăng tốc rất ít. Hết giờ mà chưa về đích là chưa đạt. Điểm tính theo độ chính xác, thứ hạng và thời gian còn lại.";
         // The learn lesson has no clock: a wrong side only resets the streak it counts.
-        public const string LearnRules = "Bấm sai bên thì chuỗi về 0 và phải đếm lại từ đầu.";
+        public const string LearnRules =
+            "Bấm nhầm bên sẽ đưa chuỗi về 0.";
 
         public static IReadOnlyList<TutorialStep> Build(ChallengeKind? kind, int targetCount, float distance,
             float timeLimit, int rivalCount)
         {
             bool learn = kind == ChallengeKind.Learn;
             string goal = learn
-                ? $"Bấm TRÁI, PHẢI luân phiên đúng {targetCount} nhịp liên tiếp. Không tính giờ."
-                : $"Chạy {MinigameGuidePages.Number(distance)} m trong {MinigameGuidePages.Number(timeLimit)} giây." +
-                  (rivalCount > 0 ? $" Có {rivalCount} bạn chạy cùng." : string.Empty);
+                ? $"Bấm TRÁI, PHẢI luân phiên đúng {targetCount} nhịp liên tiếp. Bài này không tính giờ."
+                : $"Về đích {MinigameGuidePages.Number(distance)} m trong tối đa {MinigameGuidePages.Number(timeLimit)} giây." +
+                  (rivalCount > 0 ? $" Có {rivalCount} sinh viên chạy cùng." : string.Empty);
             return MinigameGuidePages.Pages(
                 new TutorialStep("MỤC TIÊU", goal),
                 new TutorialStep("ĐIỀU KHIỂN", Controls),
-                new TutorialStep("LUẬT", learn ? LearnRules : RaceRules),
+                new TutorialStep("LUẬT", learn ? $"{LearnRules} Bạn cần thực hiện lại đủ {targetCount} nhịp liên tiếp." : RaceRules),
                 MinigameGuidePages.FailurePage(kind));
         }
     }

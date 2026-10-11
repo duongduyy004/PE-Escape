@@ -11,6 +11,34 @@ namespace KMA.Tests.EditorTools
     public sealed class StudentJourneyContentBuilderTests
     {
         [Test]
+        public void RegenerationPreservesCurrentSprintTimings()
+        {
+            ChallengeCatalog catalog = ChallengeCatalog.LoadDefault();
+            var snapshots = catalog.Ordered.Select(AssetDatabase.GetAssetPath)
+                .Append(AssetDatabase.GetAssetPath(catalog))
+                .Append("Assets/_Project/Resources/Journey/SprintBalance.asset")
+                .Distinct().ToDictionary(path => path, File.ReadAllBytes);
+            try
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    StudentJourneyContentBuilder.BuildChallenges();
+                    Assert.That(catalog.Get("sprint_practice").TimeLimit, Is.EqualTo(20f));
+                    Assert.That(catalog.Get("sprint_exam").TimeLimit, Is.EqualTo(15f));
+                    Assert.That(catalog.Get("sprint_exam").Distance, Is.EqualTo(150f));
+                }
+            }
+            finally
+            {
+                foreach (var item in snapshots)
+                {
+                    File.WriteAllBytes(item.Key, item.Value);
+                    AssetDatabase.ImportAsset(item.Key, ImportAssetOptions.ForceUpdate);
+                }
+            }
+        }
+
+        [Test]
         public void RegeneratedFootballLessonsKeepNormalAndLearnKeepsKeeperOff()
         {
             ChallengeCatalog catalog = ChallengeCatalog.LoadDefault();

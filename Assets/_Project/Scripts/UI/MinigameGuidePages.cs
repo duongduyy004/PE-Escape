@@ -5,9 +5,9 @@ namespace KMA.Gameplay.UI
 {
     public static class MinigameGuidePages
     {
-        public const string FailureTitle = "NẾU TRƯỢT";
+        public const string FailureTitle = "NẾU CHƯA ĐẠT";
         public const string FailureBody =
-            "Trượt lần đầu: phải qua Nhảy ếch để giữ mạng. Trượt từ lần hai: mất 1 mạng và vẫn phải nhảy ếch.";
+            "Lần đầu trượt bài đang chơi: hoàn thành Bật cóc để giữ lượt thi; không hoàn thành sẽ mất 1 lượt thi. Từ lần trượt thứ 2 của cùng bài: mất 1 lượt thi ngay và vẫn phải Bật cóc. Bật cóc không trừ thêm lượt đã bị trừ.";
 
         static readonly CultureInfo Vi = CultureInfo.GetCultureInfo("vi-VN");
 

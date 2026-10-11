@@ -14,22 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: KMA.Gameplay.Progression::KMA.Gameplay.JourneyDialogueLibrary
   cast:
   - id: tan_thu
-    displayName: "T\xE2n Th\u1EE7"
+    displayName: "SV n\u0103m 1"
     tagColor: {r: 1, g: 0.7882353, b: 0.15686275, a: 1}
     isPlayer: 1
     poses:
     - pose: 0
-      sprite: {fileID: 21300000, guid: 8dd0011b70903b440a7000345141466b, type: 3}
+      sprite: {fileID: 21300000, guid: 54c331363a4367842a76a9fc67d0c5ee, type: 3}
     - pose: 1
-      sprite: {fileID: 21300000, guid: 90413955dd19cbb4eb4f37c6d8aaabe8, type: 3}
+      sprite: {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
     - pose: 2
-      sprite: {fileID: 21300000, guid: 0b1ab150db6c08643abaeb71a47eed1c, type: 3}
+      sprite: {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
     - pose: 3
-      sprite: {fileID: 21300000, guid: 32b500e429a4e8745b1259d36acfb38c, type: 3}
+      sprite: {fileID: 21300000, guid: 4282f9c2978bff04a8ce0fe16cf1b032, type: 3}
     - pose: 4
-      sprite: {fileID: 21300000, guid: 91a9dd8e391325c479813fe2fb66fe94, type: 3}
+      sprite: {fileID: 21300000, guid: 017efce9921c16a4e8d43474503d9dac, type: 3}
   - id: mai_toang
-    displayName: Mai Toang
+    displayName: Mai
     tagColor: {r: 1, g: 0.56078434, b: 0.69411767, a: 1}
     isPlayer: 0
     poses:
@@ -44,29 +44,29 @@ MonoBehaviour:
     - pose: 4
       sprite: {fileID: 21300000, guid: 7e02c7d8e71b8d246be70dbbf28396de, type: 3}
   - id: anh_khoa_tren
-    displayName: "Anh Kho\xE1 Tr\xEAn"
+    displayName: "Anh Tu\u1EA5n"
     tagColor: {r: 0.49803922, g: 0.81960785, b: 1, a: 1}
     isPlayer: 0
     poses:
     - pose: 0
-      sprite: {fileID: 21300000, guid: c37e96d0bfc36f9409920ee17ba47754, type: 3}
+      sprite: {fileID: 21300000, guid: 8dd0011b70903b440a7000345141466b, type: 3}
     - pose: 1
-      sprite: {fileID: 21300000, guid: 902ba45752086994aa8d54b073b31e3d, type: 3}
+      sprite: {fileID: 21300000, guid: 90413955dd19cbb4eb4f37c6d8aaabe8, type: 3}
     - pose: 2
-      sprite: {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      sprite: {fileID: 21300000, guid: 0b1ab150db6c08643abaeb71a47eed1c, type: 3}
     - pose: 3
-      sprite: {fileID: 21300000, guid: 4282f9c2978bff04a8ce0fe16cf1b032, type: 3}
+      sprite: {fileID: 21300000, guid: 32b500e429a4e8745b1259d36acfb38c, type: 3}
     - pose: 4
-      sprite: {fileID: 21300000, guid: 017efce9921c16a4e8d43474503d9dac, type: 3}
+      sprite: {fileID: 21300000, guid: 91a9dd8e391325c479813fe2fb66fe94, type: 3}
   - id: co_the_chat
-    displayName: "C\xF4 Th\u1EC3 Ch\u1EA5t"
+    displayName: "Gi\u1EA3ng vi\xEAn th\u1EC3 ch\u1EA5t"
     tagColor: {r: 0.7254902, g: 0.9490196, b: 0.4862745, a: 1}
     isPlayer: 0
     poses:
     - pose: 0
-      sprite: {fileID: 21300000, guid: 2dbaad571ffb3e7418d6c60b3580ed78, type: 3}
+      sprite: {fileID: 21300000, guid: f72682024a6fba6438d96db10d911d3e, type: 3}
     - pose: 1
-      sprite: {fileID: 21300000, guid: c3a35ef4e08b1de4e989156fcff43015, type: 3}
+      sprite: {fileID: 21300000, guid: a4cabbc0a6c81094e9ed4516f93efda8, type: 3}
     - pose: 2
       sprite: {fileID: 21300000, guid: a107eb87b301f3d44bdbf3ece7c14b5e, type: 3}
     - pose: 3
@@ -77,208 +77,203 @@ MonoBehaviour:
   - id: opening
     lines:
     - characterId: anh_khoa_tren
-      pose: 1
-      text: "Ch\xE0o t\xE2n binh :eyes: S\xE2n tr\u01B0\u1EDDng d\xE0i bao nhi\xEAu
-        h\u1EA3? \u0110\u1EE3i bu\u1ED5i th\u1EC3 ch\u1EA5t \u0111\u1EA7u ti\xEAn
-        l\xE0 bi\u1EBFt li\u1EC1n :skull:"
-      sticker: 
+      pose: 0
+      text: "Bu\u1ED5i \u0111\u1EA7u nh\u1EDB nghe k\u1EF9 y\xEAu c\u1EA7u. M\xF4n
+        n\xE0y kh\xF4ng ph\u1EA3i c\u1EE9 c\xF3 m\u1EB7t l\xE0 qua \u0111\xE2u."
+      sticker:
     - characterId: mai_toang
-      pose: 2
-      text: "\u1ED4ng d\u1ECDa t\u1EE5i m\xECnh k\xECa :sob: M\u1EDBi nh\u1EADp h\u1ECDc
-        m\xE0 \u0111\xE3 th\u1EA5y m\xF9i toang r\u1ED3i \u0111\xF3."
-      sticker: "\xC9T O \xC9T!"
+      pose: 0
+      text: "T\u1EDB c\u1EE9 t\u01B0\u1EDFng \u0111\u1EA7u k\u1EF3 ch\u1EC9 \u0111i\u1EC3m
+        danh. C\u1EADu c\xF3 t\u1EADp ch\u1EA1y tr\u01B0\u1EDBc kh\xF4ng?"
+      sticker:
     - characterId: tan_thu
       pose: 0
-      text: "B\xECnh t\u0129nh. Qua m\xF4n tr\u01B0\u1EDBc, flex t\xEDnh sau :sunglasses:"
-      sticker: 
+      text: "Ch\u01B0a... T\u1EDB ch\u1EC9 mong kh\xF4ng ph\u1EA3i h\u1ECDc l\u1EA1i
+        ngay n\u0103m \u0111\u1EA7u."
+      sticker:
     - characterId: co_the_chat
       pose: 0
-      text: "L\u1ED9 tr\xECnh: ch\u1EA1y n\u01B0\u1EDBc r\xFAt, r\u1ED3i b\xF3ng
-        chuy\u1EC1n, r\u1ED3i b\xF3ng \u0111\xE1. Qua m\xF4n tr\u01B0\u1EDBc m\u1EDBi
-        m\u1EDF kh\xF3a m\xF4n sau nha c\xE1c em :salute:"
-      sticker: 
+      text: "Ch\u1EA1y, b\xF3ng chuy\u1EC1n, b\xF3ng \u0111\xE1, r\u1ED3i b\xE0i
+        ki\u1EC3m tra cu\u1ED1i. \u0110\u1EA1t ph\u1EA7n tr\u01B0\u1EDBc m\u1EDBi
+        h\u1ECDc ph\u1EA7n sau. Kh\xF4ng h\u1ECDc \u0111\u01B0\u1EE3c th\xEC n\u1EE3."
+      sticker:
   - id: sprint_intro
     lines:
     - characterId: co_the_chat
       pose: 0
-      text: "Kh\u1EDFi \u0111\u1ED9ng b\u1EB1ng nh\u1ECBp ch\xE2n. Tr\xE1i, ph\u1EA3i,
-        tr\xE1i, ph\u1EA3i. \u0110\u1EC1u nh\u01B0 nh\u1ECBp tim crush l\xFAc nh\u1EAFn
-        \"seen\" :eyes:"
-      sticker: 
+      text: "Tr\xE1i, ph\u1EA3i lu\xE2n phi\xEAn. L\xE0m \u0111\xFAng 12 nh\u1ECBp
+        li\xEAn ti\u1EBFp. \u0110\u1EEBng \u0111\u1EC3 t\xF4i ph\u1EA3i nh\u1EAFc
+        l\u1EA1i chuy\u1EC7n tr\xE1i v\u1EDBi ph\u1EA3i."
+      sticker:
     - characterId: mai_toang
-      pose: 2
-      text: "\xC9t o \xE9t :sob: 12 nh\u1ECBp li\u1EC1n m\u1EA1ch, sai m\u1ED9t ph\xE1t
-        l\xE0 l\xE0m l\u1EA1i t\u1EEB \u0111\u1EA7u \u0111\xF3 b\xE0 con \u01A1i!"
-      sticker: TOANG?!
+      pose: 0
+      text: "B\u1EA5m nh\u1EA7m l\xE0 \u0111\u1EBFm l\u1EA1i t\u1EEB \u0111\u1EA7u.
+        C\u1EE9 ch\u1EADm m\u1ED9t ch\xFAt cho ch\u1EAFc."
+      sticker:
     - characterId: tan_thu
       pose: 0
-      text: "Ch\xE2n tr\xE1i, ch\xE2n ph\u1EA3i th\xF4i m\xE0. Ch\u1EA1y nh\u01B0
-        ch\u01B0a t\u1EEBng \u0111\u01B0\u1EE3c ch\u1EA1y :runner::dash:"
-      sticker: 
+      text: "\u1EEA. \u0110\u1EC3 t\u1EDB th\u1EED t\u1EEBng nh\u1ECBp \u0111\xE3."
+      sticker:
   - id: sprint_exam
     lines:
     - characterId: co_the_chat
       pose: 0
-      text: "B\xE0i thi: 150 m\xE9t trong 22 gi\xE2y. Gi\u1EEF s\u1EE9c, \u0111\u1EEBng
-        bung h\u1EBFt t\u1EEB v\u1EA1ch xu\u1EA5t ph\xE1t nha :fire:"
-      sticker: "22 GI\xC2Y"
+      text: "150 m\xE9t, t\u1ED1i \u0111a 15 gi\xE2y. T\xF4i b\u1EA5m gi\u1EDD, kh\xF4ng
+        nghe gi\u1EA3i th\xEDch."
+      sticker: "15 GI\xC2Y"
     - characterId: tan_thu
-      pose: 3
-      text: "T\u1EADp r\u1ED3i, gi\u1EDD thi th\xF4i. \u0110\u01B0\u1EDDng \u0111ua
-        \u01A1i, ch\u1EDD anh :100:"
-      sticker: 
+      pose: 0
+      text: "D\u1EA1. Mong l\xE0 em gi\u1EEF \u0111\u01B0\u1EE3c nh\u1ECBp nh\u01B0
+        l\xFAc t\u1EADp."
+      sticker:
   - id: sprint_pass
     lines:
     - characterId: co_the_chat
       pose: 1
-      text: "\u0110\u1EA1t! Nh\u1ECBp ch\xE2n \u1ED5n \xE1p r\u1ED3i \u0111\xF3.
-        C\xF4 c\xF4ng nh\u1EADn em h\u01A1i b\u1ECB \u0111\u1EC9nh n\xF3c :fire:"
-      sticker: "\u0110\u1EA0T!"
+      text: "T\u1EA1m \u0111\u01B0\u1EE3c. \u0110\u1EA1t ph\u1EA7n ch\u1EA1y. \u0110\u1EEBng
+        t\u01B0\u1EDFng th\u1EBF l\xE0 xong h\u1ECDc ph\u1EA7n."
+      sticker: "\u0110\u1EA0T"
     - characterId: mai_toang
-      pose: 1
-      text: "S\xE2n tr\u01B0\u1EDDng v\u1EABn d\xE0i, nh\u01B0ng gi\u1EDD m\xECnh
-        ch\u1EA1y h\u1EBFt n\u1ED5i r\u1ED3i :sob::tada:"
-      sticker: 
+      pose: 0
+      text: "Qua ph\u1EA7n ch\u1EA1y r\u1ED3i. Th\u1EDF l\u1EA1i \u0111\xE3, c\xF2n
+        b\xF3ng chuy\u1EC1n n\u1EEFa."
+      sticker:
   - id: volleyball_intro
     lines:
     - characterId: mai_toang
-      pose: 1
-      text: "B\xF3ng chuy\u1EC1n n\xE8! \u0110\u1EE1 b\xF3ng \u0111\xFAng t\u1EA7m
-        tr\u01B0\u1EDBc, chuy\u1EC1n \u0111\u1EB9p t\xEDnh sau :volleyball:"
-      sticker: 
+      pose: 0
+      text: "Nh\xECn ch\u1ED7 b\xF3ng r\u01A1i tr\u01B0\u1EDBc. \u0110\u1EE9ng l\u1EC7ch
+        l\xE0 \u0111\u1EE1 h\u1EE5t ngay."
+      sticker:
     - characterId: co_the_chat
       pose: 0
-      text: "\u0110\u1EE1, chuy\u1EC1n, \u0111\u1EADp, \u0111\u1EE7 ba ch\u1EA1m.
-        B\xF3ng r\u01A1i xu\u1ED1ng s\xE2n m\xECnh l\xE0 m\u1EA5t \u0111i\u1EC3m,
-        kh\xF4ng c\xF3 chuy\u1EC7n \"ch\u01B0a s\u1EB5n s\xE0ng\" \u0111\xE2u :eyes:"
-      sticker: 
+      text: "B\u1EAFt \u0111\u1EA7u b\u1EB1ng ba l\u1EA7n \u0111\u1EE1 b\xF3ng. M\u1ED7i
+        b\xEAn ch\u1EA1m t\u1ED1i \u0111a ba l\u1EA7n, kh\xF4ng ph\u1EA3i th\xEDch
+        ch\u1EA1m bao nhi\xEAu c\u0169ng \u0111\u01B0\u1EE3c."
+      sticker:
     - characterId: tan_thu
-      pose: 4
-      text: "Ba \u0111\u01B0\u1EDDng b\xF3ng li\u1EC1n :scream: Th\xF4i \u0111\u01B0\u1EE3c,
-        tay em \u0111\xE2y, c\u1EE9 ph\xE1t b\xF3ng \u0111i!"
-      sticker: "C\u1EE8U!"
+      pose: 0
+      text: "D\u1EA1. C\xF4 cho em v\xE0o v\u1ECB tr\xED \u0111\xE3 \u1EA1."
+      sticker:
   - id: volleyball_exam
     lines:
     - characterId: co_the_chat
       pose: 0
-      text: "Thi \u0111\u1EA5u: ai ghi \u0111\u1EE7 10 \u0111i\u1EC3m tr\u01B0\u1EDBc
-        th\xEC th\u1EAFng :fire:"
+      text: "B\xEAn n\xE0o \u0111\u1EE7 10 \u0111i\u1EC3m tr\u01B0\u1EDBc th\xEC
+        th\u1EAFng. B\xF3ng ch\u1EA1m s\xE2n r\u1ED3i m\u1EDBi ti\u1EBFc th\xEC mu\u1ED9n."
       sticker: "10 \u0110I\u1EC2M"
     - characterId: mai_toang
-      pose: 3
-      text: "Tui \u0111\u1EE1 th\u1EADt \u0111\u1EB9p, \xF4ng lo c\xFA \u0111\u1EADp
-        nha. \u0110\u1EEBng \u0111\u1EC3 tui ph\u1EA3i \xE9t o \xE9t :sob:"
-      sticker: 
+      pose: 0
+      text: "\u0110\u1EEBng nh\xECn b\u1EA3ng \u0111i\u1EC3m su\u1ED1t. C\u1EE9 theo
+        b\xF3ng, xong l\u01B0\u1EE3t r\u1ED3i t\xEDnh."
+      sticker:
     - characterId: tan_thu
-      pose: 1
-      text: "Combo \u0111\u1EE1, chuy\u1EC1n, \u0111\u1EADp, nh\u1EADn v\u1EC1 10
-        \u0111i\u1EC3m :100:"
-      sticker: 
+      pose: 0
+      text: "\u1EEA. T\u1EDB ch\u1EC9 s\u1EE3 cu\u1ED1ng r\u1ED3i b\u1EA5m s\u1EDBm."
+      sticker:
   - id: volleyball_pass
     lines:
     - characterId: co_the_chat
       pose: 1
-      text: "\u0110\u1EA1t! Ph\u1ED1i h\u1EE3p m\u01B0\u1EE3t nh\u01B0 wifi th\u01B0
-        vi\u1EC7n l\xFAc 6 gi\u1EDD s\xE1ng :volleyball:"
-      sticker: "\u0110\u1EA0T!"
+      text: "\u0110\u1EA1t. \xCDt ra c\u1EADu \u0111\xE3 bi\u1EBFt \u0111\xF3n b\xF3ng,
+        kh\xF4ng \u0111\u1EE9ng nh\xECn n\u1EEFa."
+      sticker: "\u0110\u1EA0T"
     - characterId: tan_thu
-      pose: 3
-      text: "C\u1EA3m \u01A1n \u0111\u1ED3ng \u0111\u1ED9i :salute: Hai m\xF4n r\u1ED3i,
-        m\xF4n cu\u1ED1i \u0111\xE2u, ra \u0111\xE2y!"
-      sticker: 
+      pose: 1
+      text: "D\u1EA1... Qua \u0111\u01B0\u1EE3c hai ph\u1EA7n r\u1ED3i."
+      sticker:
   - id: soccer_intro
     lines:
     - characterId: mai_toang
       pose: 0
-      text: "C\xF2n m\xF4n cu\u1ED1i th\xF4i. B\xECnh t\u0129nh, qu\u1EA3 b\xF3ng
-        kh\xF4ng c\xF3 deadline \u0111\xE2u :soccer:"
-      sticker: 
+      text: "\u0110\u1EBFn b\xF3ng \u0111\xE1 r\u1ED3i. T\u1EDB th\u1EA5y l\xFAc
+        l\u1EA5y l\u1EF1c d\u1EC5 th\u1EA3 tay mu\u1ED9n l\u1EAFm."
+      sticker:
     - characterId: anh_khoa_tren
-      pose: 1
-      text: "H\u1ED3i anh thi, th\u1EE7 m\xF4n cao hai m\xE9t, s\xE2n d\u1ED1c l\xEAn
-        tr\u1EDDi :skull: Em gi\u1EDD s\u01B0\u1EDBng ch\xE1n."
-      sticker: "H\u1ED2I \u0110\xD3\u2026"
+      pose: 0
+      text: "Anh c\u0169ng t\u1EEBng s\xFAt v\u1ECDt x\xE0 v\xEC gi\u1EEF n\xFAt
+        l\xE2u qu\xE1. \u0110\u1EEBng ch\u1EC9 ch\u0103m ch\u0103m s\xFAt m\u1EA1nh."
+      sticker:
     - characterId: co_the_chat
       pose: 0
-      text: "\u0110\u1EEBng nghe \u1ED5ng ch\xE9m :clown: T\u1EADp h\u01B0\u1EDBng
-        s\xFAt v\xE0 l\u1EF1c s\xFAt tr\u01B0\u1EDBc. L\xFAc thi em c\xF3 \u0111\xFAng
-        5 c\xFA."
-      sticker: 
+      text: "T\u1EADp g\xF3c s\xFAt v\xE0 l\u1EF1c s\xFAt tr\u01B0\u1EDBc. B\xE0i
+        thi c\xF3 \u0111\xFAng n\u0103m l\u01B0\u1EE3t. S\xFAt ra ngo\xE0i c\u0169ng
+        t\xEDnh m\u1ED9t l\u01B0\u1EE3t."
+      sticker:
   - id: soccer_exam
     lines:
     - characterId: co_the_chat
       pose: 0
-      text: "Thi: 5 c\xFA s\xFAt, v\xE0o \xEDt nh\u1EA5t 3 b\xE0n l\xE0 qua. Th\u1EE7
-        m\xF4n h\xF4m nay kh\xF4ng n\u01B0\u01A1ng tay \u0111\xE2u :eyes:"
-      sticker: "5 C\xDA"
+      text: "N\u0103m l\u01B0\u1EE3t s\xFAt, \xEDt nh\u1EA5t ba b\xE0n. Th\u1EE7
+        m\xF4n kh\xF4ng c\xF3 nhi\u1EC7m v\u1EE5 gi\xFAp c\u1EADu qua m\xF4n."
+      sticker: "5 L\u01AF\u1EE2T"
     - characterId: tan_thu
       pose: 0
-      text: "Nh\u1EAFm ch\u1EAFc, l\u1EF1c v\u1EEBa \u0111\u1EE7, s\xFAt l\xE0 v\xE0o.
-        Ch\xE2n n\xE0y \u0111\xE3 \u0111\u01B0\u1EE3c khai quang :fire:"
-      sticker: 
+      text: "D\u1EA1. Em s\u1EBD nh\xECn l\u1EA1i g\xF3c tr\u01B0\u1EDBc khi s\xFAt."
+      sticker:
   - id: soccer_pass
     lines:
     - characterId: co_the_chat
       pose: 1
-      text: "\u0110\u1EA1t ba m\xF4n! C\xF2n \u0111\xFAng m\u1ED9t b\xE0i ki\u1EC3m
-        tra cu\u1ED1i v\u1EDBi c\xF4 n\u1EEFa th\xF4i :eyes:"
-      sticker: "\u0110\u1EA0T!"
+      text: "\u0110\u1EA1t ph\u1EA7n b\xF3ng \u0111\xE1. C\xF2n b\xE0i ki\u1EC3m
+        tra cu\u1ED1i v\u1EDBi t\xF4i. Ch\u01B0a \u0111\u1EBFn l\xFAc c\u1EA5t \u0111\u1ED3."
+      sticker: "\u0110\u1EA0T"
     - characterId: mai_toang
-      pose: 1
-      text: "QUA R\u1ED2I :sob::sob: C\xF2n b\xE0i cu\u1ED1i, \xF4ng r\xE1ng n\u1ED1t
-        nha!"
-      sticker: 
+      pose: 0
+      text: "C\xF2n m\u1ED9t b\xE0i n\u1EEFa. Ng\u1ED3i xu\u1ED1ng cho \u0111\u1EE1
+        run ch\xE2n \u0111\xE3."
+      sticker:
   - id: chess_intro
     lines:
     - characterId: co_the_chat
       pose: 0
-      text: "B\xE0i cu\u1ED1i kh\xF4ng ch\u1EA1y, kh\xF4ng nh\u1EA3y. C\xF4 \u0111\u1EB7t
-        m\u1ED9t th\u1EBF c\u1EDD, em chi\u1EBFu h\u1EBFt trong hai n\u01B0\u1EDBc
-        :eyes:"
+      text: "B\xE0i cu\u1ED1i l\xE0 m\u1ED9t th\u1EBF c\u1EDD. Chi\u1EBFu h\u1EBFt
+        trong hai n\u01B0\u1EDBc. L\u1EA7n n\xE0y d\xF9ng \u0111\u1EA7u, kh\xF4ng
+        d\xF9ng ch\xE2n."
       sticker: "B\xC0I CU\u1ED0I"
     - characterId: tan_thu
-      pose: 2
-      text: "Th\u1EC3 ch\u1EA5t m\xE0 thi c\u1EDD vua \u1EA1? Em t\u01B0\u1EDFng
-        c\xF4 ch\u1EC9 bi\u1EBFt th\u1ED5i c\xF2i :sob:"
-      sticker: 
+      pose: 0
+      text: "D\u1EA1, c\u1EDD vua \u1EA1? Em ch\u01B0a ch\u01A1i nhi\u1EC1u..."
+      sticker:
     - characterId: co_the_chat
       pose: 0
-      text: "C\xF2i v\u1EABn mang theo \u0111\xE2y. \u0110i sai l\xE0 c\xF4 th\u1ED5i.
-        Em c\xF3 90 gi\xE2y, sai t\u1ED1i \u0111a hai l\u1EA7n :fire:"
+      text: "C\u1EADu c\xF3 90 gi\xE2y suy ngh\u0129 v\xE0 hai l\u1EA7n s\u1EEDa
+        sai. L\u1EA7n th\u1EE9 ba sai l\xE0 tr\u01B0\u1EE3t. \u0110\u1ECDc \u0111\u1EC1
+        cho k\u1EF9."
       sticker: "90 GI\xC2Y"
   - id: supplementary
     lines:
     - characterId: co_the_chat
       pose: 0
-      text: "Ch\u01B0a qua th\xEC \xF4n l\u1EA1i b\xE0i luy\u1EC7n r\u1ED3i thi ti\u1EBFp.
-        Ph\u1EA7n \u0111\xE3 \u0111\u1EA1t v\u1EABn \u0111\u01B0\u1EE3c gi\u1EEF
-        nguy\xEAn, kh\xF4ng m\u1EA5t g\xEC \u0111\xE2u :salute:"
-      sticker: 
+      text: "Ph\u1EA7n \u0111\xE3 \u0111\u1EA1t t\xF4i gi\u1EEF nguy\xEAn. Ph\u1EA7n
+        ch\u01B0a \u0111\u1EA1t th\xEC \xF4n l\u1EA1i. L\u1EA7n sau t\xF4i v\u1EABn
+        ch\u1EA5m theo y\xEAu c\u1EA7u c\u0169."
+      sticker:
     - characterId: mai_toang
-      pose: 2
-      text: "Toang nh\u1EB9 th\xF4i, ch\u01B0a toang h\u1EB3n :clown: Luy\u1EC7n
-        \u0111\xFAng ch\u1ED7 c\xF2n v\u01B0\u1EDBng r\u1ED3i qu\u1EA9y l\u1EA1i
-        nha!"
-      sticker: "H\u1ED2I SINH!"
+      pose: 0
+      text: "C\u1EADu hay v\u01B0\u1EDBng ch\u1ED7 n\xE0o th\xEC t\u1EADp l\u1EA1i
+        ch\u1ED7 \u0111\xF3. L\xE0m y nh\u01B0 l\u1EA7n tr\u01B0\u1EDBc l\u1EA1i
+        tr\u01B0\u1EE3t th\xF4i."
+      sticker:
   - id: course_complete
     lines:
     - characterId: co_the_chat
       pose: 1
-      text: "Ch\xFAc m\u1EEBng! H\u1ECDc ph\u1EA7n Th\u1EC3 ch\u1EA5t ch\xEDnh th\u1EE9c
-        ho\xE0n t\u1EA5t :tada:"
-      sticker: "HO\xC0N TH\xC0NH!"
+      text: "\u0110\u1EA1t h\u1ECDc ph\u1EA7n. C\u1EADu kh\xF4ng ph\u1EA3i h\u1ECDc
+        l\u1EA1i v\u1EDBi kh\xF3a sau. Nh\u1EDB gi\u1EEF k\u1EBFt qu\u1EA3 n\xE0y."
+      sticker: "HO\xC0N TH\xC0NH"
     - characterId: tan_thu
-      pose: 3
-      text: "T\u1EEB t\xE2n binh run run th\xE0nh tuy\u1EC3n th\u1EE7 c\u1EA5p tr\u01B0\u1EDDng.
-        Flex \u0111\u01B0\u1EE3c r\u1ED3i \u0111\xFAng kh\xF4ng? :sunglasses:"
-      sticker: 
+      pose: 1
+      text: "D\u1EA1, em c\u1EA3m \u01A1n c\xF4. Cu\u1ED1i c\xF9ng c\u0169ng qua
+        r\u1ED3i."
+      sticker:
     - characterId: anh_khoa_tren
-      pose: 1
-      text: "\u0110\u01B0\u1EE3c! Nh\u01B0ng n\u0103m sau nh\u1EDB d\u1ECDa kh\xF3a
-        d\u01B0\u1EDBi y nh\u01B0 anh nha :skull:"
-      sticker: 
+      pose: 0
+      text: "Qua r\u1ED3i th\xEC v\u1EC1 ngh\u1EC9. L\u1EA7n sau c\xF3 m\xF4n th\u1EC3
+        ch\u1EA5t, nh\u1EDB t\u1EADp s\u1EDBm h\u01A1n."
+      sticker:
     - characterId: mai_toang
-      pose: 1
-      text: "H\u1ED9i qua m\xF4n Th\u1EC3 ch\u1EA5t, \u0111i\u1EC3m danh :100::tada:
-        :muscle:"
-      sticker: 
+      pose: 0
+      text: "\u0110i th\xF4i. T\u1EDB \u0111\xF3i t\u1EEB l\xFAc thi ch\u1EA1y \u0111\u1EBFn
+        gi\u1EDD."
+      sticker:

@@ -7,17 +7,15 @@ namespace KMA.Gameplay.FrogJump
     {
         public const string Key = SaveDataTutorialSeenStore.FrogJumpKey;
         public const string Controls =
-            "Kim chạy qua lại trên thanh lực. Chạm màn hình khi kim ở vùng xanh. Càng gần giữa càng nhảy xa.";
+            "Kim di chuyển qua lại trên thanh lực. Chạm màn hình khi kim nằm trong vùng xanh. Chạm càng gần giữa, bạn bật càng xa.";
 
         /// savesLife: a finish keeps the life (JourneyProgress only charges SavesLife && !reachedFinish).
         public static IReadOnlyList<TutorialStep> Build(FrogJumpTuning tuning, bool savesLife)
         {
-            string goal =
-                $"Nhảy hết {MinigameGuidePages.Number(tuning.trackMetres)} m trong " +
-                $"{MinigameGuidePages.Number(tuning.timeLimitSeconds)} giây. " +
-                "Đây là thử thách bắt buộc sau khi trượt bài." + (savesLife ? " Về đích để giữ mạng." : string.Empty);
-            string rules =
-                $"Chạm vùng đỏ là NGÃ: không tiến được và mất {MinigameGuidePages.Number(tuning.recoverSeconds)} giây đứng dậy.";
+            string goal = $"Bật cóc hết {MinigameGuidePages.Number(tuning.trackMetres)} m trong tối đa {MinigameGuidePages.Number(tuning.timeLimitSeconds)} giây. " +
+                (savesLife ? "Đây là hình phạt sau khi trượt bài. Về đích để giữ lượt thi; hết giờ sẽ mất 1 lượt thi."
+                    : "Bạn đã bị trừ 1 lượt thi khi trượt bài. Hình phạt này không trừ thêm lượt thi.");
+            string rules = $"Chạm khi kim ở vùng đỏ sẽ bị ngã: không tiến thêm và mất {MinigameGuidePages.Number(tuning.recoverSeconds)} giây hồi phục. Đồng hồ vẫn chạy trong thời gian này.";
             return MinigameGuidePages.Pages(
                 new TutorialStep("MỤC TIÊU", goal),
                 new TutorialStep("ĐIỀU KHIỂN", Controls),

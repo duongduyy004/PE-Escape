@@ -11,14 +11,14 @@ namespace KMA.Tests.Gameplay.Chess
             var pages = ChessGuide.Build(2, 90f, 2);
             Assert.That(pages.Count, Is.EqualTo(3));
             Assert.That(pages[0].Instruction, Is.EqualTo(
-                "Chiếu hết trong 2 nước. Thời gian suy nghĩ một phút rưỡi. Bài thi cuối không mất mạng."));
+                "Chiếu hết trong 2 nước. Có 90 giây suy nghĩ. Trượt bài này không bị trừ lượt thi và không phải Bật cóc."));
             Assert.That(pages[1].Instruction, Is.EqualTo(
-                "Chạm quân của bạn, rồi chạm ô muốn đi tới. Tốt phong cấp thì chọn quân muốn đổi. " +
-                "Nút GỢI Ý có 3 mức, từ ý tưởng tới nước đi cụ thể."));
+                "Chạm quân của bạn, sau đó chạm ô muốn đi. Nếu tốt được phong cấp, chọn quân thay thế. " +
+                "Nút GỢI Ý có 3 mức: ý tưởng, quân cần xem và nước đi cụ thể."));
             Assert.That(pages[2].Instruction, Is.EqualTo(
-                "Nước không hợp lệ thì không tính. Đi sai bị tính 1 lỗi, bàn cờ giữ nguyên. " +
-                "Sai quá 2 lần hoặc hết giờ là trượt. Đồng hồ chỉ chạy trong lượt của bạn. " +
-                "Dùng gợi ý, đi sai và đi chậm đều bị trừ điểm."));
+                "Nước không hợp lệ không tính lỗi. Nước hợp lệ nhưng sai lời giải tính 1 lỗi, bàn cờ giữ nguyên. " +
+                "Được sửa sai 2 lần; sai lần thứ 3 hoặc hết giờ là chưa đạt. Đồng hồ chỉ chạy trong lượt của bạn. " +
+                "Đi sai, dùng gợi ý và dùng nhiều thời gian sẽ làm giảm điểm."));
         }
 
         [TestCase(60f, "một phút")]

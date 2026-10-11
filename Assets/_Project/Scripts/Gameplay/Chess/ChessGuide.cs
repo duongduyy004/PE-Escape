@@ -9,16 +9,15 @@ namespace KMA.Gameplay.Chess
         public const string Key = nameof(SubjectId.Chess);
         // ChessBoardView.ClickSquare: tap a piece, then tap its destination.
         public const string Controls =
-            "Chạm quân của bạn, rồi chạm ô muốn đi tới. Tốt phong cấp thì chọn quân muốn đổi. " +
-            "Nút GỢI Ý có 3 mức, từ ý tưởng tới nước đi cụ thể.";
+            "Chạm quân của bạn, sau đó chạm ô muốn đi. Nếu tốt được phong cấp, chọn quân thay thế. Nút GỢI Ý có 3 mức: ý tưởng, quân cần xem và nước đi cụ thể.";
 
         public static IReadOnlyList<TutorialStep> Build(int maxPlayerMoves, float timeLimitSeconds, int maxMistakes)
         {
-            string goal = $"Chiếu hết trong {maxPlayerMoves} nước. Thời gian suy nghĩ {TimeWords(timeLimitSeconds)}. " +
-                          "Bài thi cuối không mất mạng.";
-            string rules = "Nước không hợp lệ thì không tính. Đi sai bị tính 1 lỗi, bàn cờ giữ nguyên. " +
-                           $"Sai quá {maxMistakes} lần hoặc hết giờ là trượt. Đồng hồ chỉ chạy trong lượt của bạn. " +
-                           "Dùng gợi ý, đi sai và đi chậm đều bị trừ điểm.";
+            string goal = $"Chiếu hết trong {maxPlayerMoves} nước. Có {MinigameGuidePages.Number(timeLimitSeconds)} giây suy nghĩ. " +
+                          "Trượt bài này không bị trừ lượt thi và không phải Bật cóc.";
+            string rules = "Nước không hợp lệ không tính lỗi. Nước hợp lệ nhưng sai lời giải tính 1 lỗi, bàn cờ giữ nguyên. " +
+                           $"Được sửa sai {maxMistakes} lần; sai lần thứ {maxMistakes + 1} hoặc hết giờ là chưa đạt. Đồng hồ chỉ chạy trong lượt của bạn. " +
+                           "Đi sai, dùng gợi ý và dùng nhiều thời gian sẽ làm giảm điểm.";
             return MinigameGuidePages.Pages(
                 new TutorialStep("MỤC TIÊU", goal),
                 new TutorialStep("ĐIỀU KHIỂN", Controls),

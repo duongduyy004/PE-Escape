@@ -12,9 +12,9 @@ namespace KMA.Tests.Presentation
         {
             TutorialStep page = MinigameGuidePages.FailurePage(kind);
             Assert.That(page, Is.Not.Null);
-            Assert.That(page.Title, Is.EqualTo("NẾU TRƯỢT"));
+            Assert.That(page.Title, Is.EqualTo("NẾU CHƯA ĐẠT"));
             Assert.That(page.Instruction, Is.EqualTo(
-                "Trượt lần đầu: phải qua Nhảy ếch để giữ mạng. Trượt từ lần hai: mất 1 mạng và vẫn phải nhảy ếch."));
+                "Lần đầu trượt bài đang chơi: hoàn thành Bật cóc để giữ lượt thi; không hoàn thành sẽ mất 1 lượt thi. Từ lần trượt thứ 2 của cùng bài: mất 1 lượt thi ngay và vẫn phải Bật cóc. Bật cóc không trừ thêm lượt đã bị trừ."));
         }
 
         [TestCase(ChallengeKind.Learn)]

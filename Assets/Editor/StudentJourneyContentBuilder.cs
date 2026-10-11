@@ -59,34 +59,34 @@ namespace KMA.EditorTools
             {
                 new ChallengeSpec("sprint_learn", SubjectId.Sprint, ChallengeKind.Learn,
                     0f, 0f, 12, false, ChallengeDifficulty.Normal, true,
-                    "Bấm trái, phải luân phiên đúng 12 lần liên tiếp."),
+                    "Bấm TRÁI, PHẢI luân phiên đúng 12 nhịp liên tiếp. Không giới hạn thời gian."),
                 new ChallengeSpec("sprint_practice", SubjectId.Sprint, ChallengeKind.Practice,
-                    150f, 30f, 0, false, ChallengeDifficulty.Normal, true,
-                    "Chạy 150 m trong tối đa 30 giây. Bài luyện không giới hạn thể lực."),
+                    150f, 20f, 0, false, ChallengeDifficulty.Normal, true,
+                    "Chạy 150 m trong tối đa 20 giây."),
                 new ChallengeSpec("sprint_exam", SubjectId.Sprint, ChallengeKind.Exam,
-                    150f, 22f, 0, false, ChallengeDifficulty.Normal, false,
-                    "Chạy 150 m trong tối đa 22 giây."),
+                    150f, 15f, 0, false, ChallengeDifficulty.Normal, false,
+                    "Chạy 150 m trong tối đa 15 giây."),
                 new ChallengeSpec("volleyball_learn", SubjectId.Volleyball, ChallengeKind.Learn,
                     0f, 0f, 3, false, ChallengeDifficulty.Easy, true,
-                    "Đỡ thành công ba đường bóng trong một lượt."),
+                    "Đỡ bóng thành công 3 lần trong bài làm quen."),
                 new ChallengeSpec("volleyball_practice", SubjectId.Volleyball, ChallengeKind.Practice,
                     0f, 120f, 5, false, ChallengeDifficulty.Easy, true,
-                    "Đạt năm điểm trước đối thủ trong 2 phút."),
+                    "Ghi đủ 5 điểm trước đối thủ trong tối đa 120 giây."),
                 new ChallengeSpec("volleyball_exam", SubjectId.Volleyball, ChallengeKind.Exam,
                     0f, 0f, 10, false, ChallengeDifficulty.Normal, false,
-                    "Đạt mười điểm trước đối thủ."),
+                    "Ghi đủ 10 điểm trước đối thủ."),
                 new ChallengeSpec("soccer_learn", SubjectId.Football, ChallengeKind.Learn,
                     0f, 0f, 3, false, ChallengeDifficulty.Normal, true,
-                    "Ghi ba bàn; thủ môn tắt và số cú sút không giới hạn."),
+                    "Ghi 3 bàn vào khung thành không có thủ môn. Không giới hạn lượt sút."),
                 new ChallengeSpec("soccer_practice", SubjectId.Football, ChallengeKind.Practice,
                     0f, 0f, 2, true, ChallengeDifficulty.Normal, true,
-                    "Ghi hai bàn trước thủ môn Normal trong tối đa 6 cú sút.", 6),
+                    "Ghi ít nhất 2 bàn trong tối đa 6 lượt sút. Có thủ môn.", 6),
                 new ChallengeSpec("soccer_exam", SubjectId.Football, ChallengeKind.Exam,
                     0f, 0f, 3, true, ChallengeDifficulty.Normal, false,
-                    "Ghi ít nhất ba bàn sau đủ năm cú sút trước thủ môn Normal."),
+                    "Sút đủ 5 lượt và ghi ít nhất 3 bàn. Có thủ môn."),
                 new ChallengeSpec("chess_final", SubjectId.Chess, ChallengeKind.Final,
                     0f, 90f, 2, false, ChallengeDifficulty.Normal, false,
-                    "Chiếu hết trong 2 nước, tối đa 90 giây.")
+                    "Chiếu hết trong 2 nước. Có 90 giây suy nghĩ và 2 lần sửa sai.")
             };
 
             var definitions = new ChallengeDefinition[specs.Length];
@@ -170,9 +170,9 @@ namespace KMA.EditorTools
             new Dictionary<string, Dictionary<DialoguePose, string>>
             {
                 [CharacterArt.Hero] = new Dictionary<DialoguePose, string>
-                    { [DialoguePose.Cheer] = "celebrate", [DialoguePose.Hurt] = "disappointed" },
+                    { [DialoguePose.Idle] = "fear", [DialoguePose.Cheer] = "happy", [DialoguePose.Hurt] = "disappointed" },
                 [CharacterArt.Boss] = new Dictionary<DialoguePose, string>
-                    { [DialoguePose.Cheer] = "congratulate", [DialoguePose.Hurt] = "angry" }
+                    { [DialoguePose.Idle] = "strictLook", [DialoguePose.Cheer] = "scoreWrite", [DialoguePose.Hurt] = "angry" }
             };
 
         const string EmojiSourceFolder = "Assets/_Project/Art/Emoji/Source~";
@@ -273,61 +273,61 @@ namespace KMA.EditorTools
 
             JourneyCharacter[] cast =
             {
-                Character(TanThu, "Tân Thủ", "#FFC928", true, "MalePerson"),
-                Character(Mai, "Mai Toang", "#FF8FB1", false, "FemalePerson"),
-                Character(AnhKhoaTren, "Anh Khoá Trên", "#7FD1FF", false, "MaleAdventurer"),
-                Character(Co, "Cô Thể Chất", "#B9F27C", false, "BossPE")
+                Character(TanThu, "SV năm 1", "#FFC928", true, "MaleAdventurer"),
+                Character(Mai, "Mai", "#FF8FB1", false, "FemalePerson"),
+                Character(AnhKhoaTren, "Anh Tuấn", "#7FD1FF", false, "MalePerson"),
+                Character(Co, "Giảng viên thể chất", "#B9F27C", false, "BossPE")
             };
             JourneyDialogueNode[] nodes =
             {
                 Node("opening",
-                    Line(AnhKhoaTren, DialoguePose.Cheer, "Chào tân binh :eyes: Sân trường dài bao nhiêu hả? Đợi buổi thể chất đầu tiên là biết liền :skull:"),
-                    Line(Mai, DialoguePose.Hurt, "Ổng dọa tụi mình kìa :sob: Mới nhập học mà đã thấy mùi toang rồi đó.", "ÉT O ÉT!"),
-                    Line(TanThu, DialoguePose.Idle, "Bình tĩnh. Qua môn trước, flex tính sau :sunglasses:"),
-                    Line(Co, DialoguePose.Idle, "Lộ trình: chạy nước rút, rồi bóng chuyền, rồi bóng đá. Qua môn trước mới mở khóa môn sau nha các em :salute:")),
+                    Line(AnhKhoaTren, DialoguePose.Idle, "Buổi đầu nhớ nghe kỹ yêu cầu. Môn này không phải cứ có mặt là qua đâu."),
+                    Line(Mai, DialoguePose.Idle, "Tớ cứ tưởng đầu kỳ chỉ điểm danh. Cậu có tập chạy trước không?"),
+                    Line(TanThu, DialoguePose.Idle, "Chưa... Tớ chỉ mong không phải học lại ngay năm đầu."),
+                    Line(Co, DialoguePose.Idle, "Chạy, bóng chuyền, bóng đá, rồi bài kiểm tra cuối. Đạt phần trước mới học phần sau. Không học được thì nợ.")),
                 Node("sprint_intro",
-                    Line(Co, DialoguePose.Idle, "Khởi động bằng nhịp chân. Trái, phải, trái, phải. Đều như nhịp tim crush lúc nhắn \"seen\" :eyes:"),
-                    Line(Mai, DialoguePose.Hurt, "Ét o ét :sob: 12 nhịp liền mạch, sai một phát là làm lại từ đầu đó bà con ơi!", "TOANG?!"),
-                    Line(TanThu, DialoguePose.Idle, "Chân trái, chân phải thôi mà. Chạy như chưa từng được chạy :runner::dash:")),
+                    Line(Co, DialoguePose.Idle, "Trái, phải luân phiên. Làm đúng 12 nhịp liên tiếp. Đừng để tôi phải nhắc lại chuyện trái với phải."),
+                    Line(Mai, DialoguePose.Idle, "Bấm nhầm là đếm lại từ đầu. Cứ chậm một chút cho chắc."),
+                    Line(TanThu, DialoguePose.Idle, "Ừ. Để tớ thử từng nhịp đã.")),
                 Node("sprint_exam",
-                    Line(Co, DialoguePose.Idle, "Bài thi: 150 mét trong 22 giây. Giữ sức, đừng bung hết từ vạch xuất phát nha :fire:", "22 GIÂY"),
-                    Line(TanThu, DialoguePose.Jump, "Tập rồi, giờ thi thôi. Đường đua ơi, chờ anh :100:")),
+                    Line(Co, DialoguePose.Idle, "150 mét, tối đa 15 giây. Tôi bấm giờ, không nghe giải thích.", "15 GIÂY"),
+                    Line(TanThu, DialoguePose.Idle, "Dạ. Mong là em giữ được nhịp như lúc tập.")),
                 Node("sprint_pass",
-                    Line(Co, DialoguePose.Cheer, "Đạt! Nhịp chân ổn áp rồi đó. Cô công nhận em hơi bị đỉnh nóc :fire:", "ĐẠT!"),
-                    Line(Mai, DialoguePose.Cheer, "Sân trường vẫn dài, nhưng giờ mình chạy hết nổi rồi :sob::tada:")),
+                    Line(Co, DialoguePose.Cheer, "Tạm được. Đạt phần chạy. Đừng tưởng thế là xong học phần.", "ĐẠT"),
+                    Line(Mai, DialoguePose.Idle, "Qua phần chạy rồi. Thở lại đã, còn bóng chuyền nữa.")),
                 Node("volleyball_intro",
-                    Line(Mai, DialoguePose.Cheer, "Bóng chuyền nè! Đỡ bóng đúng tầm trước, chuyền đẹp tính sau :volleyball:"),
-                    Line(Co, DialoguePose.Idle, "Đỡ, chuyền, đập, đủ ba chạm. Bóng rơi xuống sân mình là mất điểm, không có chuyện \"chưa sẵn sàng\" đâu :eyes:"),
-                    Line(TanThu, DialoguePose.Duck, "Ba đường bóng liền :scream: Thôi được, tay em đây, cứ phát bóng đi!", "CỨU!")),
+                    Line(Mai, DialoguePose.Idle, "Nhìn chỗ bóng rơi trước. Đứng lệch là đỡ hụt ngay."),
+                    Line(Co, DialoguePose.Idle, "Bắt đầu bằng ba lần đỡ bóng. Mỗi bên chạm tối đa ba lần, không phải thích chạm bao nhiêu cũng được."),
+                    Line(TanThu, DialoguePose.Idle, "Dạ. Cô cho em vào vị trí đã ạ.")),
                 Node("volleyball_exam",
-                    Line(Co, DialoguePose.Idle, "Thi đấu: ai ghi đủ 10 điểm trước thì thắng :fire:", "10 ĐIỂM"),
-                    Line(Mai, DialoguePose.Jump, "Tui đỡ thật đẹp, ông lo cú đập nha. Đừng để tui phải ét o ét :sob:"),
-                    Line(TanThu, DialoguePose.Cheer, "Combo đỡ, chuyền, đập, nhận về 10 điểm :100:")),
+                    Line(Co, DialoguePose.Idle, "Bên nào đủ 10 điểm trước thì thắng. Bóng chạm sân rồi mới tiếc thì muộn.", "10 ĐIỂM"),
+                    Line(Mai, DialoguePose.Idle, "Đừng nhìn bảng điểm suốt. Cứ theo bóng, xong lượt rồi tính."),
+                    Line(TanThu, DialoguePose.Idle, "Ừ. Tớ chỉ sợ cuống rồi bấm sớm.")),
                 Node("volleyball_pass",
-                    Line(Co, DialoguePose.Cheer, "Đạt! Phối hợp mượt như wifi thư viện lúc 6 giờ sáng :volleyball:", "ĐẠT!"),
-                    Line(TanThu, DialoguePose.Jump, "Cảm ơn đồng đội :salute: Hai môn rồi, môn cuối đâu, ra đây!")),
+                    Line(Co, DialoguePose.Cheer, "Đạt. Ít ra cậu đã biết đón bóng, không đứng nhìn nữa.", "ĐẠT"),
+                    Line(TanThu, DialoguePose.Cheer, "Dạ... Qua được hai phần rồi.")),
                 Node("soccer_intro",
-                    Line(Mai, DialoguePose.Idle, "Còn môn cuối thôi. Bình tĩnh, quả bóng không có deadline đâu :soccer:"),
-                    Line(AnhKhoaTren, DialoguePose.Cheer, "Hồi anh thi, thủ môn cao hai mét, sân dốc lên trời :skull: Em giờ sướng chán.", "HỒI ĐÓ…"),
-                    Line(Co, DialoguePose.Idle, "Đừng nghe ổng chém :clown: Tập hướng sút và lực sút trước. Lúc thi em có đúng 5 cú.")),
+                    Line(Mai, DialoguePose.Idle, "Đến bóng đá rồi. Tớ thấy lúc lấy lực dễ thả tay muộn lắm."),
+                    Line(AnhKhoaTren, DialoguePose.Idle, "Anh cũng từng sút vọt xà vì giữ nút lâu quá. Đừng chỉ chăm chăm sút mạnh."),
+                    Line(Co, DialoguePose.Idle, "Tập góc sút và lực sút trước. Bài thi có đúng năm lượt. Sút ra ngoài cũng tính một lượt.")),
                 Node("soccer_exam",
-                    Line(Co, DialoguePose.Idle, "Thi: 5 cú sút, vào ít nhất 3 bàn là qua. Thủ môn hôm nay không nương tay đâu :eyes:", "5 CÚ"),
-                    Line(TanThu, DialoguePose.Idle, "Nhắm chắc, lực vừa đủ, sút là vào. Chân này đã được khai quang :fire:")),
+                    Line(Co, DialoguePose.Idle, "Năm lượt sút, ít nhất ba bàn. Thủ môn không có nhiệm vụ giúp cậu qua môn.", "5 LƯỢT"),
+                    Line(TanThu, DialoguePose.Idle, "Dạ. Em sẽ nhìn lại góc trước khi sút.")),
                 Node("soccer_pass",
-                    Line(Co, DialoguePose.Cheer, "Đạt ba môn! Còn đúng một bài kiểm tra cuối với cô nữa thôi :eyes:", "ĐẠT!"),
-                    Line(Mai, DialoguePose.Cheer, "QUA RỒI :sob::sob: Còn bài cuối, ông ráng nốt nha!")),
+                    Line(Co, DialoguePose.Cheer, "Đạt phần bóng đá. Còn bài kiểm tra cuối với tôi. Chưa đến lúc cất đồ.", "ĐẠT"),
+                    Line(Mai, DialoguePose.Idle, "Còn một bài nữa. Ngồi xuống cho đỡ run chân đã.")),
                 Node("chess_intro",
-                    Line(Co, DialoguePose.Idle, "Bài cuối không chạy, không nhảy. Cô đặt một thế cờ, em chiếu hết trong hai nước :eyes:", "BÀI CUỐI"),
-                    Line(TanThu, DialoguePose.Hurt, "Thể chất mà thi cờ vua ạ? Em tưởng cô chỉ biết thổi còi :sob:"),
-                    Line(Co, DialoguePose.Idle, "Còi vẫn mang theo đây. Đi sai là cô thổi. Em có 90 giây, sai tối đa hai lần :fire:", "90 GIÂY")),
+                    Line(Co, DialoguePose.Idle, "Bài cuối là một thế cờ. Chiếu hết trong hai nước. Lần này dùng đầu, không dùng chân.", "BÀI CUỐI"),
+                    Line(TanThu, DialoguePose.Idle, "Dạ, cờ vua ạ? Em chưa chơi nhiều..."),
+                    Line(Co, DialoguePose.Idle, "Cậu có 90 giây suy nghĩ và hai lần sửa sai. Lần thứ ba sai là trượt. Đọc đề cho kỹ.", "90 GIÂY")),
                 Node("supplementary",
-                    Line(Co, DialoguePose.Idle, "Chưa qua thì ôn lại bài luyện rồi thi tiếp. Phần đã đạt vẫn được giữ nguyên, không mất gì đâu :salute:"),
-                    Line(Mai, DialoguePose.Hurt, "Toang nhẹ thôi, chưa toang hẳn :clown: Luyện đúng chỗ còn vướng rồi quẩy lại nha!", "HỒI SINH!")),
+                    Line(Co, DialoguePose.Idle, "Phần đã đạt tôi giữ nguyên. Phần chưa đạt thì ôn lại. Lần sau tôi vẫn chấm theo yêu cầu cũ."),
+                    Line(Mai, DialoguePose.Idle, "Cậu hay vướng chỗ nào thì tập lại chỗ đó. Làm y như lần trước lại trượt thôi.")),
                 Node("course_complete",
-                    Line(Co, DialoguePose.Cheer, "Chúc mừng! Học phần Thể chất chính thức hoàn tất :tada:", "HOÀN THÀNH!"),
-                    Line(TanThu, DialoguePose.Jump, "Từ tân binh run run thành tuyển thủ cấp trường. Flex được rồi đúng không? :sunglasses:"),
-                    Line(AnhKhoaTren, DialoguePose.Cheer, "Được! Nhưng năm sau nhớ dọa khóa dưới y như anh nha :skull:"),
-                    Line(Mai, DialoguePose.Cheer, "Hội qua môn Thể chất, điểm danh :100::tada: :muscle:"))
+                    Line(Co, DialoguePose.Cheer, "Đạt học phần. Cậu không phải học lại với khóa sau. Nhớ giữ kết quả này.", "HOÀN THÀNH"),
+                    Line(TanThu, DialoguePose.Cheer, "Dạ, em cảm ơn cô. Cuối cùng cũng qua rồi."),
+                    Line(AnhKhoaTren, DialoguePose.Idle, "Qua rồi thì về nghỉ. Lần sau có môn thể chất, nhớ tập sớm hơn."),
+                    Line(Mai, DialoguePose.Idle, "Đi thôi. Tớ đói từ lúc thi chạy đến giờ."))
             };
 
             library.SetContent(cast, nodes);
@@ -335,6 +335,9 @@ namespace KMA.EditorTools
                 throw new InvalidOperationException("Generated journey dialogue library is invalid: " + error);
             EditorUtility.SetDirty(library);
             AssetDatabase.SaveAssets();
+            // Unity writes a space after empty serialized strings; keep the generated YAML clean.
+            File.WriteAllText(DialoguePath, string.Join("\n", File.ReadAllLines(DialoguePath)
+                .Select(line => line.TrimEnd())) + "\n");
             Debug.Log("[KMA] Student journey dialogue library built.");
         }
 
