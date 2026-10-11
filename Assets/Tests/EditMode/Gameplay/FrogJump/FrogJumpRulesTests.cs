@@ -9,6 +9,29 @@ namespace KMA.Tests.Gameplay.FrogJump
         const float Eps = 1e-3f;
         const float Step = 1f / 60f;
 
+        [Test]
+        public void FasterDefaultSweepsEachEdgeInPointSevenSeconds()
+        {
+            var rules = new FrogJumpRules(new FrogJumpTuning());
+            foreach (float expected in new[] { .5f, 1f, .5f, 0f })
+            {
+                rules.Tick(.35f);
+                Assert.That(rules.Needle01, Is.EqualTo(expected).Within(Eps));
+            }
+        }
+
+        [Test]
+        public void FasterNeedleKeepsFallRecovery()
+        {
+            var rules = new FrogJumpRules(new FrogJumpTuning());
+            rules.Stop();
+            rules.Tick(2.49f);
+            Assert.That(rules.State, Is.EqualTo(FrogJumpState.Fallen));
+            rules.Tick(.01f);
+            Assert.That(rules.State, Is.EqualTo(FrogJumpState.Aiming));
+            Assert.That(rules.Distance, Is.Zero);
+        }
+
         [TestCase(.5f, 1.5f)]
         [TestCase(.3f, .25f)]
         [TestCase(.7f, .25f)]
@@ -45,11 +68,11 @@ namespace KMA.Tests.Gameplay.FrogJump
         {
             var rules = new FrogJumpRules(Tuning);
             Assert.That(rules.Needle01, Is.Zero);
-            rules.Tick(.45f);
+            rules.Tick(Tuning.sweepSeconds / 2f);
             Assert.That(rules.Needle01, Is.EqualTo(.5f).Within(Eps));
-            rules.Tick(.45f);
+            rules.Tick(Tuning.sweepSeconds / 2f);
             Assert.That(rules.Needle01, Is.EqualTo(1f).Within(Eps));
-            rules.Tick(.45f);
+            rules.Tick(Tuning.sweepSeconds / 2f);
             Assert.That(rules.Needle01, Is.EqualTo(.5f).Within(Eps));
         }
 
@@ -57,7 +80,7 @@ namespace KMA.Tests.Gameplay.FrogJump
         public void CentreStopJumpsOneAndAHalfMetresAfterTheJumpTime()
         {
             var rules = new FrogJumpRules(Tuning);
-            rules.Tick(.45f);
+            rules.Tick(Tuning.sweepSeconds / 2f);
             Assert.That(rules.Stop(), Is.True);
             Assert.That(rules.State, Is.EqualTo(FrogJumpState.Jumping));
             Assert.That(rules.Stop(), Is.False);
@@ -91,7 +114,7 @@ namespace KMA.Tests.Gameplay.FrogJump
             var rules = new FrogJumpRules(Tuning);
             for (int i = 0; i < 50 && !rules.IsOver; i++)
             {
-                rules.Tick(.45f);
+                rules.Tick(Tuning.sweepSeconds / 2f);
                 rules.Stop();
                 rules.Tick(.6f);
             }
@@ -118,9 +141,10 @@ namespace KMA.Tests.Gameplay.FrogJump
         [Test]
         public void LandingOnTheFinishExactlyAtTheLimitStillWins()
         {
-            var tuning = new FrogJumpTuning { trackMetres = 1.5f, timeLimitSeconds = 1.05f };
+            var tuning = new FrogJumpTuning { trackMetres = 1.5f };
+            tuning.timeLimitSeconds = tuning.sweepSeconds / 2f + tuning.jumpSeconds;
             var rules = new FrogJumpRules(tuning);
-            rules.Tick(.45f);
+            rules.Tick(tuning.sweepSeconds / 2f);
             rules.Stop();
             rules.Tick(.6f);
             Assert.That(rules.State, Is.EqualTo(FrogJumpState.Finished));

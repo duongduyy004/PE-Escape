@@ -13,6 +13,20 @@ namespace KMA.Tests.EditorTools
     public sealed class FrogJumpSceneTests
     {
         [Test]
+        public void AuthoredNeedleUsesTheFasterSweepWithoutChangingJumpDistance()
+        {
+            var config = AssetDatabase.LoadAssetAtPath<FrogJumpBalanceConfig>(
+                "Assets/_Project/ScriptableObjects/FrogJump/FrogJumpBalance.asset");
+            var rules = new FrogJumpRules(config.Tuning);
+            rules.Tick(.35f);
+            Assert.That(rules.Needle01, Is.EqualTo(.5f).Within(.001f));
+            rules.Stop();
+            rules.Tick(.6f);
+            Assert.That(rules.Distance, Is.EqualTo(1.5f).Within(.001f));
+            Assert.That(rules.TimeRemaining, Is.EqualTo(59.05f).Within(.001f));
+        }
+
+        [Test]
         public void SceneIsInBuildSettingsAndWired()
         {
             Assert.That(EditorBuildSettings.scenes.Any(s => s.enabled && s.path == FrogJumpSceneConfigurator.ScenePath));
