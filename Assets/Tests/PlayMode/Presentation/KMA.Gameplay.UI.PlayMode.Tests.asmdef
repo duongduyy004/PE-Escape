@@ -12,7 +12,8 @@
         "KMA.Input",
         "UnityEditor",
         "Unity.TextMeshPro",
-        "UnityEngine.UI"
+        "UnityEngine.UI",
+        "KMA.Gameplay.FrogJump"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

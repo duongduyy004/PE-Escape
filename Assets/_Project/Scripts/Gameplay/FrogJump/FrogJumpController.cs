@@ -26,14 +26,16 @@ namespace KMA.Gameplay.FrogJump
         static string Metres(float value) => value.ToString("0.0", Vi);
 
         public FrogJumpRules Rules => rules;
+        public event System.Action<FrogJumpState> StatePresented;
+        public bool? PendingSavesLife => PendingJumpSavesLife();
         public bool IsWired => view != null && powerBar != null && tapArea != null && feedback != null;
         public string GuideKey => FrogJumpGuide.Key;
         public IReadOnlyList<TutorialStep> BuildGuide() => FrogJumpGuide.Build(rules.Tuning, PendingJumpSavesLife());
 
-        static bool PendingJumpSavesLife()
+        static bool? PendingJumpSavesLife()
         {
             GameManager manager = GameManager.Instance;
-            return manager != null && manager.IsInitialized && manager.Session?.PendingFrogJump?.SavesLife == true;
+            return manager != null && manager.IsInitialized ? manager.Session?.PendingFrogJump?.SavesLife : null;
         }
 
         public void Configure(FrogJumpBalanceConfig config, FrogJumpView frogView, FrogJumpPowerBar bar,
@@ -80,6 +82,7 @@ namespace KMA.Gameplay.FrogJump
         protected override void TickPlay(float dt)
         {
             rules.Tick(dt);
+            StatePresented?.Invoke(rules.State);
             if (rules.IsOver && !finished)
             {
                 finished = true;
@@ -108,9 +111,10 @@ namespace KMA.Gameplay.FrogJump
             GameAudio.Play(metres <= 0f ? GameSound.Miss : GameSound.SandStep);
             var haptics = FindFirstObjectByType<HapticsService>();
             if (haptics != null) { if (metres <= 0f) haptics.Fail(); else haptics.Light(); }
+            if (view != null && rules.State == FrogJumpState.Fallen) view.Present(rules,0f);
             if (feedback == null) return;
-            feedback.text = VietText.Fix(metres <= 0f ? "NGÃ!"
-                : metres >= rules.Tuning.maxJumpMetres * .9f ? $"ĐẸP! {Metres(metres)} m" : $"{Metres(metres)} m");
+            feedback.text = VietText.Fix(metres <= 0f ? "NGÃ"
+                : metres >= rules.Tuning.maxJumpMetres * .9f ? $"CHÍNH XÁC · {Metres(metres)} m" : $"{Metres(metres)} m");
             feedbackUntil = Time.time + .8f;
         }
     }

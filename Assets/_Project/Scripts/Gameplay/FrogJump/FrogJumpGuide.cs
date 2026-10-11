@@ -10,11 +10,11 @@ namespace KMA.Gameplay.FrogJump
             "Kim di chuyển qua lại trên thanh lực. Chạm màn hình khi kim nằm trong vùng xanh. Chạm càng gần giữa, bạn bật càng xa.";
 
         /// savesLife: a finish keeps the life (JourneyProgress only charges SavesLife && !reachedFinish).
-        public static IReadOnlyList<TutorialStep> Build(FrogJumpTuning tuning, bool savesLife)
+        public static IReadOnlyList<TutorialStep> Build(FrogJumpTuning tuning, bool? savesLife)
         {
             string goal = $"Bật cóc hết {MinigameGuidePages.Number(tuning.trackMetres)} m trong tối đa {MinigameGuidePages.Number(tuning.timeLimitSeconds)} giây. " +
-                (savesLife ? "Đây là hình phạt sau khi trượt bài. Về đích để giữ lượt thi; hết giờ sẽ mất 1 lượt thi."
-                    : "Bạn đã bị trừ 1 lượt thi khi trượt bài. Hình phạt này không trừ thêm lượt thi.");
+                (savesLife == true ? "Đây là hình phạt sau khi trượt bài. Về đích để giữ lượt thi; hết giờ sẽ mất 1 lượt thi."
+                    : savesLife == false ? "Bạn đã bị trừ 1 lượt thi khi trượt bài. Hình phạt này không trừ thêm lượt thi." : string.Empty);
             string rules = $"Chạm khi kim ở vùng đỏ sẽ bị ngã: không tiến thêm và mất {MinigameGuidePages.Number(tuning.recoverSeconds)} giây hồi phục. Đồng hồ vẫn chạy trong thời gian này.";
             return MinigameGuidePages.Pages(
                 new TutorialStep("MỤC TIÊU", goal),

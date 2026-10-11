@@ -88,7 +88,10 @@ namespace KMA.EditorTools
             eventSystem.AddComponent<InputSystemUIInputModule>();
 
             var controllerObject = new GameObject("FrogJumpController");
-            controllerObject.AddComponent<FrogJumpController>();
+            var dialogueController=controllerObject.AddComponent<FrogJumpController>();
+            var dialogueHost=DialoguePresentationAuthoring.Configure(controllerObject.transform,DialogueHudSlot.Frog);
+            var dialogueAdapter=controllerObject.AddComponent<FrogJumpDialogueAdapter>();
+            DialoguePresentationAuthoring.WireOpening(dialogueController,dialogueHost,dialogueAdapter);
             StartLecturerAuthoring.AddToFrogJump(scene);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
