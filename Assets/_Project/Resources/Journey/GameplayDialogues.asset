@@ -1,0 +1,1075 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d031820a90773502bb0465c2341e28bb, type: 3}
+  m_Name: GameplayDialogues
+  m_EditorClassIdentifier: KMA.Gameplay.UI::KMA.Gameplay.UI.GameplayDialogueLibrary
+  events:
+  - Id: chess.start
+    ReactionGroup: chess.start
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 1
+      Text: "Hai n\u01B0\u1EDBc, 90 gi\xE2y suy ngh\u0129. T\xF4i kh\xF4ng ch\u1EA5m
+        \u0111i\u1EC3m cho vi\u1EC7c ng\u1ED3i nh\xECn."
+      Poses:
+      - {fileID: 21300000, guid: efdeccb35e60ab644a3fc342c819896c, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: chess.mistake1
+    ReactionGroup: chess.mistake1
+    Priority: 2
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 1
+      Text: "Sai r\u1ED3i. C\xF2n m\u1ED9t l\u1EA7n s\u1EEDa, ngh\u0129 k\u1EF9 tr\u01B0\u1EDBc
+        khi \u0111i."
+      Poses:
+      - {fileID: 21300000, guid: cb8d85216148d7f4b92d77cfa78b6d43, type: 3}
+      - {fileID: 21300000, guid: 90e44a2ae5e46ac4590c173e3c2f8c7a, type: 3}
+      - {fileID: 21300000, guid: f72682024a6fba6438d96db10d911d3e, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: chess.mistake2
+    ReactionGroup: chess.mistake2
+    Priority: 2
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 1
+      Text: "Hai l\u1EA7n sai r\u1ED3i. Sai th\xEAm m\u1ED9t l\u1EA7n l\xE0 d\u1EEBng
+        b\xE0i."
+      Poses:
+      - {fileID: 21300000, guid: cb8d85216148d7f4b92d77cfa78b6d43, type: 3}
+      - {fileID: 21300000, guid: 90e44a2ae5e46ac4590c173e3c2f8c7a, type: 3}
+      - {fileID: 21300000, guid: a107eb87b301f3d44bdbf3ece7c14b5e, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: chess.solved
+    ReactionGroup: chess.solved
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 1
+      Text: "T\u1EA1m \u0111\u01B0\u1EE3c. C\u1EADu \u0111\u1EA1t b\xE0i cu\u1ED1i."
+      Poses:
+      - {fileID: 21300000, guid: a4cabbc0a6c81094e9ed4516f93efda8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: chess.timeout
+    ReactionGroup: chess.timeout
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 1
+      Text: "H\u1EBFt gi\u1EDD. Ng\u1ED3i l\xE2u kh\xF4ng l\xE0m n\u01B0\u1EDBc \u0111i
+        \u0111\xFAng h\u01A1n."
+      Poses:
+      - {fileID: 21300000, guid: efdeccb35e60ab644a3fc342c819896c, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: chess.failed
+    ReactionGroup: chess.failed
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 1
+      Text: "Qu\xE1 hai l\u1EA7n s\u1EEDa. L\xE0m l\u1EA1i b\xE0i."
+      Poses:
+      - {fileID: 21300000, guid: a107eb87b301f3d44bdbf3ece7c14b5e, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: chess.hint1
+    ReactionGroup: chess.hint1
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 0
+    Lines:
+    - Speaker: 1
+      Text: "Chi\u1EBFu \u0111\u1EC3 \xE9p vua \u0111en r\u1EDDi g\xF3c. T\u01B0\u1EE3ng
+        \u0111ang h\u1ED7 tr\u1EE3 h\u1EADu; nh\xECn c\u1EA3 hai qu\xE2n."
+      Poses:
+      - {fileID: 21300000, guid: dab09163e19971749928f30bad23f7b1, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 8
+      Icon: {fileID: 0}
+  - Id: chess.hint2
+    ReactionGroup: chess.hint2
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 0
+    Lines:
+    - Speaker: 1
+      Text: "Xem l\u1EA1i qu\xE2n {piece} \u1EDF {from}."
+      Poses:
+      - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 8
+      Icon: {fileID: 0}
+  - Id: chess.hint3
+    ReactionGroup: chess.hint3
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 0
+    Lines:
+    - Speaker: 1
+      Text: "\u0110i {piece} t\u1EEB {from} \u0111\u1EBFn {to}. T\xF4i \u0111\xE3
+        ch\u1EC9 r\xF5 r\u1ED3i."
+      Poses:
+      - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 8
+      Icon: {fileID: 0}
+  - Id: sp.learn.start
+    ReactionGroup: sp.learn.start
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "Tr\xE1i tr\u01B0\u1EDBc... r\u1ED3i ph\u1EA3i."
+      Poses:
+      - {fileID: 21300000, guid: eb306838f1648ff4493c1114140c26f0, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "L\xE0m \u0111\xFAng nh\u1ECBp \u0111\xE3. Ch\u01B0a ai b\u1EAFt c\u1EADu
+        ch\u1EA1y nhanh."
+      Poses:
+      - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: sp.learn.wrong
+    ReactionGroup: sp.learn.wrong
+    Priority: 2
+    CooldownSeconds: 10
+    MaximumPlays: 2
+    Lines:
+    - Speaker: 0
+      Text: "Em nh\u1EA7m b\xEAn r\u1ED3i."
+      Poses:
+      - {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "\u0110\u1EBFm l\u1EA1i t\u1EEB \u0111\u1EA7u. Tr\xE1i v\u1EDBi ph\u1EA3i
+        kh\xF4ng \u0111\u1ED5i ch\u1ED7 \u0111\xE2u."
+      Poses:
+      - {fileID: 21300000, guid: dab09163e19971749928f30bad23f7b1, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: sp.learn.done
+    ReactionGroup: sp.learn.done
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "D\u1EA1, \u0111\u1EE7 r\u1ED3i \u1EA1."
+      Poses:
+      - {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "\u0110\u01B0\u1EE3c. Sang b\xE0i luy\u1EC7n."
+      Poses:
+      - {fileID: 21300000, guid: a4cabbc0a6c81094e9ed4516f93efda8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+  - Id: sp.practice.start
+    ReactionGroup: sp.practice.start
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "L\u1EA7n n\xE0y ph\u1EA3i k\u1ECBp {time} gi\xE2y..."
+      Poses:
+      - {fileID: 21300000, guid: 54c331363a4367842a76a9fc67d0c5ee, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "C\xF3 th\u1EDDi gian th\xEC t\u1EADp cho t\u1EED t\u1EBF."
+      Poses:
+      - {fileID: 21300000, guid: efdeccb35e60ab644a3fc342c819896c, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: sp.practice.break
+    ReactionGroup: sp.practice.break
+    Priority: 2
+    CooldownSeconds: 10
+    MaximumPlays: 2
+    Lines:
+    - Speaker: 0
+      Text: "H\u1ECFng nh\u1ECBp r\u1ED3i..."
+      Poses:
+      - {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "Ch\xE2n c\xF2n ch\u1EA1y \u0111\u01B0\u1EE3c th\xEC gi\u1EEF nh\u1ECBp."
+      Poses:
+      - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: sp.practice.done
+    ReactionGroup: sp.practice.done
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "May qu\xE1, em k\u1ECBp r\u1ED3i."
+      Poses:
+      - {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "B\xE0i luy\u1EC7n \u0111\u1EA1t. B\xE0i thi kh\xF4ng cho c\u1EADu t\u1EEBng
+        \u1EA5y th\u1EDDi gian."
+      Poses:
+      - {fileID: 21300000, guid: a4cabbc0a6c81094e9ed4516f93efda8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: sp.exam.start
+    ReactionGroup: sp.exam.start
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "\u0110\u1EEBng b\u1EA5m nh\u1EA7m l\xFAc \u0111\u1EA7u..."
+      Poses:
+      - {fileID: 21300000, guid: 54c331363a4367842a76a9fc67d0c5ee, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "V\xE0o v\u1ECB tr\xED. T\xF4i b\u1EAFt \u0111\u1EA7u b\u1EA5m gi\u1EDD."
+      Poses:
+      - {fileID: 21300000, guid: cb8d85216148d7f4b92d77cfa78b6d43, type: 3}
+      - {fileID: 21300000, guid: 90e44a2ae5e46ac4590c173e3c2f8c7a, type: 3}
+      - {fileID: 21300000, guid: f72682024a6fba6438d96db10d911d3e, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: sp.exam.lowtime
+    ReactionGroup: sp.exam.lowtime
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "S\u1EAFp h\u1EBFt gi\u1EDD r\u1ED3i..."
+      Poses:
+      - {fileID: 21300000, guid: 54c331363a4367842a76a9fc67d0c5ee, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "\u0110\u1ED3ng h\u1ED3 kh\xF4ng ch\u1EDD c\u1EADu \u0111\xE2u."
+      Poses:
+      - {fileID: 21300000, guid: efdeccb35e60ab644a3fc342c819896c, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: sp.exam.stumble
+    ReactionGroup: sp.exam.stumble
+    Priority: 2
+    CooldownSeconds: 10
+    MaximumPlays: 2
+    Lines:
+    - Speaker: 0
+      Text: Ui da!
+      Poses:
+      - {fileID: 21300000, guid: 6a1d60edaf60eaf478c6a59c2e02e02b, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "Gi\u1EEF nh\u1ECBp v\xE0 ch\u1EA1y ti\u1EBFp."
+      Poses:
+      - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+  - Id: vb.learn.start
+    ReactionGroup: vb.learn.start
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "B\xF3ng r\u01A1i b\xEAn n\xE0o nh\u1EC9..."
+      Poses:
+      - {fileID: 21300000, guid: 54c331363a4367842a76a9fc67d0c5ee, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "Nh\xECn b\xF3ng. Kh\xF4ng ph\u1EA3i nh\xECn t\xF4i."
+      Poses:
+      - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: vb.learn.miss
+    ReactionGroup: vb.learn.miss
+    Priority: 2
+    CooldownSeconds: 10
+    MaximumPlays: 2
+    Lines:
+    - Speaker: 0
+      Text: "Em \u0111\u1EBFn ch\u1EADm r\u1ED3i."
+      Poses:
+      - {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "\u0110\u1EE9ng nh\xECn th\xEC b\xF3ng v\u1EABn r\u01A1i. Di chuy\u1EC3n
+        s\u1EDBm h\u01A1n."
+      Poses:
+      - {fileID: 21300000, guid: dab09163e19971749928f30bad23f7b1, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: vb.learn.done
+    ReactionGroup: vb.learn.done
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "D\u1EA1, em \u0111\u1EE1 \u0111\u01B0\u1EE3c r\u1ED3i."
+      Poses:
+      - {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "T\u1EA1m \u0111\u01B0\u1EE3c. \u0110\u1EBFn b\xE0i luy\u1EC7n."
+      Poses:
+      - {fileID: 21300000, guid: a4cabbc0a6c81094e9ed4516f93efda8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+  - Id: vb.practice.start
+    ReactionGroup: vb.practice.start
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "N\u0103m \u0111i\u1EC3m... c\u1EE9 t\u1EEBng qu\u1EA3 th\xF4i."
+      Poses:
+      - {fileID: 21300000, guid: eb306838f1648ff4493c1114140c26f0, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "Hai ph\xFAt. \u0110\u1EEBng d\xF9ng h\u1EBFt th\u1EDDi gian \u0111\u1EC3
+        l\xFAng t\xFAng."
+      Poses:
+      - {fileID: 21300000, guid: efdeccb35e60ab644a3fc342c819896c, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: vb.practice.badtime
+    ReactionGroup: vb.practice.badtime
+    Priority: 2
+    CooldownSeconds: 10
+    MaximumPlays: 2
+    Lines:
+    - Speaker: 0
+      Text: "Em l\u1EA1i b\u1EA5m l\u1EC7ch nh\u1ECBp r\u1ED3i."
+      Poses:
+      - {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "\u0110\u1EE3i \u0111\xFAng t\u1EA7m b\xF3ng, \u0111\u1EEBng \u0111\xE1nh
+        theo c\u1EA3m t\xEDnh."
+      Poses:
+      - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: vb.practice.done
+    ReactionGroup: vb.practice.done
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "\u0110\u1EE7 n\u0103m \u0111i\u1EC3m r\u1ED3i..."
+      Poses:
+      - {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "B\xE0i luy\u1EC7n \u0111\u1EA1t. V\xE0o thi th\xEC l\xE0m nh\u01B0 th\u1EBF."
+      Poses:
+      - {fileID: 21300000, guid: a4cabbc0a6c81094e9ed4516f93efda8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: vb.exam.start
+    ReactionGroup: vb.exam.start
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "T\u1EDB v\u1EABn th\u1EA5y run tay."
+      Poses:
+      - {fileID: 21300000, guid: 54c331363a4367842a76a9fc67d0c5ee, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "V\xE0o v\u1ECB tr\xED. \u0110\u1EE7 10 \u0111i\u1EC3m m\u1EDBi t\xEDnh
+        l\xE0 \u0111\u1EA1t."
+      Poses:
+      - {fileID: 21300000, guid: f72682024a6fba6438d96db10d911d3e, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: vb.exam.lostpoint
+    ReactionGroup: vb.exam.lostpoint
+    Priority: 2
+    CooldownSeconds: 10
+    MaximumPlays: 2
+    Lines:
+    - Speaker: 0
+      Text: "L\u1EA1i m\u1EA5t m\u1ED9t \u0111i\u1EC3m..."
+      Poses:
+      - {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "C\xF2n \u0111\u1EE9ng ti\u1EBFc th\xEC qu\u1EA3 sau c\u0169ng m\u1EA5t."
+      Poses:
+      - {fileID: 21300000, guid: dab09163e19971749928f30bad23f7b1, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: vb.exam.dive
+    ReactionGroup: vb.exam.dive
+    Priority: 2
+    CooldownSeconds: 10
+    MaximumPlays: 2
+    Lines:
+    - Speaker: 0
+      Text: "Ui da... b\xF3ng c\xF2n trong s\xE2n ch\u1EE9?"
+      Poses:
+      - {fileID: 21300000, guid: 6a1d60edaf60eaf478c6a59c2e02e02b, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "\u0110\u1EE9ng d\u1EADy, theo ti\u1EBFp \u0111\u01B0\u1EDDng b\xF3ng."
+      Poses:
+      - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: vb.exam.matchpoint
+    ReactionGroup: vb.exam.matchpoint
+    Priority: 0
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "C\xF2n m\u1ED9t \u0111i\u1EC3m n\u1EEFa..."
+      Poses:
+      - {fileID: 21300000, guid: 54c331363a4367842a76a9fc67d0c5ee, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "Ch\u01B0a \u0111\u1EE7 \u0111i\u1EC3m th\xEC ch\u01B0a \u0111\u01B0\u1EE3c
+        th\u1EDF ph\xE0o."
+      Poses:
+      - {fileID: 21300000, guid: f72682024a6fba6438d96db10d911d3e, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: fb.learn.start
+    ReactionGroup: fb.learn.start
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "Kh\xF4ng c\xF3 th\u1EE7 m\xF4n... ch\u1EAFc em t\u1EADp \u0111\u01B0\u1EE3c."
+      Poses:
+      - {fileID: 21300000, guid: 54c331363a4367842a76a9fc67d0c5ee, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "Khung th\xE0nh tr\u1ED1ng. \u0110\u1EEBng s\xFAt ra ngo\xE0i l\xE0 \u0111\u01B0\u1EE3c."
+      Poses:
+      - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: fb.learn.miss
+    ReactionGroup: fb.learn.miss
+    Priority: 2
+    CooldownSeconds: 10
+    MaximumPlays: 2
+    Lines:
+    - Speaker: 0
+      Text: "Tr\u1ED1ng th\u1EBF m\xE0 v\u1EABn tr\u01B0\u1EE3t..."
+      Poses:
+      - {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "Khung th\xE0nh \u1EDF ph\xEDa tr\u01B0\u1EDBc, kh\xF4ng \u1EDF tr\xEAn
+        tr\u1EDDi."
+      Poses:
+      - {fileID: 21300000, guid: dab09163e19971749928f30bad23f7b1, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: fb.learn.done
+    ReactionGroup: fb.learn.done
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "D\u1EA1, em ghi \u0111\u1EE7 r\u1ED3i."
+      Poses:
+      - {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "\u0110\u01B0\u1EE3c. B\xE0i sau c\xF3 th\u1EE7 m\xF4n."
+      Poses:
+      - {fileID: 21300000, guid: a4cabbc0a6c81094e9ed4516f93efda8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: fb.practice.start
+    ReactionGroup: fb.practice.start
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "C\xF3 th\u1EE7 m\xF4n r\u1ED3i... em ph\u1EA3i ch\u1ECDn g\xF3c k\u1EF9
+        h\u01A1n."
+      Poses:
+      - {fileID: 21300000, guid: 54c331363a4367842a76a9fc67d0c5ee, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "S\xE1u l\u01B0\u1EE3t, \xEDt nh\u1EA5t hai b\xE0n. T\xEDnh t\u1EEBng
+        c\xFA s\xFAt."
+      Poses:
+      - {fileID: 21300000, guid: f72682024a6fba6438d96db10d911d3e, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: fb.practice.saved
+    ReactionGroup: fb.practice.saved
+    Priority: 2
+    CooldownSeconds: 10
+    MaximumPlays: 2
+    Lines:
+    - Speaker: 0
+      Text: "B\u1ECB b\u1EAFt m\u1EA5t r\u1ED3i."
+      Poses:
+      - {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "S\xFAt th\u1EB3ng v\xE0o ng\u01B0\u1EDDi th\xEC c\u1EADu mong \u0111i\u1EC1u
+        g\xEC?"
+      Poses:
+      - {fileID: 21300000, guid: dab09163e19971749928f30bad23f7b1, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: fb.practice.done
+    ReactionGroup: fb.practice.done
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "D\u1EA1, \u0111\u1EE7 hai b\xE0n r\u1ED3i \u1EA1."
+      Poses:
+      - {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "\u0110\u1EA1t b\xE0i luy\u1EC7n. B\xE0i thi c\u1EA7n ba b\xE0n."
+      Poses:
+      - {fileID: 21300000, guid: a4cabbc0a6c81094e9ed4516f93efda8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: fb.exam.start
+    ReactionGroup: fb.exam.start
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "N\u0103m l\u01B0\u1EE3t th\xF4i... \u0111\u1EEBng gi\u1EEF l\u1EF1c
+        qu\xE1 l\xE2u."
+      Poses:
+      - {fileID: 21300000, guid: eb306838f1648ff4493c1114140c26f0, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "Chu\u1EA9n b\u1ECB s\xFAt. T\xF4i \u0111\u1EBFm c\u1EA3 nh\u1EEFng c\xFA
+        ra ngo\xE0i."
+      Poses:
+      - {fileID: 21300000, guid: f72682024a6fba6438d96db10d911d3e, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: fb.exam.goal
+    ReactionGroup: fb.exam.goal
+    Priority: 0
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "V\xE0o r\u1ED3i..."
+      Poses:
+      - {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "M\u1ED9t b\xE0n. C\xF2n c\xE1c l\u01B0\u1EE3t sau."
+      Poses:
+      - {fileID: 21300000, guid: 2121f0269f323f64ba90cceadc94fd84, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: fb.exam.lastkick
+    ReactionGroup: fb.exam.lastkick
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "C\xFA cu\u1ED1i r\u1ED3i..."
+      Poses:
+      - {fileID: 21300000, guid: 54c331363a4367842a76a9fc67d0c5ee, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "L\u01B0\u1EE3t cu\u1ED1i. Nh\xECn g\xF3c r\u1ED3i l\u1EA5y l\u1EF1c."
+      Poses:
+      - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: fb.exam.impossible
+    ReactionGroup: fb.exam.impossible
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "Em v\u1EABn ch\u01B0a \u0111\u1EE7 ba b\xE0n..."
+      Poses:
+      - {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "Ch\u01B0a \u0111\u1EA1t. Th\u1EE7 m\xF4n kh\xF4ng nh\u1EADn l\u1EDDi
+        xin th\xEAm l\u01B0\u1EE3t."
+      Poses:
+      - {fileID: 21300000, guid: a4cabbc0a6c81094e9ed4516f93efda8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: ch.extra.begin
+    ReactionGroup: ch.extra.begin
+    Priority: 0
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "Ph\u1EA3i nh\xECn c\u1EA3 t\u01B0\u1EE3ng n\u1EEFa..."
+      Poses:
+      - {fileID: 21300000, guid: eb306838f1648ff4493c1114140c26f0, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+  - Id: ch.extra.firstcorrect
+    ReactionGroup: ch.extra.firstcorrect
+    Priority: 0
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "\u0110\xFAng n\u01B0\u1EDBc \u0111\u1EA7u r\u1ED3i... c\xF2n n\u01B0\u1EDBc
+        cu\u1ED1i."
+      Poses:
+      - {fileID: 21300000, guid: eb306838f1648ff4493c1114140c26f0, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "M\u1EDBi m\u1ED9t n\u01B0\u1EDBc. \u0110\u1EEBng m\u1EEBng s\u1EDBm."
+      Poses:
+      - {fileID: 21300000, guid: f72682024a6fba6438d96db10d911d3e, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: ch.extra.lowtime
+    ReactionGroup: ch.extra.lowtime
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "C\xF2n \xEDt th\u1EDDi gian qu\xE1..."
+      Poses:
+      - {fileID: 21300000, guid: 54c331363a4367842a76a9fc67d0c5ee, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "C\u1EADu \u0111\u1ECBnh \u0111\u1EC3 \u0111\u1ED3ng h\u1ED3 gi\u1EA3i
+        h\u1ED9 \xE0?"
+      Poses:
+      - {fileID: 21300000, guid: dab09163e19971749928f30bad23f7b1, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: ch.extra.relief
+    ReactionGroup: ch.extra.relief
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "D\u1EA1... em qua th\u1EADt r\u1ED3i."
+      Poses:
+      - {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+  - Id: frog.start.save
+    ReactionGroup: frog.start.save
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "Em ph\u1EA3i v\u1EC1 \u0111\xEDch m\u1EDBi gi\u1EEF \u0111\u01B0\u1EE3c
+        l\u01B0\u1EE3t..."
+      Poses:
+      - {fileID: 21300000, guid: 54c331363a4367842a76a9fc67d0c5ee, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "{distance} m\xE9t trong {time} gi\xE2y. B\u1EADt h\u1EBFt r\u1ED3i n\xF3i."
+      Poses:
+      - {fileID: 21300000, guid: 69ba0aed41913c24e9d810864a109fe9, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: frog.start.charged
+    ReactionGroup: frog.start.charged
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "\u0110\xE3 m\u1EA5t m\u1ED9t l\u01B0\u1EE3t r\u1ED3i..."
+      Poses:
+      - {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "M\u1EA5t l\u01B0\u1EE3t kh\xF4ng c\xF3 ngh\u0129a l\xE0 \u0111\u01B0\u1EE3c
+        b\u1ECF h\xECnh ph\u1EA1t."
+      Poses:
+      - {fileID: 21300000, guid: ba66c27e5cb66214282ffcc14548a836, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: frog.fall.first
+    ReactionGroup: frog.fall
+    Priority: 2
+    CooldownSeconds: 10
+    MaximumPlays: 2
+    Lines:
+    - Speaker: 0
+      Text: Ui da!
+      Poses:
+      - {fileID: 21300000, guid: 6a1d60edaf60eaf478c6a59c2e02e02b, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 0.7
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "\u0110\u1EE9ng d\u1EADy v\xE0 ti\u1EBFp t\u1EE5c ngay."
+      Poses:
+      - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.8
+      Icon: {fileID: 6214188408712596682, guid: 08fbbe2be910e4b08aa8a97d2fcaac5d, type: 3}
+  - Id: frog.fall.repeat
+    ReactionGroup: frog.fall
+    Priority: 2
+    CooldownSeconds: 10
+    MaximumPlays: 2
+    Lines:
+    - Speaker: 0
+      Text: "Em l\u1EA1i tr\u01B0\u1EE3t ch\xE2n r\u1ED3i..."
+      Poses:
+      - {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "T\xF4i b\u1EA3o b\u1EADt c\xF3c, kh\xF4ng b\u1EA3o ng\u1ED3i ngh\u1EC9."
+      Poses:
+      - {fileID: 21300000, guid: a107eb87b301f3d44bdbf3ece7c14b5e, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 6214188408712596682, guid: 08fbbe2be910e4b08aa8a97d2fcaac5d, type: 3}
+  - Id: frog.goodjump
+    ReactionGroup: frog.goodjump
+    Priority: 0
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "L\u1EA7n n\xE0y \u0111\u01B0\u1EE3c r\u1ED3i."
+      Poses:
+      - {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "Gi\u1EEF c\xE1ch \u0111\xF3. \u0110\u1EEBng b\u1EA5m v\u1ED9i."
+      Poses:
+      - {fileID: 21300000, guid: f72682024a6fba6438d96db10d911d3e, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: frog.lowtime
+    ReactionGroup: frog.lowtime
+    Priority: 1
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "S\u1EAFp h\u1EBFt gi\u1EDD r\u1ED3i..."
+      Poses:
+      - {fileID: 21300000, guid: 54c331363a4367842a76a9fc67d0c5ee, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "V\u1EA1ch \u0111\xEDch ch\u01B0a t\u1EDBi. Ti\u1EBFp t\u1EE5c."
+      Poses:
+      - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 6214188408712596682, guid: 08fbbe2be910e4b08aa8a97d2fcaac5d, type: 3}
+  - Id: frog.finish
+    ReactionGroup: frog.finish
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "Cu\u1ED1i c\xF9ng c\u0169ng t\u1EDBi..."
+      Poses:
+      - {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "Xong h\xECnh ph\u1EA1t. Xem c\xF2n bao nhi\xEAu l\u01B0\u1EE3t r\u1ED3i
+        l\xE0m ti\u1EBFp."
+      Poses:
+      - {fileID: 21300000, guid: 2121f0269f323f64ba90cceadc94fd84, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: frog.timeout
+    ReactionGroup: frog.timeout
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "Em ch\u01B0a t\u1EDBi k\u1ECBp..."
+      Poses:
+      - {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "H\u1EBFt gi\u1EDD. K\u1EBFt qu\u1EA3 th\u1EBF n\xE0o th\xEC nh\u1EADn
+        th\u1EBF \u1EA5y."
+      Poses:
+      - {fileID: 21300000, guid: efdeccb35e60ab644a3fc342c819896c, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: result.fail.first
+    ReactionGroup: result.fail.first
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "D\u1EA1... em l\xE0m ch\u01B0a \u0111\u01B0\u1EE3c."
+      Poses:
+      - {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "Ch\u01B0a \u0111\u1EA1t. Sang B\u1EADt c\xF3c, \u0111\u1EEBng \u0111\u1EE9ng
+        ch\u1EDD t\xF4i \u0111\u1ED5i \u0111i\u1EC3m."
+      Poses:
+      - {fileID: 21300000, guid: 69ba0aed41913c24e9d810864a109fe9, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: result.fail.repeat
+    ReactionGroup: result.fail.repeat
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "Em l\u1EA1i sai ch\u1ED7 \u0111\xF3..."
+      Poses:
+      - {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "V\u1EABn l\u1ED7i c\u0169. Tr\u1EEB m\u1ED9t l\u01B0\u1EE3t thi, r\u1ED3i
+        B\u1EADt c\xF3c."
+      Poses:
+      - {fileID: 21300000, guid: a107eb87b301f3d44bdbf3ece7c14b5e, type: 3}
+      - {fileID: 21300000, guid: ba66c27e5cb66214282ffcc14548a836, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+  - Id: result.pass.practice
+    ReactionGroup: result.pass.practice
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "D\u1EA1, em l\xE0m \u0111\u01B0\u1EE3c r\u1ED3i."
+      Poses:
+      - {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "T\u1EA1m \u0111\u01B0\u1EE3c. \u0110\u1EBFn b\xE0i thi."
+      Poses:
+      - {fileID: 21300000, guid: a4cabbc0a6c81094e9ed4516f93efda8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+  - Id: result.pass.exam
+    ReactionGroup: result.pass.exam
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "May qu\xE1..."
+      Poses:
+      - {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "\u0110\u1EA1t. T\xF4i ghi k\u1EBFt qu\u1EA3."
+      Poses:
+      - {fileID: 21300000, guid: a4cabbc0a6c81094e9ed4516f93efda8, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 1.2
+      Icon: {fileID: 0}
+  - Id: gameover.comment
+    ReactionGroup: gameover.comment
+    Priority: 3
+    CooldownSeconds: 0
+    MaximumPlays: 1
+    Lines:
+    - Speaker: 0
+      Text: "N\u0103m \u0111\u1EA7u m\xE0 \u0111\xE3 c\xF3 m\xF4n ch\u01B0a qua..."
+      Poses:
+      - {fileID: 21300000, guid: 0f238b424326d5f4eaceb42e22ffcc94, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
+    - Speaker: 1
+      Text: "H\u1EBFt l\u01B0\u1EE3t r\u1ED3i. Ch\u1ECBu kh\xF3 h\u1ECDc l\u1EA1i
+        v\u1EDBi kh\xF3a sau."
+      Poses:
+      - {fileID: 21300000, guid: f72682024a6fba6438d96db10d911d3e, type: 3}
+      PoseStepSeconds: 0.3
+      DurationSeconds: 2.5
+      Icon: {fileID: 0}
