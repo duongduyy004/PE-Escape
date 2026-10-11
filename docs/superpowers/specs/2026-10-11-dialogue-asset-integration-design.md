@@ -2,7 +2,7 @@
 
 **Ngày:** 11/10/2026.
 
-**Trạng thái:** Người dùng đã duyệt thiết kế nội dung, cơ chế, UI và kiểm chứng trong hội thoại. Đặc tả này chờ duyệt trước khi lập kế hoạch triển khai. Mức tăng tốc thanh trượt Bật cóc 0,9 → 0,7 giây là đề xuất cụ thể hóa yêu cầu mới, được duyệt cùng đặc tả.
+**Trạng thái:** Người dùng đã duyệt thiết kế nội dung, cơ chế, UI và kiểm chứng trong hội thoại, rồi duyệt đặc tả bằng “okey”. Mức tăng tốc thanh trượt Bật cóc 0,9 → 0,7 giây được duyệt cùng đặc tả. Kế hoạch triển khai viết ở `docs/superpowers/plans/2026-10-11-dialogue-asset-integration.md`, chờ người dùng duyệt và chọn phương thức thực hiện.
 
 ## 1. Mục tiêu và nguồn yêu cầu
 
