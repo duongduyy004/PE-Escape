@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Linq;
 using KMA.Gameplay;
 using KMA.UI.Kit;
 using TMPro;
@@ -33,6 +34,35 @@ namespace KMA.Gameplay.UI
         [SerializeField] TMP_Text errorLabel;
         [SerializeField] Button actionButton;
         [SerializeField] Button retryButton;
+
+        [SerializeField] GameplayDialogueHost dialogueHost;
+        [SerializeField] GameplayDialogueView dialogueView;
+        [SerializeField] ScriptableObject frogBalance;
+        readonly System.Collections.Generic.HashSet<string> spokenAttempts=new System.Collections.Generic.HashSet<string>();
+        bool frogSpoken;
+        public void BindDialogue(GameplayDialogueHost host)
+        {
+            dialogueHost=host;
+            if(dialogueView==null && transform is RectTransform)
+            {
+                var root=UiKit.Rect(transform,"ResultDialogue");UiKit.Stretch(root);
+                dialogueView=root.gameObject.AddComponent<GameplayDialogueView>();
+                dialogueView.SetSlot(DialogueHudSlot.Result);
+                dialogueView.Configure(JourneyDialogueLibrary.LoadDefault(),root);
+            }
+        }
+        float PenaltyTimeLimit => frogBalance is IFrogJumpTimingSource timing ? timing.TimeLimitSeconds : 60f;
+        void SpeakResult(bool pass,ChallengeKind kind,string attemptId,JourneyCommitOutcome? outcome,string error)
+        {
+            if(dialogueHost==null)return;
+            if(dialogueView==null)BindDialogue(dialogueHost);
+            dialogueHost.BeginResult();
+            dialogueHost.SetView(dialogueView);
+            if(!string.IsNullOrEmpty(error)){dialogueHost.Clear();return;}
+            if(attemptId!=null && spokenAttempts.Contains(attemptId))return;
+            string id=ResultDialoguePolicy.Select(pass,kind,dialogueHost.PreferredResultEventId,outcome,error);
+            if(id!=null && dialogueHost.Emit(id) && attemptId!=null)spokenAttempts.Add(attemptId);
+        }
 
         string successTitle = "CHIẾN THẮNG";
         string failureTitle = "THẤT BẠI";
@@ -150,7 +180,7 @@ namespace KMA.Gameplay.UI
                 rankLabel.text = VietText.Fix($"XẾP HẠNG {result.Rank}");
             if (livesLabel != null)
             {
-                livesLabel.text = VietText.Fix($"CÒN {remainingLives} MẠNG");
+                livesLabel.text = VietText.Fix($"LƯỢT THI: {remainingLives}/{GameSession.MaxLives}");
                 livesLabel.gameObject.SetActive(retryConfigured);
             }
             SetButtonLabel(actionButton, "TIẾP TỤC");
@@ -158,6 +188,7 @@ namespace KMA.Gameplay.UI
 
             retryAvailable = !result.Pass && remainingLives > 0;
             RefreshButtons();
+            SpeakResult(result.Pass,ChallengeKind.Exam,null,null,null);
             Reveal(result.Score);
         }
 
@@ -247,11 +278,11 @@ namespace KMA.Gameplay.UI
                 ? outcome.HasValue
                     ? frogJump
                         ? outcome.Value.FrogJumpSavesLife
-                            ? "Về đích trong 60 s để giữ lượt thi"
-                            : "−1 lượt thi. Bật cóc xong mới được thi lại"
-                        : "Kết quả đã lưu"
-                    : "Kết quả đang chờ lưu"
-                : $"Thời gian {result.Metrics.Elapsed:0.0}s"));
+                            ? $"Bật cóc về đích trong {MinigameGuidePages.Number(PenaltyTimeLimit)} giây để giữ lượt thi."
+                            : "Đã trừ 1 lượt thi. Hoàn thành lượt Bật cóc để kết thúc hình phạt."
+                        : "Kết quả đã lưu."
+                    : "Kết quả đang chờ lưu."
+                : $"Thời gian: {MinigameGuidePages.Number(result.Metrics.Elapsed)} giây"));
             if (errorLabel != null) errorLabel.text = VietText.Fix(saveError ?? string.Empty);
             SetButtonLabel(actionButton, saveError == null ? frogJump ? "BẬT CÓC" : "TIẾP TỤC"
                 : outcome.HasValue ? "THỬ LẠI" : "LƯU LẠI");
@@ -269,6 +300,8 @@ namespace KMA.Gameplay.UI
                 livesLabel.gameObject.SetActive(!final && (result.ExamResult != null || frogJump));
             }
             RefreshButtons();
+            var definition=ChallengeCatalog.LoadDefault().Ordered.FirstOrDefault(d=>d!=null && d.Id==context.ChallengeId);
+            SpeakResult(result.Pass,definition?.Kind ?? ChallengeKind.Exam,context.AttemptId,outcome,saveError);
             Reveal(result.ExamResult == null ? result.Metrics.CompletedTargets : result.ExamResult.Score);
         }
 
@@ -329,7 +362,7 @@ namespace KMA.Gameplay.UI
             ApplyTheme();
             if (statusLabel != null)
             {
-                statusLabel.text = VietText.Fix(view.ReachedFinish ? "VỀ ĐÍCH!" : "HẾT GIỜ!");
+                statusLabel.text = VietText.Fix(view.ReachedFinish ? "VỀ ĐÍCH" : "HẾT GIỜ");
                 statusLabel.color = view.ReachedFinish ? MinigameUiTheme.Success : MinigameUiTheme.Energy;
             }
             // The frog jump has no score: blank the score, hide the rank, and reveal without the
@@ -337,8 +370,8 @@ namespace KMA.Gameplay.UI
             finalScoreText = string.Empty;
             if (scoreLabel != null) scoreLabel.text = string.Empty;
             if (rankLabel != null) rankLabel.gameObject.SetActive(false);
-            SetDetail(!view.SavesLife ? "Lượt thi đã bị trừ khi trượt bài"
-                : view.ReachedFinish ? "Giữ được lượt thi" : "−1 lượt thi");
+            SetDetail(!view.SavesLife ? "Lượt thi đã bị trừ khi trượt bài; không trừ thêm."
+                : view.ReachedFinish ? "Giữ được lượt thi." : "Đã trừ 1 lượt thi.");
             if (livesLabel != null)
             {
                 livesLabel.text = VietText.Fix($"LƯỢT THI: {view.LivesRemaining}/{GameSession.MaxLives}");
@@ -349,6 +382,15 @@ namespace KMA.Gameplay.UI
                 : view.RetryIsPractice ? "LUYỆN LẠI" : "THI LẠI");
             retryAvailable = false;
             RefreshButtons();
+            if(dialogueHost!=null)
+            {
+                if(dialogueView==null)BindDialogue(dialogueHost);
+                dialogueHost.BeginResult();dialogueHost.SetView(dialogueView);
+                if(!string.IsNullOrEmpty(view.Error))dialogueHost.Clear();
+                else if(!frogSpoken && dialogueHost.PreferredResultEventId==null)
+                    dialogueHost.Emit(view.ReachedFinish?"frog.finish":"frog.timeout");
+                frogSpoken=true;
+            }
             Reveal(0f, scoreless: true);
         }
 

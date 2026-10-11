@@ -15,9 +15,9 @@ namespace KMA.Gameplay.Celebration
         [SerializeField] Image student;
         [SerializeField] Image classmate;
         [SerializeField] Image teacher;
-        [SerializeField] Sprite[] studentFrames;   // idle, cheer0, cheer1
+        [SerializeField] Sprite[] studentFrames;   // idle, happy, happy
         [SerializeField] Sprite[] classmateFrames; // idle, cheer0, cheer1
-        [SerializeField] Sprite[] teacherFrames;   // idleBoss, taunt, cheer0
+        [SerializeField] Sprite[] teacherFrames;   // strictLook, scoreHold, scoreWrite
         [SerializeField] GameObject bubble;
         [SerializeField] TMP_Text bubbleText;
         [SerializeField] UiConfetti confetti;
@@ -89,7 +89,7 @@ namespace KMA.Gameplay.Celebration
             if (beat == CelebrationBeat.Teacher && !bubble.activeSelf && !Timeline.Skipped)
             {
                 bubble.SetActive(true);
-                bubbleText.text = VietText.Fix("Được, em qua.");
+                bubbleText.text = VietText.Fix("Tốt, cậu này được. Qua rồi thì về, đừng đứng chắn sân.");
             }
             if (Timeline.SummaryShown)
                 summaryGroup.alpha = Mathf.MoveTowards(summaryGroup.alpha, 1f, Time.deltaTime * 3f);
@@ -112,7 +112,7 @@ namespace KMA.Gameplay.Celebration
 
         void FillSummary()
         {
-            title.text = VietText.Fix("Đã qua thể chất!");
+            title.text = VietText.Fix("HOÀN THÀNH HỌC PHẦN THỂ CHẤT");
             for (int i = 0; i < Summary.Subjects.Count && i < 3; i++)
             {
                 CelebrationRow row = Summary.Subjects[i];

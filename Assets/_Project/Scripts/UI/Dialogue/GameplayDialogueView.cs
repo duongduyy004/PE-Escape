@@ -4,47 +4,76 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace KMA.Gameplay.UI
 {
- public sealed class GameplayDialogueView : MonoBehaviour, IGameplayDialogueView
- {
-  [SerializeField] JourneyDialogueLibrary cast;
-  [SerializeField] GameObject card;
-  [SerializeField] Image portrait,icon;
-  [SerializeField] TMP_Text speaker,text;
-  GameplayDialogueLine line;float poseTime;
-  public void Configure(JourneyDialogueLibrary library,RectTransform safeArea)
-  {
-   cast=library;
-   if(card!=null)return;
-   var style=UITheme.Shared.Dialogue;
-   var panel=UiKit.Panel(safeArea,"DialogueCard");card=panel.gameObject;
-   UiKit.Place(panel.rectTransform,style.anchor,Vector2.one,style.offset,style.size);
-   portrait=UiKit.Rect(panel.transform,"Portrait").gameObject.AddComponent<Image>();portrait.preserveAspect=true;
-   UiKit.Place(portrait.rectTransform,new Vector2(0,.5f),new Vector2(0,.5f),new Vector2(style.padding,0),new Vector2(style.portraitWidth,style.size.y-2*style.padding));
-   speaker=UiKit.Label(panel.transform,"SpeakerName","",style.nameSize,MinigameUiTheme.TextPrimary,TextAlignmentOptions.MidlineLeft);
-   UiKit.Place(speaker.rectTransform,new Vector2(0,1),new Vector2(0,1),new Vector2(style.portraitWidth+2*style.padding,-style.padding),new Vector2(style.size.x-style.portraitWidth-4*style.padding-style.iconSize,style.iconSize));
-   text=UiKit.Label(panel.transform,"SpeechText","",style.textSize,MinigameUiTheme.TextPrimary,TextAlignmentOptions.TopLeft);
-   UiKit.Place(text.rectTransform,new Vector2(0,1),new Vector2(0,1),new Vector2(style.portraitWidth+2*style.padding,-style.padding-style.iconSize),new Vector2(style.size.x-style.portraitWidth-3*style.padding,style.size.y-style.iconSize-2*style.padding));
-   text.textWrappingMode=TextWrappingModes.Normal;text.enableAutoSizing=true;text.fontSizeMin=style.textSize*.85f;text.fontSizeMax=style.textSize;
-   icon=UiKit.Rect(panel.transform,"PointingIcon").gameObject.AddComponent<Image>();icon.preserveAspect=true;
-   UiKit.Place(icon.rectTransform,Vector2.one,Vector2.one,new Vector2(-style.padding,-style.padding),Vector2.one*style.iconSize);
-   foreach(var g in card.GetComponentsInChildren<Graphic>(true))g.raycastTarget=false;
-   Hide();
-  }
-  public void Show(GameplayDialogueLine value)
-  {
-   if(card==null)return;line=value;poseTime=0;
-   if(value==null){Hide();return;}
-   card.SetActive(true);
-   var character=cast.GetCharacter(value.Speaker==DialogueSpeaker.Student?"tan_thu":"co_the_chat");
-   speaker.text=VietText.Fix(character.DisplayName);text.text=VietText.Fix(value.Text);
-   portrait.sprite=value.Poses!=null && value.Poses.Length>0?value.Poses[0]:null;
-   icon.sprite=value.Icon;icon.gameObject.SetActive(value.Icon!=null);
-  }
-  void Update()
-  {
-   if(line==null || line.Poses==null || line.Poses.Length<2 || !card.activeSelf)return;
-   poseTime+=Time.deltaTime;int n=Mathf.Min(line.Poses.Length-1,Mathf.FloorToInt(poseTime/Mathf.Max(.01f,line.PoseStepSeconds)));portrait.sprite=line.Poses[n];
-  }
-  public void Hide(){line=null;if(card!=null)card.SetActive(false);}
- }
+    public sealed class GameplayDialogueView : MonoBehaviour,IGameplayDialogueView
+    {
+        [SerializeField] JourneyDialogueLibrary cast;
+        [SerializeField] GameObject card;
+        [SerializeField] Image portrait,icon;
+        [SerializeField] TMP_Text speaker,text;
+        [SerializeField] RectTransform layoutRoot;
+        [SerializeField] DialogueHudSlot slot;
+        GameplayDialogueLine line;
+        float poseTime;
+        Vector2 lastSize;
+        public void SetSlot(DialogueHudSlot value){slot=value;RefreshLayout();}
+        public void Configure(JourneyDialogueLibrary library,RectTransform safeArea)
+        {
+            cast=library;layoutRoot=safeArea;
+            if(card==null)
+            {
+                card=UiKit.Panel(safeArea,"DialogueCard").gameObject;
+                portrait=UiKit.Rect(card.transform,"Portrait").gameObject.AddComponent<Image>();portrait.preserveAspect=true;
+                speaker=UiKit.Label(card.transform,"SpeakerName","",28,MinigameUiTheme.TextPrimary,TextAlignmentOptions.MidlineLeft);
+                text=UiKit.Label(card.transform,"SpeechText","",28,MinigameUiTheme.TextPrimary,TextAlignmentOptions.TopLeft);
+                icon=UiKit.Rect(card.transform,"PointingIcon").gameObject.AddComponent<Image>();icon.preserveAspect=true;
+            }
+            RefreshLayout();Hide();
+        }
+        void Start()
+        {
+            if(layoutRoot==null && card!=null)layoutRoot=card.transform.parent as RectTransform;
+            RefreshLayout();
+        }
+        void RefreshLayout()
+        {
+            if(card==null || layoutRoot==null)return;
+            var style=UITheme.Shared.Dialogue;
+            var size=style.size;var anchor=slot==DialogueHudSlot.Volleyball?style.volleyballAnchor:style.anchor;
+            var offset=style.offset;var pivot=Vector2.one;float header=style.iconSize;
+            if(slot==DialogueHudSlot.Result){anchor=style.resultAnchor;offset=style.resultOffset;pivot=new Vector2(.5f,1f);}
+            else if(slot==DialogueHudSlot.GameOver)
+            {
+                anchor=style.gameOverAnchor;offset=style.gameOverOffset;pivot=new Vector2(1f,.5f);size=style.gameOverSize;header=style.gameOverNameHeight;
+                if(layoutRoot.rect.width>style.gameOverContentWidth)
+                    size.x=Mathf.Min(size.x,(layoutRoot.rect.width-style.gameOverContentWidth)*.5f-Mathf.Abs(offset.x)-style.padding);
+            }
+            UiKit.Place((RectTransform)card.transform,anchor,pivot,offset,size);
+            UiKit.Place(portrait.rectTransform,new Vector2(0,.5f),new Vector2(0,.5f),new Vector2(style.padding,0),new Vector2(style.portraitWidth,size.y-2*style.padding));
+            UiKit.Place(speaker.rectTransform,new Vector2(0,1),new Vector2(0,1),new Vector2(style.portraitWidth+2*style.padding,-style.padding),new Vector2(size.x-style.portraitWidth-3*style.padding,header));
+            speaker.fontSize=Mathf.Max(style.nameSize,MinigameUiTheme.MinimumFontSize);speaker.textWrappingMode=TextWrappingModes.Normal;
+            UiKit.Place(text.rectTransform,new Vector2(0,1),new Vector2(0,1),new Vector2(style.portraitWidth+2*style.padding,-style.padding-header),new Vector2(size.x-style.portraitWidth-3*style.padding,size.y-header-2*style.padding));
+            text.textWrappingMode=TextWrappingModes.Normal;text.enableAutoSizing=true;text.fontSizeMin=MinigameUiTheme.MinimumFontSize;text.fontSizeMax=Mathf.Max(style.textSize,MinigameUiTheme.MinimumFontSize);
+            UiKit.Place(icon.rectTransform,Vector2.one,Vector2.one,new Vector2(-style.padding,-style.padding),Vector2.one*style.iconSize);
+            foreach(var graphic in card.GetComponentsInChildren<Graphic>(true))graphic.raycastTarget=false;
+            lastSize=layoutRoot.rect.size;
+        }
+        public void Show(GameplayDialogueLine value)
+        {
+            if(card==null)return;line=value;poseTime=0;
+            if(value==null){Hide();return;}
+            RefreshLayout();card.SetActive(true);
+            var character=cast.GetCharacter(value.Speaker==DialogueSpeaker.Student?"tan_thu":"co_the_chat");
+            speaker.text=VietText.Fix(character.DisplayName);text.text=VietText.Fix(value.Text);
+            portrait.sprite=value.Poses!=null && value.Poses.Length>0?value.Poses[0]:null;
+            icon.sprite=value.Icon;icon.gameObject.SetActive(value.Icon!=null);
+        }
+        void Update()
+        {
+            if(layoutRoot!=null && lastSize!=layoutRoot.rect.size)RefreshLayout();
+            if(line==null || line.Poses==null || line.Poses.Length<2 || !card.activeSelf)return;
+            poseTime+=Time.deltaTime;
+            int n=Mathf.Min(line.Poses.Length-1,Mathf.FloorToInt(poseTime/Mathf.Max(.01f,line.PoseStepSeconds)));portrait.sprite=line.Poses[n];
+        }
+        public void Hide(){line=null;if(card!=null)card.SetActive(false);}
+    }
 }

@@ -9,10 +9,14 @@ namespace KMA.Gameplay.UI
     {
         [Serializable] public sealed class DialogueStyle
         {
-            public Vector2 size = new Vector2(460f, 156f);
-            public Vector2 anchor = new Vector2(1f, .9f);
+            public Vector2 size = new Vector2(560f, 196f);
+            public Vector2 anchor = new Vector2(1f, .86f);
             public Vector2 offset = new Vector2(-80f, -16f);
-            public float portraitWidth = 90f, padding = 12f, nameSize = 18f, textSize = 20f, iconSize = 32f;
+            public Vector2 volleyballAnchor = new Vector2(1f,.88f);
+            public Vector2 resultAnchor = new Vector2(.5f,1f), resultOffset = new Vector2(0f,-24f);
+            public Vector2 gameOverAnchor = new Vector2(1f,.60f), gameOverOffset = new Vector2(-24f,0f), gameOverSize = new Vector2(400f,260f);
+            public float gameOverContentWidth = 900f, gameOverNameHeight = 64f;
+            public float portraitWidth = 90f, padding = 12f, nameSize = 28f, textSize = 28f, iconSize = 32f;
         }
         [SerializeField] DialogueStyle dialogue = new DialogueStyle();
         public DialogueStyle Dialogue => dialogue;

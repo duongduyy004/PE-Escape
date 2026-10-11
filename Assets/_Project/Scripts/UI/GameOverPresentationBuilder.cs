@@ -16,8 +16,10 @@ namespace KMA.Gameplay.UI
         public static void Build(GameOverScreen screen, GameSession session)
         {
             if (screen == null) return;
+            screen.EnsureDialogue();
             if (screen.transform.Find(LayoutName) != null)
             {
+                RefreshEditedContent(screen);
                 var current = GameOverStats.From(session);
                 SetStat(screen, "StatPassed", $"{current.SubjectsPassed}/{current.SubjectsTotal}");
                 SetStat(screen, "StatFailed", current.FailedVisits.ToString());
@@ -37,7 +39,7 @@ namespace KMA.Gameplay.UI
 
             var layout = Rect(screen.transform, LayoutName);
             layout.anchorMin = layout.anchorMax = Center;
-            layout.sizeDelta = new Vector2(900f, 1000f);
+            layout.sizeDelta = new Vector2(UITheme.Shared.Dialogue.gameOverContentWidth,1000f);
             layout.anchoredPosition = Vector2.zero;
             layout.gameObject.AddComponent<CanvasGroup>();
             layout.gameObject.AddComponent<GameOverReveal>();
@@ -45,20 +47,33 @@ namespace KMA.Gameplay.UI
             var badge = HomePresentationBuilder.CreateBadge(layout, "SportBadge");
             At(badge, new Vector2(0f, 400f), badge.sizeDelta);
 
-            var top = Title(layout, "TitleTop", "HẾT LƯỢT", 48f, HomeMenuStyle.Gold, new Vector2(0f, 300f), new Vector2(520f, 66f));
-            var main = Title(layout, "TitleMain", "GAME OVER", 94f, HomeMenuStyle.Red, new Vector2(0f, 205f), new Vector2(760f, 115f));
+            var top = Title(layout, "TitleTop", "HẾT LƯỢT THI", 48f, HomeMenuStyle.Gold, new Vector2(0f, 300f), new Vector2(520f, 66f));
+            var main = Title(layout, "TitleMain", "CHƯA QUA HỌC PHẦN", 94f, HomeMenuStyle.Red, new Vector2(0f, 205f), new Vector2(760f, 115f));
+            UiKit.FitLabel(main,94f);
             TrackLines(layout, 125f);
             var subtitle = UiKit.Label(layout, "Subtitle",
-                $"Bạn đã dùng hết {GameSession.MaxLives} lượt. Thử lại nhé!", 28f, HomeMenuStyle.White);
-            Body(subtitle, new Vector2(0f, 65f), new Vector2(820f, 48f));
+                $"Bạn đã dùng hết {GameSession.MaxLives} lượt thi. Chọn một thao tác bên dưới để tiếp tục.", 28f, HomeMenuStyle.White);
+            Body(subtitle, new Vector2(0f,65f),new Vector2(820f,80f));
+            subtitle.textWrappingMode=TextWrappingModes.Normal;
 
             Stat(layout, "StatPassed", $"{stats.SubjectsPassed}/{stats.SubjectsTotal}", "MÔN ĐÃ QUA", -290f);
-            Stat(layout, "StatFailed", stats.FailedVisits.ToString(), "LƯỢT THẤT BẠI", 0f);
+            Stat(layout, "StatFailed", stats.FailedVisits.ToString(), "LẦN CHƯA ĐẠT", 0f);
             Stat(layout, "StatScore", stats.TotalScore.ToString(), "TỔNG ĐIỂM", 290f);
 
             Action(screen, layout, "RETRYButton", "CHƠI LẠI", -215f, HomeMenuButton.Kind.Continue, true);
             Action(screen, layout, "NEW GAMEButton", "CHƠI MỚI", -295f, HomeMenuButton.Kind.NewGame, false);
             Action(screen, layout, "MAIN MENUButton", "MENU CHÍNH", -375f, HomeMenuButton.Kind.Secondary, false);
+        }
+
+        static void RefreshEditedContent(GameOverScreen screen)
+        {
+            var layout=(RectTransform)screen.transform.Find(LayoutName);
+            layout.sizeDelta=new Vector2(UITheme.Shared.Dialogue.gameOverContentWidth,1000f);
+            layout.Find("TitleTop").GetComponent<TMP_Text>().text=VietText.Fix("HẾT LƯỢT THI");
+            var main=layout.Find("TitleMain").GetComponent<TMP_Text>();main.text=VietText.Fix("CHƯA QUA HỌC PHẦN");UiKit.FitLabel(main,94f);
+            var subtitle=layout.Find("Subtitle").GetComponent<TMP_Text>();subtitle.text=VietText.Fix($"Bạn đã dùng hết {GameSession.MaxLives} lượt thi. Chọn một thao tác bên dưới để tiếp tục.");
+            Body(subtitle,new Vector2(0f,65f),new Vector2(820f,80f));subtitle.textWrappingMode=TextWrappingModes.Normal;
+            layout.Find("StatFailed/Caption").GetComponent<TMP_Text>().text=VietText.Fix("LẦN CHƯA ĐẠT");
         }
 
         // Idempotent: scenes authored before the illustration existed keep their baked layout and gain it here;

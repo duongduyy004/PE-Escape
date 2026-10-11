@@ -9,6 +9,29 @@ namespace KMA.Gameplay.UI
         public Sprite Background => background;
         public void SetBackground(Sprite sprite) => background = sprite;
 
+        [SerializeField] GameplayDialogueHost dialogue;
+        [SerializeField] GameplayDialogueView dialogueView;
+        bool spoke;
+        public void EnsureDialogue()
+        {
+            if(dialogueView==null)
+            {
+                dialogueView=GetComponent<GameplayDialogueView>();
+                if(dialogueView==null)dialogueView=gameObject.AddComponent<GameplayDialogueView>();dialogueView.SetSlot(DialogueHudSlot.GameOver);
+                dialogueView.Configure(JourneyDialogueLibrary.LoadDefault(),transform as RectTransform);
+            }
+            if(!Application.isPlaying)dialogueView.Configure(JourneyDialogueLibrary.LoadDefault(),transform as RectTransform);
+            if(dialogue==null)dialogue=GetComponent<GameplayDialogueHost>();
+            if(dialogue==null)dialogue=gameObject.AddComponent<GameplayDialogueHost>();
+            dialogue.Configure(GameplayDialogueLibrary.LoadDefault(),dialogueView);
+        }
+        public override void Show()
+        {
+            base.Show();EnsureDialogue();
+            if(!spoke && Application.isPlaying){spoke=true;dialogue.BeginResult();dialogue.Emit("gameover.comment");}
+        }
+        void Start(){if(gameObject.scene.name=="GameOver" && gameObject.activeInHierarchy)Show();}
+
         public event Action RetryRequested;
         public event Action NewGameRequested;
         public event Action MenuRequested;

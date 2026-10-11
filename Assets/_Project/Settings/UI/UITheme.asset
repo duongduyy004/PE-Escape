@@ -11,15 +11,23 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ec003bed006fea6285856503fd24ee3, type: 3}
   m_Name: UITheme
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   dialogue:
-    size: {x: 460, y: 156}
-    anchor: {x: 1, y: 0.9}
+    size: {x: 560, y: 196}
+    anchor: {x: 1, y: 0.86}
     offset: {x: -80, y: -16}
+    volleyballAnchor: {x: 1, y: 0.88}
+    resultAnchor: {x: 0.5, y: 1}
+    resultOffset: {x: 0, y: -24}
+    gameOverAnchor: {x: 1, y: 0.6}
+    gameOverOffset: {x: -24, y: 0}
+    gameOverSize: {x: 400, y: 260}
+    gameOverContentWidth: 900
+    gameOverNameHeight: 64
     portraitWidth: 90
     padding: 12
-    nameSize: 18
-    textSize: 20
+    nameSize: 28
+    textSize: 28
     iconSize: 32
   primary: {r: 1, g: 0.34901962, b: 0.36862746, a: 1}
   accent: {r: 1, g: 0.7921569, b: 0.22745098, a: 1}

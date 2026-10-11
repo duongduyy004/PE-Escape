@@ -107,12 +107,12 @@ namespace KMA.Tests.EditorTools
             var cast = new SerializedObject(Object.FindFirstObjectByType<ChessCastView>());
             Assert.That(CastPose(cast, "studentPoses", "idle"), Is.EqualTo("MaleAdventurer_think"));
             Assert.That(CastPose(cast, "studentPoses", "hurt"), Is.EqualTo("MaleAdventurer_disappointed"));
-            Assert.That(CastPose(cast, "studentPoses", "cheer0"), Is.EqualTo("MaleAdventurer_celebrate"));
+            Assert.That(CastPose(cast, "studentPoses", "cheer0"), Is.EqualTo("MaleAdventurer_happy"));
             Assert.That(CastPose(cast, "studentPoses", "cheer1"), Is.EqualTo("MaleAdventurer_happy"));
             Assert.That(CastPose(cast, "teacherPoses", "idleBoss"), Is.EqualTo("BossPE_handsOnHips"));
-            Assert.That(CastPose(cast, "teacherPoses", "taunt"), Is.EqualTo("BossPE_angry"));
+            Assert.That(CastPose(cast, "teacherPoses", "taunt"), Is.EqualTo("BossPE_taunt"));
             Assert.That(CastPose(cast, "teacherPoses", "chessThink"), Is.EqualTo("BossPE_think"));
-            Assert.That(CastPose(cast, "teacherPoses", "cheer0"), Is.EqualTo("BossPE_congratulate"));
+            Assert.That(CastPose(cast, "teacherPoses", "cheer0"), Is.EqualTo("BossPE_scoreWrite"));
             Assert.That(CastPose(cast, "teacherPoses", "chessMove"), Is.EqualTo("BossPE_chessMove"));
             Assert.That(CastPose(cast, "teacherPoses", "strictLook"), Is.EqualTo("BossPE_strictLook"));
         }
@@ -124,11 +124,11 @@ namespace KMA.Tests.EditorTools
             var controller = new SerializedObject(Object.FindFirstObjectByType<CelebrationSceneController>());
             // Slots 1 and 2 alternate every 0.35 s, so they stay the designed cheer0/cheer1 pair.
             Assert.That(Frames(controller, "studentFrames"),
-                Is.EqualTo(new[] { "MaleAdventurer_happy", "MaleAdventurer_cheer0", "MaleAdventurer_cheer1" }));
+                Is.EqualTo(new[] { "MaleAdventurer_idle", "MaleAdventurer_happy", "MaleAdventurer_happy" }));
             Assert.That(Frames(controller, "classmateFrames"),
                 Is.EqualTo(new[] { "FemalePerson_idle", "FemalePerson_cheer0", "FemalePerson_cheer1" }));
             Assert.That(Frames(controller, "teacherFrames"),
-                Is.EqualTo(new[] { "BossPE_idleBoss", "BossPE_clap0", "BossPE_congratulate" }));
+                Is.EqualTo(new[] { "BossPE_strictLook", "BossPE_scoreHold", "BossPE_scoreWrite" }));
         }
 
         static string CastPose(SerializedObject cast, string list, string key)
@@ -158,9 +158,9 @@ namespace KMA.Tests.EditorTools
         {
             EditorSceneManager.OpenScene($"Assets/_Project/Scenes/{scene}.unity", OpenSceneMode.Single);
             var lecturer = new SerializedObject(Object.FindFirstObjectByType<StartLecturer>());
-            Assert.That(Wired(lecturer, "taunt"), Is.EqualTo("BossPE_angry"));
-            Assert.That(Wired(lecturer, "cheer"), Is.EqualTo("BossPE_congratulate"));
-            Assert.That(Wired(lecturer, "cheerBothArms"), Is.EqualTo("BossPE_cheer1"));
+            Assert.That(Wired(lecturer, "taunt"), Is.EqualTo("BossPE_taunt"));
+            Assert.That(Wired(lecturer, "cheer"), Is.EqualTo("BossPE_scoreWrite"));
+            Assert.That(Wired(lecturer, "cheerBothArms"), Is.EqualTo("BossPE_scoreWrite"));
             Assert.That(Wired(lecturer, "penalty"), Is.EqualTo("BossPE_penalty0"));
         }
 
@@ -171,12 +171,12 @@ namespace KMA.Tests.EditorTools
                 "Assets/_Project/Resources/Journey/JourneyDialogues.asset");
             JourneyCharacter Cast(string id) => library.Cast.Single(character => character.Id == id);
 
-            Assert.That(PoseName(Cast("anh_khoa_tren").GetPose(DialoguePose.Cheer)), Is.EqualTo("MaleAdventurer_celebrate"));
-            Assert.That(PoseName(Cast("anh_khoa_tren").GetPose(DialoguePose.Hurt)), Is.EqualTo("MaleAdventurer_disappointed"));
-            Assert.That(PoseName(Cast("anh_khoa_tren").GetPose(DialoguePose.Idle)), Is.EqualTo("MaleAdventurer_idle"));
-            Assert.That(PoseName(Cast("co_the_chat").GetPose(DialoguePose.Cheer)), Is.EqualTo("BossPE_congratulate"));
+            Assert.That(PoseName(Cast("anh_khoa_tren").GetPose(DialoguePose.Cheer)), Is.EqualTo("MalePerson_cheer0"));
+            Assert.That(PoseName(Cast("anh_khoa_tren").GetPose(DialoguePose.Hurt)), Is.EqualTo("MalePerson_hurt"));
+            Assert.That(PoseName(Cast("anh_khoa_tren").GetPose(DialoguePose.Idle)), Is.EqualTo("MalePerson_idle"));
+            Assert.That(PoseName(Cast("co_the_chat").GetPose(DialoguePose.Cheer)), Is.EqualTo("BossPE_scoreWrite"));
             Assert.That(PoseName(Cast("co_the_chat").GetPose(DialoguePose.Hurt)), Is.EqualTo("BossPE_angry"));
-            Assert.That(PoseName(Cast("tan_thu").GetPose(DialoguePose.Cheer)), Does.EndWith("_cheer0"));
+            Assert.That(PoseName(Cast("tan_thu").GetPose(DialoguePose.Cheer)), Is.EqualTo("MaleAdventurer_happy"));
             Assert.That(PoseName(Cast("mai_toang").GetPose(DialoguePose.Hurt)), Does.EndWith("_hurt"));
         }
 

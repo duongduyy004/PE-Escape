@@ -30,6 +30,25 @@ namespace KMA.Tests.Presentation
         public void TearDown() => Object.DestroyImmediate(root);
 
         [Test]
+        public void ReopenedAuthoredSceneKeepsDialogueAndEditedHeadings()
+        {
+            var scene=UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/_Project/Scenes/GameOver.unity",UnityEditor.SceneManagement.OpenSceneMode.Additive);
+            try {
+                var saved=scene.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<GameOverScreen>(true)).Single();
+                Assert.That(saved.transform.Find("DialogueCard"),Is.Not.Null,"authoring cleanup must retain the persistent bubble");
+                GameOverPresentationBuilder.Build(saved,null);
+                Assert.That(saved.transform.Find("GameOverLayout/TitleMain").GetComponent<TMP_Text>().text,Is.EqualTo("CHƯA QUA HỌC PHẦN"));
+            } finally {UnityEditor.SceneManagement.EditorSceneManager.CloseScene(scene,true);}
+        }
+        [Test]
+        public void EditedHeadingsKeepTheExistingActions()
+        {
+            GameOverPresentationBuilder.Build(screen,new GameSession());
+            Assert.That(root.transform.Find("GameOverLayout/TitleMain").GetComponent<TMP_Text>().text,Is.EqualTo("CHƯA QUA HỌC PHẦN"));
+            Assert.That(root.transform.Find("GameOverLayout/TitleTop").GetComponent<TMP_Text>().text,Is.EqualTo("HẾT LƯỢT THI"));
+            Assert.That(root.GetComponentsInChildren<Button>(true).Length,Is.EqualTo(3));
+        }
+        [Test]
         public void BuildIsIdempotent()
         {
             GameOverPresentationBuilder.Build(screen, new GameSession());

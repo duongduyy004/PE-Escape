@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 namespace KMA.Gameplay.UI
 {
+    public enum DialogueHudSlot { Sprint, Volleyball, Football, Frog, Result, GameOver }
     public enum DialogueSpeaker { Student, Teacher }
     public enum DialoguePriority { Success, Technical, Error, Result }
     [Serializable] public sealed class GameplayDialogueLine

@@ -45,7 +45,7 @@ namespace KMA.EditorTools
             {
                 var screen = Require<GameOverScreen>(scene);
                 GameOverPresentationBuilder.Build(screen, null);
-                KeepOnly(screen.transform, "GameOverVeil", "GameOverLayout");
+                KeepOnly(screen.transform, "GameOverVeil", "GameOverLayout", "DialogueCard");
             });
             AssetDatabase.SaveAssets();
             Debug.Log("[KMA] Authored Bootstrap, Menu, Map, and GameOver scene UI.");

@@ -74,7 +74,7 @@ namespace KMA.EditorTools
             body.sortingOrder = placement.SortingOrder;
             var lecturer = go.AddComponent<StartLecturer>();
             lecturer.Configure(body,
-                CharacterArt.Load(CharacterArt.Boss, "idleBoss"),
+                CharacterArt.Load(CharacterArt.Boss, "strictLook"),
                 CharacterArt.Load(CharacterArt.Boss, "whistle0"),
                 CharacterArt.Load(CharacterArt.Boss, "whistle1"),
                 placement.FaceLeft, placement.LeaveAfterSeconds);
@@ -82,9 +82,9 @@ namespace KMA.EditorTools
                 CharacterArt.Load(CharacterArt.Boss, "count"),
                 CharacterArt.Load(CharacterArt.Boss, "command"),
                 CharacterArt.Load(CharacterArt.Boss, "strictLook"),
-                CharacterArt.Load(CharacterArt.Boss, "angry"),
-                CharacterArt.Load(CharacterArt.Boss, "congratulate"),
-                CharacterArt.Load(CharacterArt.Boss, "cheer1"),
+                CharacterArt.Load(CharacterArt.Boss, "taunt"),
+                CharacterArt.Load(CharacterArt.Boss, "scoreWrite"),
+                CharacterArt.Load(CharacterArt.Boss, "scoreWrite"),
                 CharacterArt.Load(CharacterArt.Boss, "penalty0"),
                 CharacterArt.Load(CharacterArt.Boss, "penalty1"));
             body.flipX = placement.FaceLeft;
@@ -115,7 +115,7 @@ namespace KMA.EditorTools
         {
             // The Football scene stretches every sprite to a display size; match the kicker's height.
             float kickerScale = FootballSceneConfigurator.KickerDisplayHeight * FootballPresentation.PixelToWorld /
-                                CharacterArt.Load(CharacterArt.Boss, "idleBoss").bounds.size.y;
+                                CharacterArt.Load(CharacterArt.Boss, "strictLook").bounds.size.y;
             return new Placement(FootballPresentation.ScreenToWorld(720f, 560f), .9f * kickerScale, true, 22);
         }
 

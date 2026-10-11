@@ -31,6 +31,7 @@ namespace KMA.EditorTools
             var host=DialoguePresentationAuthoring.Configure(source.transform,DialogueHudSlot.Sprint);
             var opening=source.GetComponent<GameplayOpeningFlow>() ?? source.gameObject.AddComponent<GameplayOpeningFlow>();
             var o=new SerializedObject(opening);o.FindProperty("game").objectReferenceValue=source;o.FindProperty("host").objectReferenceValue=host;o.ApplyModifiedPropertiesWithoutUndo();
+            DialoguePresentationAuthoring.BindResult(source,host);
             var adapter=source.GetComponent<SprintDialogueAdapter>() ?? source.gameObject.AddComponent<SprintDialogueAdapter>();
             var a=new SerializedObject(adapter);a.FindProperty("controller").objectReferenceValue=source;a.FindProperty("host").objectReferenceValue=host;a.FindProperty("opening").objectReferenceValue=opening;
             a.FindProperty("playerAnimator").objectReferenceValue=GameObject.Find("Player")?.GetComponentInChildren<Animator>();a.ApplyModifiedPropertiesWithoutUndo();
