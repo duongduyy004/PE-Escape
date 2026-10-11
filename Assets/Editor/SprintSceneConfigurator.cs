@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using KMA.Gameplay;
+using KMA.Gameplay.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -15,6 +16,25 @@ namespace KMA.EditorTools
         const string RivalPrefabPath = "Assets/_Project/Prefabs/Gameplay/RivalRunner.prefab";
         const string RivalTypeName = "KMA.Gameplay.RivalRunnerAI";
         const string ControllerTypeName = "KMA.Gameplay.SprintController";
+
+        [MenuItem("KMA/Sprint/Configure Dialogue")]
+        public static void ConfigureDialogue()
+        {
+            var scene=EditorSceneManager.OpenScene(ScenePath,OpenSceneMode.Single);
+            ConfigureDialogueInScene(scene);
+            EditorSceneManager.SaveScene(scene);
+            AssetDatabase.SaveAssets();
+        }
+        public static void ConfigureDialogueInScene(Scene scene)
+        {
+            var source=scene.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<SprintController>(true)).Single();
+            var host=DialoguePresentationAuthoring.Configure(source.transform,DialogueHudSlot.Sprint);
+            var opening=source.GetComponent<GameplayOpeningFlow>() ?? source.gameObject.AddComponent<GameplayOpeningFlow>();
+            var o=new SerializedObject(opening);o.FindProperty("game").objectReferenceValue=source;o.FindProperty("host").objectReferenceValue=host;o.ApplyModifiedPropertiesWithoutUndo();
+            var adapter=source.GetComponent<SprintDialogueAdapter>() ?? source.gameObject.AddComponent<SprintDialogueAdapter>();
+            var a=new SerializedObject(adapter);a.FindProperty("controller").objectReferenceValue=source;a.FindProperty("host").objectReferenceValue=host;a.FindProperty("opening").objectReferenceValue=opening;
+            a.FindProperty("playerAnimator").objectReferenceValue=GameObject.Find("Player")?.GetComponentInChildren<Animator>();a.ApplyModifiedPropertiesWithoutUndo();
+        }
 
         static readonly SprintRivalMapping[] RequiredRivals = SprintRivalMappings.Required;
 

@@ -147,6 +147,7 @@ namespace KMA.EditorTools
                     tile.position = world;
                 }
             }
+            SprintSceneConfigurator.ConfigureDialogueInScene(scene);
             EditorSceneManager.SaveScene(scene);
             var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(Art + "Brand/AppIcon.png");
             PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown, new[] { icon });

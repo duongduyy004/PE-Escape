@@ -63,6 +63,8 @@ namespace KMA.Gameplay
         public int TargetCount => challengeDefinition == null ? 0 : challengeDefinition.TargetCount;
         public bool IsLearnChallenge => challengeDefinition != null && challengeDefinition.Kind == ChallengeKind.Learn;
         public event Action<ChallengeAttemptResult> ChallengeCompleted;
+        public event Action<bool> CadenceTapped;
+        public ChallengeDefinition CurrentChallenge => challengeDefinition;
         public int RivalCount => rules == null ? 0 : rules.RivalCount;
         public string GuideKey => SprintGuide.Key;
         public IReadOnlyList<TutorialStep> BuildGuide() =>
@@ -294,6 +296,7 @@ namespace KMA.Gameplay
             Side expected = rules.ExpectedSide;
             rules.Tap(side);
             cadenceCombo = side == expected ? cadenceCombo + 1 : 0;
+            CadenceTapped?.Invoke(side == expected);
             EvaluateTerminalOutcome();
         }
 
