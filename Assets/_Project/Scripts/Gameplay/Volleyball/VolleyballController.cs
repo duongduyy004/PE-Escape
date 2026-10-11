@@ -34,6 +34,7 @@ namespace KMA.Gameplay.Volleyball
         public IReadOnlyList<TutorialStep> BuildGuide() => VolleyballGuide.Build(challengeDefinition?.Kind,
             challengeDefinition?.TargetCount ?? 0, Match.WinningPoints, Match.ClockLimit);
         public event Action<ChallengeAttemptResult> ChallengeCompleted;
+        public ChallengeDefinition CurrentChallenge => challengeDefinition;
 
         public void Configure(VolleyAthleteView player, VolleyAthleteView opponent, VolleyBallView ball,
             VolleyballInputBridge inputBridge, VolleyballHud volleyballHud)

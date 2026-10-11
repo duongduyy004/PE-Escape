@@ -258,6 +258,9 @@ namespace KMA.EditorTools
             var controller = controllerObject.AddComponent<VolleyballController>();
             controller.Configure(player, opponent, ballView, input, null);
             StartLecturerAuthoring.AddToVolleyball(scene);
+            var dialogue=DialoguePresentationAuthoring.Configure(controller.transform,DialogueHudSlot.Volleyball);
+            var adapter=controllerObject.AddComponent<VolleyballDialogueAdapter>();
+            DialoguePresentationAuthoring.WireOpening(controller,dialogue,adapter);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
         }

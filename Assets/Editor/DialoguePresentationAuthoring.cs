@@ -8,6 +8,12 @@ namespace KMA.EditorTools
  public enum DialogueHudSlot { Sprint,Volleyball,Football,Frog,Result,GameOver }
  public static class DialoguePresentationAuthoring
  {
+  public static void WireOpening(MinigameBase source,GameplayDialogueHost host,Component adapter)
+  {
+   var flow=source.GetComponent<GameplayOpeningFlow>() ?? source.gameObject.AddComponent<GameplayOpeningFlow>();
+   var o=new UnityEditor.SerializedObject(flow);o.FindProperty("game").objectReferenceValue=source;o.FindProperty("host").objectReferenceValue=host;o.ApplyModifiedPropertiesWithoutUndo();
+   var a=new UnityEditor.SerializedObject(adapter);a.FindProperty("controller").objectReferenceValue=source;a.FindProperty("host").objectReferenceValue=host;a.FindProperty("opening").objectReferenceValue=flow;a.ApplyModifiedPropertiesWithoutUndo();
+  }
   public static GameplayDialogueHost Configure(Transform root,DialogueHudSlot slot)
   {
    var existing=root.GetComponentInChildren<GameplayDialogueHost>(true);

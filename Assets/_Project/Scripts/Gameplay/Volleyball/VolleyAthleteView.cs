@@ -17,6 +17,7 @@ namespace KMA.Gameplay.Volleyball
         [SerializeField] Sprite[] dive;
 
         AthleteAction? shown;
+        public event System.Action<AthleteAction> ActionPresented;
 
         public void Configure(SpriteRenderer renderer, SpriteFlipbook book, bool mirrored, Sprite[] idleFrames,
             Sprite[] runFrames, Sprite[] receiveFrames, Sprite[] smashFrames, Sprite[] blockFrames, Sprite[] diveFrames)
@@ -63,6 +64,7 @@ namespace KMA.Gameplay.Volleyball
             if (flipbook)
                 flipbook.Play(FramesFor(athlete.Action),
                     athlete.Action == AthleteAction.Idle || athlete.Action == AthleteAction.Run);
+            ActionPresented?.Invoke(athlete.Action);
         }
     }
 }
