@@ -205,7 +205,7 @@ namespace KMA.Tests.Gameplay.Football
             new PointerEventData(EventSystem.current) { pointerId = id, button = PointerEventData.InputButton.Left },
             ExecuteEvents.pointerUpHandler);
 
-        sealed class Fixture
+        internal sealed class Fixture
         {
             public readonly GameObject root;
             public readonly FootballController controller;

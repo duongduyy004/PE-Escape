@@ -60,6 +60,10 @@ namespace KMA.EditorTools
             EnsureEventSystem(scene);
 
             StartLecturerAuthoring.AddToFootball(scene);
+            var dialogueController=UnityEngine.Object.FindFirstObjectByType<FootballController>();
+            var dialogueHost=DialoguePresentationAuthoring.Configure(dialogueController.transform,DialogueHudSlot.Football);
+            var dialogueAdapter=dialogueController.gameObject.AddComponent<FootballDialogueAdapter>();
+            DialoguePresentationAuthoring.WireOpening(dialogueController,dialogueHost,dialogueAdapter);
             ConfigureSubjectAsset();
             EnsureInBuildSettings();
             EditorSceneManager.MarkSceneDirty(scene);

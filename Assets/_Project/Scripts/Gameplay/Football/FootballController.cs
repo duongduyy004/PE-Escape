@@ -47,6 +47,15 @@ namespace KMA.Gameplay
         public MinigameResult LastResult => lastResult;
         public SubjectId Subject => SubjectId.Football;
         public event Action<ChallengeAttemptResult> ChallengeCompleted;
+        public event Action<FootballState> StatePresented;
+        public ChallengeDefinition CurrentChallenge => challengeDefinition;
+        FootballState? presentedState;
+        void NotifyPresentedState()
+        {
+            if (rules == null || presentedState == rules.State) return;
+            presentedState=rules.State;
+            StatePresented?.Invoke(rules.State);
+        }
 
         public void Configure(FootballDifficultyConfig config, FootballInputBridge input,
             FootballPresentation view, FootballHud gameHud, ResultPanel result)
@@ -165,6 +174,7 @@ namespace KMA.Gameplay
 
             FootballFlightSimulation previousFlight = rules.Flight;
             rules.Tick(deltaTime);
+            NotifyPresentedState();
             UpdateAudio(rules.Flight ?? previousFlight);
             RefreshInputAvailability();
             if (rules.State == FootballState.MatchResult)
