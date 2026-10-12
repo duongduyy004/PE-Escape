@@ -29,12 +29,18 @@ namespace KMA.Gameplay
         {
             if (correct || !Playing) return;
             var kind=controller.CurrentChallenge?.Kind;
-            if (kind==ChallengeKind.Learn) host.Emit("sp.learn.wrong",()=>Playing,budgetSeconds:3.7f);
+            if (kind==ChallengeKind.Learn)
+            {
+                host.Emit("sp.learn.wrong",()=>Playing,budgetSeconds:3.7f);
+                controller.SetLearnDialogueSuspended(!host.IsIdle);
+            }
             else if (kind==ChallengeKind.Practice) host.Emit("sp.practice.break",()=>Playing,budgetSeconds:3.7f);
         }
         void Update()
         {
-            if (!Playing || host==null || controller.CurrentChallenge?.Kind!=ChallengeKind.Exam) return;
+            if (controller == null || host == null) return;
+            if (controller.IsLearnChallenge) controller.SetLearnDialogueSuspended(!host.IsIdle);
+            if (!Playing || controller.CurrentChallenge?.Kind!=ChallengeKind.Exam) return;
             float remaining=controller.TargetTime-controller.Snapshot.Elapsed;
             if (!warned && remaining>0 && remaining<=5) { warned=true;host.Emit("sp.exam.lowtime",()=>Playing,budgetSeconds:remaining); }
             bool stumble=playerAnimator!=null && playerAnimator.GetCurrentAnimatorStateInfo(0).IsName("Stumble");
@@ -51,6 +57,7 @@ namespace KMA.Gameplay
         void Unsubscribe()
         {
             if (subscribed && controller!=null) {controller.CadenceTapped-=OnTap;controller.ResultDecided-=OnResult;}
+            controller?.SetLearnDialogueSuspended(false);
             subscribed=false;
         }
         void OnDisable()=>Unsubscribe();

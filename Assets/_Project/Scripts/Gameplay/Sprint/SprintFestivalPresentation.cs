@@ -111,7 +111,7 @@ namespace KMA.Gameplay
             bool learn = definition.Kind == ChallengeKind.Learn;
             if (mode != null)
             {
-                string text = learn ? $"SPRINT · HỌC {definition.TargetCount} NHỊP"
+                string text = learn ? $"SPRINT · HỌC {definition.TimeLimit:0}S · CHUỖI {definition.TargetCount}"
                     : definition.Kind == ChallengeKind.Practice
                         ? $"SPRINT · LUYỆN {definition.Distance:0}M / {definition.TimeLimit:0}S"
                         : $"SPRINT · THI {definition.Distance:0}M / {definition.TimeLimit:0}S";
@@ -119,7 +119,7 @@ namespace KMA.Gameplay
             }
             if (instruction != null)
                 instruction.text = VietText.Fix(learn
-                    ? $"BẤM TRÁI, PHẢI LUÂN PHIÊN {definition.TargetCount} LẦN"
+                    ? $"TẬP LUÂN PHIÊN HAI CHÂN TRONG {definition.TimeLimit:0} GIÂY"
                     : $"CHẠY {definition.Distance:0} M TRONG {definition.TimeLimit:0} GIÂY");
             var finishLine = chrome.GetComponent<SprintFinishLinePresenter>();
             if (finishLine != null)
@@ -277,25 +277,22 @@ namespace KMA.Gameplay
             if (existing != null)
                 Object.DestroyImmediate(existing.gameObject);
 
-            // The tap area keeps its full size — the hit box is unchanged. Only this visual shrinks,
-            // so the button rests on the running lanes without covering the runner in them.
+            // The hit area still owns all input; the larger plate and shoe icon share its press pulse.
             RectTransform visual = UiKit.Rect(tapRect, "Visual");
-            Rect visualRect = SprintUiLayout.ControlVisualRect01;
+            Rect visualRect = SprintUiLayout.ControlVisualRect01(left);
             UiKit.Anchor(visual, new Vector2(visualRect.xMin, visualRect.yMin), new Vector2(visualRect.xMax, visualRect.yMax));
-            ControlPlateHandle control = UiKit.ControlPlate(visual, string.Empty, string.Empty);
-            Sprite shoe = Resources.Load<Sprite>("Icons/SprintShoe");
-            foreach (Image image in new[] { control.Border, control.Background })
-            {
-                image.sprite = shoe;
-                image.type = Image.Type.Simple;
-                image.preserveAspect = true;
-                image.rectTransform.localScale = new Vector3(left ? -1f : 1f, 1f, 1f);
-            }
-            control.Background.color = Color.white;
-            UiKit.Stretch(control.Background.rectTransform, Vector2.one * 6f, -Vector2.one * 6f);
-            control.Arrow.gameObject.SetActive(false);
-            control.Label.gameObject.SetActive(false);
-            return control;
+            ControlPlateHandle plate = UiKit.ControlPlate(visual, string.Empty, string.Empty);
+            plate.Arrow.gameObject.SetActive(false);
+            plate.Label.gameObject.SetActive(false);
+
+            RectTransform iconRoot = UiKit.Rect(visual, "FootIcon");
+            UiKit.Anchor(iconRoot, new Vector2(.31f, .16f), new Vector2(.69f, .84f));
+            Image icon = iconRoot.gameObject.AddComponent<Image>();
+            icon.sprite = left ? SprintFootIcons.Left : SprintFootIcons.Right;
+            icon.preserveAspect = true;
+            icon.color = Color.white;
+            icon.raycastTarget = false;
+            return plate;
         }
 
         static void DisableSharedMetrics(Transform safeArea)

@@ -38,15 +38,17 @@ namespace KMA.Gameplay
 
             var snapshot = controller.Snapshot;
             float progress = controller.IsLearnChallenge
-                ? Mathf.Clamp01((float)controller.CorrectStreak / Mathf.Max(1, controller.TargetCount))
+                ? controller.LearnProgress01
                 : Mathf.Clamp01(snapshot.Distance / Mathf.Max(1f, controller.TargetDistance));
 
             DistanceText = controller.IsLearnChallenge
-                ? $"NHỊP {controller.CorrectStreak} / {controller.TargetCount}"
+                ? $"HỌC · {FormatClock(controller.LearnTimeRemaining)}"
                 : $"{Mathf.RoundToInt(snapshot.Distance)} / {controller.TargetDistance:0} m";
-            RankText = controller.RankText;
+            RankText = controller.IsLearnChallenge ? string.Empty : controller.RankText;
             CadenceText = controller.IsWaitingForRivals ? SprintController.WaitForRivalsText
-                : controller.IsComboBoosting
+                : controller.IsLearnChallenge
+                    ? $"CHUỖI TỐT NHẤT {controller.BestStreak}/{controller.TargetCount}"
+                    : controller.IsComboBoosting
                     ? $"BỨT TỐC ×{controller.CadenceCombo}" : $"CHUỖI ×{controller.CadenceCombo}";
             TimerText = controller.IsLearnChallenge ? string.Empty
                 : $"{Mathf.CeilToInt(Mathf.Max(0f, controller.TargetTime - snapshot.Elapsed))}s";
@@ -54,9 +56,17 @@ namespace KMA.Gameplay
 
             if (distanceLabel != null) distanceLabel.text = VietText.Fix(DistanceText);
             if (rankLabel != null) rankLabel.text = VietText.Fix(RankText);
+            if (rankLabel != null && rankLabel.transform.parent != null)
+                rankLabel.transform.parent.gameObject.SetActive(!controller.IsLearnChallenge);
             if (cadenceLabel != null) cadenceLabel.text = VietText.Fix(CadenceText);
             if (timerLabel != null) timerLabel.text = VietText.Fix(TimerText);
             if (distanceBar != null) distanceBar.SetValue(progress);
+        }
+
+        static string FormatClock(float seconds)
+        {
+            int remaining = Mathf.Max(0, Mathf.CeilToInt(seconds));
+            return $"{remaining / 60:00}:{remaining % 60:00}";
         }
 
 

@@ -31,6 +31,7 @@ namespace KMA.Tests.Gameplay.Running
         public IEnumerator LearnChallengeUsesTouchBridgeAndRaisesOneTypedCompletion()
         {
             var controller = controllerObject.AddComponent<SprintController>();
+            controller.enabled = false; // Keep simulation deterministic before binding the test bridge.
             var router = routerObject.AddComponent<GameplayInputRouter>();
             router.ConfigureSprintForTest(null);
             controller.ConfigureInputRouterForTest(router);
@@ -45,18 +46,54 @@ namespace KMA.Tests.Gameplay.Running
 
             controller.SetTutorialGate(false);
             controller.Simulate(4f);
-            for (int tap = 0; tap < 50; tap++)
+            for (int tap = 0; tap < 12; tap++)
             {
                 router.FeedSprintTapForTest(tap % 2 == 0 ? KMA.Input.Side.Left : KMA.Input.Side.Right,
                     1d + tap * .2d);
                 yield return null;
             }
 
+            Assert.That(completions, Is.Zero, "Twelve valid taps must not resolve Learn early.");
+            var rules = (SprintRules)typeof(SprintController).GetField("rules",
+                BindingFlags.Instance | BindingFlags.NonPublic).GetValue(controller);
+            typeof(SprintRules).GetField("distance", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(rules, definition.Distance + SprintRules.RaceDistance + 10f);
+            controller.Simulate(.05f);
+            Assert.That(completions, Is.Zero, "Race distance must not resolve the Learn lesson.");
+            for (int frame = 0; frame < 500 && completions == 0; frame++) controller.Simulate(.1f);
+
             Assert.That(completions, Is.EqualTo(1));
             Assert.That(received.Pass, Is.True);
+            Assert.That(received.Metrics.Elapsed, Is.EqualTo(definition.TimeLimit).Within(.001f));
             Assert.That(received.ExamResult, Is.Null);
             Assert.That(session.SubmitChallengeResult(received).Accepted, Is.True);
             Assert.That(session.Journey.CheckpointChallengeId, Is.EqualTo("sprint_practice"));
+        }
+
+        [Test]
+        public void LearnClockAndTapProgressFreezeWhileTeacherDialogueIsVisible()
+        {
+            var controller = controllerObject.AddComponent<SprintController>();
+            ChallengeDefinition definition = ChallengeCatalog.LoadDefault().Get("sprint_learn");
+            controller.ConfigureChallenge(definition, new ChallengeAttemptContext(
+                "dialogue-pause", definition.Id, ChallengeAttemptMode.Journey, ChallengeDifficulty.Normal));
+            controller.enabled = false;
+            controller.SetTutorialGate(false);
+            controller.Simulate(4f);
+            Assert.That(controller.Phase, Is.EqualTo(MinigamePhase.Play));
+            float elapsed = controller.Snapshot.Elapsed;
+
+            controller.SetLearnDialogueSuspended(true);
+            controller.OnLeftTap();
+            controller.Simulate(3f);
+            Assert.That(controller.Snapshot.Elapsed, Is.EqualTo(elapsed).Within(.001f));
+            Assert.That(controller.CorrectStreak, Is.Zero, "Taps do not progress during a spoken coaching line.");
+            Assert.That(controller.LearnTimeRemaining,
+                Is.EqualTo(definition.TimeLimit - elapsed).Within(.001f));
+
+            controller.SetLearnDialogueSuspended(false);
+            controller.Simulate(1f);
+            Assert.That(controller.Snapshot.Elapsed, Is.EqualTo(elapsed + 1f).Within(.001f));
         }
 
         [UnityTest]

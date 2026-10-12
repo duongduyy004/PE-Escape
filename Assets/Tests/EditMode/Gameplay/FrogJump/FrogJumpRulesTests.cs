@@ -10,6 +10,20 @@ namespace KMA.Tests.Gameplay.FrogJump
         const float Step = 1f / 60f;
 
         [Test]
+        public void NarrowSafeBandPreservesMasterTimeAndJumpDistances()
+        {
+            var tuning = new FrogJumpTuning();
+            Assert.That(tuning.safeZone, Is.EqualTo(.2f));
+            Assert.That(tuning.timeLimitSeconds, Is.EqualTo(40f));
+            Assert.That(tuning.minJumpMetres, Is.EqualTo(.25f));
+            Assert.That(tuning.maxJumpMetres, Is.EqualTo(1.5f));
+            Assert.That(FrogJumpRules.IsFall(.4f, tuning), Is.False);
+            Assert.That(FrogJumpRules.IsFall(.6f, tuning), Is.False);
+            Assert.That(FrogJumpRules.IsFall(.39f, tuning), Is.True);
+            Assert.That(FrogJumpRules.IsFall(.61f, tuning), Is.True);
+        }
+
+        [Test]
         public void FasterDefaultSweepsEachEdgeInPointSevenSeconds()
         {
             var rules = new FrogJumpRules(new FrogJumpTuning());
@@ -33,9 +47,9 @@ namespace KMA.Tests.Gameplay.FrogJump
         }
 
         [TestCase(.5f, 1.5f)]
-        [TestCase(.3f, .25f)]
-        [TestCase(.7f, .25f)]
-        [TestCase(.4f, .875f)]
+        [TestCase(.4f, .25f)]
+        [TestCase(.6f, .25f)]
+        [TestCase(.45f, .875f)]
         public void JumpShrinksLinearlyFromCentreToTheSafeEdge(float needle, float metres)
         {
             Assert.That(FrogJumpRules.JumpMetres(needle, Tuning), Is.EqualTo(metres).Within(Eps));
@@ -54,13 +68,13 @@ namespace KMA.Tests.Gameplay.FrogJump
         }
 
         [Test]
-        public void OnlyTheMiddleFortyPercentOfTheBarIsSafe()
+        public void OnlyTheMiddleTwentyPercentOfTheBarIsSafe()
         {
             int safe = 0;
             const int samples = 1000;
             for (int i = 0; i < samples; i++)
                 if (!FrogJumpRules.IsFall((i + .5f) / samples, Tuning)) safe++;
-            Assert.That(safe / (float)samples, Is.EqualTo(.4f).Within(.01f));
+            Assert.That(safe / (float)samples, Is.EqualTo(.2f).Within(.01f));
         }
 
         [Test]

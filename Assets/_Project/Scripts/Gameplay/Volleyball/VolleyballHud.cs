@@ -117,7 +117,7 @@ namespace KMA.Gameplay.Volleyball
             if (hintLabel)
             {
                 string hint = challenge == null ? HintText
-                    : challenge.Kind == ChallengeKind.Learn ? $"ĐỠ BÓNG {challengeRules.CompletedTargets}/{challenge.TargetCount}"
+                    : challenge.Kind == ChallengeKind.Learn ? challengeRules.LearnProgressText
                     : challenge.Kind == ChallengeKind.Practice ? string.Format(PracticeHintFormat, challengeRules.CompletedTargets, challenge.TargetCount)
                     : HintText;
                 hintLabel.text = VietText.Fix(hint);

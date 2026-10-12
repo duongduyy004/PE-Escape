@@ -44,8 +44,10 @@ namespace KMA.Tests.Gameplay.Running
   }
   [Test] public void LearnDoneRequiresFinalPass()
   {
-   Setup("sprint_learn");for(int i=0;i<50;i++){if(i%2==0)game.OnLeftTap();else game.OnRightTap();}
-   Assert.That(host.PreferredResultEventId,Is.EqualTo("sp.learn.done"));Assert.That(view.Seen.Count,Is.EqualTo(1));
+   Setup("sprint_learn");for(int i=0;i<12;i++){if(i%2==0)game.OnLeftTap();else game.OnRightTap();}
+   Assert.That(host.PreferredResultEventId,Is.Null,"A streak alone must not finish the timed lesson.");
+   for(int i=0;i<450;i++)game.Simulate(.1f);
+   Assert.That(host.PreferredResultEventId,Is.EqualTo("sp.learn.done"));Assert.That(view.Seen.Count,Is.GreaterThanOrEqualTo(1));
   }
  }
 }

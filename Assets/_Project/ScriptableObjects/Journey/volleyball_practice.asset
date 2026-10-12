@@ -16,11 +16,11 @@ MonoBehaviour:
   subject: 7
   kind: 1
   distance: 0
-  timeLimit: 120
+  timeLimit: 0
   targetCount: 5
   attemptLimit: 0
   keeperEnabled: 0
   difficulty: 0
   timingHelp: 1
-  objective: "Ghi \u0111\u1EE7 5 \u0111i\u1EC3m tr\u01B0\u1EDBc \u0111\u1ED1i th\u1EE7
-    trong t\u1ED1i \u0111a 120 gi\xE2y."
+  objective: "Ghi \u0111\u1EE7 5 \u0111i\u1EC3m tr\u01B0\u1EDBc \u0111\u1ED1i th\u1EE7.
+    Kh\xF4ng gi\u1EDBi h\u1EA1n th\u1EDDi gian."

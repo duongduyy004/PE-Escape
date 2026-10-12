@@ -18,6 +18,7 @@ namespace KMA.EditorTools
         const string PlayerPrefab = "Assets/_Project/Prefabs/Gameplay/PlayerRunnerVisual.prefab";
         const string RivalPrefab = "Assets/_Project/Prefabs/Gameplay/RivalRunner.prefab";
         const string BaseController = Animations + "RivalRunner.controller";
+        const float RunnerVisualScale = 1.25f;
 
         static readonly string[] States = { "Idle", "Run", "Burst", "Stumble", "Celebrate", "Fail" };
 
@@ -289,6 +290,9 @@ namespace KMA.EditorTools
             renderer.sharedMaterial = SpriteMaterial();
             renderer.color = Color.white;
             renderer.transform.localScale = Vector3.one;
+            // The prefab root is outside the animated Visual child, so every state keeps this
+            // visual increase while race X and lane Y remain owned by the existing presenter.
+            root.transform.localScale = Vector3.one * (1.3f * RunnerVisualScale);
             root.GetComponent<Animator>().applyRootMotion = false;
             PrefabUtility.SaveAsPrefabAsset(root, RivalPrefab);
             PrefabUtility.UnloadPrefabContents(root);
@@ -297,6 +301,9 @@ namespace KMA.EditorTools
         static void AuthorPlayer(Sprite idle, RuntimeAnimatorController controller)
         {
             var root = new GameObject("PlayerRunnerVisual");
+            // Clips key only the Visual child. Keeping this scale on its parent prevents an
+            // Idle/Run/Burst curve from resetting the larger sprite between states.
+            root.transform.localScale = Vector3.one * RunnerVisualScale;
             var animator = root.AddComponent<Animator>();
             animator.runtimeAnimatorController = controller;
             animator.applyRootMotion = false;

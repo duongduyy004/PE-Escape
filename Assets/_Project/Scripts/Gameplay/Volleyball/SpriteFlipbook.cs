@@ -36,11 +36,11 @@ namespace KMA.Gameplay.Volleyball
 
         void Update() => Advance(Time.deltaTime);
 
-        public void Play(Sprite[] newFrames, bool shouldLoop)
+        public void Play(Sprite[] newFrames, bool shouldLoop, bool forceRestart = false)
         {
             if (newFrames == null || newFrames.Length == 0)
                 return;
-            if (ReferenceEquals(newFrames, frames) && shouldLoop == loop)
+            if (!forceRestart && ReferenceEquals(newFrames, frames) && shouldLoop == loop)
                 return;
 
             frames = newFrames;

@@ -137,8 +137,12 @@ namespace KMA.Tests.EditorTools
 
             var jump = Object.FindFirstObjectByType<JumpButton>();
             Assert.That(jump, Is.Not.Null);
-            Assert.That(jump.GetComponentInChildren<TMPro.TMP_Text>(), Is.Null);
-            Assert.That(jump.transform.Find("Icon").GetComponent<Image>().sprite.name, Is.EqualTo("VolleyballJump"));
+            Assert.That(jump.GetComponentInChildren<TMPro.TMP_Text>(), Is.Null, "controls use icons without face labels");
+            Assert.That(jump.transform.Find("RoundButton/JumpHead"), Is.Not.Null);
+            Assert.That(jump.GetComponent<Image>().raycastTarget, Is.True);
+            Assert.That(jump.GetComponent<Image>().color.a, Is.Zero);
+            foreach (Image iconPart in jump.transform.Find("RoundButton").GetComponentsInChildren<Image>(true))
+                Assert.That(iconPart.raycastTarget, Is.False, iconPart.name);
             Assert.That(jump.GetComponent<KitPressFeedback>(), Is.Not.Null);
 
             var controller = Object.FindFirstObjectByType<VolleyballController>();
@@ -156,7 +160,7 @@ namespace KMA.Tests.EditorTools
             Rect jumpArea = WorldRect((RectTransform)jump.transform);
             Rect hitArea = WorldRect((RectTransform)Object.FindFirstObjectByType<ActionButton>().transform);
             Assert.That(jumpArea.Overlaps(hitArea), Is.False, "two thumbs must not share a hit area");
-            Rect jumpDisc = WorldRect((RectTransform)jump.transform.Find("Icon"));
+            Rect jumpDisc = WorldRect((RectTransform)jump.transform.Find("RoundButton"));
             Assert.That(jumpArea.Contains(jumpDisc.min) && jumpArea.Contains(jumpDisc.max), Is.True,
                 "every visible pixel of NHẢY must be tappable");
             Assert.That(jumpDisc.Overlaps(hitArea), Is.False, "tapping NHẢY's edge must not hit ĐÁNH");
@@ -181,7 +185,7 @@ namespace KMA.Tests.EditorTools
             var action = Object.FindFirstObjectByType<ActionButton>();
             var feedback = action.GetComponent<KitPressFeedback>();
             Assert.That(feedback, Is.Not.Null);
-            Assert.That(feedback.RestColor, Is.EqualTo(Color.white));
+            Assert.That(feedback.RestColor, Is.EqualTo(MinigameUiTheme.VolleyballControlSurface));
 
             Assert.That(GameObject.Find("JoystickBase").GetComponent<Image>().sprite, Is.SameAs(assets.Circle));
             Assert.That(GameObject.Find("PlayerTitle").GetComponent<TMPro.TMP_Text>().color, Is.EqualTo(MinigameUiTheme.Player));

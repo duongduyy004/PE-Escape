@@ -24,12 +24,23 @@ namespace KMA.Tests.Gameplay.Ball
         }
 
         [Test]
-        public void KeeperHoldsSavesAndIsBeatenOnlyByGoals()
+        public void KeeperUsesDirectionalLandingThenCheersOnlyAfterASave()
         {
-            Assert.That(FootballPoses.Keeper(null), Is.EqualTo(KeeperPose.Ready));
-            Assert.That(FootballPoses.Keeper(FootballOutcome.Saved), Is.EqualTo(KeeperPose.Save));
-            Assert.That(FootballPoses.Keeper(FootballOutcome.Goal), Is.EqualTo(KeeperPose.Beaten));
-            Assert.That(FootballPoses.Keeper(FootballOutcome.Post), Is.EqualTo(KeeperPose.Ready));
+            const float diveAt = 1f, centreDeadZone = .08f, landingHold = .3f, cheer = .45f;
+            KeeperPose At(FootballOutcome? outcome, float x, float elapsed) =>
+                FootballPoses.Keeper(outcome, x, elapsed, diveAt, centreDeadZone, landingHold, cheer);
+
+            Assert.That(At(null, -2f, 0f), Is.EqualTo(KeeperPose.Ready));
+            Assert.That(At(FootballOutcome.Goal, -.5f, .1f), Is.EqualTo(KeeperPose.ReachLeft));
+            Assert.That(At(FootballOutcome.Saved, .5f, .1f), Is.EqualTo(KeeperPose.ReachRight));
+            Assert.That(At(FootballOutcome.Goal, -1f, .1f), Is.EqualTo(KeeperPose.DiveLeft));
+            Assert.That(At(FootballOutcome.Saved, 1f, .1f), Is.EqualTo(KeeperPose.DiveRight));
+            Assert.That(At(FootballOutcome.Saved, .04f, .1f), Is.EqualTo(KeeperPose.Ready), "A central save stays central.");
+            Assert.That(At(FootballOutcome.Saved, -1.5f, .3f), Is.EqualTo(KeeperPose.Cheer));
+            Assert.That(At(FootballOutcome.Saved, -1.5f, .74f), Is.EqualTo(KeeperPose.Cheer));
+            Assert.That(At(FootballOutcome.Saved, -1.5f, .75f), Is.EqualTo(KeeperPose.Ready));
+            Assert.That(At(FootballOutcome.Goal, -1.5f, .3f), Is.EqualTo(KeeperPose.Ready), "A goal never cheers.");
+            Assert.That(At(FootballOutcome.Post, 1.5f, .4f), Is.EqualTo(KeeperPose.Ready), "Other outcomes never cheer.");
         }
 
         [Test]
@@ -39,15 +50,19 @@ namespace KMA.Tests.Gameplay.Ball
             var set = new FootballPoseSprites
             {
                 kickerReady = Make("kr"), kickerRunUp = Make("ku"), kickerStrike = Make("ks"), kickerCelebrate = Make("kc"),
-                keeperReady = Make("gr"), keeperSave = Make("gs"), keeperBeaten = Make("gb")
+                keeperReady = Make("gr"), keeperReachLeft = Make("grl"), keeperReachRight = Make("grr"),
+                keeperDiveLeft = Make("gdl"), keeperDiveRight = Make("gdr"), keeperCheer = Make("gc")
             };
             Assert.That(set.For(KickerPose.Ready), Is.SameAs(set.kickerReady));
             Assert.That(set.For(KickerPose.RunUp), Is.SameAs(set.kickerRunUp));
             Assert.That(set.For(KickerPose.Strike), Is.SameAs(set.kickerStrike));
             Assert.That(set.For(KickerPose.Celebrate), Is.SameAs(set.kickerCelebrate));
             Assert.That(set.For(KeeperPose.Ready), Is.SameAs(set.keeperReady));
-            Assert.That(set.For(KeeperPose.Save), Is.SameAs(set.keeperSave));
-            Assert.That(set.For(KeeperPose.Beaten), Is.SameAs(set.keeperBeaten));
+            Assert.That(set.For(KeeperPose.ReachLeft), Is.SameAs(set.keeperReachLeft));
+            Assert.That(set.For(KeeperPose.ReachRight), Is.SameAs(set.keeperReachRight));
+            Assert.That(set.For(KeeperPose.DiveLeft), Is.SameAs(set.keeperDiveLeft));
+            Assert.That(set.For(KeeperPose.DiveRight), Is.SameAs(set.keeperDiveRight));
+            Assert.That(set.For(KeeperPose.Cheer), Is.SameAs(set.keeperCheer));
         }
 
         [Test]

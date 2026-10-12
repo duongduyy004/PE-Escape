@@ -13,17 +13,25 @@ namespace KMA.Tests.EditorTools
     public sealed class FrogJumpSceneTests
     {
         [Test]
-        public void AuthoredNeedleUsesTheFasterSweepWithoutChangingJumpDistance()
+        public void AuthoredBalanceUsesNarrowSafeBandWithoutChangingTimeOrJumpDistance()
         {
             var config = AssetDatabase.LoadAssetAtPath<FrogJumpBalanceConfig>(
                 "Assets/_Project/ScriptableObjects/FrogJump/FrogJumpBalance.asset");
+            Assert.That(config.Tuning.trackMetres, Is.EqualTo(60f));
+            Assert.That(config.Tuning.timeLimitSeconds, Is.EqualTo(40f));
+            Assert.That(config.Tuning.safeZone, Is.EqualTo(.2f));
+            Assert.That(config.Tuning.minJumpMetres, Is.EqualTo(.25f));
+            Assert.That(config.Tuning.maxJumpMetres, Is.EqualTo(1.5f));
+            Assert.That(config.Tuning.sweepSeconds, Is.EqualTo(.7f));
+            Assert.That(config.Tuning.jumpSeconds, Is.EqualTo(.6f));
+            Assert.That(config.Tuning.recoverSeconds, Is.EqualTo(2.5f));
             var rules = new FrogJumpRules(config.Tuning);
             rules.Tick(.35f);
             Assert.That(rules.Needle01, Is.EqualTo(.5f).Within(.001f));
             rules.Stop();
             rules.Tick(.6f);
             Assert.That(rules.Distance, Is.EqualTo(1.5f).Within(.001f));
-            Assert.That(rules.TimeRemaining, Is.EqualTo(59.05f).Within(.001f));
+            Assert.That(rules.TimeRemaining, Is.EqualTo(39.05f).Within(.001f));
         }
 
         [Test]

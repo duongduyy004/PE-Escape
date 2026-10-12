@@ -6,6 +6,7 @@ namespace KMA.Gameplay
     public sealed class SprintChallengeRules
     {
         readonly ChallengeDefinition definition;
+        int bestStreak;
 
         public SprintChallengeRules(ChallengeDefinition definition, SprintBalanceParameters balance,
             RivalPaceProfile[] rivals)
@@ -19,13 +20,21 @@ namespace KMA.Gameplay
         }
 
         public SprintRules Race { get; }
+        public int BestStreak => bestStreak;
+        public float LearnTimeRemaining => definition.Kind == ChallengeKind.Learn
+            ? Mathf.Max(0f, definition.TimeLimit - Race.Elapsed) : 0f;
+        public float LearnProgress01 => definition.Kind == ChallengeKind.Learn && definition.TimeLimit > 0f
+            ? Mathf.Clamp01(Race.Elapsed / definition.TimeLimit) : 0f;
         public bool IsComplete => definition.Kind == ChallengeKind.Learn
-            ? Race.CorrectStreak >= definition.TargetCount
+            ? definition.TimeLimit > 0f && Race.Elapsed >= definition.TimeLimit
             : Race.Distance >= definition.Distance || Race.Elapsed >= definition.TimeLimit;
 
         public void Tap(Side side)
         {
-            if (!IsComplete) Race.Tap(side);
+            if (IsComplete) return;
+            Race.Tap(side);
+            if (definition.Kind == ChallengeKind.Learn)
+                bestStreak = Mathf.Max(bestStreak, Race.CorrectStreak);
         }
 
         public void Tick(float dt)
@@ -48,7 +57,7 @@ namespace KMA.Gameplay
             int completedTargets;
             if (definition.Kind == ChallengeKind.Learn)
             {
-                completedTargets = Mathf.Min(Race.CorrectStreak, definition.TargetCount);
+                completedTargets = Mathf.Min(bestStreak, definition.TargetCount);
                 passed = completedTargets >= definition.TargetCount;
             }
             else

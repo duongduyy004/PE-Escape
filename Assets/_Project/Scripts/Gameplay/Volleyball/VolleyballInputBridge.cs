@@ -30,6 +30,7 @@ namespace KMA.Gameplay.Volleyball
                 SubscribeButtons();
         }
 
+        public ActionButton ActionButton => actionButton;
         public JumpButton JumpButton => jumpButton;
 
         public Vector2 Move

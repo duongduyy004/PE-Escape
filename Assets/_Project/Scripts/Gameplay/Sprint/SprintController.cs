@@ -40,6 +40,7 @@ namespace KMA.Gameplay
         int cadenceCombo;
         float stepDistance;
         float rivalWaitElapsed;
+        bool learnDialogueSuspended;
 
         public bool IsWaitingForRivals => rules != null && rules.IsFinished && !terminalResolved;
         public bool InputActionsReady => directInputEnabled && leftAction != null && rightAction != null;
@@ -53,6 +54,9 @@ namespace KMA.Gameplay
         public string RankText => "VỊ TRÍ " + Mathf.Clamp(Rank, 1, 4);
         public int CadenceCombo => cadenceCombo;
         public int CorrectStreak => rules == null ? 0 : rules.CorrectStreak;
+        public int BestStreak => challengeRules == null ? CorrectStreak : challengeRules.BestStreak;
+        public float LearnTimeRemaining => challengeRules == null ? 0f : challengeRules.LearnTimeRemaining;
+        public float LearnProgress01 => challengeRules == null ? 0f : challengeRules.LearnProgress01;
         public bool IsComboBoosting => rules != null && rules.IsComboBoosting;
         public float[] RivalDistances => rules == null ? System.Array.Empty<float>() : rules.RivalDistances;
         public SubjectId Subject => SubjectId.Sprint;
@@ -96,6 +100,7 @@ namespace KMA.Gameplay
             rules = challengeRules.Race;
             terminalResolved = false;
             rivalWaitElapsed = 0f;
+            learnDialogueSuspended = false;
             cadenceCombo = 0;
             stepDistance = 0f;
             LastResult = null;
@@ -103,7 +108,7 @@ namespace KMA.Gameplay
             SprintStartPresentation presentation = FindFirstObjectByType<SprintStartPresentation>(
                 FindObjectsInactive.Include);
             presentation?.ConfigureInstruction(definition.Kind == ChallengeKind.Learn
-                ? $"BẤM TRÁI, PHẢI LUÂN PHIÊN {definition.TargetCount} LẦN"
+                ? $"TẬP LUÂN PHIÊN HAI CHÂN TRONG {definition.TimeLimit:0} GIÂY"
                 : $"CHẠY {definition.Distance:0} M TRONG {definition.TimeLimit:0} GIÂY");
         }
 
@@ -205,6 +210,10 @@ namespace KMA.Gameplay
                 OnRightTap();
         }
 
+        /// The Learn familiarity clock advances only while the learner can play; Sprint teacher lines
+        /// are shown on unscaled time, so suspend the lesson simulation until the line has finished.
+        public void SetLearnDialogueSuspended(bool suspended) => learnDialogueSuspended = suspended;
+
         public void ConfigureForTest()
         {
             Lifecycle = new MinigameLifecycle(0f, 0f);
@@ -212,6 +221,7 @@ namespace KMA.Gameplay
             Lifecycle.Tick(0f);
             rules = SprintRules.ForTest(0f, 0f, 1);
             terminalResolved = false;
+            learnDialogueSuspended = false;
             cadenceCombo = 0;
             LastResult = null;
             challengeRules = null;
@@ -266,15 +276,16 @@ namespace KMA.Gameplay
             phase: Phase.ToString(),
             timeRemaining: Mathf.Max(0f, rules == null ? 0f : TargetTime - rules.Elapsed),
             progress01: challengeDefinition != null && challengeDefinition.Kind == ChallengeKind.Learn
-                ? Mathf.Clamp01((rules == null ? 0f : (float)rules.CorrectStreak) / Mathf.Max(1, TargetCount))
+                ? (challengeRules == null ? 0f : challengeRules.LearnProgress01)
                 : Mathf.Clamp01((rules == null ? 0f : rules.Snapshot.Distance) / TargetDistance),
             stamina01: 0f,
             score: 0f,
             statusText: IsWaitingForRivals ? WaitForRivalsText : challengeDefinition == null ? "TAP LEFT / RIGHT"
                 : challengeDefinition.Kind == ChallengeKind.Learn
-                    ? $"CHUỖI {rules.CorrectStreak}/{TargetCount}" : $"{TargetDistance:0} M · {TargetTime:0} S");
+                    ? $"CHUỖI TỐT NHẤT {BestStreak}/{TargetCount}" : $"{TargetDistance:0} M · {TargetTime:0} S");
         protected override void TickPlay(float dt)
         {
+            if (IsLearnChallenge && learnDialogueSuspended) return;
             float before = rules.Snapshot.Distance;
             if (challengeRules != null) challengeRules.Tick(dt);
             else rules.Tick(dt);
@@ -290,11 +301,13 @@ namespace KMA.Gameplay
 
         void OnTap(Side side)
         {
-            if (Lifecycle.Phase != MinigamePhase.Play || rules.IsFinished)
+            if (Time.timeScale <= 0f || Lifecycle.Phase != MinigamePhase.Play || rules.IsFinished ||
+                (IsLearnChallenge && learnDialogueSuspended))
                 return;
 
             Side expected = rules.ExpectedSide;
-            rules.Tap(side);
+            if (challengeRules != null) challengeRules.Tap(side);
+            else rules.Tap(side);
             cadenceCombo = side == expected ? cadenceCombo + 1 : 0;
             CadenceTapped?.Invoke(side == expected);
             EvaluateTerminalOutcome();

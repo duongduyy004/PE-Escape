@@ -16,11 +16,12 @@ MonoBehaviour:
   subject: 0
   kind: 0
   distance: 0
-  timeLimit: 0
-  targetCount: 50
+  timeLimit: 45
+  targetCount: 12
   attemptLimit: 0
   keeperEnabled: 0
   difficulty: 1
   timingHelp: 1
-  objective: "B\u1EA5m TR\xC1I, PH\u1EA2I lu\xE2n phi\xEAn \u0111\xFAng 50 nh\u1ECBp
-    li\xEAn ti\u1EBFp. Kh\xF4ng gi\u1EDBi h\u1EA1n th\u1EDDi gian."
+  objective: "T\u1EADp b\u1EA5m TR\xC1I, PH\u1EA2I lu\xE2n phi\xEAn trong 45 gi\xE2y.
+    C\u1EA7n \u0111\u1EA1t chu\u1ED7i 12 nh\u1ECBp h\u1EE3p l\u1EC7 \xEDt nh\u1EA5t
+    m\u1ED9t l\u1EA7n."

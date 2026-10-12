@@ -19,16 +19,15 @@ namespace KMA.Gameplay.Volleyball
             string goal;
             if (kind == ChallengeKind.Learn)
             {
-                goal = $"Đỡ bóng thành công {learnTarget} lần. Đối thủ giao bóng trong bài làm quen.";
+                goal = $"Đỡ bóng thành công {VolleyballChallengeRules.LearnReceiveTarget} lần, phát bóng {VolleyballChallengeRules.LearnServeTarget} lần, rồi nhảy và đánh trả bóng {VolleyballChallengeRules.LearnJumpHitTarget} lần. Di chuyển để làm quen; đỡ và phát bóng được đối thủ cấp bóng.";
             }
             else
             {
                 goal = $"Ghi đủ {pointsToWin} điểm trước đối thủ" +
                        (clockLimit > 0f ? $" trong tối đa {MinigameGuidePages.Number(clockLimit)} giây." : ".");
-                // Practice keeps the serve with the opponent (VolleyballChallengeRules).
-                goal += kind == ChallengeKind.Practice
-                    ? " Đối thủ luôn giao bóng."
-                    : " Hai bên luân phiên giao bóng.";
+                goal += " Người chơi giao bóng đầu tiên. Bên ghi điểm được giao bóng tiếp.";
+                if (clockLimit > 0f)
+                    goal += " Hết giờ chưa đủ điểm vẫn chưa đạt, kể cả đang dẫn điểm.";
             }
 
             return MinigameGuidePages.Pages(

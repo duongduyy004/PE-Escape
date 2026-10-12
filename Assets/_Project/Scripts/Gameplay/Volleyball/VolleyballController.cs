@@ -165,8 +165,14 @@ namespace KMA.Gameplay.Volleyball
             opponentView.Render(Match.Opponent);
             ballView.Render(Match);
             hud.Render(Match, PresentationPhase, Time.deltaTime);
-            if (input.JumpButton)
-                input.JumpButton.SetCue(PresentationPhase == MinigamePhase.Play && Match.TryGetJumpCue(out _));
+            bool controlsEnabled = PresentationPhase == MinigamePhase.Play && !Match.IsOver &&
+                                   (challengeRules == null || !challengeRules.IsPresentationPending);
+            if (input && input.ActionButton) input.ActionButton.SetInteractable(controlsEnabled);
+            if (input && input.JumpButton)
+            {
+                input.JumpButton.SetInteractable(controlsEnabled);
+                input.JumpButton.SetCue(controlsEnabled && Match.TryGetJumpCue(out _));
+            }
         }
 
         protected override MinigameHudState BuildHudState() => new MinigameHudState(

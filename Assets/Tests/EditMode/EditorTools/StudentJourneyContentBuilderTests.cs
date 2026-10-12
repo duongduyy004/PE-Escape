@@ -11,7 +11,7 @@ namespace KMA.Tests.EditorTools
     public sealed class StudentJourneyContentBuilderTests
     {
         [Test]
-        public void RegenerationPreservesCurrentSprintTimings()
+        public void RegenerationPreservesCurrentChallengeTimings()
         {
             ChallengeCatalog catalog = ChallengeCatalog.LoadDefault();
             var snapshots = catalog.Ordered.Select(AssetDatabase.GetAssetPath)
@@ -26,6 +26,8 @@ namespace KMA.Tests.EditorTools
                     Assert.That(catalog.Get("sprint_practice").TimeLimit, Is.EqualTo(20f));
                     Assert.That(catalog.Get("sprint_exam").TimeLimit, Is.EqualTo(15f));
                     Assert.That(catalog.Get("sprint_exam").Distance, Is.EqualTo(150f));
+                    Assert.That(catalog.Get("volleyball_practice").TimeLimit, Is.Zero);
+                    Assert.That(catalog.Get("volleyball_exam").TimeLimit, Is.EqualTo(90f));
                 }
             }
             finally

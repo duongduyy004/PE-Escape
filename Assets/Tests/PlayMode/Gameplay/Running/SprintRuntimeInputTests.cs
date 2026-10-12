@@ -18,10 +18,12 @@ namespace KMA.Tests.Gameplay.Running
         InputActionAsset actions;
         Keyboard keyboard;
         Touchscreen touchscreen;
+        float originalTimeScale;
 
         [SetUp]
         public void Setup()
         {
+            originalTimeScale = Time.timeScale;
             routerObject = new GameObject("GameplayInputRouter");
             controllerObject = new GameObject("SprintController");
         }
@@ -37,6 +39,7 @@ namespace KMA.Tests.Gameplay.Running
             Object.DestroyImmediate(routerObject);
             if (actions != null)
                 Object.DestroyImmediate(actions);
+            Time.timeScale = originalTimeScale;
         }
 
         [Test]
@@ -72,6 +75,29 @@ namespace KMA.Tests.Gameplay.Running
             Assert.That(controller.Snapshot.Distance, Is.GreaterThan(afterLeft.Distance));
             Assert.That(left.bindings[0].path, Is.EqualTo("<Keyboard>/leftArrow"));
             Assert.That(right.bindings[0].path, Is.EqualTo("<Keyboard>/rightArrow"));
+        }
+
+        [Test]
+        public void SprintTapsAreIgnoredWhilePausedForDirectAndRoutedInput()
+        {
+            var controller = controllerObject.AddComponent<KMA.Gameplay.SprintController>();
+            controller.ConfigureForTest();
+            actions = ScriptableObject.CreateInstance<InputActionAsset>();
+            var map = actions.AddActionMap("Sprint");
+            map.AddAction("SprintLeft", InputActionType.Button, "<Keyboard>/leftArrow");
+            map.AddAction("SprintRight", InputActionType.Button, "<Keyboard>/rightArrow");
+            var router = routerObject.AddComponent<KMA.Input.GameplayInputRouter>();
+            controller.ConfigureInputRouterForTest(router);
+            router.ConfigureSprintForTest(actions);
+            var before = controller.Snapshot;
+
+            Time.timeScale = 0f;
+            controller.OnLeftTap();
+            router.FeedSprintTapForTest(KMA.Input.Side.Left, 1d);
+
+            Assert.That(controller.Snapshot, Is.EqualTo(before));
+            Assert.That(controller.ExpectedSide, Is.EqualTo(KMA.Gameplay.Side.Left));
+            Assert.That(controller.CadenceCombo, Is.Zero);
         }
 
         [Test]

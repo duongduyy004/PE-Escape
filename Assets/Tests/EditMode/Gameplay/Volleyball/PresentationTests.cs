@@ -56,6 +56,23 @@ namespace KMA.Tests.Gameplay.Volleyball
             Assert.That(renderer.sprite, Is.SameAs(frames[2]));
         }
 
+
+        [Test]
+        public void SameFlipbookActionCanBeRestartedOnARepeatedContact()
+        {
+            SpriteRenderer renderer = Renderer("RestartBook");
+            var book = renderer.gameObject.AddComponent<SpriteFlipbook>();
+            Sprite[] frames = Frames("repeat", 3);
+            book.Configure(renderer, frames, false, 12f);
+            book.Advance(.16f);
+            Assert.That(book.FrameIndex, Is.EqualTo(1));
+
+            book.Play(frames, false, forceRestart: true);
+
+            Assert.That(book.FrameIndex, Is.Zero);
+            Assert.That(renderer.sprite, Is.SameAs(frames[0]));
+        }
+
         [Test]
         public void AthleteViewFollowsTheModel()
         {
@@ -65,6 +82,11 @@ namespace KMA.Tests.Gameplay.Volleyball
             Sprite[] idle = Frames("idle", 2), run = Frames("run", 2), receive = Frames("rec", 2),
                 smash = Frames("smash", 2), block = Frames("block", 2), dive = Frames("dive", 2);
             view.Configure(body, book, true, idle, run, receive, smash, block, dive);
+            Sprite[] serve = Frames("serve", 2), toss = Frames("toss", 1), dig = Frames("dig", 1),
+                set = Frames("set", 1), recover = Frames("recover", 1), load = Frames("load", 1),
+                windup = Frames("windup", 1), contact = Frames("contact", 1), follow = Frames("follow", 1),
+                land = Frames("land", 1);
+            view.ConfigureSequences(serve, toss, dig, set, recover, load, windup, contact, follow, land);
 
             var athlete = new VolleyAthlete(CourtSide.Opponent, 5f);
             athlete.PlaceAt(new Vector2(5f, 2f));
@@ -76,10 +98,11 @@ namespace KMA.Tests.Gameplay.Volleyball
 
             athlete.BeginAction(AthleteAction.Smash, .45f);
             view.Render(athlete);
-            Assert.That(book.Frames, Is.SameAs(smash));
+            Assert.That(book.Frames, Is.SameAs(contact));
             Assert.That(book.Loop, Is.False);
-            Assert.That(view.FramesFor(AthleteAction.Serve), Is.SameAs(smash));
-            Assert.That(view.FramesFor(AthleteAction.Dive), Is.SameAs(dive));
+            Assert.That(view.FramesFor(AthleteAction.Serve), Is.SameAs(serve));
+            Assert.That(view.FramesFor(AthleteAction.Serve), Is.Not.SameAs(view.FramesFor(AthleteAction.Smash)));
+            CollectionAssert.Contains(view.FramesFor(AthleteAction.Dive), dive[0]);
             Assert.That(view.FramesFor(AthleteAction.Run), Is.SameAs(run));
         }
 

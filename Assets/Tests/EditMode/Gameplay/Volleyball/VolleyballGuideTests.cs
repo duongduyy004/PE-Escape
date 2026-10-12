@@ -7,11 +7,11 @@ namespace KMA.Tests.Gameplay.Volleyball
     public sealed class VolleyballGuideTests
     {
         [Test]
-        public void LearnCountsReceives()
+        public void LearnExplainsAllThreeDrills()
         {
             var pages = VolleyballGuide.Build(ChallengeKind.Learn, 3, 0, 0f);
             Assert.That(pages.Count, Is.EqualTo(4));
-            Assert.That(pages[0].Instruction, Is.EqualTo("Đỡ bóng thành công 3 lần. Đối thủ giao bóng trong bài làm quen."));
+            Assert.That(pages[0].Instruction, Is.EqualTo("Đỡ bóng thành công 3 lần, phát bóng 2 lần, rồi nhảy và đánh trả bóng 2 lần. Di chuyển để làm quen; đỡ và phát bóng được đối thủ cấp bóng."));
             Assert.That(pages[1].Title, Is.EqualTo("DI CHUYỂN"));
             Assert.That(pages[1].Instruction, Is.EqualTo("Kéo joystick để di chuyển đến vị trí bóng rơi."));
             Assert.That(pages[2].Title, Is.EqualTo("ĐÁNH VÀ NHẢY"));
@@ -24,21 +24,21 @@ namespace KMA.Tests.Gameplay.Volleyball
         }
 
         [Test]
-        public void PracticeIsARaceAgainstTheClock()
+        public void PracticeUsesWinnerServesWithoutAClock()
         {
-            var pages = VolleyballGuide.Build(ChallengeKind.Practice, 5, 5, 120f);
+            var pages = VolleyballGuide.Build(ChallengeKind.Practice, 5, 5, 0f);
             Assert.That(pages.Count, Is.EqualTo(5));
             Assert.That(pages[0].Instruction,
-                Is.EqualTo("Ghi đủ 5 điểm trước đối thủ trong tối đa 120 giây. Đối thủ luôn giao bóng."));
+                Is.EqualTo("Ghi đủ 5 điểm trước đối thủ. Người chơi giao bóng đầu tiên. Bên ghi điểm được giao bóng tiếp."));
             Assert.That(pages[4].Title, Is.EqualTo("NẾU CHƯA ĐẠT"));
         }
 
         [Test]
-        public void ExamHasNoClockAndAlternatesServes()
+        public void ExamExplainsNinetySecondDeadlineAndWinnerServes()
         {
-            var pages = VolleyballGuide.Build(ChallengeKind.Exam, 10, 10, 0f);
+            var pages = VolleyballGuide.Build(ChallengeKind.Exam, 10, 10, 90f);
             Assert.That(pages[0].Instruction,
-                Is.EqualTo("Ghi đủ 10 điểm trước đối thủ. Hai bên luân phiên giao bóng."));
+                Is.EqualTo("Ghi đủ 10 điểm trước đối thủ trong tối đa 90 giây. Người chơi giao bóng đầu tiên. Bên ghi điểm được giao bóng tiếp. Hết giờ chưa đủ điểm vẫn chưa đạt, kể cả đang dẫn điểm."));
         }
     }
 }
