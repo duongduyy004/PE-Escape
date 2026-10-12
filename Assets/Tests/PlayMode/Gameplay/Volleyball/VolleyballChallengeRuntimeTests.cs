@@ -11,6 +11,8 @@ namespace KMA.Tests.Gameplay.Volleyball
     {
         GameObject root;
         GameObject viewRoot;
+        Texture2D poseTexture;
+        Sprite[] poseSprites;
 
         [UnityTest]
         public IEnumerator ExamDeadlineProducesOneTypedScoredResult()
@@ -84,6 +86,86 @@ namespace KMA.Tests.Gameplay.Volleyball
             yield return null;
         }
 
+        [UnityTest]
+        public IEnumerator DigSpikeContactAndLandingUseTheirAuthoredPoseSprites()
+        {
+            viewRoot = new GameObject("PoseTimelineViews");
+            poseTexture = new Texture2D(32, 4, TextureFormat.RGBA32, false);
+            poseSprites = new Sprite[8];
+            for (int i = 0; i < poseSprites.Length; i++)
+                poseSprites[i] = Sprite.Create(poseTexture, new Rect(i * 4, 0, 4, 4), Vector2.zero);
+
+            var go = new GameObject("PoseTimelinePlayer");
+            go.transform.SetParent(viewRoot.transform);
+            var renderer = go.AddComponent<SpriteRenderer>();
+            var book = go.AddComponent<SpriteFlipbook>();
+            var view = go.AddComponent<VolleyAthleteView>();
+            Sprite[] idle = { poseSprites[0] };
+            view.Configure(renderer, book, false, idle, idle, idle, idle, idle, idle);
+            Sprite[] dig = { poseSprites[1] }, recover = { poseSprites[2] }, jumpLoad = { poseSprites[3] };
+            Sprite[] windup = { poseSprites[4] }, contact = { poseSprites[5] }, follow = { poseSprites[6] }, land = { poseSprites[7] };
+            view.ConfigureSequences(null, null, dig, idle, recover, jumpLoad, windup, contact, follow, land);
+            var athlete = new VolleyAthlete(CourtSide.Player, VolleyballMatch.PlayerSpeed);
+            athlete.PlaceAt(Vector2.zero);
+
+            athlete.BeginAction(AthleteAction.Dig, VolleyballMatch.ReceiveSeconds);
+            view.Render(athlete);
+            Assert.That(book.Frames, Is.SameAs(dig), "a low legal receive starts with the Dig art");
+            athlete.Tick(.2f);
+            view.Render(athlete);
+            Assert.That(book.Frames, Is.SameAs(recover), "the dig transitions into recovery");
+
+            athlete.PlaceAt(Vector2.zero);
+            Assert.That(athlete.TryJump(AthleteAction.JumpLoad), Is.True);
+            view.Render(athlete);
+            Assert.That(book.Frames, Is.SameAs(jumpLoad));
+            athlete.Tick(.2f);
+            view.Render(athlete);
+            Assert.That(book.Frames, Is.SameAs(windup), "the airborne approach uses spike windup");
+
+            athlete.BeginAction(AthleteAction.Smash, VolleyballMatch.SmashSeconds);
+            view.Render(athlete);
+            Assert.That(book.Frames, Is.SameAs(contact), "the smash contact starts on the spike-contact sprite");
+            athlete.Tick(.15f);
+            view.Render(athlete);
+            Assert.That(book.Frames, Is.SameAs(follow));
+            athlete.Tick(.5f);
+            view.Render(athlete);
+            Assert.That(book.Frames, Is.SameAs(land), "the airborne landing phase uses its dedicated Land sprite");
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator LegacyOpponentSmashKeepsItsFullAuthoredActionStrip()
+        {
+            viewRoot = new GameObject("LegacyPoseTimelineViews");
+            poseTexture = new Texture2D(8, 4, TextureFormat.RGBA32, false);
+            poseSprites = new Sprite[2];
+            for (int i = 0; i < poseSprites.Length; i++)
+                poseSprites[i] = Sprite.Create(poseTexture, new Rect(i * 4, 0, 4, 4), Vector2.zero);
+
+            var go = new GameObject("LegacyOpponent");
+            go.transform.SetParent(viewRoot.transform);
+            var renderer = go.AddComponent<SpriteRenderer>();
+            var book = go.AddComponent<SpriteFlipbook>();
+            var view = go.AddComponent<VolleyAthleteView>();
+            Sprite[] idle = { poseSprites[0] };
+            Sprite[] smash = { poseSprites[0], poseSprites[1] };
+            view.Configure(renderer, book, true, idle, idle, idle, smash, idle, idle);
+            // SharedVolleyPoses has no per-phase arrays; it must keep using Smash as one flipbook.
+            view.ConfigureSequences(null, null, null, null, null, null, null, null, null, null);
+            var athlete = new VolleyAthlete(CourtSide.Opponent, VolleyballMatch.OpponentBaseSpeed);
+            athlete.PlaceAt(Vector2.zero);
+            athlete.BeginAction(AthleteAction.Smash, 1f);
+
+            view.Render(athlete);
+            Assert.That(book.Frames, Is.SameAs(smash));
+            book.Advance(.1f);
+            Assert.That(renderer.sprite, Is.SameAs(poseSprites[1]),
+                "the opponent's second authored attack pose must remain visible during Smash");
+            yield return null;
+        }
+
         VolleyAthleteView View(string name)
         {
             var go = new GameObject(name);
@@ -111,6 +193,8 @@ namespace KMA.Tests.Gameplay.Volleyball
         {
             if (root) Object.Destroy(root);
             if (viewRoot) Object.Destroy(viewRoot);
+            if (poseSprites != null) foreach (Sprite sprite in poseSprites) if (sprite) Object.Destroy(sprite);
+            if (poseTexture) Object.Destroy(poseTexture);
             yield return null;
         }
     }

@@ -17,6 +17,15 @@ namespace KMA.Gameplay.Core
         ChallengeAttemptResult displayedResult;
         JourneyCommitOutcome? displayedOutcome;
         string displayedSaveError;
+        GameSession journeyMapIntentSession;
+        string journeyMapIntentChallengeId;
+        SaveData journeyContinuationRollback;
+        bool journeyContinuationLoadPending;
+        bool routingJourneyContinuation;
+        SaveData pendingChallengeRouteRollback;
+        string pendingChallengeRouteScene;
+        SubjectId? pendingChallengeRoutePreviousSubject;
+        bool pendingChallengeRoutePreviousAwaiting;
 
         public void ConfigureJourneyPersistence(JourneyPersistHandler persist)
         {
@@ -64,6 +73,10 @@ namespace KMA.Gameplay.Core
 
             SubjectId? previousSubject = activeSubject;
             bool previousAwaitingScene = awaitingSubjectScene;
+            pendingChallengeRouteRollback = snapshot;
+            pendingChallengeRouteScene = sceneName;
+            pendingChallengeRoutePreviousSubject = previousSubject;
+            pendingChallengeRoutePreviousAwaiting = previousAwaitingScene;
             PrepareSceneBinding(SessionRoute.Subject, definition.Subject);
             try
             {
@@ -83,6 +96,7 @@ namespace KMA.Gameplay.Core
             session.RestoreSnapshot(snapshot);
             activeSubject = previousSubject;
             awaitingSubjectScene = previousAwaitingScene;
+            ClearPendingChallengeRouteRollback();
             if (journeyPersist != null)
             {
                 try
@@ -103,6 +117,74 @@ namespace KMA.Gameplay.Core
                 return false;
             PrepareSceneBinding(SessionRoute.Subject, session.ActiveSubject);
             return transitioner.TryRoute(SessionRoute.Subject, session.ActiveSubject, sceneName);
+        }
+
+        void ArmJourneyMapContinuation(string challengeId)
+        {
+            journeyMapIntentSession = session;
+            journeyMapIntentChallengeId = challengeId;
+            journeyContinuationRollback = null;
+            journeyContinuationLoadPending = false;
+        }
+
+        bool RouteToMapForJourney(string challengeId)
+        {
+            ArmJourneyMapContinuation(challengeId);
+            routingJourneyContinuation = true;
+            try { return Route(SessionRoute.Map); }
+            finally { routingJourneyContinuation = false; }
+        }
+
+        public bool CompleteJourneyMapDialogue(GameSession sourceSession)
+        {
+            if (IsTransitioning)
+                return false;
+            if (sourceSession == null || journeyMapIntentSession != sourceSession || sourceSession != session ||
+                string.IsNullOrEmpty(journeyMapIntentChallengeId))
+                return false;
+            if (sourceSession.Journey.ActiveAttempt != null || sourceSession.PendingFrogJump != null ||
+                !string.Equals(sourceSession.Journey.CheckpointChallengeId, journeyMapIntentChallengeId,
+                    StringComparison.Ordinal))
+            {
+                ClearJourneyMapContinuation();
+                return false;
+            }
+
+            ChallengeDefinition definition;
+            try { definition = sourceSession.Journey.Catalog.Get(journeyMapIntentChallengeId); }
+            catch (Exception) { ClearJourneyMapContinuation(); return false; }
+
+            UnbindFrogPanel();
+            journeyContinuationRollback = sourceSession.ToSaveData();
+            journeyContinuationLoadPending = true;
+            if (TryStartChallenge(journeyMapIntentChallengeId, ChallengeAttemptMode.Journey,
+                definition.Difficulty))
+                return true;
+
+            journeyContinuationLoadPending = false;
+            journeyContinuationRollback = null;
+            return false;
+        }
+
+        internal void CancelJourneyMapContinuation() => ClearJourneyMapContinuation();
+
+        public bool HasPendingJourneyMapContinuation => journeyMapIntentSession == session &&
+            !string.IsNullOrEmpty(journeyMapIntentChallengeId);
+
+        void ClearJourneyMapContinuation()
+        {
+            journeyMapIntentSession = null;
+            journeyMapIntentChallengeId = null;
+            journeyContinuationRollback = null;
+            journeyContinuationLoadPending = false;
+        }
+
+        void ClearPendingChallengeRouteRollback()
+        {
+            pendingChallengeRouteRollback = null;
+            pendingChallengeRouteScene = null;
+            pendingChallengeRoutePreviousSubject = null;
+            pendingChallengeRoutePreviousAwaiting = false;
         }
 
         internal void ReportChallengeResultForTests(ChallengeAttemptResult result) =>
@@ -168,11 +250,19 @@ namespace KMA.Gameplay.Core
                 // Once saved, a failure that owes a frog jump goes there instead of the map.
                 if (retried.FrogJumpRequired)
                     action = JourneyResultAction.FrogJump;
+                else
+                    action = JourneyResultAction.Continue;
             }
             else if (!displayedOutcome.HasValue)
                 return;
 
-            if (action == JourneyResultAction.Retry)
+            if (displayedOutcome.HasValue && displayedOutcome.Value.FrogJumpRequired &&
+                (action == JourneyResultAction.Continue || action == JourneyResultAction.Retry))
+                action = JourneyResultAction.FrogJump;
+
+            if (action == JourneyResultAction.Retry ||
+                (action == JourneyResultAction.Continue && displayedChallenge.Mode == ChallengeAttemptMode.Journey &&
+                    !displayedResult.Pass && !displayedOutcome.Value.FrogJumpRequired))
             {
                 if (!TryStartChallenge(displayedChallenge.ChallengeId, displayedChallenge.Mode,
                     displayedChallenge.Difficulty)) RestoreChallengeActions();
@@ -183,11 +273,18 @@ namespace KMA.Gameplay.Core
             }
             else
             {
-                // The first win of the final opens the celebration; later wins go back to the map.
-                bool celebrate = displayedResult.Pass && displayedOutcome.HasValue &&
-                    displayedOutcome.Value.FinalChallenge && displayedOutcome.Value.CourseComplete &&
-                    !session.Journey.CelebrationSeen;
-                bool routed = Route(celebrate ? SessionRoute.Celebration : SessionRoute.Map);
+                // Journey wins continue from the committed checkpoint after Map dialogue. Review
+                // and free-play results return to Map without changing the checkpoint.
+                bool journeyWin = displayedChallenge.Mode == ChallengeAttemptMode.Journey &&
+                    displayedResult.Pass && displayedOutcome.HasValue;
+                bool celebrate = journeyWin && displayedOutcome.Value.FinalChallenge &&
+                    displayedOutcome.Value.CourseComplete && !session.Journey.CelebrationSeen;
+                string nextChallenge = journeyWin ? displayedOutcome.Value.NextChallengeId : null;
+                bool routed = celebrate ? Route(SessionRoute.Celebration)
+                    : journeyWin && !string.IsNullOrEmpty(nextChallenge) &&
+                        string.Equals(nextChallenge, session.Journey.CheckpointChallengeId, StringComparison.Ordinal)
+                        ? RouteToMapForJourney(nextChallenge)
+                        : Route(SessionRoute.Map);
                 if (!routed)
                     challengePanel?.ShowChallenge(displayedChallenge, displayedResult, displayedOutcome,
                         lastRouteError ?? "Không thể chuyển cảnh. Hãy thử lại.");
@@ -199,9 +296,28 @@ namespace KMA.Gameplay.Core
 
         void OnJourneyRouteFailed(string message)
         {
-            if (!displayedOutcome.HasValue || displayedResult == null || challengePanel == null)
-                return;
-            challengePanel.ShowChallenge(displayedChallenge, displayedResult, displayedOutcome, message);
+            if (pendingChallengeRouteRollback != null)
+            {
+                session.RestoreSnapshot(pendingChallengeRouteRollback);
+                activeSubject = pendingChallengeRoutePreviousSubject;
+                awaitingSubjectScene = pendingChallengeRoutePreviousAwaiting;
+                UnbindJourneyControllers();
+                if (journeyPersist != null)
+                {
+                    try { journeyPersist(out _); }
+                    catch (Exception exception) { Debug.LogException(exception, this); }
+                }
+                journeyContinuationLoadPending = false;
+                journeyContinuationRollback = null;
+                ClearPendingChallengeRouteRollback();
+            }
+            if (frogPanel != null && frogContinueUsed)
+            {
+                frogContinueUsed = false;
+                ShowFrogError(message);
+            }
+            if (displayedOutcome.HasValue && displayedResult != null && challengePanel != null)
+                challengePanel.ShowChallenge(displayedChallenge, displayedResult, displayedOutcome, message);
         }
 
         void BindJourneyControllers()

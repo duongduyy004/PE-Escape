@@ -193,8 +193,9 @@ namespace KMA.Gameplay.UI
             courseIcon.GetComponent<Image>().color = chapterColor;
             for (int i = 0; i < courseIcon.childCount; i++)
                 courseIcon.GetChild(i).gameObject.SetActive(i == subjectIndex);
-            // Runtime-drawn sprites do not survive a scene bake; hand them back on every refresh.
-            if (progressStar != null) progressStar.sprite = MapStopBuilder.StarSprite();
+            // Preserve scene-baked sprites when rebinding an authored popup.
+            if (progressStar != null && progressStar.sprite == null)
+                progressStar.sprite = MapStopBuilder.StarSprite();
         }
 
         static void ApplyNodeState(StageNode node, StageState state, Color chapterColor)
@@ -211,7 +212,8 @@ namespace KMA.Gameplay.UI
             node.Badge.color = state.Unlocked ? theme.Success : theme.MapLockedBorder;
             node.CompletedMark.SetActive(state.Unlocked);
             node.LockIcon.gameObject.SetActive(!state.Unlocked);
-            node.LockIcon.sprite = MapPresentationBuilder.LockSprite();
+            if (node.LockIcon.sprite == null)
+                node.LockIcon.sprite = MapPresentationBuilder.LockSprite();
             node.Title.text = VietText.Fix(StageName(state.Challenge.Kind));
             node.Title.color = state.Unlocked ? theme.TextPrimary : theme.MapHint;
         }

@@ -45,7 +45,8 @@ namespace KMA.Tests.EditorTools
             Assert.That(poses, Is.Not.Null, "Football poses are configured");
             foreach (Sprite sprite in new[] { poses.kickerReady, poses.kickerRunUp, poses.kickerStrike, poses.kickerCelebrate })
                 AssertHero(sprite, "Football kicker pose");
-            foreach (Sprite sprite in new[] { poses.keeperReady, poses.keeperSave, poses.keeperBeaten })
+            foreach (Sprite sprite in new[] { poses.keeperReady, poses.keeperReachLeft, poses.keeperReachRight,
+                         poses.keeperDiveLeft, poses.keeperDiveRight, poses.keeperCheer })
                 AssertNotHero(sprite, "Football keeper pose");
             var player = GameObject.Find("FootballWorld/Player").GetComponent<SpriteRenderer>();
             AssertHero(player.sprite, "Football player renderer");

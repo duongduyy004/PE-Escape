@@ -19,7 +19,7 @@ namespace KMA.Gameplay.Volleyball
             string goal;
             if (kind == ChallengeKind.Learn)
             {
-                goal = $"Đỡ bóng thành công {learnTarget} lần. Đối thủ giao bóng trong bài làm quen.";
+                goal = $"Đỡ bóng thành công {VolleyballChallengeRules.LearnReceiveTarget} lần, phát bóng {VolleyballChallengeRules.LearnServeTarget} lần, rồi nhảy và đánh trả bóng {VolleyballChallengeRules.LearnJumpHitTarget} lần. Di chuyển để làm quen; đỡ và phát bóng được đối thủ cấp bóng.";
             }
             else
             {

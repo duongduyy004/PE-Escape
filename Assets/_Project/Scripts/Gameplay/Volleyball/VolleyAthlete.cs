@@ -7,8 +7,11 @@ namespace KMA.Gameplay.Volleyball
         Idle,
         Run,
         Serve,
+        ServeToss,
         Receive,
+        Dig,
         Smash,
+        JumpLoad,
         Block,
         Dive
     }
@@ -35,6 +38,8 @@ namespace KMA.Gameplay.Volleyball
         public bool IsLocked => LockTimeLeft > 0f;
         public float AirTimeLeft { get; private set; }
         public bool IsAirborne => AirTimeLeft > 0f;
+        public float ActionElapsed { get; private set; }
+        public int ActionSequence { get; private set; }
 
         // Visual only: the rules never read how high the athlete is.
         public float JumpHeight => IsAirborne
@@ -47,6 +52,8 @@ namespace KMA.Gameplay.Volleyball
             Action = AthleteAction.Idle;
             LockTimeLeft = 0f;
             AirTimeLeft = 0f;
+            ActionElapsed = 0f;
+            ActionSequence++;
         }
 
         // Mid-air the athlete holds its spot and pose; the stick aims instead of steering.
@@ -56,7 +63,7 @@ namespace KMA.Gameplay.Volleyball
                 return false;
 
             AirTimeLeft = JumpSeconds;
-            Action = pose;
+            BeginAction(pose, 0f);
             return true;
         }
 
@@ -68,12 +75,22 @@ namespace KMA.Gameplay.Volleyball
             Vector2 direction = Vector2.ClampMagnitude(input, 1f);
             if (direction.sqrMagnitude < .0001f)
             {
-                Action = AthleteAction.Idle;
+                if (Action == AthleteAction.Run)
+                {
+                    Action = AthleteAction.Idle;
+                    ActionElapsed = 0f;
+                    ActionSequence++;
+                }
                 return;
             }
 
             Position = Clamp(Position + direction * Speed * deltaTime);
-            Action = AthleteAction.Run;
+            if (Action != AthleteAction.Run)
+            {
+                Action = AthleteAction.Run;
+                ActionElapsed = 0f;
+                ActionSequence++;
+            }
         }
 
         public void MoveToward(Vector2 target, float deltaTime)
@@ -94,6 +111,8 @@ namespace KMA.Gameplay.Volleyball
         {
             Action = action;
             LockTimeLeft = Mathf.Max(0f, seconds);
+            ActionElapsed = 0f;
+            ActionSequence++;
         }
 
         public void Lunge(Vector2 toward, float distance)
@@ -103,11 +122,18 @@ namespace KMA.Gameplay.Volleyball
 
         public void Tick(float deltaTime)
         {
+            if (Action != AthleteAction.Idle)
+                ActionElapsed += deltaTime;
+
             if (AirTimeLeft > 0f)
             {
                 AirTimeLeft = Mathf.Max(0f, AirTimeLeft - deltaTime);
                 if (AirTimeLeft <= 0f && LockTimeLeft <= 0f)
+                {
                     Action = AthleteAction.Idle;
+                    ActionElapsed = 0f;
+                    ActionSequence++;
+                }
             }
 
             if (LockTimeLeft <= 0f)
@@ -115,7 +141,11 @@ namespace KMA.Gameplay.Volleyball
 
             LockTimeLeft = Mathf.Max(0f, LockTimeLeft - deltaTime);
             if (LockTimeLeft <= 0f && !IsAirborne)
+            {
                 Action = AthleteAction.Idle;
+                ActionElapsed = 0f;
+                ActionSequence++;
+            }
         }
 
         Vector2 Clamp(Vector2 position)

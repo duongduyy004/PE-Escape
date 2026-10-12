@@ -1,0 +1,282 @@
+{
+  "date": "2026-10-12",
+  "baselineReviewed": "10b86bc",
+  "taskCount": 36,
+  "requirementCount": 10,
+  "uniqueTaskIds": true,
+  "dependenciesExist": true,
+  "acyclic": true,
+  "allSourceAndFixturePathsExist": true,
+  "missingFiles": [],
+  "coverage": [
+    {
+      "id": "R1",
+      "tasks": [
+        "A02",
+        "U01",
+        "U02",
+        "M01",
+        "M02",
+        "B02",
+        "Q02",
+        "Q03",
+        "Q05",
+        "Q06"
+      ],
+      "subrequirements": [
+        "Home/Map full render surface: U01,U02,B02",
+        "Map đủ4trạm: M01",
+        "Popup/icon/font1,5×,objective/close/CTA: M02",
+        "Ảnh cùngdevice/aspect: A02,Q05"
+      ]
+    },
+    {
+      "id": "R2",
+      "tasks": [
+        "A02",
+        "U02",
+        "B01",
+        "B02",
+        "B03",
+        "Q02",
+        "Q03",
+        "Q04",
+        "Q05",
+        "Q06"
+      ],
+      "subrequirements": [
+        "Logo/icon/source/credit: B01",
+        "Menu visible title và callback: B02",
+        "Splash/launcher/configurator: B03",
+        "Name/icon trênAPK: Q04,Q05"
+      ]
+    },
+    {
+      "id": "R3",
+      "tasks": [
+        "A02",
+        "U01",
+        "B01",
+        "S01",
+        "S02",
+        "Q02",
+        "Q03",
+        "Q05",
+        "Q06"
+      ],
+      "subrequirements": [
+        "Sprite chân: B01",
+        "Visual1,3×/safe corners/input/cue: S01",
+        "Nhân vật lớn/pivot/lane/label: S02",
+        "Đo vàtouch thật: Q05"
+      ]
+    },
+    {
+      "id": "R4",
+      "tasks": [
+        "S03",
+        "S04",
+        "C05",
+        "Q02",
+        "Q03",
+        "Q05",
+        "Q06"
+      ],
+      "subrequirements": [
+        "Timer45/60Play,bestStreak,không early finish: S03",
+        "HUD/guide/dialogue/result nhất quán: S04",
+        "Pause,fail Learn,no penalty,flow: S03,C05,Q05"
+      ]
+    },
+    {
+      "id": "R5",
+      "tasks": [
+        "A02",
+        "B01",
+        "V01",
+        "V02",
+        "V03",
+        "V04",
+        "V05",
+        "C05",
+        "Q02",
+        "Q03",
+        "Q05",
+        "Q06"
+      ],
+      "subrequirements": [
+        "Không reset xóa động tác/flight: V01",
+        "Replay/phase/contact: V02,V03",
+        "Drill Receive/Serve/JumpHit: V04",
+        "Transparent icon/multi-touch: B01,V05",
+        "Input/guide/PlayMode/device: V04,V05,Q05"
+      ]
+    },
+    {
+      "id": "R6",
+      "tasks": [
+        "C01",
+        "C02",
+        "C03",
+        "C04",
+        "C05",
+        "Q02",
+        "Q03",
+        "Q04",
+        "Q05",
+        "Q06"
+      ],
+      "subrequirements": [
+        "Policy checkpoint saucommit: C01",
+        "Final line/skip/empty/seen/save marker: C02",
+        "Bridgeintent,menu/browse/cancel: C03",
+        "ResultCTA/save-loadrollback/doubletap: C04",
+        "Full journey/failure/frog/final/review/restart: C05,Q05"
+      ]
+    },
+    {
+      "id": "R7",
+      "tasks": [
+        "A02",
+        "U01",
+        "U02",
+        "U03",
+        "M02",
+        "B02",
+        "B03",
+        "S04",
+        "C04",
+        "F02",
+        "Q01",
+        "Q02",
+        "Q03",
+        "Q05",
+        "Q06"
+      ],
+      "subrequirements": [
+        "Contrast/textroles/fonts: U03",
+        "Popup/Home/Splash: M02,B02,B03",
+        "HUD/feedback/guide/dialogue/result/errors: S04,V04,V05,C04,F02,Q01",
+        "Celebration/JourneyCourseSummary/minigameResult: Q01",
+        "Longeststrings và aspect/device: Q01,Q05"
+      ]
+    },
+    {
+      "id": "R8",
+      "tasks": [
+        "F01",
+        "F02",
+        "F03",
+        "Q02",
+        "Q03",
+        "Q05",
+        "Q06"
+      ],
+      "subrequirements": [
+        "30s/config/fallback/thoại: F01",
+        "Greenrule[0,4;0,6]/viewdistance: F02",
+        "Best+safe-edge frame simulation/timeout/penalty: F03",
+        "Playtest và tune: Q05"
+      ]
+    },
+    {
+      "id": "R9",
+      "tasks": [
+        "A02",
+        "V01",
+        "V02",
+        "V03",
+        "Q02",
+        "Q03",
+        "Q05",
+        "Q06"
+      ],
+      "subrequirements": [
+        "Delayedreset: V01",
+        "Actionidentity,Serve!=Smash/contact-follow-land: V02",
+        "Dig/SpikeContact/Follow/Land/Recover,pivot/net/opponentregression: V03",
+        "Học/Luyện/Thi và repeats: V04,Q05"
+      ]
+    },
+    {
+      "id": "R10",
+      "tasks": [
+        "A02",
+        "K01",
+        "K02",
+        "K03",
+        "Q02",
+        "Q03",
+        "Q05",
+        "Q06"
+      ],
+      "subrequirements": [
+        "MappingfarDiveEmpty,nearReachEmpty,center: K01",
+        "Landingtimeline,rotation0,Cheer,resetshot,oneball: K02",
+        "Matrixshots/unchangedcollision/outcome: K03",
+        "Video vàdevice: Q05"
+      ]
+    }
+  ],
+  "topologicalOrder": [
+    "A01",
+    "A02",
+    "U01",
+    "U02",
+    "U03",
+    "M01",
+    "M02",
+    "B01",
+    "B02",
+    "B03",
+    "S01",
+    "S02",
+    "S03",
+    "S04",
+    "V01",
+    "V02",
+    "V03",
+    "V04",
+    "V05",
+    "C01",
+    "C02",
+    "C03",
+    "C04",
+    "C05",
+    "F01",
+    "F02",
+    "F03",
+    "K01",
+    "K02",
+    "K03",
+    "Q01",
+    "Q02",
+    "Q03",
+    "Q04",
+    "Q05",
+    "Q06"
+  ],
+  "runtimeTestsExecuted": false,
+  "androidVerified": false,
+  "reviewers": [
+    {
+      "agent": "audit_requirements",
+      "model": "gpt-6-luna",
+      "reasoning": "high",
+      "mode": "read-only"
+    },
+    {
+      "agent": "audit_code_tasks",
+      "model": "gpt-6-luna",
+      "reasoning": "high",
+      "mode": "read-only"
+    }
+  ],
+  "markdownLinksValid": true,
+  "markdownWhitespaceValid": true,
+  "finalReviewCorrections": [
+    "Device baseline blocks A02/Q05/Q06 rather than build-only Q04",
+    "Post-build fixes invalidate authoring/test/APK evidence and reopen gates",
+    "Analytic frog bound separated from actual frame-sampled strategy"
+  ]
+}

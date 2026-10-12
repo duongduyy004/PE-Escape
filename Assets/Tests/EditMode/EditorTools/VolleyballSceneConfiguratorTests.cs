@@ -137,7 +137,12 @@ namespace KMA.Tests.EditorTools
 
             var jump = Object.FindFirstObjectByType<JumpButton>();
             Assert.That(jump, Is.Not.Null);
-            Assert.That(jump.GetComponentInChildren<TMPro.TMP_Text>().text, Is.EqualTo("NHẢY"));
+            Assert.That(jump.GetComponentInChildren<TMPro.TMP_Text>(), Is.Null, "controls use icons without face labels");
+            Assert.That(jump.transform.Find("RoundButton/JumpHead"), Is.Not.Null);
+            Assert.That(jump.GetComponent<Image>().raycastTarget, Is.True);
+            Assert.That(jump.GetComponent<Image>().color.a, Is.Zero);
+            foreach (Image iconPart in jump.transform.Find("RoundButton").GetComponentsInChildren<Image>(true))
+                Assert.That(iconPart.raycastTarget, Is.False, iconPart.name);
             Assert.That(jump.GetComponent<KitPressFeedback>(), Is.Not.Null);
 
             var controller = Object.FindFirstObjectByType<VolleyballController>();
@@ -180,7 +185,8 @@ namespace KMA.Tests.EditorTools
             var action = Object.FindFirstObjectByType<ActionButton>();
             var feedback = action.GetComponent<KitPressFeedback>();
             Assert.That(feedback, Is.Not.Null);
-            Assert.That(feedback.RestColor, Is.EqualTo(MinigameUiTheme.Accent));
+            Assert.That(feedback.RestColor, Is.EqualTo(
+                MinigameUiTheme.WithAlpha(MinigameUiTheme.TextOutline, .30f)));
 
             Assert.That(GameObject.Find("JoystickBase").GetComponent<Image>().sprite, Is.SameAs(assets.Circle));
             Assert.That(GameObject.Find("PlayerTitle").GetComponent<TMPro.TMP_Text>().color, Is.EqualTo(MinigameUiTheme.Player));

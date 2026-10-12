@@ -26,6 +26,7 @@ namespace KMA.EditorTools
         sealed class AthletePoses
         {
             public string[] Idle, Run, Receive, Smash, Block, Dive;
+            public string[] Serve, ServeToss, Dig, Set, Recover, JumpLoad, SpikeWindup, SpikeContact, SpikeFollow, Land;
         }
 
         /// The hero has dedicated volleyball art; the opponent keeps the shared poses.
@@ -33,9 +34,19 @@ namespace KMA.EditorTools
         {
             Idle = new[] { "volleyReady" },
             Run = new[] { "volleyShuffleRight", "volleyShuffleLeft" },
-            Receive = new[] { "volleyDig", "volleyRecover" },
+            Receive = new[] { "volleyReceive" },
             Smash = new[] { "volleySpikeWindup", "volleySpikeContact" },
             Block = new[] { "volleyJumpLoad", "volleySet" },
+            Serve = new[] { "volleySpikeContact", "volleySpikeFollow" },
+            ServeToss = new[] { "volleySet" },
+            Dig = new[] { "volleyDig" },
+            Set = new[] { "volleySet" },
+            Recover = new[] { "volleyRecover" },
+            JumpLoad = new[] { "volleyJumpLoad" },
+            SpikeWindup = new[] { "volleySpikeWindup" },
+            SpikeContact = new[] { "volleySpikeContact" },
+            SpikeFollow = new[] { "volleySpikeFollow" },
+            Land = new[] { "volleyLand" },
             Dive = new[] { "fallForwardRight", "fallSitRight" }
         };
 
@@ -267,7 +278,7 @@ namespace KMA.EditorTools
 
         static VolleyAthleteView Athlete(string name, bool mirror, string character, AthletePoses poses)
         {
-            Sprite[] Poses(string[] names) => CharacterArt.Frames(character, names);
+            Sprite[] Poses(string[] names) => names == null || names.Length == 0 ? null : CharacterArt.Frames(character, names);
             Sprite[] idle = Poses(poses.Idle);
             SpriteRenderer body = Renderer(name, idle[0], Vector3.zero, 0);
             body.transform.localScale = Vector3.one * AthleteScale;
@@ -276,6 +287,9 @@ namespace KMA.EditorTools
             var view = body.gameObject.AddComponent<VolleyAthleteView>();
             view.Configure(body, book, mirror, idle, Poses(poses.Run), Poses(poses.Receive), Poses(poses.Smash),
                 Poses(poses.Block), Poses(poses.Dive));
+            view.ConfigureSequences(Poses(poses.Serve), Poses(poses.ServeToss), Poses(poses.Dig), Poses(poses.Set),
+                Poses(poses.Recover), Poses(poses.JumpLoad), Poses(poses.SpikeWindup), Poses(poses.SpikeContact),
+                Poses(poses.SpikeFollow), Poses(poses.Land));
             return view;
         }
 
@@ -344,9 +358,12 @@ namespace KMA.EditorTools
             buttonRect.anchorMin = buttonRect.anchorMax = buttonRect.pivot = new Vector2(1f, 0f);
             buttonRect.sizeDelta = new Vector2(400f, 400f);
             buttonRect.anchoredPosition = new Vector2(-18f, 18f);
-            buttonRect.gameObject.AddComponent<Image>().color = Color.clear;
+            Image actionHitImage = buttonRect.gameObject.AddComponent<Image>();
+            actionHitImage.color = Color.clear;
+            actionHitImage.raycastTarget = true;
+            actionHitImage.canvasRenderer.cullTransparentMesh = false;
             var button = buttonRect.gameObject.AddComponent<ActionButton>();
-            UiKit.RoundButton(buttonRect, "ĐÁNH", MinigameUiTheme.RoundButton * JoystickScale);
+            BuildTransparentIconButton(buttonRect, false, MinigameUiTheme.RoundButton * JoystickScale);
 
             // NHẢY sits just inside ĐÁNH and a little higher, its hit area clear of ĐÁNH's.
             RectTransform jumpRect = UiRect("JumpButton", controls, Vector2.one, Vector2.one);
@@ -354,9 +371,12 @@ namespace KMA.EditorTools
             // At least as large as the disc, so every visible pixel of NHẢY is tappable.
             jumpRect.sizeDelta = new Vector2(300f, 300f);
             jumpRect.anchoredPosition = new Vector2(-428f, 120f);
-            jumpRect.gameObject.AddComponent<Image>().color = Color.clear;
+            Image jumpHitImage = jumpRect.gameObject.AddComponent<Image>();
+            jumpHitImage.color = Color.clear;
+            jumpHitImage.raycastTarget = true;
+            jumpHitImage.canvasRenderer.cullTransparentMesh = false;
             var jump = jumpRect.gameObject.AddComponent<JumpButton>();
-            UiKit.RoundButton(jumpRect, "NHẢY", MinigameUiTheme.RoundButton * JoystickScale);
+            BuildTransparentIconButton(jumpRect, true, MinigameUiTheme.RoundButton * JoystickScale);
 
             Vector2 centre = new Vector2(.5f, .5f);
             Image scoreboard = UiKit.Panel(controls, "VolleyballScoreboard");
@@ -413,6 +433,71 @@ namespace KMA.EditorTools
                 EditorUtility.SetDirty(dirty);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
+        }
+
+        static void BuildTransparentIconButton(RectTransform hitArea, bool jump, float size)
+        {
+            UiKitAssets assets = UiKitAssets.Load();
+            RectTransform visual = UiKit.Rect(hitArea, "RoundButton");
+            UiKit.Place(visual, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero,
+                Vector2.one * size);
+            Image shadow = UiKit.Disc(visual, "IconShadow", true, MinigameUiTheme.TextOutline);
+            UiKit.Place(shadow.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f),
+                Vector2.zero, Vector2.one * (size + 24f));
+            Image ring = UiKit.Disc(visual, "IconRim", true, MinigameUiTheme.Accent);
+            UiKit.Place(ring.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f),
+                Vector2.zero, Vector2.one * (size + 10f));
+            Image plate = UiKit.Disc(visual, "IconPlate", false, new Color(.025f, .075f, .14f, .94f));
+            UiKit.Place(plate.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f),
+                Vector2.zero, Vector2.one * (size - 4f));
+
+            if (jump)
+                BuildJumpGlyph(visual, assets.RoundRect24, size);
+            else
+                BuildHitGlyph(visual, assets.RoundRect24, size);
+
+            visual.gameObject.AddComponent<CanvasGroup>();
+            var feedback = hitArea.gameObject.AddComponent<KitPressFeedback>();
+            feedback.Configure(plate, visual);
+        }
+
+        static void BuildHitGlyph(Transform parent, Sprite rounded, float size)
+        {
+            float u = size / 320f;
+            Image ballEdge = UiKit.Disc(parent, "HitBallOutline", false, MinigameUiTheme.TextOutline);
+            UiKit.Place(ballEdge.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f),
+                new Vector2(58f * u, 54f * u), Vector2.one * (76f * u));
+            Image ball = UiKit.Disc(parent, "HitBall", false, MinigameUiTheme.TextPrimary);
+            UiKit.Place(ball.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f),
+                new Vector2(58f * u, 54f * u), Vector2.one * (60f * u));
+            IconPart(parent, "HitPalm", rounded, new Vector2(-20f * u, -18f * u), new Vector2(84f * u, 56f * u), -24f);
+            IconPart(parent, "HitArm", rounded, new Vector2(26f * u, 13f * u), new Vector2(19f * u, 91f * u), -39f);
+            IconPart(parent, "HitFinger", rounded, new Vector2(16f * u, 38f * u), new Vector2(16f * u, 58f * u), -18f);
+        }
+
+        static void BuildJumpGlyph(Transform parent, Sprite rounded, float size)
+        {
+            float u = size / 320f;
+            Image head = UiKit.Disc(parent, "JumpHead", false, MinigameUiTheme.TextPrimary);
+            UiKit.Place(head.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f),
+                new Vector2(0f, 56f * u), Vector2.one * (43f * u));
+            IconPart(parent, "JumpBody", rounded, new Vector2(0f, 4f * u), new Vector2(25f * u, 68f * u), 5f);
+            IconPart(parent, "JumpLeftArm", rounded, new Vector2(-28f * u, 37f * u), new Vector2(15f * u, 58f * u), 34f);
+            IconPart(parent, "JumpRightArm", rounded, new Vector2(29f * u, 42f * u), new Vector2(15f * u, 58f * u), -43f);
+            IconPart(parent, "JumpLeftLeg", rounded, new Vector2(-18f * u, -46f * u), new Vector2(18f * u, 62f * u), -28f);
+            IconPart(parent, "JumpRightLeg", rounded, new Vector2(20f * u, -46f * u), new Vector2(18f * u, 62f * u), 30f);
+        }
+
+        static void IconPart(Transform parent, string name, Sprite sprite, Vector2 position, Vector2 size, float angle)
+        {
+            RectTransform rect = UiKit.Rect(parent, name);
+            UiKit.Place(rect, new Vector2(.5f, .5f), new Vector2(.5f, .5f), position, size);
+            rect.localRotation = Quaternion.Euler(0f, 0f, angle);
+            Image image = rect.gameObject.AddComponent<Image>();
+            image.sprite = sprite;
+            image.type = Image.Type.Sliced;
+            image.color = MinigameUiTheme.TextPrimary;
+            image.raycastTarget = false;
         }
 
         static RectTransform UiRect(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax)

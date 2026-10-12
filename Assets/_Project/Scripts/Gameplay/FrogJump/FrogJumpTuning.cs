@@ -7,12 +7,12 @@ namespace KMA.Gameplay.FrogJump
     {
         public float trackMetres = 60f;
         public float sweepSeconds = .7f;
-        public float maxJumpMetres = 1.5f;
-        public float minJumpMetres = .25f;
+        public float maxJumpMetres = 3.2f;
+        public float minJumpMetres = 2.2f;
         // Normalised distance from the centre (0 centre, 1 edge) beyond which the jump is a fall.
-        public float safeZone = .4f;
+        public float safeZone = .2f;
         public float jumpSeconds = .6f;
         public float recoverSeconds = 2.5f;
-        public float timeLimitSeconds = 60f;
+        public float timeLimitSeconds = 30f;
     }
 }

@@ -1,5 +1,6 @@
 using KMA.Gameplay.FrogJump;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace KMA.Tests.Gameplay.FrogJump
 {
@@ -8,6 +9,20 @@ namespace KMA.Tests.Gameplay.FrogJump
         static readonly FrogJumpTuning Tuning = new FrogJumpTuning();
         const float Eps = 1e-3f;
         const float Step = 1f / 60f;
+
+        [Test]
+        public void DefaultTuningUsesTheThirtySecondNarrowSafeBalance()
+        {
+            var tuning = new FrogJumpTuning();
+            Assert.That(tuning.trackMetres, Is.EqualTo(60f));
+            Assert.That(tuning.timeLimitSeconds, Is.EqualTo(30f));
+            Assert.That(tuning.safeZone, Is.EqualTo(.2f));
+            Assert.That(tuning.minJumpMetres, Is.EqualTo(2.2f));
+            Assert.That(tuning.maxJumpMetres, Is.EqualTo(3.2f));
+            Assert.That(tuning.sweepSeconds, Is.EqualTo(.7f));
+            Assert.That(tuning.jumpSeconds, Is.EqualTo(.6f));
+            Assert.That(tuning.recoverSeconds, Is.EqualTo(2.5f));
+        }
 
         [Test]
         public void FasterDefaultSweepsEachEdgeInPointSevenSeconds()
@@ -32,13 +47,22 @@ namespace KMA.Tests.Gameplay.FrogJump
             Assert.That(rules.Distance, Is.Zero);
         }
 
-        [TestCase(.5f, 1.5f)]
-        [TestCase(.3f, .25f)]
-        [TestCase(.7f, .25f)]
-        [TestCase(.4f, .875f)]
+        [TestCase(.5f, 3.2f)]
+        [TestCase(.4f, 2.2f)]
+        [TestCase(.6f, 2.2f)]
+        [TestCase(.45f, 2.7f)]
         public void JumpShrinksLinearlyFromCentreToTheSafeEdge(float needle, float metres)
         {
             Assert.That(FrogJumpRules.JumpMetres(needle, Tuning), Is.EqualTo(metres).Within(Eps));
+        }
+
+        [Test]
+        public void SafeEdgeIsInclusiveAndOnlyItsSmallToleranceExtendsIt()
+        {
+            Assert.That(FrogJumpRules.IsFall(.4f, Tuning), Is.False);
+            Assert.That(FrogJumpRules.IsFall(.6f, Tuning), Is.False);
+            Assert.That(FrogJumpRules.IsFall(.399998f, Tuning), Is.False, "The rule keeps its documented numeric tolerance.");
+            Assert.That(FrogJumpRules.IsFall(.39998f, Tuning), Is.True);
         }
 
         [TestCase(.05f)]
@@ -54,13 +78,13 @@ namespace KMA.Tests.Gameplay.FrogJump
         }
 
         [Test]
-        public void OnlyTheMiddleFortyPercentOfTheBarIsSafe()
+        public void OnlyTheMiddleTwentyPercentOfTheBarIsSafe()
         {
             int safe = 0;
             const int samples = 1000;
             for (int i = 0; i < samples; i++)
                 if (!FrogJumpRules.IsFall((i + .5f) / samples, Tuning)) safe++;
-            Assert.That(safe / (float)samples, Is.EqualTo(.4f).Within(.01f));
+            Assert.That(safe / (float)samples, Is.EqualTo(.2f).Within(.01f));
         }
 
         [Test]
@@ -77,7 +101,7 @@ namespace KMA.Tests.Gameplay.FrogJump
         }
 
         [Test]
-        public void CentreStopJumpsOneAndAHalfMetresAfterTheJumpTime()
+        public void CentreStopJumpsThreePointTwoMetresAfterTheJumpTime()
         {
             var rules = new FrogJumpRules(Tuning);
             rules.Tick(Tuning.sweepSeconds / 2f);
@@ -87,7 +111,7 @@ namespace KMA.Tests.Gameplay.FrogJump
             rules.Tick(.59f);
             Assert.That(rules.Distance, Is.Zero);
             rules.Tick(.02f);
-            Assert.That(rules.Distance, Is.EqualTo(1.5f).Within(Eps));
+            Assert.That(rules.Distance, Is.EqualTo(3.2f).Within(Eps));
             Assert.That(rules.State, Is.EqualTo(FrogJumpState.Aiming));
             Assert.That(rules.Needle01, Is.Zero);
             Assert.That(rules.Jumps, Is.EqualTo(1));
@@ -109,7 +133,7 @@ namespace KMA.Tests.Gameplay.FrogJump
         }
 
         [Test]
-        public void ReachingSixtyMetresWinsAndClampsDistance()
+        public void ReachingSixtyMetresWithCentreJumpsWinsAndClampsDistance()
         {
             var rules = new FrogJumpRules(Tuning);
             for (int i = 0; i < 50 && !rules.IsOver; i++)
@@ -125,17 +149,32 @@ namespace KMA.Tests.Gameplay.FrogJump
         }
 
         [Test]
-        public void RunningOutOfTimeLoses()
+        public void RunningOutOfThirtySecondsLoses()
         {
             var rules = new FrogJumpRules(Tuning);
-            rules.Tick(59.9f);
+            rules.Tick(29.9f);
             Assert.That(rules.IsOver, Is.False);
             rules.Tick(.2f);
             Assert.That(rules.State, Is.EqualTo(FrogJumpState.TimedOut));
             Assert.That(rules.ReachedFinish, Is.False);
-            Assert.That(rules.Elapsed, Is.EqualTo(60f).Within(Eps));
+            Assert.That(rules.Elapsed, Is.EqualTo(30f).Within(Eps));
             Assert.That(rules.TimeRemaining, Is.Zero);
             Assert.That(rules.Stop(), Is.False);
+        }
+
+        [Test]
+        public void TimingOutDuringAJumpDoesNotCreditItsPendingDistance()
+        {
+            var tuning = new FrogJumpTuning { trackMetres = 3.2f, timeLimitSeconds = .7f };
+            var rules = new FrogJumpRules(tuning);
+            rules.Tick(tuning.sweepSeconds / 2f);
+            Assert.That(rules.Stop(), Is.True);
+            Assert.That(rules.State, Is.EqualTo(FrogJumpState.Jumping));
+            rules.Tick(.4f);
+            Assert.That(rules.State, Is.EqualTo(FrogJumpState.TimedOut));
+            Assert.That(rules.Distance, Is.Zero);
+            Assert.That(rules.Jumps, Is.Zero);
+            Assert.That(rules.Elapsed, Is.EqualTo(tuning.timeLimitSeconds).Within(Eps));
         }
 
         [Test]
@@ -150,8 +189,56 @@ namespace KMA.Tests.Gameplay.FrogJump
             Assert.That(rules.State, Is.EqualTo(FrogJumpState.Finished));
         }
 
-        // Balance: a player who aims for the centre (stops within 5% of it) finishes in time;
-        // one who taps as soon as the needle is anywhere near the green does not.
+        [Test]
+        public void IdealCentreTimingIsAnEstimateAndSampledFirstGreenStrategyWinsAtThirtyAndSixtyHz()
+        {
+            var tuning = new FrogJumpTuning();
+            int idealJumps = Mathf.CeilToInt(tuning.trackMetres / tuning.maxJumpMetres);
+            float idealTime = idealJumps * (tuning.sweepSeconds * .5f + tuning.jumpSeconds);
+            Assert.That(idealJumps, Is.EqualTo(19));
+            Assert.That(idealTime, Is.EqualTo(18.05f).Within(Eps));
+
+            foreach (int hz in new[] { 30, 60 })
+            {
+                var result = PlayFirstGreenSampledWindow(tuning, hz);
+                Assert.That(result.State, Is.EqualTo(FrogJumpState.Finished), hz + " Hz sampled first-green strategy");
+                Assert.That(result.Falls, Is.Zero, hz + " Hz first-green strategy should never fall");
+                Assert.That(result.Distance, Is.EqualTo(tuning.trackMetres).Within(Eps));
+                Assert.That(result.Elapsed, Is.LessThan(tuning.timeLimitSeconds));
+                Assert.That(result.Jumps, Is.GreaterThan(idealJumps), "Frame sampling lands away from the ideal centre at " + hz + " Hz.");
+                TestContext.WriteLine("{0} Hz: elapsed={1:F3}s, jumps={2}, falls={3}, metres={4:F2}; ideal centre={5:F2}s/{6} jumps",
+                    hz, result.Elapsed, result.Jumps, result.Falls, result.Distance, idealTime, idealJumps);
+            }
+        }
+
+        static FrogJumpRules PlayFirstGreenSampledWindow(FrogJumpTuning tuning, int hz)
+        {
+            var rules = new FrogJumpRules(tuning);
+            float dt = 1f / hz;
+            float previousNeedle = rules.Needle01;
+            bool wasAiming = true;
+            int frames = 0;
+            while (!rules.IsOver && frames++ < hz * 30)
+            {
+                rules.Tick(dt);
+                bool aiming = rules.State == FrogJumpState.Aiming;
+                if (!aiming || !wasAiming)
+                {
+                    previousNeedle = rules.Needle01;
+                    wasAiming = aiming;
+                    continue;
+                }
+
+                float needle = rules.Needle01;
+                // Poll once per rendered frame and tap as soon as the forward sweep first enters green.
+                bool enteredGreen = previousNeedle < .4f && needle >= .4f;
+                previousNeedle = needle;
+                if (enteredGreen) rules.Stop();
+            }
+            return rules;
+        }
+
+        // Balance: consistent centre aim wins; consistently aiming near the safe edge is too slow.
         [Test]
         public void ACentredPlayerFinishes()
         {
@@ -159,10 +246,9 @@ namespace KMA.Tests.Gameplay.FrogJump
         }
 
         [Test]
-        public void ACarelessPlayerFailsEvenWithoutFalling()
+        public void APlayerWhoMissesTheNarrowZoneAndFallsRunsOutOfTime()
         {
-            // Every stop lands inside the green but near its edge.
-            Assert.That(Play(offsets: new[] { -.18f, .17f, -.16f, .19f }), Is.False);
+            Assert.That(Play(offsets: new[] { -.09f, .11f, .08f, -.12f }), Is.False);
         }
 
         [Test]

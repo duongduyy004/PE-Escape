@@ -23,7 +23,8 @@ namespace KMA.Gameplay
         const float PauseSize = .089f;
         const float ControlWidth = .43f;
         const float ControlHeight = .26f;
-        const float ControlBottom = .04f;
+        const float ControlEdgeInset = .0185f;
+        const float ControlBottom = .0185f;
         const float CountdownWidth = .53f;
         const float CountdownHeight = .32f;
         const float CountdownCenterY = .62f;
@@ -84,15 +85,14 @@ namespace KMA.Gameplay
             safe.height * PauseSize);
 
         /// The visible button inside its tap area, in fractions of that tap area.
-        /// The hit box stays full size for the thumb; only the artwork shrinks, so the button can
-        /// sit on the running lanes without hiding the runner in the lane beneath it. Sitting low
-        /// in the hit box also puts it where a thumb rests in landscape.
-        public const float ControlVisualWidthFraction = .52f;
-        public const float ControlVisualHeightFraction = .50f;
-        public const float ControlVisualBottomFraction = .04f;
+        /// The hit box remains full size while the 30% larger plate reaches the outer bottom corner
+        /// inside the safe area.
+        public const float ControlVisualWidthFraction = .676f;
+        public const float ControlVisualHeightFraction = .65f;
+        public const float ControlVisualBottomFraction = 0f;
 
-        public static Rect ControlVisualRect01 => new Rect(
-            (1f - ControlVisualWidthFraction) * .5f,
+        public static Rect ControlVisualRect01(bool left) => new Rect(
+            left ? 0f : 1f - ControlVisualWidthFraction,
             ControlVisualBottomFraction,
             ControlVisualWidthFraction,
             ControlVisualHeightFraction);
@@ -100,9 +100,10 @@ namespace KMA.Gameplay
         public static Rect ControlRect(Rect safe, bool left)
         {
             float width = safe.height * ControlWidth;
+            float inset = safe.height * ControlEdgeInset;
             float x = left
-                ? safe.xMin + safe.width * EdgeX
-                : safe.xMax - safe.width * EdgeX - width;
+                ? safe.xMin + inset
+                : safe.xMax - inset - width;
             return new Rect(x, safe.yMin + safe.height * ControlBottom, width, safe.height * ControlHeight);
         }
 

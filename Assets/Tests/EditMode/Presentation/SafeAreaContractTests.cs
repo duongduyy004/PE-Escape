@@ -64,6 +64,49 @@ namespace KMA.Tests.Presentation
             }
         }
 
+        [TestCase(1920, 1080, 72, 36, 1776, 1008, 72, 72, 36, 36)]
+        [TestCase(2160, 1080, 80, 0, 1970, 1070, 80, 110, 10, 0)]
+        [TestCase(2340, 1080, 90, 70, 2160, 986, 90, 90, 24, 70)]
+        [TestCase(2400, 1080, 120, 0, 2200, 1060, 120, 80, 20, 0)]
+        public void SafeAreaFitterCalculatesInsetsForCommonLandscapeRatiosAndAsymmetricCutouts(
+            int width, int height, int left, int bottom, int safeWidth, int safeHeight,
+            float expectedLeft, float expectedRight, float expectedTop, float expectedBottom)
+        {
+            var host = new GameObject("safe-area-offsets", typeof(RectTransform));
+            try
+            {
+                var fitter = host.AddComponent<SafeAreaFitter>();
+                SafeAreaFitter.Offsets offsets = fitter.CalculateOffsets(
+                    new Rect(left, bottom, safeWidth, safeHeight), new Vector2(width, height));
+                Assert.That(offsets.left, Is.EqualTo(expectedLeft).Within(.01f));
+                Assert.That(offsets.right, Is.EqualTo(expectedRight).Within(.01f));
+                Assert.That(offsets.top, Is.EqualTo(expectedTop).Within(.01f));
+                Assert.That(offsets.bottom, Is.EqualTo(expectedBottom).Within(.01f));
+            }
+            finally { Object.DestroyImmediate(host); }
+        }
+
+        [Test]
+        public void SafeAreaFitterReappliesInsetsWhenTheScreenSizeChanges()
+        {
+            var host = new GameObject("safe-area-resize", typeof(RectTransform));
+            try
+            {
+                var rect = host.GetComponent<RectTransform>();
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                var fitter = host.AddComponent<SafeAreaFitter>();
+                fitter.Apply(new Rect(72f, 36f, 1776f, 1008f), new Vector2Int(1920, 1080));
+                Assert.That(rect.offsetMin, Is.EqualTo(new Vector2(72f, 36f)));
+                Assert.That(rect.offsetMax, Is.EqualTo(new Vector2(-72f, -36f)));
+
+                fitter.Apply(new Rect(120f, 0f, 2200f, 1060f), new Vector2Int(2400, 1080));
+                Assert.That(rect.offsetMin, Is.EqualTo(new Vector2(120f, 0f)));
+                Assert.That(rect.offsetMax, Is.EqualTo(new Vector2(-80f, -20f)));
+            }
+            finally { Object.DestroyImmediate(host); }
+        }
+
         [Test]
         public void HudPrefabKeepsTheSafeAreaFitterOffTheCanvasRoot()
         {

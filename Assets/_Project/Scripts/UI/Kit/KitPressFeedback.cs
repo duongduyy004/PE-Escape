@@ -16,6 +16,9 @@ namespace KMA.UI.Kit
         [SerializeField] Selectable selectable;
 
         [SerializeField] TMP_Text label;
+        CanvasGroup targetGroup;
+        bool hasInteractableOverride;
+        bool interactableOverride = true;
         Color labelRestColor;
         bool wasDisabled;
         bool pressed;
@@ -30,8 +33,16 @@ namespace KMA.UI.Kit
             face = faceGraphic;
             target = scaleTarget;
             selectable = GetComponent<Selectable>();
+            targetGroup = scaleTarget != null ? scaleTarget.GetComponent<CanvasGroup>() : null;
             if (face != null)
                 restColor = face.color;
+        }
+
+        public void SetInteractable(bool interactable)
+        {
+            hasInteractableOverride = true;
+            interactableOverride = interactable;
+            ApplyInteractable();
         }
 
         public void SetRestColor(Color color)
@@ -46,7 +57,7 @@ namespace KMA.UI.Kit
 
         public void Press()
         {
-            if (selectable != null && !selectable.interactable)
+            if (IsDisabled)
                 return;
             pressed = true;
             restoreRemaining = 0f;
@@ -108,14 +119,16 @@ namespace KMA.UI.Kit
                 labelRestColor = label.color;
         }
 
+        bool IsDisabled => hasInteractableOverride ? !interactableOverride :
+            selectable != null && !selectable.interactable;
+
         void ApplyInteractable()
         {
-            if (selectable == null)
-                return;
-            bool disabled = !selectable.interactable;
+            bool disabled = IsDisabled;
             if (disabled == wasDisabled)
                 return;
             wasDisabled = disabled;
+            if (targetGroup != null) targetGroup.alpha = disabled ? .58f : 1f;
             if (disabled)
             {
                 pressed = false;

@@ -7,15 +7,15 @@ namespace KMA.Tests.Gameplay.Running
     public sealed class SprintGuideTests
     {
         [Test]
-        public void LearnAsksForTheRhythmCountWithoutAClock()
+        public void LearnShowsTheTimedGoalAndBestStreakRule()
         {
-            var pages = SprintGuide.Build(ChallengeKind.Learn, 12, 150f, 22f, 3);
+            var pages = SprintGuide.Build(ChallengeKind.Learn, 12, 150f, 45f, 3);
             Assert.That(pages.Count, Is.EqualTo(3));
             Assert.That(pages[0].Title, Is.EqualTo("MỤC TIÊU"));
             Assert.That(pages[0].Instruction,
-                Is.EqualTo("Bấm TRÁI, PHẢI luân phiên đúng 12 nhịp liên tiếp. Bài này không tính giờ."));
+                Is.EqualTo("Tập bấm TRÁI, PHẢI luân phiên trong 45 giây. Cần đạt chuỗi 12 nhịp hợp lệ ít nhất một lần."));
             Assert.That(pages[1].Title, Is.EqualTo("ĐIỀU KHIỂN"));
-            Assert.That(pages[2].Instruction, Is.EqualTo("Bấm nhầm bên sẽ đưa chuỗi về 0. Bạn cần thực hiện lại đủ 12 nhịp liên tiếp."));
+            Assert.That(pages[2].Instruction, Is.EqualTo("Bấm nhầm bên sẽ đưa chuỗi hiện tại về 0, nhưng không xóa chuỗi tốt nhất. Nếu hết giờ mà chưa quen nhịp, bạn có thể tập lại."));
         }
 
         [Test]

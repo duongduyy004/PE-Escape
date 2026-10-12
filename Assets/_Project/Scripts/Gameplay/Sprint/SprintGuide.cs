@@ -10,22 +10,22 @@ namespace KMA.Gameplay
             "Bấm TRÁI rồi PHẢI, luân phiên để chạy. Giữ nhịp đúng để tăng chuỗi và bứt tốc. Ngừng bấm thì tốc độ giảm.";
         public const string RaceRules =
             "Bấm nhầm bên sẽ mất chuỗi và tăng tốc rất ít. Hết giờ mà chưa về đích là chưa đạt. Điểm tính theo độ chính xác, thứ hạng và thời gian còn lại.";
-        // The learn lesson has no clock: a wrong side only resets the streak it counts.
+        // A mistake resets the live streak; the best streak remains recorded for the timed lesson.
         public const string LearnRules =
-            "Bấm nhầm bên sẽ đưa chuỗi về 0.";
+            "Bấm nhầm bên sẽ đưa chuỗi hiện tại về 0, nhưng không xóa chuỗi tốt nhất. Nếu hết giờ mà chưa quen nhịp, bạn có thể tập lại.";
 
         public static IReadOnlyList<TutorialStep> Build(ChallengeKind? kind, int targetCount, float distance,
             float timeLimit, int rivalCount)
         {
             bool learn = kind == ChallengeKind.Learn;
             string goal = learn
-                ? $"Bấm TRÁI, PHẢI luân phiên đúng {targetCount} nhịp liên tiếp. Bài này không tính giờ."
+                ? $"Tập bấm TRÁI, PHẢI luân phiên trong {MinigameGuidePages.Number(timeLimit)} giây. Cần đạt chuỗi {targetCount} nhịp hợp lệ ít nhất một lần."
                 : $"Về đích {MinigameGuidePages.Number(distance)} m trong tối đa {MinigameGuidePages.Number(timeLimit)} giây." +
                   (rivalCount > 0 ? $" Có {rivalCount} sinh viên chạy cùng." : string.Empty);
             return MinigameGuidePages.Pages(
                 new TutorialStep("MỤC TIÊU", goal),
                 new TutorialStep("ĐIỀU KHIỂN", Controls),
-                new TutorialStep("LUẬT", learn ? $"{LearnRules} Bạn cần thực hiện lại đủ {targetCount} nhịp liên tiếp." : RaceRules),
+                new TutorialStep("LUẬT", learn ? LearnRules : RaceRules),
                 MinigameGuidePages.FailurePage(kind));
         }
     }

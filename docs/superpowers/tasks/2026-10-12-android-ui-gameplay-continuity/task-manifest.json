@@ -1,0 +1,1578 @@
+{
+  "version": 1,
+  "date": "2026-10-12",
+  "baselineReviewed": "10b86bc",
+  "scope": "Concrete task decomposition only; no runtime edits or executed Unity/device tests in this turn",
+  "groups": [
+    "00-baseline",
+    "01-ui-foundation",
+    "02-map-popup",
+    "03-branding",
+    "04-sprint",
+    "05-volleyball",
+    "06-continuation",
+    "07-frog-jump",
+    "08-goalkeeper",
+    "09-integration-qa"
+  ],
+  "requirements": [
+    {
+      "id": 1,
+      "title": "Fit menu Android; popup và icon/font +50%",
+      "sub": [
+        "Home/Map full render surface: U01,U02,B02",
+        "Map đủ4trạm: M01",
+        "Popup/icon/font1,5×,objective/close/CTA: M02",
+        "Ảnh cùngdevice/aspect: A02,Q05"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Tên Chạy trốn thể chất, logo và icon",
+      "sub": [
+        "Logo/icon/source/credit: B01",
+        "Menu visible title và callback: B02",
+        "Splash/launcher/configurator: B03",
+        "Name/icon trênAPK: Q04,Q05"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Chân trái/phải, nút sát góc +30%, nhân vật lớn",
+      "sub": [
+        "Sprite chân: B01",
+        "Visual1,3×/safe corners/input/cue: S01",
+        "Nhân vật lớn/pivot/lane/label: S02",
+        "Đo vàtouch thật: Q05"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Học chạy có thời lượng đủ làm quen",
+      "sub": [
+        "Timer45/60Play,bestStreak,không early finish: S03",
+        "HUD/guide/dialogue/result nhất quán: S04",
+        "Pause,fail Learn,no penalty,flow: S03,C05,Q05"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Học bóng chuyền thực sự đỡ/đánh và nút transparent",
+      "sub": [
+        "Không reset xóa động tác/flight: V01",
+        "Replay/phase/contact: V02,V03",
+        "Drill Receive/Serve/JumpHit: V04",
+        "Transparent icon/multi-touch: B01,V05",
+        "Input/guide/PlayMode/device: V04,V05,Q05"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Tiếp tục vào bài kế tiếp sau lời dẫn",
+      "sub": [
+        "Policy checkpoint saucommit: C01",
+        "Final line/skip/empty/seen/save marker: C02",
+        "Bridgeintent,menu/browse/cancel: C03",
+        "ResultCTA/save-loadrollback/doubletap: C04",
+        "Full journey/failure/frog/final/review/restart: C05,Q05"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Chữ đọc rõ, có nền/khung và không tràn",
+      "sub": [
+        "Contrast/textroles/fonts: U03",
+        "Popup/Home/Splash: M02,B02,B03",
+        "HUD/feedback/guide/dialogue/result/errors: S04,V04,V05,C04,F02,Q01",
+        "Celebration/JourneyCourseSummary/minigameResult: Q01",
+        "Longeststrings và aspect/device: Q01,Q05"
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Bật cóc vùng xanh hẹp, 30s và hoàn thành được",
+      "sub": [
+        "30s/config/fallback/thoại: F01",
+        "Greenrule[0,4;0,6]/viewdistance: F02",
+        "Best+safe-edge frame simulation/timeout/penalty: F03",
+        "Playtest và tune: Q05"
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Animation Volley mượt và đúng asset",
+      "sub": [
+        "Delayedreset: V01",
+        "Actionidentity,Serve!=Smash/contact-follow-land: V02",
+        "Dig/SpikeContact/Follow/Land/Recover,pivot/net/opponentregression: V03",
+        "Học/Luyện/Thi và repeats: V04,Q05"
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Landing thủ môn đúng phía/cự ly, cheer khi bắt được",
+      "sub": [
+        "MappingfarDiveEmpty,nearReachEmpty,center: K01",
+        "Landingtimeline,rotation0,Cheer,resetshot,oneball: K02",
+        "Matrixshots/unchangedcollision/outcome: K03",
+        "Video vàdevice: Q05"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "A01",
+      "group": 0,
+      "title": "Xác nhận code, công cụ và dữ liệu thử",
+      "requirements": [],
+      "dependsOn": [],
+      "status": "in_progress",
+      "files": [
+        "README.md",
+        "ProjectSettings/ProjectVersion.txt",
+        "Packages/manifest.json"
+      ],
+      "testFixtures": [],
+      "work": [
+        "Ghi HEAD/status; giữ file untracked và thay đổi có sẵn của người dùng. Kiểm Unity 6000.3.23f1, test runner, authoring và build tools; không pull/reset thêm.",
+        "Liệt kê challenge/config đang chạy từ catalog; tạo save thử mới và bản sao save cũ. Không xóa save thật.",
+        "Lập danh sách file/builder/dialogue cần cập nhật và xác nhận source có sẵn; dùng RTK cho shell."
+      ],
+      "acceptance": [
+        "Baseline code và khả năng chạy Unity/build/device được ghi vào QA; phần chưa có công cụ ghi chưa xác minh.",
+        "Save test tách biệt, có mẫu đã học/thi một phần và course-complete."
+      ],
+      "proposedDefaults": "",
+      "testFiles": []
+    },
+    {
+      "id": "A02",
+      "group": 0,
+      "title": "Chụp baseline Android và đo bố cục",
+      "requirements": [
+        1,
+        2,
+        3,
+        5,
+        7,
+        9,
+        10
+      ],
+      "dependsOn": [
+        "A01"
+      ],
+      "status": "not_started",
+      "files": [
+        "Assets/_Project/Scenes/Map.unity",
+        "Assets/_Project/Scenes/Menu.unity",
+        "Assets/_Project/Scenes/MG_Sprint.unity",
+        "Assets/_Project/Scenes/MG_Volleyball.unity",
+        "Assets/_Project/Scenes/MG_Football.unity",
+        "Assets/_Project/Scenes/Celebration.unity"
+      ],
+      "testFixtures": [],
+      "work": [
+        "Chụp đúng 2400×1080 và 1920×1080: Home/Splash/Map/popup/Sprint Học/Celebration; ghi safe rect, canvas scale, viewport và navigation mode.",
+        "Quay Receive ở Học bóng chuyền và keeper gần/xa hai phía; xác minh nguyên nhân dải màu ảnh 2 từ UI/camera/system bars.",
+        "Lưu đo baseline visible button, icon, font và chiều cao nhân vật để so trước/sau cùng device."
+      ],
+      "acceptance": [
+        "Có ảnh/video hoặc đánh dấu device baseline pending rõ ràng, không giả đã xem runtime.",
+        "Không quy dải màu cho fullscreen/safe area nếu chưa có evidence. Khi thiếu device vẫn bắt đầu code task từ A01, nhưng A02/Q05/Q06 chưa thể Done; Q04 có thể Done nếu tự đáp ứng build/smoke gate."
+      ],
+      "proposedDefaults": "",
+      "testFiles": []
+    },
+    {
+      "id": "U01",
+      "group": 1,
+      "title": "Chuẩn hóa chuyển đổi safe area và cập nhật động",
+      "requirements": [
+        1,
+        3,
+        7
+      ],
+      "dependsOn": [
+        "A01"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/UI/SafeAreaFitter.cs",
+        "Assets/_Project/Scripts/UI/MinigameUIAssembler.cs",
+        "Assets/_Project/Scripts/Gameplay/Sprint/SprintFestivalPresentation.cs",
+        "Assets/Editor/DialoguePresentationAuthoring.cs"
+      ],
+      "testFixtures": [
+        "SafeAreaContractTests",
+        "UIComponentPlayModeTests"
+      ],
+      "work": [
+        "Dùng normalized anchors trên parent toàn màn; screen-to-local khi parent đặc biệt; không ghi screen pixels thẳng vào canvas offsets.",
+        "Giữ guard root neo trùng/zero screen/reentrant; tránh double fitting ancestor/child.",
+        "Theo dõi safe rect, resolution, landscape hai hướng và resume; giữ API CalculateOffsets tương thích hoặc sửa toàn bộ caller/test liên quan."
+      ],
+      "acceptance": [
+        "Inset chính xác ở canvas scale 0,5/1/2 và safe rect bất đối xứng; không root collapse/loop.",
+        "Đổi safe area mà resolution không đổi vẫn cập nhật; mọi control nằm trong safe bounds."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/EditMode/Presentation/SafeAreaContractTests.cs",
+        "Assets/Tests/PlayMode/Presentation/UIComponentPlayModeTests.cs"
+      ]
+    },
+    {
+      "id": "U02",
+      "group": 1,
+      "title": "Tách nền phủ màn khỏi lớp tương tác an toàn",
+      "requirements": [
+        1,
+        2,
+        7
+      ],
+      "dependsOn": [
+        "U01"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/UI/MapPresentationBuilder.cs",
+        "Assets/_Project/Scripts/UI/CampusBackdropUi.cs",
+        "Assets/_Project/Scripts/UI/JourneyDialoguePresenter.cs",
+        "Assets/_Project/Scripts/UI/SplashPresentationView.cs",
+        "Assets/Editor/ShellSceneAuthoring.cs",
+        "Assets/_Project/Scenes/Menu.unity",
+        "Assets/_Project/Scenes/Map.unity"
+      ],
+      "testFixtures": [
+        "CampusBackdropUiTests",
+        "ScenePresentationContractTests"
+      ],
+      "work": [
+        "Dựng full-bleed backdrop/scrim trên render surface, controls trong SafeAreaRoot. Kiểm Home, Map, popup và lời dẫn.",
+        "Cover crop giữ tỷ lệ artwork; loại backdrop bị inset hoặc parent/viewport khiến nền hở cạnh.",
+        "Nếu A02 chứng minh lỗi native window/camera thì sửa đúng nguồn và đồng bộ configurator; giữ fullscreen settings đã đúng."
+      ],
+      "acceptance": [
+        "Home lẫn Map phủ toàn vùng render; không hở dải màu, không kéo méo nền.",
+        "Scrim phủ nền nhưng nút/header/close vẫn ở safe area; không crop mất button art."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/EditMode/Presentation/CampusBackdropUiTests.cs",
+        "Assets/Tests/PlayMode/Presentation/ScenePresentationContractTests.cs"
+      ]
+    },
+    {
+      "id": "U03",
+      "group": 1,
+      "title": "Text roles, contrast và quy tắc containment",
+      "requirements": [
+        7
+      ],
+      "dependsOn": [
+        "U01"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/UI/UITheme.cs",
+        "Assets/_Project/Settings/UI/UITheme.asset",
+        "Assets/_Project/Scripts/UI/Kit/UiKit.cs",
+        "Assets/_Project/Scripts/UI/VietTypography.cs"
+      ],
+      "testFixtures": [
+        "UIThemeTests",
+        "MinigameUiThemeTests",
+        "UiKitTests"
+      ],
+      "work": [
+        "Thêm/dùng role accent-on-navy, navy-on-light, error/warning plate. Đo tương phản sau compositing.",
+        "Quy định padding, wrap, bounded autosize; không dùng overflow/mask để che mất nội dung.",
+        "Đồng bộ serialized theme và C# defaults; sprite icons thay emoji thiếu glyph; giữ Vietnamese fallback."
+      ],
+      "acceptance": [
+        "Text thường đạt mục tiêu 4,5:1, large/icon chức năng 3:1 ở cặp màu đã dùng.",
+        "Token dùng lại được cho HUD/result/summary; không blanket đổi mọi chữ vàng."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/EditMode/Presentation/UIThemeTests.cs",
+        "Assets/Tests/EditMode/Presentation/MinigameUiThemeTests.cs",
+        "Assets/Tests/EditMode/Presentation/UiKitTests.cs"
+      ]
+    },
+    {
+      "id": "M01",
+      "group": 2,
+      "title": "Map chọn môn fit safe rect",
+      "requirements": [
+        1
+      ],
+      "dependsOn": [
+        "U02",
+        "U03"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/UI/MapJourneyPathLayout.cs",
+        "Assets/_Project/Scripts/UI/MapPresentationBuilder.cs",
+        "Assets/_Project/Scripts/UI/MapStopBuilder.cs",
+        "Assets/_Project/Scripts/UI/UITheme.cs",
+        "Assets/_Project/Settings/UI/UITheme.asset"
+      ],
+      "testFixtures": [
+        "JourneyMapTests",
+        "JourneyMapChessTests"
+      ],
+      "work": [
+        "Tính map zone dưới header theo safe rect thực; scale stop theo height và khoảng cách stopX.",
+        "Bảo toàn 4 trạm, current/completed/locked, tên và status; tránh chữ/road/stop overlap ở 4:3.",
+        "Cập nhật runtime nhánh existing presentation lẫn saved Map qua authoring."
+      ],
+      "acceptance": [
+        "Đủ 4 trạm và header trên 16:9/20:9/16:10/4:3; không clipping hay trạng thái lệch dữ liệu."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/PlayMode/Presentation/JourneyMapTests.cs",
+        "Assets/Tests/PlayMode/Presentation/JourneyMapChessTests.cs"
+      ]
+    },
+    {
+      "id": "M02",
+      "group": 2,
+      "title": "Popup ba bước lớn hơn và CTA không tràn",
+      "requirements": [
+        1,
+        7
+      ],
+      "dependsOn": [
+        "M01"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/UI/JourneyLessonPresentation.cs",
+        "Assets/_Project/Scripts/UI/JourneyLessonList.cs",
+        "Assets/_Project/Scripts/UI/UITheme.cs",
+        "Assets/_Project/Settings/UI/UITheme.asset",
+        "Assets/Editor/ShellSceneAuthoring.cs",
+        "Assets/_Project/Scenes/Map.unity"
+      ],
+      "testFixtures": [
+        "JourneyMapTests",
+        "MapLessonPopupBackTests"
+      ],
+      "work": [
+        "Tăng icon/font tuyến tính ~1,5 lần cùng resolution, gồm stage icon, completion/lock badge, title/objective/status/CTA.",
+        "Bố trí lại popup/header/node row/detail/road theo safe rect; nút Close không vượt cạnh.",
+        "Text dài wrap, CTA xuống hàng khi hẹp; không thu font về baseline hoặc che mất câu; kiểm hit target."
+      ],
+      "acceptance": [
+        "Đo icon/font gần 150% baseline; CTA/close không overlap và dùng được với toàn bộ objective thực.",
+        "Panel dùng không gian đủ lớn, mọi nội dung trong safe area; Back/scrim/Close hành vi cũ còn đúng."
+      ],
+      "proposedDefaults": "Khởi điểm node186/badge69/font54/42/39; panel75% high,92–96% wide. Đây là token tune, không thay tiêu chí 1,5× visible.",
+      "testFiles": [
+        "Assets/Tests/PlayMode/Presentation/JourneyMapTests.cs",
+        "Assets/Tests/PlayMode/Progression/MapLessonPopupBackTests.cs"
+      ]
+    },
+    {
+      "id": "B01",
+      "group": 3,
+      "title": "Hoàn thiện wordmark, badge và icon procedural theo phong cách game",
+      "requirements": [
+        2,
+        3,
+        5
+      ],
+      "dependsOn": [
+        "A01"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/UI/HomePresentationBuilder.cs",
+        "Assets/_Project/Scripts/UI/HomeMenuIcons.cs",
+        "Assets/_Project/Scripts/Gameplay/Sprint/SprintFootIcons.cs",
+        "Assets/_Project/CREDITS.md",
+        "Assets/_Project/Art/Brand/GameLogo.png",
+        "Assets/_Project/Art/Brand/AppIcon.png"
+      ],
+      "testFixtures": [],
+      "work": [
+        "Dùng TMP dựng wordmark hai dòng CHẠY TRỐN / THỂ CHẤT; badge trường học ghép bằng UI shapes.",
+        "HomeMenuIcons vẽ icon chức năng bằng code; SprintFootIcons vẽ giày trái/phải bằng code.",
+        "Credit rõ source/composition procedural, giữ attribution có sẵn cho GameLogo.png/AppIcon.png; không tính các PNG cũ là asset mới của đợt này.",
+        "Kiểm readability ở 48 dp trong Unity/device; launcher/package name/icon verification theo B03/Q04."
+      ],
+      "acceptance": [
+        "Source composition/procedural icon và credit rõ; không thêm attribution sai cho PNG logo/icon hiện có.",
+        "Unity/device xác nhận icon chức năng phân biệt ở 48 dp và title đủ dấu, hợp art hiện tại."
+      ],
+      "proposedDefaults": "Không tạo logo PNG mới trong task này; wordmark TMP và badge là composition của UI, icon được vẽ procedural trong source.",
+      "testFiles": []
+    },
+    {
+      "id": "B02",
+      "group": 3,
+      "title": "Menu thật thay title/button vẽ sẵn",
+      "requirements": [
+        1,
+        2,
+        7
+      ],
+      "dependsOn": [
+        "B01",
+        "U02",
+        "U03"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/UI/HomePresentationBuilder.cs",
+        "Assets/_Project/Scripts/UI/HomeKeyArtLayout.cs",
+        "Assets/_Project/Scripts/UI/HomeKeyArtButton.cs",
+        "Assets/_Project/Scripts/UI/HomeMenuIcons.cs",
+        "Assets/_Project/Scripts/UI/HomeMenuResponsive.cs",
+        "Assets/_Project/Scripts/UI/HomeMenuStyle.cs",
+        "Assets/Editor/ShellSceneAuthoring.cs",
+        "Assets/_Project/Scenes/Menu.unity"
+      ],
+      "testFixtures": [
+        "ShellButtonFamilyTests",
+        "S5NewGameTests",
+        "ScenePresentationContractTests"
+      ],
+      "work": [
+        "Tách title/icon/mặt nút cũ khỏi MenuKeyArtPanel; giữ backdrop/nhân vật. Dựng uGUI/TMP control thực và wordmark.",
+        "Bỏ hitbox tọa độ painted art và label vô hình khi chuyển layout; bind đúng callbacks Chơi mới/Tiếp tục/Cài đặt/Thoát.",
+        "Responsive safe-area layout; giữ Continue disabled khi không save, new-game confirmation và settings/back."
+      ],
+      "acceptance": [
+        "Menu phủ màn, branding mới visible; mặt nút và hit area trùng ở mọi aspect.",
+        "Mỗi nút thực hiện đúng chức năng; không double listener, không legacy title lộ sau resume/rebuild."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/EditMode/Presentation/ShellButtonFamilyTests.cs",
+        "Assets/Tests/PlayMode/Progression/S5NewGameTests.cs",
+        "Assets/Tests/PlayMode/Presentation/ScenePresentationContractTests.cs"
+      ]
+    },
+    {
+      "id": "B03",
+      "group": 3,
+      "title": "Splash và tên/icon ứng dụng đồng nhất",
+      "requirements": [
+        2,
+        7
+      ],
+      "dependsOn": [
+        "B02"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/UI/SplashPresentationView.cs",
+        "Assets/_Project/Scripts/UI/SplashScreenPresenter.cs",
+        "Assets/Editor/ProjectConfigurator.cs",
+        "ProjectSettings/ProjectSettings.asset",
+        "Assets/Editor/ShellSceneAuthoring.cs",
+        "Assets/_Project/Scenes/Bootstrap.unity"
+      ],
+      "testFixtures": [
+        "SplashLoadingFlowTests",
+        "ProjectSettingsTests"
+      ],
+      "work": [
+        "Splash dùng chung logo/wordmark, plate đọc rõ và title không tràn.",
+        "Đổi ProductName/PlayerSettings sang Chạy trốn thể chất và wire launcher icons; giữ com.kma.thechat.",
+        "Preserve async loading/minimum intro và cấu hình build; cập nhật scene serialized lẫn builder."
+      ],
+      "acceptance": [
+        "Splash/Home/launcher tên+logo đồng nhất; không branding cũ visible.",
+        "Loading progress/transition vẫn đúng; authoring không đưa tên/icon cũ trở lại."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/PlayMode/Presentation/SplashLoadingFlowTests.cs",
+        "Assets/Tests/EditMode/Config/ProjectSettingsTests.cs"
+      ]
+    },
+    {
+      "id": "S01",
+      "group": 4,
+      "title": "Nút hai chân lớn và gần góc",
+      "requirements": [
+        3
+      ],
+      "dependsOn": [
+        "B01",
+        "U01",
+        "U03"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/Gameplay/Sprint/SprintUiLayout.cs",
+        "Assets/_Project/Scripts/Gameplay/Sprint/SprintChromeLayout.cs",
+        "Assets/_Project/Scripts/Gameplay/Sprint/SprintFestivalPresentation.cs",
+        "Assets/_Project/Scripts/Gameplay/Sprint/SprintControlPresenter.cs",
+        "Assets/_Project/Scripts/Input/ScreenTapArea.cs"
+      ],
+      "testFixtures": [
+        "SprintUiLayoutTests",
+        "SprintRuntimeInputTests"
+      ],
+      "work": [
+        "Bỏ text TRÁI/PHẢI và arrows; dùng sprite chân trái/phải giữ Side mapping/keyboard.",
+        "Visual rộng/cao1,3×; neo về cạnh ngoài từng hit rect, inset safe bottom/side12–24 canvas units; hit area bao visual cả pulse.",
+        "Giữ expected-side/pressed/disabled và haptics; không route input hai lần."
+      ],
+      "acceptance": [
+        "Visible button/icon ~130% baseline và sát góc safe area; không bị gesture/notch che.",
+        "Hai chân bấm luân phiên đúng, multi-touch không nhân đôi, nút không che player."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/EditMode/Presentation/SprintUiLayoutTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Running/SprintRuntimeInputTests.cs"
+      ]
+    },
+    {
+      "id": "S02",
+      "group": 4,
+      "title": "Phóng visual nhân vật chạy và giữ chân đúng lane",
+      "requirements": [
+        3
+      ],
+      "dependsOn": [
+        "U01",
+        "S01"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/Editor/DemoSprintArtConfigurator.cs",
+        "Assets/Editor/SprintSceneConfigurator.cs",
+        "Assets/_Project/Scripts/Gameplay/Sprint/RunnerVisualPresenter.cs",
+        "Assets/_Project/Scripts/Gameplay/Sprint/RunnerBreathing.cs",
+        "Assets/_Project/Scripts/Gameplay/Sprint/SprintTrackLayout.cs",
+        "Assets/_Project/Prefabs/Gameplay/PlayerRunnerVisual.prefab",
+        "Assets/_Project/Prefabs/Gameplay/RivalRunner.prefab"
+      ],
+      "testFixtures": [
+        "RunnerVisualTests",
+        "SprintPresentationGateTests"
+      ],
+      "work": [
+        "Tăng visual player và kiểm các rivals theo kích thước lane; dùng scale parent không bị animation/breathing ghi đè.",
+        "Giữ ground-foot pivot, logic/collider/race X; nhãn BẠN bám bounds mới.",
+        "Đồng bộ authoring/prefabs/scene; kiểm Run/Idle/Start/Finish chứ không chỉ một sprite."
+      ],
+      "acceptance": [
+        "Nhân vật rõ và lớn hơn baseline, không lệch lane hoặc reset scale khi đổi state.",
+        "Rivals/label/nút không che player; race logic không thay vì visual scale."
+      ],
+      "proposedDefaults": "+25% player/rivals là khởi điểm đề xuất, tune theo lane; user không đặt % nhân vật.",
+      "testFiles": [
+        "Assets/Tests/PlayMode/Presentation/RunnerVisualTests.cs",
+        "Assets/Tests/PlayMode/Presentation/SprintPresentationGateTests.cs"
+      ]
+    },
+    {
+      "id": "S03",
+      "group": 4,
+      "title": "Learn chạy đủ thời gian và điều kiện hoàn thành",
+      "requirements": [
+        4
+      ],
+      "dependsOn": [
+        "A01"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/Gameplay/Sprint/SprintChallengeRules.cs",
+        "Assets/_Project/Scripts/Gameplay/Sprint/SprintController.cs",
+        "Assets/_Project/Scripts/Gameplay/Sprint/SprintRules.cs",
+        "Assets/_Project/Scripts/Progression/Journey/ChallengeDefinition.cs",
+        "Assets/_Project/ScriptableObjects/Journey/sprint_learn.asset",
+        "Assets/Editor/StudentJourneyContentBuilder.cs"
+      ],
+      "testFixtures": [
+        "SprintChallengeTests",
+        "SprintChallengeRuntimeTests",
+        "SprintControllerTests"
+      ],
+      "work": [
+        "Đặt Learn 45 s, cấu hình được60; tách elapsed/completion của Learn khỏi race finish/streak sớm.",
+        "Theo dõi bestStreak; đủ thời gian mới resolve; chưa đạt ngưỡng thì Learn retry không mạng/frog.",
+        "Clamp dt ở kết thúc; pause/guide/dialogue/background không ăn giờ; active input không bị finished Race bỏ qua."
+      ],
+      "acceptance": [
+        "Đạt12 sớm không resolve trước45 s; sai cuối lượt không mất bestStreak.",
+        "Idle/chưa đủ ngưỡng có tập lại không phạt; completion đúng một lần; Practice/Exam timer/score không đổi."
+      ],
+      "proposedDefaults": "45 s và bestStreak ≥ 12 là default đề xuất, không phải user yêu cầu ngưỡng 12; quyết định được ghi trong config/QA.",
+      "testFiles": [
+        "Assets/Tests/EditMode/Gameplay/Running/SprintChallengeTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Running/SprintChallengeRuntimeTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Running/SprintControllerTests.cs"
+      ]
+    },
+    {
+      "id": "S04",
+      "group": 4,
+      "title": "HUD, guide, thoại và result cho timed Learn",
+      "requirements": [
+        4,
+        7
+      ],
+      "dependsOn": [
+        "S03",
+        "U03"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/Gameplay/Sprint/SprintHud.cs",
+        "Assets/_Project/Scripts/Gameplay/Sprint/SprintGuide.cs",
+        "Assets/_Project/Scripts/Gameplay/Sprint/SprintController.cs",
+        "Assets/_Project/Scripts/UI/ResultPanel.cs",
+        "Assets/Editor/StudentJourneyContentBuilder.cs",
+        "Assets/Editor/GameplayDialogueContentBuilder.cs",
+        "Chay-tron-the-chat-loi-thoai-bien-tap.md",
+        "Assets/_Project/Resources/Journey/JourneyDialogues.asset",
+        "Assets/_Project/Resources/Journey/GameplayDialogues.asset"
+      ],
+      "testFixtures": [
+        "SprintGuideTests",
+        "SprintDialogueTests",
+        "ResultDialogueTests"
+      ],
+      "work": [
+        "Mode/HUD HỌC 00:45, progress theo thời gian, best streak phụ; hướng dẫn bấm đều hai chân.",
+        "Objective/guide/dialogue lấy thời lượng cấu hình; bỏ HỌC 12 NHỊP/không giới hạn ở nơi không còn đúng.",
+        "Result Learn nêu thời gian/nhịp và CTA phù hợp; cập nhật nguồn thoại biên tập/parser lẫn resources, giữ câu khác."
+      ],
+      "acceptance": [
+        "Không còn mô tả cũ mâu thuẫn timer; guide/result/thoại thể hiện đúng45/60 theo config.",
+        "Full string đủ dấu, dễ đọc, không bị regenerate về default cũ."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/EditMode/Gameplay/Running/SprintGuideTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Running/SprintDialogueTests.cs",
+        "Assets/Tests/PlayMode/Presentation/ResultDialogueTests.cs"
+      ]
+    },
+    {
+      "id": "V01",
+      "group": 5,
+      "title": "Sửa reset Học để động tác và bóng kịp hiển thị",
+      "requirements": [
+        5,
+        9
+      ],
+      "dependsOn": [
+        "A01"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/Gameplay/Volleyball/VolleyballChallengeRules.cs",
+        "Assets/_Project/Scripts/Gameplay/Volleyball/VolleyballController.cs",
+        "Assets/_Project/Scripts/Gameplay/Volleyball/VolleyballMatch.cs"
+      ],
+      "testFixtures": [
+        "VolleyballChallengeTests",
+        "VolleyballChallengeRuntimeTests",
+        "VolleyballControllerTests"
+      ],
+      "work": [
+        "Bỏ ResetRally đồng bộ trong callback Receive; tạo pending completion/reset có Tick hoặc signal kết thúc presentation.",
+        "Giữ flight/contact/follow-through sau hit, khóa đếm spam trong pending; drill cuối chỉ resolve sau trình diễn.",
+        "Không phụ thuộc chặt view để rule deadlock khi scene thiếu view; có thời lượng model/config làm fallback."
+      ],
+      "acceptance": [
+        "Receive không xóa Action/Lock/Flight trước render; legal action hiển thị qua nhiều frame.",
+        "Không cộng mục tiêu nhiều lần hoặc Finish trước thấy động tác; Practice/Exam còn match lifecycle cũ."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/EditMode/Gameplay/Volleyball/VolleyballChallengeTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Volleyball/VolleyballChallengeRuntimeTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Volleyball/VolleyballControllerTests.cs"
+      ]
+    },
+    {
+      "id": "V02",
+      "group": 5,
+      "title": "Action sequence và replay animation",
+      "requirements": [
+        9,
+        5
+      ],
+      "dependsOn": [
+        "V01"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/Gameplay/Volleyball/VolleyAthlete.cs",
+        "Assets/_Project/Scripts/Gameplay/Volleyball/VolleyAthleteView.cs",
+        "Assets/_Project/Scripts/Gameplay/Volleyball/SpriteFlipbook.cs",
+        "Assets/_Project/Scripts/Gameplay/Volleyball/VolleyballMatch.cs"
+      ],
+      "testFixtures": [
+        "PresentationTests",
+        "VolleyAthleteTests",
+        "VolleyballControllerTests"
+      ],
+      "work": [
+        "Thêm action/sequence identity hoặc force-restart có chủ đích; cùng action liên tiếp vẫn replay.",
+        "Tách Serve khỏi Smash, quản lý load/contact/follow/land/recover theo lock/airtime; Move/Idle không cắt animation giữa phase.",
+        "Flight/contact vẫn do model quyết định; không đổi physics vì flipbook FPS; duration phase cấu hình được."
+      ],
+      "acceptance": [
+        "Repeated Receive/Smash và Serve→Smash có frame reset đúng; Contact đồng bộ đổi flight.",
+        "Landing xuất hiện cuối airtime; pause không chạy animation; không tăng model action lock vô ý."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/EditMode/Gameplay/Volleyball/PresentationTests.cs",
+        "Assets/Tests/EditMode/Gameplay/Volleyball/VolleyAthleteTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Volleyball/VolleyballControllerTests.cs"
+      ]
+    },
+    {
+      "id": "V03",
+      "group": 5,
+      "title": "Wire pose bóng chuyền đúng tình huống",
+      "requirements": [
+        9,
+        5
+      ],
+      "dependsOn": [
+        "V02"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/Editor/VolleyballSceneConfigurator.cs",
+        "Assets/_Project/Scripts/Gameplay/Volleyball/VolleyAthleteView.cs",
+        "Assets/Editor/CharacterArt.cs",
+        "Assets/_Project/Scenes/MG_Volleyball.unity",
+        "Assets/_Project/Art/Characters/MaleAdventurer/MaleAdventurer_volleySpikeContact.png",
+        "Assets/_Project/Art/Characters/MaleAdventurer/MaleAdventurer_volleyDig.png"
+      ],
+      "testFixtures": [
+        "SupplementPoseWiringTests",
+        "VolleyballSceneConfiguratorTests",
+        "PresentationTests"
+      ],
+      "work": [
+        "Theo bảng spec: đỡ thấp Dig/Recover, cao Receive/Set, đập Load/Windup/Contact/Follow/Land; dùng riêng chuỗi Serve.",
+        "Chuẩn hóa foot/contact pivot, scale và frame duration; không append rồi để lock cắt mất frame cuối.",
+        "Kiểm opponent/shared poses và sorting net để không regression; chỉ sửa đối thủ khi cần, không redesign toàn bộ."
+      ],
+      "acceptance": [
+        "PlayMode thấy sprite thật theo thời gian ở Receive/Serve/Smash/Land, không chỉ mảng chứa PNG đúng tên.",
+        "Không rung chân/bounds, xuyên net hoặc chơi spike pose khi chỉ đứng/đỡ thấp; scene author lại giữ mapping."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/EditMode/EditorTools/SupplementPoseWiringTests.cs",
+        "Assets/Tests/EditMode/EditorTools/VolleyballSceneConfiguratorTests.cs",
+        "Assets/Tests/EditMode/Gameplay/Volleyball/PresentationTests.cs"
+      ]
+    },
+    {
+      "id": "V04",
+      "group": 5,
+      "title": "Học bóng chuyền có đỡ, phát và nhảy đánh",
+      "requirements": [
+        5
+      ],
+      "dependsOn": [
+        "V03"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/Gameplay/Volleyball/VolleyballChallengeRules.cs",
+        "Assets/_Project/Scripts/Gameplay/Volleyball/VolleyballMatchOptions.cs",
+        "Assets/_Project/Scripts/Gameplay/Volleyball/VolleyballController.cs",
+        "Assets/_Project/Scripts/Gameplay/Volleyball/VolleyballHud.cs",
+        "Assets/_Project/Scripts/Gameplay/Volleyball/VolleyballGuide.cs",
+        "Assets/_Project/Scripts/Progression/Journey/ChallengeDefinition.cs",
+        "Assets/Editor/StudentJourneyContentBuilder.cs",
+        "Assets/_Project/ScriptableObjects/Journey/volleyball_learn.asset",
+        "Assets/_Project/Resources/Journey/JourneyDialogues.asset",
+        "Assets/Editor/GameplayDialogueContentBuilder.cs"
+      ],
+      "testFixtures": [
+        "VolleyballChallengeTests",
+        "VolleyballChallengeRuntimeTests",
+        "VolleyballGuideTests",
+        "VolleyballDialogueTests"
+      ],
+      "work": [
+        "Thêm drill state/config Receive→Serve→Jump/Hit, chọn server và feed pattern author hóa; dùng action resolver/controls của match.",
+        "Count legal contact không tính None/Miss; lỗi retry drill không life/frog; không bắt Perfect mới qua.",
+        "Guide/HUD/objective/result/config/assets cùng nguồn; TargetCount không còn dùng như đếm Receive cho mọi bước."
+      ],
+      "acceptance": [
+        "Học có cả động tác đỡ/phát/nhảy đánh với bóng phản ứng; đủ thao tác mới mở Luyện.",
+        "Practice/Exam không chạy drill; result không mismatch target; regenerate nội dung vẫn giữ thoại biên tập."
+      ],
+      "proposedDefaults": "3 đỡ/2 phát/2 nhảy đánh là default đề xuất; tune trong playtest, giữ đủ thao tác user yêu cầu.",
+      "testFiles": [
+        "Assets/Tests/EditMode/Gameplay/Volleyball/VolleyballChallengeTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Volleyball/VolleyballChallengeRuntimeTests.cs",
+        "Assets/Tests/EditMode/Gameplay/Volleyball/VolleyballGuideTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Volleyball/VolleyballDialogueTests.cs"
+      ]
+    },
+    {
+      "id": "V05",
+      "group": 5,
+      "title": "Hai nút Volley transparent có icon",
+      "requirements": [
+        5
+      ],
+      "dependsOn": [
+        "B01",
+        "U01",
+        "U03"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/Editor/VolleyballSceneConfigurator.cs",
+        "Assets/_Project/Scripts/Gameplay/Volleyball/ActionButton.cs",
+        "Assets/_Project/Scripts/Gameplay/Volleyball/JumpButton.cs",
+        "Assets/_Project/Scripts/Gameplay/Volleyball/VolleyballInputBridge.cs",
+        "Assets/_Project/Scripts/Gameplay/Volleyball/VirtualJoystick.cs"
+      ],
+      "testFixtures": [
+        "TouchControlTests",
+        "VolleyballInputBridgeTests",
+        "VolleyballSceneTests"
+      ],
+      "work": [
+        "Thay RoundButton vàng chữ bằng icon hit/jump, transparent plate hoặc clear+outline có contrast.",
+        "Transparent raycast image nhận input, icon/viền không chặn; kiểm alpha/cullTransparentMesh/cue/pressed/disabled.",
+        "Giữ vùng chạm tách nhau, joystick+jump+hit multi-touch, keyboard và InputBridge mapping."
+      ],
+      "acceptance": [
+        "Không còn nền vàng/chữ ĐÁNH/NHẢY trên mặt nút; icon hiểu được qua guide.",
+        "Tất cả vùng visible bấm được, không overlap hit boxes; cue và simultaneous input chạy đúng."
+      ],
+      "proposedDefaults": "Plate navy alpha0,2–0,35 là khởi điểm, đo contrast thực tế để chọn.",
+      "testFiles": [
+        "Assets/Tests/EditMode/Gameplay/Volleyball/TouchControlTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Volleyball/VolleyballInputBridgeTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Volleyball/VolleyballSceneTests.cs"
+      ]
+    },
+    {
+      "id": "C01",
+      "group": 6,
+      "title": "Policy chọn đích Tiếp tục",
+      "requirements": [
+        6
+      ],
+      "dependsOn": [
+        "A01"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/Core/SceneRouter.Journey.cs",
+        "Assets/_Project/Scripts/Progression/Journey/JourneyProgress.cs",
+        "Assets/_Project/Scripts/Progression/Journey/ChallengeCatalog.cs",
+        "Assets/_Project/Scripts/Progression/Journey/ChallengeContracts.cs",
+        "Assets/_Project/Scripts/Progression/GameSession.cs"
+      ],
+      "testFixtures": [
+        "JourneyProgressTests",
+        "JourneyCommitTests",
+        "JourneyRoutingTests"
+      ],
+      "work": [
+        "Tách policy mode/pass/save/pending frog/final/course complete; đọc checkpoint sau commit, không index+1 từ UI.",
+        "Journey pass đến next; Learn fail retry; penalty fail frog; Final win first celebration; Review/FreePlay không tự nhảy checkpoint.",
+        "Định nghĩa action Continue/BackToMap/Retry rõ và target không còn bài xử lý hợp lệ."
+      ],
+      "acceptance": [
+        "Ma trận route cho mọi branch có test; fail/save pending không skip và không charge thêm.",
+        "Policy là điểm quyết định duy nhất; không duplicate flow giữa panel/map/controller."
+      ],
+      "proposedDefaults": "Menu New/Continue auto-start checkpoint và Review/FreePlay CTA là hỗ trợ luồng đề xuất; core R6 là Journey pass→next sau lời dẫn.",
+      "testFiles": [
+        "Assets/Tests/EditMode/Progression/JourneyProgressTests.cs",
+        "Assets/Tests/EditMode/Progression/JourneyCommitTests.cs",
+        "Assets/Tests/PlayMode/Progression/JourneyRoutingTests.cs"
+      ]
+    },
+    {
+      "id": "C02",
+      "group": 6,
+      "title": "Dialogue queue báo hoàn tất đúng một lần",
+      "requirements": [
+        6
+      ],
+      "dependsOn": [
+        "C01"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/UI/JourneyDialoguePresenter.cs",
+        "Assets/_Project/Scripts/UI/Dialogue/GameplayOpeningFlow.cs",
+        "Assets/_Project/Scripts/UI/Dialogue/GameplayDialogueHost.cs"
+      ],
+      "testFixtures": [
+        "JourneyNarrativeTests",
+        "DialogueJourneyAcceptanceTests",
+        "GameplayOpeningFlowTests"
+      ],
+      "work": [
+        "Tách queue builder và completion callback, chạy cả empty/already-seen.",
+        "Final line/Skip chỉ gọi next sau persist seen thành công; typewriter tap chưa xong chỉ hiện chữ, không start.",
+        "Invalidate callback theo session/attempt/scene, giữ start holds và phân biệt lời dẫn mốc với gameplay."
+      ],
+      "acceptance": [
+        "Queue rỗng không dead end; skip/double tap/old callback không start hai lượt.",
+        "Save seen fail vẫn hiện retry; gameplay/countdown chưa chạy khi guide/dialogue mở."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/PlayMode/Presentation/JourneyNarrativeTests.cs",
+        "Assets/Tests/PlayMode/Presentation/DialogueJourneyAcceptanceTests.cs",
+        "Assets/Tests/PlayMode/Presentation/GameplayOpeningFlowTests.cs"
+      ]
+    },
+    {
+      "id": "C03",
+      "group": 6,
+      "title": "Map bridge và intent đến đúng bài",
+      "requirements": [
+        6
+      ],
+      "dependsOn": [
+        "C02"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/Core/SceneRouter.Journey.cs",
+        "Assets/_Project/Scripts/Shell/S5ShellSceneController.cs",
+        "Assets/_Project/Scripts/UI/JourneyDialoguePresenter.cs",
+        "Assets/_Project/Scripts/UI/MainMenuScreen.cs",
+        "Assets/_Project/Scripts/Core/SceneRouter.cs"
+      ],
+      "testFixtures": [
+        "JourneyRoutingTests",
+        "StudentJourneyFlowTests",
+        "S5NewGameTests"
+      ],
+      "work": [
+        "Thêm transient intent target+identity, result Continue route Map bridge→dialogue→TryStartChallenge.",
+        "Menu new/resume journey tạo intent checkpoint; pending frog ưu tiên. Chủ động browse Map không tạo intent.",
+        "Consume khi start accepted, reset khi new game/back/cancel/session đổi; không persist intent tạm vào save."
+      ],
+      "acceptance": [
+        "Học→Luyện→Thi→môn sau không cần chọn môn/Chơi thêm; fresh và seen dialogues đều đi đúng đích.",
+        "Quay Map để browse không bị auto-pull vào gameplay; restart dùng checkpoint, không stale intent."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/PlayMode/Progression/JourneyRoutingTests.cs",
+        "Assets/Tests/PlayMode/Progression/StudentJourneyFlowTests.cs",
+        "Assets/Tests/PlayMode/Progression/S5NewGameTests.cs"
+      ]
+    },
+    {
+      "id": "C04",
+      "group": 6,
+      "title": "CTA kết quả và phục hồi lỗi save/load",
+      "requirements": [
+        6,
+        7
+      ],
+      "dependsOn": [
+        "C03",
+        "U03"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/UI/ResultPanel.cs",
+        "Assets/_Project/Scripts/Core/SceneRouter.Journey.cs",
+        "Assets/_Project/Scripts/Core/SceneRouter.FrogJump.cs",
+        "Assets/_Project/Scripts/Core/JourneySaveCoordinator.cs",
+        "Assets/_Project/Scripts/Core/SceneRouter.cs",
+        "Assets/_Project/Prefabs/UI/ResultPanel.prefab"
+      ],
+      "testFixtures": [
+        "ResultPanelRetryTests",
+        "JourneySaveTests",
+        "JourneyRoutingTests",
+        "FrogJumpRoutingTests"
+      ],
+      "work": [
+        "CTA chính Continue/Retry/Frog theo policy; CTA phụ Về bản đồ. Lỗi commit chỉ Lưu lại, không mở next.",
+        "Nếu bridge scene đã thay result cũ thì hiện error card ở Map, Thử lại/Về bản đồ; không dùng destroyed panel reference.",
+        "Rollback failed active attempt và persist theo cơ chế hiện có; double tap/result retry không commit life/result lần nữa."
+      ],
+      "acceptance": [
+        "Sync route reject, async load fail, save result/seen failure đều recover được ở UI đang active.",
+        "Không trừ life hai lần, không mất checkpoint, không bypass pending frog, không auto-next khi thất bại."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/EditMode/Presentation/ResultPanelRetryTests.cs",
+        "Assets/Tests/EditMode/Progression/JourneySaveTests.cs",
+        "Assets/Tests/PlayMode/Progression/JourneyRoutingTests.cs",
+        "Assets/Tests/PlayMode/Progression/FrogJumpRoutingTests.cs"
+      ]
+    },
+    {
+      "id": "C05",
+      "group": 6,
+      "title": "Kiểm end-to-end luồng mới với Learn mới",
+      "requirements": [
+        6,
+        4,
+        5
+      ],
+      "dependsOn": [
+        "C04",
+        "S04",
+        "V04",
+        "V05"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/Tests/PlayMode/Progression/StudentJourneyFlowTests.cs",
+        "Assets/Tests/PlayMode/Progression/JourneyRoutingTests.cs",
+        "Assets/Tests/PlayMode/Presentation/DialogueJourneyAcceptanceTests.cs"
+      ],
+      "testFixtures": [
+        "StudentJourneyFlowTests",
+        "JourneyRoutingTests",
+        "FrogJumpRoutingTests",
+        "ChessFinalRoutingTests",
+        "GameplayOpeningFlowTests"
+      ],
+      "work": [
+        "Chạy/điều chỉnh driver theo timer/drills mới, không fake pass bỏ qua contract gameplay để chứng minh full flow.",
+        "Cover full journey, already-seen, skip, browse/cancel, empty queue, Review/FreePlay, retry/penalty/final và zero life.",
+        "Restart sau commit và lỗi save/load giữa bước; ghi current challenge và attempt IDs để phát hiện duplicate."
+      ],
+      "acceptance": [
+        "Journey thành công chỉ thao tác Continue/lời dẫn giữa bước; mọi failure giữ đúng luật gốc.",
+        "Tests có execution evidence thật; fixture chưa chạy ghi Pending, không tick Done vì test code đã viết."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/PlayMode/Progression/StudentJourneyFlowTests.cs",
+        "Assets/Tests/PlayMode/Progression/JourneyRoutingTests.cs",
+        "Assets/Tests/PlayMode/Progression/FrogJumpRoutingTests.cs",
+        "Assets/Tests/PlayMode/Progression/ChessFinalRoutingTests.cs",
+        "Assets/Tests/PlayMode/Presentation/GameplayOpeningFlowTests.cs"
+      ]
+    },
+    {
+      "id": "F01",
+      "group": 7,
+      "title": "Balance bật cóc 30 giây và dữ liệu nhất quán",
+      "requirements": [
+        8
+      ],
+      "dependsOn": [
+        "A01"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/Gameplay/FrogJump/FrogJumpTuning.cs",
+        "Assets/_Project/Scripts/Gameplay/FrogJump/FrogJumpBalanceConfig.cs",
+        "Assets/_Project/ScriptableObjects/FrogJump/FrogJumpBalance.asset",
+        "Assets/_Project/Scripts/Gameplay/FrogJump/FrogJumpRules.cs",
+        "Assets/_Project/Scripts/Gameplay/FrogJump/FrogJumpGuide.cs",
+        "Assets/_Project/Scripts/Gameplay/FrogJump/FrogJumpDialogueAdapter.cs",
+        "Assets/Editor/GameplayDialogueContentBuilder.cs",
+        "Chay-tron-the-chat-loi-thoai-bien-tap.md",
+        "Assets/_Project/Scripts/UI/ResultPanel.cs"
+      ],
+      "testFixtures": [
+        "FrogJumpRulesTests",
+        "FrogJumpGuideTests",
+        "FrogJumpDialogueTests"
+      ],
+      "work": [
+        "Set time 30/track 60/safe 0,2/min 2,2/max 3,2/sweep 0,7/jump 0,6/recover 2,5 cho config lẫn fallback.",
+        "Guide/HUD/penalty/result/dialogue lấy runtime timing source; tìm các câu60 s hardcode và nguồn parser, giữ thoại khác.",
+        "Timer Play/pause, cộng distance khi landing và timeout không nhận nhảy chưa đáp đất."
+      ],
+      "acceptance": [
+        "Đồng hồ/hướng dẫn/kết quả cùng30 s; không builder nào ghi lại60.",
+        "Zone/range là rule thực, ngã không cộng mét và recovery 2,5 s."
+      ],
+      "proposedDefaults": "2,2–3,2m, safe20% và đường60 m là tuning đề xuất nhằm đáp ứng time 30 và vùng hẹp hơn.",
+      "testFiles": [
+        "Assets/Tests/EditMode/Gameplay/FrogJump/FrogJumpRulesTests.cs",
+        "Assets/Tests/EditMode/Gameplay/FrogJump/FrogJumpGuideTests.cs",
+        "Assets/Tests/PlayMode/Presentation/FrogJumpDialogueTests.cs"
+      ]
+    },
+    {
+      "id": "F02",
+      "group": 7,
+      "title": "Vùng xanh và chuyển động bật cóc mới",
+      "requirements": [
+        8,
+        7
+      ],
+      "dependsOn": [
+        "F01",
+        "U03"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/Gameplay/FrogJump/FrogJumpPowerBar.cs",
+        "Assets/_Project/Scripts/Gameplay/FrogJump/FrogJumpView.cs",
+        "Assets/Editor/FrogJumpSceneConfigurator.cs",
+        "Assets/_Project/Scenes/MG_FrogJump.unity"
+      ],
+      "testFixtures": [
+        "FrogJumpSceneTests",
+        "FrogJumpDialogueTests"
+      ],
+      "work": [
+        "Draw green [0,4;0,6] từ cùng tuning với IsFall; center/outer warning đọc rõ.",
+        "View/camera interpolate quãng nhảy dài theo pending/landed distance; giữ chân tại ground, không teleport.",
+        "Nút/input/feedback không che thanh; serialized scene đồng bộ config."
+      ],
+      "acceptance": [
+        "Vùng nhìn hợp lệ khớp rule kể cả biên epsilon; xanh chiếm20% thanh.",
+        "Nhảy xa nhìn mượt, landing/result distance đúng, pause cả needle/animation."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/EditMode/EditorTools/FrogJumpSceneTests.cs",
+        "Assets/Tests/PlayMode/Presentation/FrogJumpDialogueTests.cs"
+      ]
+    },
+    {
+      "id": "F03",
+      "group": 7,
+      "title": "Mô phỏng trường hợp tốt nhất và biên an toàn",
+      "requirements": [
+        8
+      ],
+      "dependsOn": [
+        "F02"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/Tests/EditMode/Gameplay/FrogJump/FrogJumpRulesTests.cs",
+        "Assets/_Project/Scripts/Gameplay/FrogJump/FrogJumpRules.cs"
+      ],
+      "testFixtures": [
+        "FrogJumpRulesTests",
+        "FrogJumpPenaltyTests",
+        "FrogJumpRoutingTests"
+      ],
+      "work": [
+        "Tính giải tích0,95 s/chu kỳ,19 center jumps≈18,05 s; kiểm bằng actual Tick + input polling30/60 Hz.",
+        "Test boundary inclusivity/epsilon riêng; sampled edge phải là needle hợp lệ ở cửa sổ đầu, không ép input trung tâm ngoài model.",
+        "Ghi elapsed/jump count/metres/falls; test timeout trước landing, fall recovery, dt crossing và retry penalty một lần.",
+        "Ở30/60 Hz không ép needle=0,5: frame gần tâm làm mét mỗi nhảy và số lần nhảy khác19 lý tưởng; ghi cả analytic bound và actual sampled strategy, không assert chính xác18,05 s/19 jumps cho mẫu frame."
+      ],
+      "acceptance": [
+        "Actual sampled no-fall first-window strategy hoàn thành60 m trong30 s ở30/60 fps; báo cáo lệch so ước tính.",
+        "Nếu fail do frame sampling tune min/max/duration và cập nhật docs; không mở rộng lại green để che vấn đề."
+      ],
+      "proposedDefaults": "18,05/28,56/28,93s là ước tính theo giả định; không coi là kết quả test.",
+      "testFiles": [
+        "Assets/Tests/EditMode/Gameplay/FrogJump/FrogJumpRulesTests.cs",
+        "Assets/Tests/EditMode/Progression/FrogJumpPenaltyTests.cs",
+        "Assets/Tests/PlayMode/Progression/FrogJumpRoutingTests.cs"
+      ]
+    },
+    {
+      "id": "K01",
+      "group": 8,
+      "title": "Mapping keeper gần/xa và hướng đã chốt",
+      "requirements": [
+        10
+      ],
+      "dependsOn": [
+        "A01"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/Gameplay/Football/FootballPoses.cs",
+        "Assets/_Project/Scripts/Gameplay/Football/FootballPresentation.cs",
+        "Assets/Editor/FootballSceneConfigurator.cs",
+        "Assets/_Project/Scripts/Gameplay/Football/FootballFlightSimulation.cs",
+        "Assets/_Project/Art/Characters/StudentKeeper/StudentKeeper_diveLeftEmpty.png",
+        "Assets/_Project/Art/Characters/StudentKeeper/StudentKeeper_diveRightEmpty.png",
+        "Assets/_Project/Art/Characters/StudentKeeper/StudentKeeper_reachLeftEmpty.png",
+        "Assets/_Project/Art/Characters/StudentKeeper/StudentKeeper_reachRightEmpty.png",
+        "Assets/_Project/Art/Characters/StudentKeeper/StudentKeeper_cheer.png"
+      ],
+      "testFixtures": [
+        "FootballPosesTests",
+        "FootballSceneConfiguratorTests"
+      ],
+      "work": [
+        "Thêm Ready/ReachLeftRight/DiveLeftRight/Cheer configs; chốt travel direction và distance trước reset tâm.",
+        "Far left/right chọn DiveEmpty, near chọn ReachEmpty, center/high chọn hợp lý không ép trái; remove Recover default.",
+        "Giữ rotated Ready/collision trước outcome; không suy hướng từ Saved/Goal."
+      ],
+      "acceptance": [
+        "Đủ5 asset user nêu và ReachRight đối xứng, import/pivot valid; mapping hai phía+center có test.",
+        "Pre-contact physics/outcome giữ nguyên; keeper-disabled Learn không hiện pose."
+      ],
+      "proposedDefaults": "Near/far1m là threshold tune, không yêu cầu user; lưu config thay magic number.",
+      "testFiles": [
+        "Assets/Tests/EditMode/Gameplay/Ball/FootballPosesTests.cs",
+        "Assets/Tests/EditMode/EditorTools/FootballSceneConfiguratorTests.cs"
+      ]
+    },
+    {
+      "id": "K02",
+      "group": 8,
+      "title": "Timeline landing rồi Cheer đứng thẳng",
+      "requirements": [
+        10
+      ],
+      "dependsOn": [
+        "K01"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/_Project/Scripts/Gameplay/Football/FootballPresentation.cs",
+        "Assets/_Project/Scripts/Gameplay/Football/FootballPoses.cs",
+        "Assets/Editor/FootballSceneConfigurator.cs",
+        "Assets/_Project/Scenes/MG_Football.unity"
+      ],
+      "testFixtures": [
+        "FootballPresentationTests",
+        "FootballControllerTests"
+      ],
+      "work": [
+        "Sau outcome giữ landing Empty0,25–0,35 s, Saved→Cheer0,35–0,5 s→Ready; Goal không Cheer.",
+        "Reset rotation0 khi dùng ảnh đã vẽ nghiêng/nằm; pose-specific ground/contact offset, scale không méo Dive sprite.",
+        "Ball renderer thật duy nhất; reset timeline/direction mỗi shot/retry/reconfigure."
+      ],
+      "acceptance": [
+        "Landing đúng phía/cự ly, Cheer không nghiêng, không Recover default, không hai bóng.",
+        "Shot tiếp theo trở Ready; pose transition không đổi đường/outcome đã simulation chốt."
+      ],
+      "proposedDefaults": "Thời gian hold/cheer là starting durations, tune trong1,1 s post-outcome simulation hiện tại.",
+      "testFiles": [
+        "Assets/Tests/PlayMode/Gameplay/Football/FootballPresentationTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Football/FootballControllerTests.cs"
+      ]
+    },
+    {
+      "id": "K03",
+      "group": 8,
+      "title": "Kiểm matrix keeper và luật bắt bóng",
+      "requirements": [
+        10
+      ],
+      "dependsOn": [
+        "K02"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/Tests/EditMode/EditorTools/KeeperSilhouetteTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Football/FootballPresentationTests.cs"
+      ],
+      "testFixtures": [
+        "KeeperSilhouetteTests",
+        "FootballRulesTests",
+        "FootballPresentationTests",
+        "FootballSceneTests"
+      ],
+      "work": [
+        "Test/capture near-far×left-right×Saved-Goal, center/high,3 difficulty, keeper-disabled, successive shots.",
+        "So fixed shots trước/sau về contact/outcome/ball count; phép xoay collider trước va chạm giữ nguyên.",
+        "Nếu muốn pre-contact Dive/Reach, tách extension có silhouette/pivot tests; không nhập vào scope landing mặc định."
+      ],
+      "acceptance": [
+        "Bằng chứng sprite/rotation/ground frames qua thời gian và unchanged physics; không chỉ kiểm For enum.",
+        "Không hidden assumption mọi Saved là giữ bóng; Saved hiện có bóng bật ra nên assets Empty."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/EditMode/EditorTools/KeeperSilhouetteTests.cs",
+        "Assets/Tests/EditMode/Gameplay/Ball/FootballRulesTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Football/FootballPresentationTests.cs",
+        "Assets/Tests/PlayMode/Gameplay/Football/FootballSceneTests.cs"
+      ]
+    },
+    {
+      "id": "Q01",
+      "group": 9,
+      "title": "Summary và toàn bộ chữ thông báo không tràn",
+      "requirements": [
+        7
+      ],
+      "dependsOn": [
+        "U03",
+        "M02",
+        "B03",
+        "S04",
+        "V04",
+        "V05",
+        "C04",
+        "F02"
+      ],
+      "status": "implemented",
+      "files": [
+        "Assets/Editor/CelebrationSceneConfigurator.cs",
+        "Assets/_Project/Scripts/Gameplay/Celebration/CelebrationSceneController.cs",
+        "Assets/_Project/Scripts/UI/JourneyCourseSummary.cs",
+        "Assets/_Project/Scripts/UI/ResultPanel.cs",
+        "Assets/_Project/Scripts/UI/Dialogue/GameplayDialogueView.cs",
+        "Assets/_Project/Scripts/UI/JourneyDialoguePresenter.cs",
+        "Assets/_Project/Scripts/UI/MinigameGuidePanel.cs",
+        "Assets/_Project/Scripts/UI/SceneTransitionOverlay.cs",
+        "Assets/_Project/Scripts/UI/GameOverPresentationBuilder.cs",
+        "Assets/_Project/Scenes/Celebration.unity"
+      ],
+      "testFixtures": [
+        "CelebrationSceneTests",
+        "ResultPanelRevealTests",
+        "ResultDialogueTests",
+        "ScenePresentationContractTests"
+      ],
+      "work": [
+        "Celebration title chủ động2 dòng, responsive panel/rows/buttons; longest chess detail wrap không đè nút.",
+        "Phân biệt Celebration summary, JourneyCourseSummary trên Map và result từng game; kiểm đủ 3 surfaces.",
+        "Rà Splash/Home/Map/popup/guide/countdown/all HUD/feedback/dialogue/errors/GameOver; vàng trên cảnh có plate hoặc đổi role theo nền.",
+        "Kiểm TMP preferred sizes, padding/world corners bằng chuỗi thực dài nhất và dấu tiếng Việt; không mask/ellipsis mất thông tin."
+      ],
+      "acceptance": [
+        "Title ảnh5 trọn trong header; summary/result/map-summary/body và nút đầy đủ ở4:3/20:9/min-height.",
+        "Thông báo đủ contrast trên sky/cloud/white scenery; source string/template không đổi nội dung để lách overflow."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/PlayMode/Gameplay/Celebration/CelebrationSceneTests.cs",
+        "Assets/Tests/PlayMode/Presentation/ResultPanelRevealTests.cs",
+        "Assets/Tests/PlayMode/Presentation/ResultDialogueTests.cs",
+        "Assets/Tests/PlayMode/Presentation/ScenePresentationContractTests.cs"
+      ]
+    },
+    {
+      "id": "Q02",
+      "group": 9,
+      "title": "Regenerate, reopen và tương thích serialized data",
+      "requirements": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "dependsOn": [
+        "M02",
+        "B03",
+        "S02",
+        "S04",
+        "V04",
+        "V05",
+        "C05",
+        "F03",
+        "K03",
+        "Q01"
+      ],
+      "status": "verified",
+      "files": [
+        "Assets/Editor/ShellSceneAuthoring.cs",
+        "Assets/Editor/DemoSprintArtConfigurator.cs",
+        "Assets/Editor/VolleyballSceneConfigurator.cs",
+        "Assets/Editor/FootballSceneConfigurator.cs",
+        "Assets/Editor/FrogJumpSceneConfigurator.cs",
+        "Assets/Editor/CelebrationSceneConfigurator.cs",
+        "Assets/Editor/StudentJourneyContentBuilder.cs",
+        "Assets/Editor/GameplayDialogueContentBuilder.cs",
+        "Assets/Editor/UiKitSpriteBaker.cs"
+      ],
+      "testFixtures": [
+        "SupplementPoseWiringTests",
+        "ScenePresentationContractTests",
+        "StudentJourneyContentBuilderTests",
+        "GameplayDialogueContentBuilderTests"
+      ],
+      "work": [
+        "Author đúng scenes/config/assets/bake sprites đã sửa, reopen rồi author lần2 kiểm idempotence.",
+        "Kiểm serialized defaults, missing references/scripts, duplicate hierarchy/listeners; giữ .meta/import/license.",
+        "Preserve pipeline thoại biên tập và save cũ; không reset progress chỉ vì Learn config thay đổi.",
+        "Rà diff loại font atlas/cache ngoài phạm vi; không xóa file người dùng hoặc add cả untracked."
+      ],
+      "acceptance": [
+        "Reopen và regenerate không trở về tên/token/pose/timer cũ; runtime và authored scenes cùng hành vi.",
+        "Save partially complete/course complete load đúng, pending penalty không mất; nếu schema mới thật sự cần thì có migration/test riêng."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/EditMode/EditorTools/SupplementPoseWiringTests.cs",
+        "Assets/Tests/PlayMode/Presentation/ScenePresentationContractTests.cs",
+        "Assets/Tests/EditMode/EditorTools/StudentJourneyContentBuilderTests.cs",
+        "Assets/Tests/EditMode/EditorTools/GameplayDialogueContentBuilderTests.cs"
+      ]
+    },
+    {
+      "id": "Q03",
+      "group": 9,
+      "title": "Focused và full Unity test gate",
+      "requirements": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "dependsOn": [
+        "Q02"
+      ],
+      "status": "not_started",
+      "files": [
+        "README.md",
+        "ProjectSettings/ProjectVersion.txt"
+      ],
+      "testFixtures": [],
+      "work": [
+        "Mỗi task chạy fixture cần thiết sau thay đổi, rồi full EditMode/PlayMode sau tích hợp; chỉ mở rộng chạy lại khi code thay/fail.",
+        "Các assertion cũ TitleKMA/12 nhịp/60 s/Recover cập nhật theo contract mới, không xóa test bảo vệ unrelated behavior.",
+        "Test XML/log ghi test count > 0, zero failures, Passed; compile sạch và không exception/missing references."
+      ],
+      "acceptance": [
+        "Evidence thực từ Unity hiện tại, không dựa báo cáo lịch sử; failures giải quyết hoặc gate chưa Done.",
+        "Nếu tool/runtime không chạy được ghi blocker cụ thể, không gọi tests passed; tasks implementation chưa nghiệm thu đầy đủ."
+      ],
+      "proposedDefaults": "",
+      "testFiles": []
+    },
+    {
+      "id": "Q04",
+      "group": 9,
+      "title": "Build và smoke test APK ARM64",
+      "requirements": [
+        2,
+        6
+      ],
+      "dependsOn": [
+        "Q03"
+      ],
+      "status": "not_started",
+      "files": [
+        "tools/build-apk.cmd",
+        "tools/build-apk.ps1",
+        "Assets/Editor/AndroidBuildMatrix.cs",
+        "Assets/Editor/BuildScript.cs"
+      ],
+      "testFixtures": [
+        "AndroidBuildMatrixTests"
+      ],
+      "work": [
+        "Dùng Unity version của project, đóng Editor trước batch; build ARM64 bằng wrapper hiện có với tên/output xác định.",
+        "Ghi commit/build hash/APK SHA-256/log, name/icon/ID; cài update không uninstall làm mất save.",
+        "Emulator x86_64 nếu cần là bổ sung, không thay phone gate. Kiểm cold start/menu/scene transitions/offline."
+      ],
+      "acceptance": [
+        "APK ARM64 build thành công, launch đúng tên/icon và route cơ bản, có log/hash reproducible.",
+        "Không đổi keystore/application ID ngoài yêu cầu; không coi build-only là device QA xong."
+      ],
+      "proposedDefaults": "",
+      "testFiles": [
+        "Assets/Tests/EditMode/EditorTools/AndroidBuildMatrixTests.cs"
+      ]
+    },
+    {
+      "id": "Q05",
+      "group": 9,
+      "title": "Nghiệm thu touch và hành trình trên Android",
+      "requirements": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "dependsOn": [
+        "Q04",
+        "A02"
+      ],
+      "status": "not_started",
+      "files": [
+        "Assets/_Project/Scenes/Menu.unity",
+        "Assets/_Project/Scenes/Map.unity",
+        "Assets/_Project/Scenes/MG_Sprint.unity",
+        "Assets/_Project/Scenes/MG_Volleyball.unity",
+        "Assets/_Project/Scenes/MG_Football.unity",
+        "Assets/_Project/Scenes/MG_FrogJump.unity",
+        "Assets/_Project/Scenes/Celebration.unity"
+      ],
+      "testFixtures": [],
+      "work": [
+        "Device matrix: 1280×720, 1920×1080, 2400×1080, 2560×1600, 2048×1536; simulator geometry bổ sung, ít nhất 1 phone ARM64 thật cho touch/safe area.",
+        "Landscape hai chiều, notch, gesture/3-button nav,resume/background; đo visible popup1,5×,footbutton1,3×,touch>=48 dp thực.",
+        "Video Learn 45/60,Volley3 drills/action contact/landing,Continue tới next,failure/frog/retry,no life/chess/summary; kiểm save cũ và double tap.",
+        "Frog sampled first-window no-fall và feel; keeper matrix near/far/left/right Saved/Goal; đọc thông báo trên nền trắng/đậm.",
+        "Nếu QA/tune sửa code/config sau Q02–Q04: reopen task bị ảnh hưởng, regenerate/reopen lại Q02, chạy lại tests Q03 và build/hash Q04 rồi nghiệm thu Q05 bằng APK mới; không giữ evidence xanh của bản cũ."
+      ],
+      "acceptance": [
+        "R1–R10 có screenshot/video/evidence pass cụ thể; cảm giác/độ rõ không chỉ dựa test enum/file name.",
+        "Cases thiếu device hoặc chưa thực hiện giữ Pending; không gộp toàn matrix thành đã pass từ1emulator."
+      ],
+      "proposedDefaults": "",
+      "testFiles": []
+    },
+    {
+      "id": "Q06",
+      "group": 9,
+      "title": "Bàn giao task status và báo cáo không bỏ sót",
+      "requirements": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "dependsOn": [
+        "Q05"
+      ],
+      "status": "not_started",
+      "files": [
+        "README.md"
+      ],
+      "testFixtures": [],
+      "work": [
+        "Lập QA mới liên kết XML/log/APK/hash/device/ảnh/video và task IDs; cập nhật README/design khi thay final tune.",
+        "Đánh dấu Done chỉ khi các acceptance/test/authoring của task đủ; tách implemented/tested/device verified.",
+        "Trace lại R1–R10 và từng yêu cầu con đến task+evidence, ghi limitation còn tồn tại; không để hidden TODO ngoài backlog."
+      ],
+      "acceptance": [
+        "Mọi R có evidence và owner/handoff/status rõ; không claim runtime verified khi mới review source.",
+        "Chỉ bàn giao hoàn thành toàn bộ khi Q01–Q05 đạt; giữ issue/task Pending cho công việc chưa đạt."
+      ],
+      "proposedDefaults": "",
+      "testFiles": []
+    }
+  ]
+}

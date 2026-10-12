@@ -101,14 +101,14 @@ MonoBehaviour:
     lines:
     - characterId: co_the_chat
       pose: 0
-      text: "Tr\xE1i, ph\u1EA3i lu\xE2n phi\xEAn. L\xE0m \u0111\xFAng 12 nh\u1ECBp
-        li\xEAn ti\u1EBFp. \u0110\u1EEBng \u0111\u1EC3 t\xF4i ph\u1EA3i nh\u1EAFc
-        l\u1EA1i chuy\u1EC7n tr\xE1i v\u1EDBi ph\u1EA3i."
+      text: "45 gi\xE2y: b\u1EA5m tr\xE1i, ph\u1EA3i lu\xE2n phi\xEAn. \u0110\u1EA1t
+        chu\u1ED7i 12 nh\u1ECBp h\u1EE3p l\u1EC7 \xEDt nh\u1EA5t m\u1ED9t l\u1EA7n.
+        Sai th\xEC l\xE0m l\u1EA1i chu\u1ED7i trong th\u1EDDi gian c\xF2n l\u1EA1i."
       sticker:
     - characterId: mai_toang
       pose: 0
-      text: "B\u1EA5m nh\u1EA7m l\xE0 \u0111\u1EBFm l\u1EA1i t\u1EEB \u0111\u1EA7u.
-        C\u1EE9 ch\u1EADm m\u1ED9t ch\xFAt cho ch\u1EAFc."
+      text: "B\u1EA5m nh\u1EA7m th\xEC th\u1EED l\u1EA1i chu\u1ED7i. C\u1EE9 gi\u1EEF
+        nh\u1ECBp \u0111\u1EBFn khi h\u1EBFt gi\u1EDD."
       sticker:
     - characterId: tan_thu
       pose: 0
@@ -147,9 +147,9 @@ MonoBehaviour:
       sticker:
     - characterId: co_the_chat
       pose: 0
-      text: "B\u1EAFt \u0111\u1EA7u b\u1EB1ng ba l\u1EA7n \u0111\u1EE1 b\xF3ng. M\u1ED7i
-        b\xEAn ch\u1EA1m t\u1ED1i \u0111a ba l\u1EA7n, kh\xF4ng ph\u1EA3i th\xEDch
-        ch\u1EA1m bao nhi\xEAu c\u0169ng \u0111\u01B0\u1EE3c."
+      text: "\u0110\u1EE1 b\xF3ng 3 l\u1EA7n, ph\xE1t b\xF3ng 2 l\u1EA7n, r\u1ED3i
+        nh\u1EA3y \u0111\xE1nh tr\u1EA3 2 l\u1EA7n. M\u1ED7i b\xEAn ch\u1EA1m t\u1ED1i
+        \u0111a ba l\u1EA7n."
       sticker:
     - characterId: tan_thu
       pose: 0

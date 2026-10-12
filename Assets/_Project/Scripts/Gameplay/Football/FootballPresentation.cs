@@ -13,6 +13,10 @@ namespace KMA.Gameplay
         [SerializeField] SpriteRenderer field, goal, ball, ballShadow, player, goalkeeper, crosshair;
         [SerializeField] SpriteRenderer goalNet;
         [SerializeField] FootballPoseSprites poses;
+        [SerializeField, Min(0f)] float keeperDiveThresholdMetres = 1f;
+        [SerializeField, Min(0f)] float keeperCentreDeadZoneMetres = .08f;
+        [SerializeField, Min(0f)] float keeperLandingHoldSeconds = .3f;
+        [SerializeField, Min(0f)] float keeperCheerSeconds = .45f;
         [SerializeField] Transform leftGoalPoint, rightGoalPoint;
         [SerializeField] SpriteRenderer[] trajectoryDots = Array.Empty<SpriteRenderer>();
         readonly Vector3[] previewPoints = new Vector3[140];
@@ -86,7 +90,11 @@ namespace KMA.Gameplay
             ballShadow.transform.localScale = shadowScale * point.z;
             float keeperX = flying ? flight.KeeperX : 0f;
             goalkeeper.enabled = rules.KeeperEnabled;
-            float keeperAngle = flying ? flight.KeeperAngle : 0f;
+            // Keep the Ready silhouette and its simulated rotation up to the actual contact/outcome.
+            // Empty reach/dive art is already drawn on the ground, so the post-contact pose is upright
+            // in transform space and must not inherit the simulation's Ready-pose angle.
+            bool outcomeResolved = flight != null && flight.Outcome.HasValue;
+            float keeperAngle = flying && !outcomeResolved ? flight.KeeperAngle : 0f;
             goalkeeper.transform.position = KeeperWorldPosition(keeperX, keeperAngle);
             goalkeeper.transform.rotation = Quaternion.Euler(0f, 0f, -keeperAngle);
             float swing = rules.State == FootballState.Kicking ? Mathf.Sin(Mathf.Clamp01(rules.StateElapsed / .18f) * Mathf.PI) : 0f;
@@ -97,7 +105,9 @@ namespace KMA.Gameplay
                 FootballOutcome? outcome = flight?.Outcome;
                 Sprite kicker = poses.For(FootballPoses.Kicker(rules.State, rules.StateElapsed, outcome));
                 if (kicker) player.sprite = kicker;
-                Sprite keeperSprite = poses.For(FootballPoses.Keeper(outcome));
+                Sprite keeperSprite = poses.For(FootballPoses.Keeper(outcome, keeperX,
+                    flight?.OutcomeElapsed ?? 0f, keeperDiveThresholdMetres, keeperCentreDeadZoneMetres,
+                    keeperLandingHoldSeconds, keeperCheerSeconds));
                 if (keeperSprite) goalkeeper.sprite = keeperSprite;
             }
             RenderAimArrow(rules);

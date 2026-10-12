@@ -113,15 +113,17 @@ namespace KMA.Gameplay.Core
             bool routed;
             if (session.Lives > 0 && !string.IsNullOrEmpty(frogRetryChallengeId))
             {
-                ChallengeDefinition definition = session.Journey.Catalog.Get(frogRetryChallengeId);
-                routed = TryStartChallenge(definition.Id, ChallengeAttemptMode.Journey, definition.Difficulty);
+                bool canRetryFromMap = !session.Journey.CourseComplete &&
+                    string.Equals(session.Journey.CheckpointChallengeId, frogRetryChallengeId,
+                        StringComparison.Ordinal);
+                routed = canRetryFromMap
+                    ? RouteToMapForJourney(frogRetryChallengeId)
+                    : Route(SessionRoute.Map);
             }
             else
                 routed = Route(SessionRoute.Map);
 
-            if (routed)
-                UnbindFrogPanel();
-            else
+            if (!routed)
             {
                 frogContinueUsed = false;
                 ShowFrogError(lastRouteError ?? "Không thể chuyển cảnh. Hãy thử lại.");

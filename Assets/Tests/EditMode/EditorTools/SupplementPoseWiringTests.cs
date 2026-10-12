@@ -33,8 +33,11 @@ namespace KMA.Tests.EditorTools
                     "MaleAdventurer_footballBackIdle", "MaleAdventurer_footballBackApproach",
                     "MaleAdventurer_footballBackKick", "MaleAdventurer_footballBackCelebrate"
                 }));
-            string[] keeper = PoseNames(new[] { poses.keeperReady, poses.keeperSave, poses.keeperBeaten });
-            Assert.That(keeper, Is.EqualTo(new[] { "StudentKeeper_ready", "StudentKeeper_cheer", "StudentKeeper_recover" }));
+            string[] keeper = PoseNames(new[] { poses.keeperReady, poses.keeperReachLeft, poses.keeperReachRight,
+                poses.keeperDiveLeft, poses.keeperDiveRight, poses.keeperCheer });
+            Assert.That(keeper, Is.EqualTo(new[] { "StudentKeeper_ready", "StudentKeeper_reachLeftEmpty",
+                "StudentKeeper_reachRightEmpty", "StudentKeeper_diveLeftEmpty", "StudentKeeper_diveRightEmpty",
+                "StudentKeeper_cheer" }));
             // The live ball stays visible on a save, so a keeper drawn holding one would show two balls.
             Assert.That(keeper, Has.None.EndWith("Ball"));
             Assert.That(PoseName(GameObject.Find("FootballWorld/Goalkeeper").GetComponent<SpriteRenderer>().sprite),
@@ -53,11 +56,19 @@ namespace KMA.Tests.EditorTools
             Assert.That(Player(AthleteAction.Run),
                 Is.EqualTo(new[] { "MaleAdventurer_volleyShuffleRight", "MaleAdventurer_volleyShuffleLeft" }));
             Assert.That(Player(AthleteAction.Receive),
+                Is.EqualTo(new[] { "MaleAdventurer_volleyReceive", "MaleAdventurer_volleySet", "MaleAdventurer_volleyRecover" }));
+            Assert.That(Player(AthleteAction.Dig),
                 Is.EqualTo(new[] { "MaleAdventurer_volleyDig", "MaleAdventurer_volleyRecover" }));
-            Assert.That(Player(AthleteAction.Smash),
-                Is.EqualTo(new[] { "MaleAdventurer_volleySpikeWindup", "MaleAdventurer_volleySpikeContact" }));
+            Assert.That(Player(AthleteAction.ServeToss), Is.EqualTo(new[] { "MaleAdventurer_volleySet" }));
+            Assert.That(Player(AthleteAction.Serve), Is.EqualTo(new[]
+                { "MaleAdventurer_volleySpikeContact", "MaleAdventurer_volleySpikeFollow" }));
+            Assert.That(Player(AthleteAction.JumpLoad), Is.EqualTo(new[]
+                { "MaleAdventurer_volleyJumpLoad", "MaleAdventurer_volleySpikeWindup", "MaleAdventurer_volleyLand" }));
+            Assert.That(Player(AthleteAction.Smash), Is.EqualTo(new[]
+                { "MaleAdventurer_volleySpikeWindup", "MaleAdventurer_volleySpikeContact",
+                  "MaleAdventurer_volleySpikeFollow", "MaleAdventurer_volleyLand" }));
             Assert.That(Player(AthleteAction.Block),
-                Is.EqualTo(new[] { "MaleAdventurer_volleyJumpLoad", "MaleAdventurer_volleySet" }));
+                Is.EqualTo(new[] { "MaleAdventurer_volleyJumpLoad", "MaleAdventurer_volleySet", "MaleAdventurer_volleyLand" }));
             Assert.That(Player(AthleteAction.Dive),
                 Is.EqualTo(new[] { "MaleAdventurer_fallForwardRight", "MaleAdventurer_fallSitRight" }));
 

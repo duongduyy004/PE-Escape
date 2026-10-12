@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ec003bed006fea6285856503fd24ee3, type: 3}
   m_Name: UITheme
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   dialogue:
     size: {x: 560, y: 196}
     anchor: {x: 1, y: 0.86}
@@ -78,36 +78,36 @@ MonoBehaviour:
     volleyball: {r: 0.9607843, g: 0.61960787, b: 0.18039216, a: 1}
     football: {r: 0.20784314, g: 0.6627451, b: 0.35686275, a: 1}
     chess: {r: 0.9098039, g: 0.3529412, b: 0.28235295, a: 1}
-    panelAnchorMin: {x: 0.06, y: 0.2}
-    panelAnchorMax: {x: 0.94, y: 0.7}
+    panelAnchorMin: {x: 0.03, y: 0.08}
+    panelAnchorMax: {x: 0.97, y: 0.85}
     courseAnchorMin: {x: 0, y: 0.41}
     courseAnchorMax: {x: 1, y: 0.915}
-    summaryAnchorMin: {x: 0.05, y: 0.84}
+    summaryAnchorMin: {x: 0.05, y: 0.8}
     summaryAnchorMax: {x: 0.95, y: 0.915}
     borderWidth: 3
-    headingSize: 36
-    stageSize: 36
-    bodySize: 28
-    captionSize: 26
-    objectiveSize: 26
+    headingSize: 54
+    stageSize: 54
+    bodySize: 42
+    captionSize: 39
+    objectiveSize: 39
     nodeRowBottom: 0.36
     nodeRowTop: 0.82
     nodeHalfWidth: 0.12
     nodeLineY: 0.64
     detailAnchorMin: {x: 0.04, y: 0.04}
     detailAnchorMax: {x: 0.96, y: 0.33}
-    nodeSize: 124
+    nodeSize: 186
     nodeCurrentScale: 1.16
-    nodeBadgeSize: 46
-    nodeLabelHeight: 52
-    lessonDotSize: 14
+    nodeBadgeSize: 69
+    nodeLabelHeight: 78
+    lessonDotSize: 21
     revealDuration: 0.2
     revealStagger: 0.05
     revealScale: 0.94
     glowSpeed: 2.4
     glowAlpha: {x: 0.12, y: 0.32}
     mapAnchorMin: {x: 0, y: 0.02}
-    mapAnchorMax: {x: 1, y: 0.9}
+    mapAnchorMax: {x: 1, y: 0.78}
     stopSize: {x: 320, y: 400}
     stopBadgeSize: 170
     stopCurrentScale: 1.3

@@ -144,6 +144,21 @@ namespace KMA.Tests.Presentation
             Assert.That(score.text, Is.EqualTo("8.4"));
         }
 
+        [TestCase("sprint_learn", 4, "45 GIÂY", "4/", "HỌC LẠI")]
+        [TestCase("volleyball_learn", 6, "BÀI TẬP:", "/7", "HỌC LẠI")]
+        public void JourneyLearnResultShowsTimeOrDrillProgress(string id, int completed, string expectedA, string expectedB, string expectedAction)
+        {
+            var context = new ChallengeAttemptContext("attempt", id, ChallengeAttemptMode.Journey,
+                ChallengeDifficulty.Normal);
+            var result = new ChallengeAttemptResult(context, false,
+                new ChallengeMetrics(elapsed: 45f, completedTargets: completed));
+            panel.ShowChallenge(context, result,
+                new JourneyCommitOutcome(true, id, 5, false, false, false), null);
+            Assert.That(detail.text, Does.Contain(expectedA));
+            Assert.That(detail.text, Does.Contain(expectedB));
+            Assert.That(continueButton.GetComponentInChildren<TMP_Text>(true).text, Does.Contain(expectedAction));
+        }
+
         static TMP_Text Text(GameObject parent, string name)
         {
             var text = new GameObject(name, typeof(RectTransform)).AddComponent<TextMeshProUGUI>();

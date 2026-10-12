@@ -8,8 +8,10 @@ namespace KMA.EditorTools
 {
     public static class ProjectConfigurator
     {
-        const string ProductName = "Thể Chất KMA";
+        const string ProductName = "Chạy trốn thể chất";
         const string AndroidApplicationId = "com.kma.thechat";
+        const string AndroidIconPath = "Assets/_Project/Art/Brand/AppIcon.png";
+        const string AndroidAdaptiveForegroundPath = "Assets/_Project/Art/Brand/GameLogo.png";
         const int AndroidMinApiLevel = 25;
         const int AndroidTargetApiLevel = 35;
         const int DspBufferSize = 256;
@@ -19,6 +21,7 @@ namespace KMA.EditorTools
         {
             PlayerSettings.productName = ProductName;
             ApplyAndroidSettings();
+            ApplyAndroidBranding();
             ApplyOrientation();
             ApplyAudioSettings();
             AssetDatabase.SaveAssets();
@@ -34,6 +37,29 @@ namespace KMA.EditorTools
             PlayerSettings.SetScriptingBackend(
                 NamedBuildTarget.Android,
                 ScriptingImplementation.IL2CPP);
+        }
+
+        static void ApplyAndroidBranding()
+        {
+            Texture2D icon = AssetDatabase.LoadAssetAtPath<Texture2D>(AndroidIconPath);
+            Texture2D foreground = AssetDatabase.LoadAssetAtPath<Texture2D>(AndroidAdaptiveForegroundPath);
+            if (icon == null || foreground == null)
+                throw new InvalidOperationException("Android app branding images are missing.");
+
+            PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown, new[] { icon });
+            foreach (var kind in PlayerSettings.GetSupportedIconKinds(NamedBuildTarget.Android))
+            {
+                var slots = PlayerSettings.GetPlatformIcons(NamedBuildTarget.Android, kind);
+                foreach (var slot in slots)
+                {
+                    var textures = new Texture2D[slot.maxLayerCount];
+                    textures[0] = icon;
+                    for (int layer = 1; layer < textures.Length; layer++)
+                        textures[layer] = foreground;
+                    slot.SetTextures(textures);
+                }
+                PlayerSettings.SetPlatformIcons(NamedBuildTarget.Android, kind, slots);
+            }
         }
 
         static void ApplyOrientation()

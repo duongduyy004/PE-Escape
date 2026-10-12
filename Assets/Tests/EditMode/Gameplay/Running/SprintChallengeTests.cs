@@ -31,6 +31,7 @@ namespace KMA.Tests.Gameplay.Running
             ChallengeDefinition practice = catalog.Get("sprint_practice");
             ChallengeDefinition exam = catalog.Get("sprint_exam");
             Assert.That(learn.Kind, Is.EqualTo(ChallengeKind.Learn));
+            Assert.That(learn.TimeLimit, Is.EqualTo(45f));
             Assert.That(learn.TargetCount, Is.EqualTo(12));
             Assert.That(practice.Distance, Is.EqualTo(150f));
             Assert.That(practice.TimeLimit, Is.EqualTo(20f));
@@ -39,20 +40,43 @@ namespace KMA.Tests.Gameplay.Running
         }
 
         [Test]
-        public void LearnRequiresTwelveAlternatingInputsAndResetsOnError()
+        public void LearnWaitsForTheTimedLessonAndKeepsBestStreakAfterAnError()
         {
             var challenge = new SprintChallengeRules(catalog.Get("sprint_learn"),
                 SprintBalanceParameters.Default, Array.Empty<RivalPaceProfile>());
-            for (int tap = 0; tap < 8; tap++) challenge.Tap(tap % 2 == 0 ? Side.Left : Side.Right);
-            challenge.Tap(Side.Right);
-            Assert.That(challenge.Race.CorrectStreak, Is.Zero);
             for (int tap = 0; tap < 12; tap++) challenge.Tap(tap % 2 == 0 ? Side.Left : Side.Right);
+            Assert.That(challenge.BestStreak, Is.EqualTo(12));
+            Assert.That(challenge.IsComplete, Is.False, "A streak must not end Learn before its timer.");
+            Assert.That(challenge.Race.Distance, Is.LessThan(150f));
+
+            challenge.Tap(Side.Left);
+            Assert.That(challenge.Race.CorrectStreak, Is.Zero);
+            Assert.That(challenge.BestStreak, Is.EqualTo(12), "A later mistake must not erase the lesson's best streak.");
+
+            challenge.Tick(44.99f);
+            Assert.That(challenge.IsComplete, Is.False);
+            challenge.Tick(1f);
             Assert.That(challenge.IsComplete, Is.True);
             ChallengeAttemptResult result = challenge.BuildResult(new ChallengeAttemptContext(
                 "learn-1", "sprint_learn", ChallengeAttemptMode.Journey, ChallengeDifficulty.Normal));
             Assert.That(result.Pass, Is.True);
             Assert.That(result.Metrics.CompletedTargets, Is.EqualTo(12));
+            Assert.That(result.Metrics.Elapsed, Is.EqualTo(45f).Within(.001f));
             Assert.That(result.ExamResult, Is.Null);
+        }
+
+        [Test]
+        public void LearnWithoutTheMinimumStreakFailsAfterTheFullLessonAndClampsDelta()
+        {
+            var challenge = new SprintChallengeRules(catalog.Get("sprint_learn"),
+                SprintBalanceParameters.Default, Array.Empty<RivalPaceProfile>());
+            challenge.Tick(90f);
+            Assert.That(challenge.IsComplete, Is.True);
+            Assert.That(challenge.Race.Elapsed, Is.EqualTo(45f).Within(.001f));
+            ChallengeAttemptResult result = challenge.BuildResult(new ChallengeAttemptContext(
+                "idle-learn", "sprint_learn", ChallengeAttemptMode.Journey, ChallengeDifficulty.Normal));
+            Assert.That(result.Pass, Is.False, "Waiting out the timer must not unlock Practice.");
+            Assert.That(result.Metrics.CompletedTargets, Is.Zero);
         }
 
         [Test]

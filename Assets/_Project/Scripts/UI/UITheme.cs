@@ -118,18 +118,18 @@ namespace KMA.Gameplay.UI
             public Color football = new Color32(53, 169, 91, 255);
             public Color chess = new Color32(232, 90, 72, 255);
             // The lesson panel is a popup centred over the map, opened by tapping a stop.
-            public Vector2 panelAnchorMin = new Vector2(.06f, .20f);
-            public Vector2 panelAnchorMax = new Vector2(.94f, .70f);
+            public Vector2 panelAnchorMin = new Vector2(.03f, .08f);
+            public Vector2 panelAnchorMax = new Vector2(.97f, .85f);
             public Vector2 courseAnchorMin = new Vector2(0f, .41f);
             public Vector2 courseAnchorMax = new Vector2(1f, .915f);
-            public Vector2 summaryAnchorMin = new Vector2(.05f, .84f);
+            public Vector2 summaryAnchorMin = new Vector2(.05f, .80f);
             public Vector2 summaryAnchorMax = new Vector2(.95f, .915f);
             public float borderWidth = 3f;
-            public float headingSize = 36f;
-            public float stageSize = 36f;
-            public float bodySize = 28f;
-            public float captionSize = 26f;
-            public float objectiveSize = 26f;
+            public float headingSize = 54f;
+            public float stageSize = 54f;
+            public float bodySize = 42f;
+            public float captionSize = 39f;
+            public float objectiveSize = 39f;
             // Level-select layout, in panel fractions: stage nodes on a dotted road, details below.
             public float nodeRowBottom = .36f;
             public float nodeRowTop = .82f;
@@ -138,11 +138,11 @@ namespace KMA.Gameplay.UI
             public Vector2 detailAnchorMin = new Vector2(.04f, .04f);
             public Vector2 detailAnchorMax = new Vector2(.96f, .33f);
             // Stage node sizes, in canvas pixels.
-            public float nodeSize = 124f;
+            public float nodeSize = 186f;
             public float nodeCurrentScale = 1.16f;
-            public float nodeBadgeSize = 46f;
-            public float nodeLabelHeight = 52f;
-            public float lessonDotSize = 14f;
+            public float nodeBadgeSize = 69f;
+            public float nodeLabelHeight = 78f;
+            public float lessonDotSize = 21f;
             public float revealDuration = .20f;
             public float revealStagger = .05f;
             public float revealScale = .94f;
@@ -150,7 +150,7 @@ namespace KMA.Gameplay.UI
             public Vector2 glowAlpha = new Vector2(.12f, .32f);
             // Journey map: the map zone fills everything under the compact header.
             public Vector2 mapAnchorMin = new Vector2(0f, .02f);
-            public Vector2 mapAnchorMax = new Vector2(1f, .90f);
+            public Vector2 mapAnchorMax = new Vector2(1f, .78f);
             // Fixed-size stop: tag + badge area + name + star/status pill.
             public Vector2 stopSize = new Vector2(320f, 400f);
             public float stopBadgeSize = 170f;

@@ -402,7 +402,7 @@ namespace KMA.Tests.Presentation
         }
 
         [UnityTest]
-        public IEnumerator SprintControls_DrawASmallVisualInsideTheirFullSizeHitAreas()
+        public IEnumerator SprintControls_DrawLargeFootIconsInsideTheirFullSizeHitAreas()
         {
             yield return LoadSprint();
             var scene = SceneManager.GetActiveScene();
@@ -413,9 +413,9 @@ namespace KMA.Tests.Presentation
                 var visual = tap.Find("Visual") as RectTransform;
                 Assert.That(visual, Is.Not.Null, $"{tapName} must own a Visual child.");
 
-                // The drawn button is deliberately smaller than the area a thumb can hit, so it can
-                // sit on the running lanes without hiding the runner in the lane beneath it.
-                Rect expected = SprintUiLayout.ControlVisualRect01;
+                // The plate is 30% larger than baseline and sits against the safe area corner; the full tap rect can
+                // still be larger for reliable thumb input.
+                Rect expected = SprintUiLayout.ControlVisualRect01(tapName == "LeftTap");
                 Assert.That(visual.anchorMin,
                     Is.EqualTo(new Vector2(expected.xMin, expected.yMin)).Within(.0001f));
                 Assert.That(visual.anchorMax,
@@ -428,6 +428,13 @@ namespace KMA.Tests.Presentation
                 Assert.That(visual.rect.width * visual.rect.height,
                     Is.LessThan(tap.rect.width * tap.rect.height * .5f),
                     $"{tapName}'s drawn button must be markedly smaller than the area it answers for.");
+
+                var icon = visual.Find("FootIcon")?.GetComponent<UnityEngine.UI.Image>();
+                Assert.That(icon, Is.Not.Null);
+                Assert.That(icon.sprite, Is.Not.Null);
+                Assert.That(icon.raycastTarget, Is.False);
+                Assert.That(visual.Find("Arrow").gameObject.activeSelf, Is.False);
+                Assert.That(visual.Find("Label").gameObject.activeSelf, Is.False);
 
                 // The hit box itself is untouched: still the full ControlRect, still raycasting.
                 var safeAreaRect = GameObject.Find("SafeAreaRoot").GetComponent<RectTransform>().rect;

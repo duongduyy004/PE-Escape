@@ -1033,6 +1033,36 @@ namespace KMA.Tests.Presentation
             finally { Object.DestroyImmediate(root); }
         }
 
+        [TestCase(1280f, 720f)]
+        [TestCase(1920f, 1080f)]
+        [TestCase(2340f, 1080f)]
+        [TestCase(2400f, 1080f)]
+        public void LessonPopupAndDetailCardStayInsideTheMapContentAcrossPhoneRatios(float width, float height)
+        {
+            var root = new GameObject("popup-geometry", typeof(RectTransform));
+            try
+            {
+                var (screen, _) = BuildMapAt(root, new Vector2(width, height), new GameSession());
+                RectTransform panel = (RectTransform)screen.LessonList.transform;
+                RectTransform content = (RectTransform)panel.parent;
+                RectTransform detail = (RectTransform)panel.Find("DetailCard");
+                RectTransform close = (RectTransform)panel.Find("CloseButton");
+                Rect panelWorld = WorldRect(panel);
+                Rect contentWorld = WorldRect(content);
+                Rect detailWorld = WorldRect(detail);
+                Assert.That(panelWorld.xMin, Is.GreaterThanOrEqualTo(contentWorld.xMin - 1f));
+                Assert.That(panelWorld.xMax, Is.LessThanOrEqualTo(contentWorld.xMax + 1f));
+                Assert.That(panelWorld.yMin, Is.GreaterThanOrEqualTo(contentWorld.yMin - 1f));
+                Assert.That(panelWorld.yMax, Is.LessThanOrEqualTo(contentWorld.yMax + 1f));
+                Assert.That(detailWorld.xMin, Is.GreaterThan(panelWorld.xMin));
+                Assert.That(detailWorld.xMax, Is.LessThan(panelWorld.xMax));
+                Assert.That(detailWorld.yMin, Is.GreaterThan(panelWorld.yMin));
+                Assert.That(close.rect.width, Is.GreaterThan(0f));
+                Assert.That(close.rect.height, Is.GreaterThan(0f));
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+
         [Test]
         public void TappingAnUnlockedStopOpensTheLessonPopupAndItCloses()
         {
@@ -1166,6 +1196,38 @@ namespace KMA.Tests.Presentation
                 }
             }
             finally { Object.DestroyImmediate(root); }
+        }
+
+        [Test]
+        public void MapBackdropFillsTheCanvasWhileMapControlsStayUnderTheSafeArea()
+        {
+            var canvasObject = new GameObject("canvas", typeof(RectTransform), typeof(Canvas));
+            var safeArea = new GameObject("SafeAreaRoot", typeof(RectTransform));
+            safeArea.transform.SetParent(canvasObject.transform, false);
+            var safeRect = safeArea.GetComponent<RectTransform>();
+            safeRect.anchorMin = new Vector2(.08f, .06f);
+            safeRect.anchorMax = new Vector2(.92f, .94f);
+            var mapObject = new GameObject("MapScreen", typeof(RectTransform), typeof(MapScreen));
+            mapObject.transform.SetParent(safeArea.transform, false);
+            try
+            {
+                var screen = mapObject.GetComponent<MapScreen>();
+                MapPresentationBuilder.Build(screen, new GameSession());
+                Transform mapRoot = mapObject.transform.Find("S5MapPresentation");
+                Transform backdrop = canvasObject.transform.Find("S5MapBackdrop");
+                Assert.That(backdrop, Is.Not.Null, "The backdrop belongs to the full canvas, outside SafeAreaRoot.");
+                Assert.That(backdrop.parent, Is.EqualTo(canvasObject.transform));
+                Assert.That(((RectTransform)backdrop).anchorMin, Is.EqualTo(Vector2.zero));
+                Assert.That(((RectTransform)backdrop).anchorMax, Is.EqualTo(Vector2.one));
+                Assert.That(mapRoot, Is.Not.Null);
+                Assert.That(mapRoot.IsChildOf(safeArea.transform), Is.True,
+                    "Map controls remain inside the fitted safe area.");
+                Assert.That(mapRoot.GetComponentInChildren<Button>(true), Is.Not.Null);
+            }
+            finally
+            {
+                Object.DestroyImmediate(canvasObject);
+            }
         }
 
         static GameSession CompleteSprintJourney()

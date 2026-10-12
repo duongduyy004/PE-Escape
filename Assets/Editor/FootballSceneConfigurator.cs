@@ -150,8 +150,11 @@ namespace KMA.EditorTools
             kickerStrike = CharacterArt.Load(CharacterArt.Hero, "footballBackKick"),
             kickerCelebrate = CharacterArt.Load(CharacterArt.Hero, "footballBackCelebrate"),
             keeperReady = CharacterArt.Load(KeeperCharacter, KeeperReadyPose),
-            keeperSave = CharacterArt.Load(KeeperCharacter, "cheer"),
-            keeperBeaten = CharacterArt.Load(KeeperCharacter, "recover")
+            keeperReachLeft = CharacterArt.Load(KeeperCharacter, "reachLeftEmpty"),
+            keeperReachRight = CharacterArt.Load(KeeperCharacter, "reachRightEmpty"),
+            keeperDiveLeft = CharacterArt.Load(KeeperCharacter, "diveLeftEmpty"),
+            keeperDiveRight = CharacterArt.Load(KeeperCharacter, "diveRightEmpty"),
+            keeperCheer = CharacterArt.Load(KeeperCharacter, "cheer")
         };
 
         static void ImportGoalViewArt()

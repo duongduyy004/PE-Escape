@@ -2,6 +2,7 @@ using KMA.Gameplay;
 using KMA.Gameplay.Core;
 using KMA.Gameplay.UI;
 using KMA.UI.Kit;
+using System.Collections;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -61,7 +62,15 @@ namespace KMA.Gameplay.Shell
                 JourneyDialoguePresenter dialogues = map.GetComponent<JourneyDialoguePresenter>();
                 if (dialogues == null) dialogues = map.gameObject.AddComponent<JourneyDialoguePresenter>();
                 if (router != null && router.Session != null && GameManager.Instance != null)
-                    dialogues.ShowJourney(router.Session, GameManager.Instance, mainMenuBackground);
+                {
+                    GameSession journeySession = router.Session;
+                    dialogues.ShowJourney(journeySession, GameManager.Instance, mainMenuBackground,
+                        router.HasPendingJourneyMapContinuation
+                            ? () => StartCoroutine(CompleteJourneyMapDialogue(router, journeySession, dialogues))
+                            : null);
+                    if (router.HasPendingJourneyMapContinuation)
+                        router.SceneLoadFailed += OnMapSceneLoadFailed;
+                }
                 map.SubjectRequested += SelectMapSubject;
                 map.ChallengeRequested += StartChallenge;
                 map.CelebrationRequested += ReplayCelebration;
@@ -101,6 +110,8 @@ namespace KMA.Gameplay.Shell
             }
             if (map != null)
             {
+                var router = SceneRouter.Instance;
+                if (router != null) router.SceneLoadFailed -= OnMapSceneLoadFailed;
                 map.SubjectRequested -= SelectMapSubject;
                 map.ChallengeRequested -= StartChallenge;
                 map.CelebrationRequested -= ReplayCelebration;
@@ -286,6 +297,28 @@ namespace KMA.Gameplay.Shell
             if (router == null || router.Session == null) return;
             ChallengeDefinition definition = router.Session.Journey.Catalog.Get(id);
             router.TryStartChallenge(id, mode, definition.Difficulty);
+        }
+
+        IEnumerator CompleteJourneyMapDialogue(SceneRouter router, GameSession journeySession,
+            JourneyDialoguePresenter dialogues)
+        {
+            while (router != null && router.IsTransitioning)
+                yield return null;
+            if (router == null || !router.HasPendingJourneyMapContinuation)
+                yield break;
+            if (!router.CompleteJourneyMapDialogue(journeySession) && router.HasPendingJourneyMapContinuation)
+                dialogues?.ShowContinuationError("Không thể mở bài. Chạm để thử lại.",
+                    () => StartCoroutine(CompleteJourneyMapDialogue(router, journeySession, dialogues)));
+        }
+
+        void OnMapSceneLoadFailed(string message)
+        {
+            SceneRouter router = SceneRouter.Instance;
+            if (router == null || !router.HasPendingJourneyMapContinuation)
+                return;
+            JourneyDialoguePresenter dialogues = map == null ? null : map.GetComponent<JourneyDialoguePresenter>();
+            dialogues?.ShowContinuationError(message, () => StartCoroutine(CompleteJourneyMapDialogue(
+                router, router.Session, dialogues)));
         }
 
         static void ApplySettings(Settings value) => GameManager.Instance?.UpdateSettings(value);

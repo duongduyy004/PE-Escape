@@ -57,7 +57,7 @@ namespace KMA.Gameplay.UI
                 canvas.overrideSorting=true;canvas.sortingOrder=SortingOrder+100;
             }
         }
-        float PenaltyTimeLimit => frogBalance is IFrogJumpTimingSource timing ? timing.TimeLimitSeconds : 60f;
+        float PenaltyTimeLimit => frogBalance is IFrogJumpTimingSource timing ? timing.TimeLimitSeconds : 30f;
         void SpeakResult(bool pass,ChallengeKind kind,string attemptId,JourneyCommitOutcome? outcome,string error)
         {
             if(dialogueHost==null)return;
@@ -283,7 +283,9 @@ namespace KMA.Gameplay.UI
             }
             bool frogJump = outcome.HasValue && outcome.Value.FrogJumpRequired;
             bool final = outcome.HasValue && outcome.Value.FinalChallenge;
-            SetDetail(saveError == null && final && !string.IsNullOrEmpty(result.Metrics.Detail)
+            string learnDetail = LearnProgressDetail(context, result);
+            SetDetail(saveError == null && !string.IsNullOrEmpty(learnDetail) ? learnDetail
+                : saveError == null && final && !string.IsNullOrEmpty(result.Metrics.Detail)
                 ? result.Metrics.Detail
                 : saveError ?? (context.Mode == ChallengeAttemptMode.Journey
                 ? outcome.HasValue
@@ -295,9 +297,18 @@ namespace KMA.Gameplay.UI
                     : "Kết quả đang chờ lưu."
                 : $"Thời gian: {MinigameGuidePages.Number(result.Metrics.Elapsed)} giây"));
             if (errorLabel != null) errorLabel.text = VietText.Fix(saveError ?? string.Empty);
-            SetButtonLabel(actionButton, saveError == null ? frogJump ? "BẬT CÓC" : "TIẾP TỤC"
+            var definition = ChallengeCatalog.LoadDefault().Ordered.FirstOrDefault(d => d != null && d.Id == context.ChallengeId);
+            string retryLabel = definition?.Kind switch
+            {
+                ChallengeKind.Learn => "HỌC LẠI",
+                ChallengeKind.Practice => "LUYỆN LẠI",
+                _ => "THI LẠI"
+            };
+            SetButtonLabel(actionButton, saveError == null ? frogJump ? "BẬT CÓC"
+                : context.Mode == ChallengeAttemptMode.Journey && !result.Pass ? retryLabel : "TIẾP TỤC"
                 : outcome.HasValue ? "THỬ LẠI" : "LƯU LẠI");
-            retryAvailable = result.ExamResult != null && !result.Pass && outcome.HasValue &&
+            retryAvailable = context.Mode != ChallengeAttemptMode.Journey && result.ExamResult != null &&
+                !result.Pass && outcome.HasValue &&
                 (final || outcome.Value.AttemptsRemaining > 0) && !frogJump;
             if (retryButton != null)
             {
@@ -311,9 +322,25 @@ namespace KMA.Gameplay.UI
                 livesLabel.gameObject.SetActive(!final && (result.ExamResult != null || frogJump));
             }
             RefreshButtons();
-            var definition=ChallengeCatalog.LoadDefault().Ordered.FirstOrDefault(d=>d!=null && d.Id==context.ChallengeId);
             SpeakResult(result.Pass,definition?.Kind ?? ChallengeKind.Exam,context.AttemptId,outcome,saveError);
             Reveal(result.ExamResult == null ? result.Metrics.CompletedTargets : result.ExamResult.Score);
+        }
+
+        static string LearnProgressDetail(ChallengeAttemptContext context, ChallengeAttemptResult result)
+        {
+            if (context == null || result == null || context.Mode != ChallengeAttemptMode.Journey)
+                return null;
+            ChallengeDefinition definition;
+            try { definition = ChallengeCatalog.LoadDefault().Get(context.ChallengeId); }
+            catch (Exception) { return null; }
+            if (definition.Kind != ChallengeKind.Learn)
+                return null;
+            if (context.ChallengeId == "sprint_learn")
+                return $"{MinigameGuidePages.Number(definition.TimeLimit)} GIÂY • CHUỖI ĐÚNG TỐT NHẤT: " +
+                    $"{result.Metrics.CompletedTargets}/{definition.TargetCount}";
+            if (context.ChallengeId == "volleyball_learn")
+                return $"BÀI TẬP: {result.Metrics.CompletedTargets}/{definition.TargetCount}";
+            return null;
         }
 
         // The frog card has no score or rank, so it closes that gap by using a shorter card.

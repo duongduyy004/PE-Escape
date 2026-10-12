@@ -183,7 +183,7 @@ namespace KMA.Gameplay.Volleyball
                 return false;
 
             bool blocking = OpponentSmashTell && Mathf.Abs(Player.Position.x) <= ActionResolver.BlockNetDistance;
-            if (!Player.TryJump(blocking ? AthleteAction.Block : AthleteAction.Smash))
+            if (!Player.TryJump(blocking ? AthleteAction.Block : AthleteAction.JumpLoad))
                 return false;
 
             if (blocking)
@@ -383,7 +383,7 @@ namespace KMA.Gameplay.Volleyball
             Flight = new BallFlight(server.Position, TossStartHeight, server.Position, TossApexHeight, Server);
             FlightTime = 0f;
             BallState = BallState.Toss;
-            server.BeginAction(AthleteAction.Serve, 0f);
+            server.BeginAction(AthleteAction.ServeToss, 0f);
         }
 
         void PlayerServe(ActionDecision decision)
@@ -394,6 +394,7 @@ namespace KMA.Gameplay.Volleyball
             Rally.RegisterServe(CourtSide.Player);
             Player.BeginAction(AthleteAction.Serve, ServeSeconds);
             Launch(target, apex, CourtSide.Player);
+            TouchRegistered?.Invoke(CourtSide.Player, decision, 0);
         }
 
         void OpponentServe()
@@ -419,7 +420,8 @@ namespace KMA.Gameplay.Volleyball
                 case ActionKind.Receive:
                     target = SetTarget(decision.Grade, decision.Offset);
                     apex = SetApexHeight;
-                    animation = AthleteAction.Receive;
+                    animation = startHeight <= ActionResolver.ReceiveContactHeight + .45f
+                        ? AthleteAction.Dig : AthleteAction.Receive;
                     lockSeconds = ReceiveSeconds;
                     break;
                 case ActionKind.FreeBall:

@@ -533,7 +533,7 @@ namespace KMA.Tests.Gameplay.Volleyball
             VolleyballMatch rally = ReceivedAndUnderTheSet(out _);
             Assert.That(rally.PressJump(), Is.True);
             Assert.That(rally.Player.IsAirborne, Is.True);
-            Assert.That(rally.Player.Action, Is.EqualTo(AthleteAction.Smash));
+            Assert.That(rally.Player.Action, Is.EqualTo(AthleteAction.JumpLoad));
             Assert.That(rally.PressJump(), Is.False, "no double jump");
 
             rally.SetScoreForTest(0, VolleyballMatch.PointsToWin - 1);

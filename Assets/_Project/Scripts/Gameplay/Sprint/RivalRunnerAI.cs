@@ -81,7 +81,9 @@ namespace KMA.Gameplay
         void Refresh(float rivalDistance, float playerDistance, MinigamePhase phase, MinigameResult result,
             bool surging, bool slowing = false)
         {
-            VisualProgress01 = Mathf.Clamp01(rivalDistance / SprintRules.RaceDistance);
+            bool learning = controller != null && controller.IsLearnChallenge;
+            float shownDistance = learning ? Mathf.Min(rivalDistance, SprintRules.RaceDistance * .66f) : rivalDistance;
+            VisualProgress01 = Mathf.Clamp01(shownDistance / SprintRules.RaceDistance);
             if (visual != null)
             {
                 // The rival root is scaled, which stretches a child's local offset. The player moves its
@@ -94,9 +96,9 @@ namespace KMA.Gameplay
 
             if (phase == MinigamePhase.Resolve)
                 State = result != null && result.Pass ? RivalRunnerState.Celebrate : RivalRunnerState.Fail;
-            else if (phase != MinigamePhase.Play || VisualProgress01 >= 1f)
+            else if (phase != MinigamePhase.Play || (!learning && VisualProgress01 >= 1f))
                 State = RivalRunnerState.Idle;
-            else if (surging || playerDistance >= SprintRules.RaceDistance * .7f)
+            else if (surging || (!learning && playerDistance >= SprintRules.RaceDistance * .7f))
                 State = RivalRunnerState.Burst;
             else
                 State = RivalRunnerState.Run;
@@ -104,7 +106,7 @@ namespace KMA.Gameplay
             // Waiting on the grid, flagging mid-race or already across the line: catch a breath.
             if (breathing != null)
                 breathing.SetResting(phase == MinigamePhase.Tutorial || phase == MinigamePhase.Countdown ||
-                    (phase == MinigamePhase.Play && (slowing || rivalDistance >= SprintRules.RaceDistance)));
+                    (phase == MinigamePhase.Play && (slowing || (!learning && rivalDistance >= SprintRules.RaceDistance))));
 
             if (animator != null && (!hasPlayedState || lastPlayedState != State))
             {

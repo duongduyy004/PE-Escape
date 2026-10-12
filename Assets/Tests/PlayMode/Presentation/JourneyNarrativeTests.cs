@@ -62,6 +62,47 @@ namespace KMA.Tests.Presentation
         }
 
         [UnityTest]
+        public IEnumerator JourneyQueueCallsCompletionOnceWhenEveryNodeWasAlreadySeen()
+        {
+            root = new GameObject("JourneyNarrativeCanvas", typeof(RectTransform), typeof(Canvas),
+                typeof(CanvasScaler), typeof(GraphicRaycaster));
+            presenter = root.AddComponent<JourneyDialoguePresenter>();
+            library = JourneyDialogueLibrary.LoadDefault();
+            var session = new GameSession();
+            session.Journey.MarkDialogueSeen("opening");
+            session.Journey.MarkDialogueSeen("sprint_intro");
+            int completed = 0;
+            presenter.ShowJourney(session, library, _ => true, null, () => completed++);
+            Assert.That(presenter.IsShowing, Is.False);
+            Assert.That(completed, Is.EqualTo(1));
+            presenter.Advance();
+            Assert.That(completed, Is.EqualTo(1));
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator JourneyQueueCallsCompletionOnlyAfterAllSeenStateSaves()
+        {
+            root = new GameObject("JourneyNarrativeCanvas", typeof(RectTransform), typeof(Canvas),
+                typeof(CanvasScaler), typeof(GraphicRaycaster));
+            presenter = root.AddComponent<JourneyDialoguePresenter>();
+            library = JourneyDialogueLibrary.LoadDefault();
+            var session = new GameSession();
+            var saved = new System.Collections.Generic.List<string>();
+            int completed = 0;
+            presenter.ShowJourney(session, library, key => { saved.Add(key); return true; }, null,
+                () => completed++);
+            Button skip = Find<Button>("BỎ QUA");
+            skip.onClick.Invoke();
+            Assert.That(completed, Is.Zero);
+            skip.onClick.Invoke();
+            Assert.That(saved, Is.EqualTo(new[] { "opening", "sprint_intro" }));
+            Assert.That(completed, Is.EqualTo(1));
+            Assert.That(presenter.IsShowing, Is.False);
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator FirstTapRevealsWholeLineSecondTapAdvances()
         {
             Open("opening");

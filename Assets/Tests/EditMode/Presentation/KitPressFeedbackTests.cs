@@ -72,6 +72,27 @@ namespace KMA.Tests.Presentation
         }
 
         [Test]
+        public void ExplicitInteractableOverrideFadesControlsWithoutASelectable()
+        {
+            var face = root.AddComponent<Image>();
+            face.color = MinigameUiTheme.Surface;
+            var group = root.AddComponent<CanvasGroup>();
+            var feedback = root.AddComponent<KitPressFeedback>();
+            feedback.Configure(face, (RectTransform)root.transform);
+
+            feedback.SetInteractable(false);
+
+            Assert.That(group.alpha, Is.EqualTo(.58f).Within(.001f));
+            Assert.That(face.color, Is.EqualTo(MinigameUiTheme.DisabledSurface));
+            feedback.Press();
+            Assert.That(feedback.IsPressed, Is.False);
+
+            feedback.SetInteractable(true);
+            Assert.That(group.alpha, Is.EqualTo(1f));
+            Assert.That(face.color, Is.EqualTo(MinigameUiTheme.Surface));
+        }
+
+        [Test]
         public void ApplyVariantOnADisabledButtonKeepsTheDisabledTokens()
         {
             ButtonHandle handle = UiKit.Button(root.transform, "Shoot", "GIỮ ĐỂ SÚT", ButtonVariant.Primary);

@@ -15,9 +15,9 @@ MonoBehaviour:
   tuning:
     trackMetres: 60
     sweepSeconds: 0.7
-    maxJumpMetres: 1.5
-    minJumpMetres: 0.25
-    safeZone: 0.4
+    maxJumpMetres: 3.2
+    minJumpMetres: 2.2
+    safeZone: 0.2
     jumpSeconds: 0.6
     recoverSeconds: 2.5
-    timeLimitSeconds: 60
+    timeLimitSeconds: 30

@@ -75,6 +75,79 @@ namespace KMA.Tests.Gameplay.Football
         }
 
         [Test]
+        public void KeeperKeepsTheRotatedReadySilhouetteUntilOutcomeThenLandsUprightAndResets()
+        {
+            var p = root.AddComponent<FootballPresentation>();
+            var ball = Make<SpriteRenderer>("Ball");
+            var left = Make<RectTransform>("Left");
+            var right = Make<RectTransform>("Right");
+            left.position = Vector3.left; right.position = Vector3.right;
+            var keeper = Make<SpriteRenderer>("Keeper");
+            Sprite SpriteNamed(string name)
+            {
+                var sprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 4, 4), Vector2.zero);
+                sprite.name = name;
+                return sprite;
+            }
+            var poses = new FootballPoseSprites
+            {
+                keeperReady = SpriteNamed("ready"), keeperReachLeft = SpriteNamed("reach-left"),
+                keeperReachRight = SpriteNamed("reach-right"), keeperDiveLeft = SpriteNamed("dive-left"),
+                keeperDiveRight = SpriteNamed("dive-right"), keeperCheer = SpriteNamed("cheer")
+            };
+            p.Configure(Make<SpriteRenderer>("Field"), Make<SpriteRenderer>("Goal"), ball,
+                Make<SpriteRenderer>("Shadow"), Make<SpriteRenderer>("Player"), keeper,
+                Make<SpriteRenderer>("Crosshair"), left, right);
+            p.ConfigurePoses(poses);
+
+            var match = new FootballRules(FootballTuning.For(FootballDifficulty.Normal));
+            match.Start();
+            match.SetAim(.6f);
+            match.BeginCharge();
+            match.Tick(FootballTuning.For(FootballDifficulty.Normal).PowerRiseSeconds * .5f);
+            match.ReleaseShot();
+            bool sawSimulatedDive = false;
+            for (int i = 0; i < 500 && !match.Flight.Outcome.HasValue; i++)
+            {
+                match.Tick(.02f);
+                p.Render(match);
+                if (match.State == FootballState.Flying && !match.Flight.Outcome.HasValue &&
+                    Mathf.Abs(keeper.transform.eulerAngles.z) > .01f)
+                {
+                    sawSimulatedDive = true;
+                    Assert.That(keeper.sprite, Is.SameAs(poses.keeperReady));
+                }
+            }
+            Assert.That(sawSimulatedDive, Is.True, "Pre-contact uses the same rotated Ready pose as physics.");
+            Assert.That(match.Flight.Outcome.HasValue, Is.True);
+            p.Render(match);
+            Assert.That(Mathf.Abs(Mathf.DeltaAngle(keeper.transform.eulerAngles.z, 0f)), Is.LessThan(.001f),
+                "Post-contact Empty artwork is already rotated into its landing pose.");
+            var landing = FootballPoses.KeeperLanding(match.Flight.KeeperX, 1f, .08f);
+            Assert.That(keeper.sprite, Is.SameAs(poses.For(landing)));
+
+            while (match.Flight.OutcomeElapsed < .32f)
+            {
+                match.Tick(.02f);
+                p.Render(match);
+            }
+            if (match.Flight.Outcome == FootballOutcome.Saved)
+                Assert.That(keeper.sprite, Is.SameAs(poses.keeperCheer));
+            else
+                Assert.That(keeper.sprite, Is.SameAs(poses.keeperReady), "Only Saved enters Cheer.");
+
+            match.Tick(.5f);
+            p.Render(match);
+            Assert.That(keeper.sprite, Is.SameAs(poses.keeperReady), "The post-shot timeline returns to Ready.");
+            match.Tick(2f);
+            Assert.That(match.State, Is.EqualTo(FootballState.Aiming));
+            match.SetAim(-.6f);
+            match.BeginCharge();
+            p.Render(match);
+            Assert.That(keeper.sprite, Is.SameAs(poses.keeperReady), "The next shot starts upright in Ready.");
+        }
+
+        [Test]
         public void HudShowsDirectionPowerAndOutcomeWithoutOverridingInputOwnership()
         {
             var slider=Make<Slider>("Direction");slider.minValue=-1f;slider.maxValue=1f;

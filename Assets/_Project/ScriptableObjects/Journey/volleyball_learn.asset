@@ -17,10 +17,10 @@ MonoBehaviour:
   kind: 0
   distance: 0
   timeLimit: 0
-  targetCount: 3
+  targetCount: 7
   attemptLimit: 0
   keeperEnabled: 0
   difficulty: 0
   timingHelp: 1
-  objective: "\u0110\u1EE1 b\xF3ng th\xE0nh c\xF4ng 3 l\u1EA7n trong b\xE0i l\xE0m
-    quen."
+  objective: "\u0110\u1EE1 b\xF3ng 3 l\u1EA7n, ph\xE1t b\xF3ng 2 l\u1EA7n, nh\u1EA3y
+    v\xE0 \u0111\xE1nh tr\u1EA3 2 l\u1EA7n."

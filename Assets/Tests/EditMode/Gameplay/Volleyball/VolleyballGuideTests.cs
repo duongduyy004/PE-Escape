@@ -7,11 +7,11 @@ namespace KMA.Tests.Gameplay.Volleyball
     public sealed class VolleyballGuideTests
     {
         [Test]
-        public void LearnCountsReceives()
+        public void LearnExplainsAllThreeDrills()
         {
             var pages = VolleyballGuide.Build(ChallengeKind.Learn, 3, 0, 0f);
             Assert.That(pages.Count, Is.EqualTo(4));
-            Assert.That(pages[0].Instruction, Is.EqualTo("Đỡ bóng thành công 3 lần. Đối thủ giao bóng trong bài làm quen."));
+            Assert.That(pages[0].Instruction, Is.EqualTo("Đỡ bóng thành công 3 lần, phát bóng 2 lần, rồi nhảy và đánh trả bóng 2 lần. Di chuyển để làm quen; đỡ và phát bóng được đối thủ cấp bóng."));
             Assert.That(pages[1].Title, Is.EqualTo("DI CHUYỂN"));
             Assert.That(pages[1].Instruction, Is.EqualTo("Kéo joystick để di chuyển đến vị trí bóng rơi."));
             Assert.That(pages[2].Title, Is.EqualTo("ĐÁNH VÀ NHẢY"));

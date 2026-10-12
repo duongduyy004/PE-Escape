@@ -147,15 +147,16 @@ MonoBehaviour:
     MaximumPlays: 1
     Lines:
     - Speaker: 0
-      Text: "Tr\xE1i tr\u01B0\u1EDBc... r\u1ED3i ph\u1EA3i."
+      Text: "45 gi\xE2y, b\u1EA5m tr\xE1i ph\u1EA3i lu\xE2n phi\xEAn. T\u1EDB c\u1EA7n
+        gi\u1EEF \u0111\u01B0\u1EE3c chu\u1ED7i 12 nh\u1ECBp h\u1EE3p l\u1EC7."
       Poses:
       - {fileID: 21300000, guid: eb306838f1648ff4493c1114140c26f0, type: 3}
       PoseStepSeconds: 0.3
       DurationSeconds: 1.2
       Icon: {fileID: 0}
     - Speaker: 1
-      Text: "L\xE0m \u0111\xFAng nh\u1ECBp \u0111\xE3. Ch\u01B0a ai b\u1EAFt c\u1EADu
-        ch\u1EA1y nhanh."
+      Text: "\u0110\u1EA1t chu\u1ED7i 12 nh\u1ECBp trong 45 gi\xE2y. Nh\u1EA7m th\xEC
+        l\xE0m l\u1EA1i chu\u1ED7i khi c\xF2n gi\u1EDD."
       Poses:
       - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}
       PoseStepSeconds: 0.3
@@ -189,14 +190,15 @@ MonoBehaviour:
     MaximumPlays: 1
     Lines:
     - Speaker: 0
-      Text: "D\u1EA1, \u0111\u1EE7 r\u1ED3i \u1EA1."
+      Text: "D\u1EA1, em \u0111\u1EA1t chu\u1ED7i 12 nh\u1ECBp r\u1ED3i \u1EA1."
       Poses:
       - {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
       PoseStepSeconds: 0.3
       DurationSeconds: 1.2
       Icon: {fileID: 0}
     - Speaker: 1
-      Text: "\u0110\u01B0\u1EE3c. Sang b\xE0i luy\u1EC7n."
+      Text: "T\u1ED1t. Em \u0111\xE3 c\xF3 m\u1ED9t chu\u1ED7i 12 nh\u1ECBp h\u1EE3p
+        l\u1EC7. Sang b\xE0i luy\u1EC7n."
       Poses:
       - {fileID: 21300000, guid: a4cabbc0a6c81094e9ed4516f93efda8, type: 3}
       PoseStepSeconds: 0.3
@@ -332,14 +334,16 @@ MonoBehaviour:
     MaximumPlays: 1
     Lines:
     - Speaker: 0
-      Text: "B\xF3ng r\u01A1i b\xEAn n\xE0o nh\u1EC9..."
+      Text: "B\xE0i n\xE0y c\xF3 ba ph\u1EA7n... \u0111\u1EE1, ph\xE1t, r\u1ED3i
+        nh\u1EA3y \u0111\xE1nh."
       Poses:
       - {fileID: 21300000, guid: 54c331363a4367842a76a9fc67d0c5ee, type: 3}
       PoseStepSeconds: 0.3
       DurationSeconds: 1.2
       Icon: {fileID: 0}
     - Speaker: 1
-      Text: "Nh\xECn b\xF3ng. Kh\xF4ng ph\u1EA3i nh\xECn t\xF4i."
+      Text: "\u0110\u1EE1 3 l\u1EA7n, ph\xE1t 2 l\u1EA7n, nh\u1EA3y \u0111\xE1nh
+        tr\u1EA3 2 l\u1EA7n. Theo \u0111\xFAng th\u1EE9 t\u1EF1."
       Poses:
       - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}
       PoseStepSeconds: 0.3
@@ -373,14 +377,16 @@ MonoBehaviour:
     MaximumPlays: 1
     Lines:
     - Speaker: 0
-      Text: "D\u1EA1, em \u0111\u1EE1 \u0111\u01B0\u1EE3c r\u1ED3i."
+      Text: "D\u1EA1, em ho\xE0n th\xE0nh \u0111\u1EE7 7 l\u01B0\u1EE3t r\u1ED3i
+        \u1EA1."
       Poses:
       - {fileID: 21300000, guid: 91fb22986ca6ab44db67a945e981b821, type: 3}
       PoseStepSeconds: 0.3
       DurationSeconds: 1.2
       Icon: {fileID: 0}
     - Speaker: 1
-      Text: "T\u1EA1m \u0111\u01B0\u1EE3c. \u0110\u1EBFn b\xE0i luy\u1EC7n."
+      Text: "\u0110\u1EE7 ba l\u1EA7n \u0111\u1EE1, hai l\u1EA7n ph\xE1t v\xE0 hai
+        l\u1EA7n nh\u1EA3y \u0111\xE1nh. \u0110\u1EBFn b\xE0i luy\u1EC7n."
       Poses:
       - {fileID: 21300000, guid: a4cabbc0a6c81094e9ed4516f93efda8, type: 3}
       PoseStepSeconds: 0.3

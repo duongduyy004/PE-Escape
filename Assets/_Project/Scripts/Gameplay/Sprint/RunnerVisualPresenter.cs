@@ -33,7 +33,8 @@ namespace KMA.Gameplay
             string state = controller.Phase == MinigamePhase.Resolve
                 ? (controller.LastResult != null && controller.LastResult.Pass ? "Celebrate" : "Fail")
                 : controller.Phase != MinigamePhase.Play || resting ? "Idle"
-                : controller.Snapshot.Distance >= SprintRules.RaceDistance * .7f ? "Burst" : "Run";
+                : !controller.IsLearnChallenge && controller.Snapshot.Distance >= SprintRules.RaceDistance * .7f
+                    ? "Burst" : "Run";
             if (state == lastState) return;
             animator.Play(state, 0, 0f);
             lastState = state;
@@ -59,7 +60,11 @@ namespace KMA.Gameplay
         {
             if (raceRoot == null) return;
             var position = raceRoot.localPosition;
-            position.x = trackStartX + SprintTrackLayout.TrackLength * Mathf.Clamp01(distance / SprintRules.RaceDistance);
+            // Learn is a cadence drill. Hold the runner in the middle of the track so repeated
+            // taps never look like the timed race has reached its finish.
+            float shownDistance = controller != null && controller.IsLearnChallenge
+                ? Mathf.Min(distance, SprintRules.RaceDistance * .66f) : distance;
+            position.x = trackStartX + SprintTrackLayout.TrackLength * Mathf.Clamp01(shownDistance / SprintRules.RaceDistance);
             raceRoot.localPosition = position;
         }
     }
