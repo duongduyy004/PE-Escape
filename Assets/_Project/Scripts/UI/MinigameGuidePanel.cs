@@ -89,7 +89,7 @@ namespace KMA.Gameplay.UI
             bodyLabel.lineSpacing = 6f;
             // Code-built TMP labels default to NoWrap; the body must wrap inside its rect.
             bodyLabel.textWrappingMode = TextWrappingModes.Normal;
-            bodyLabel.overflowMode = TextOverflowModes.Overflow;
+            bodyLabel.overflowMode = TextOverflowModes.Ellipsis;
 
             RectTransform divider = UiKit.Rect(card.transform, "Divider");
             UiKit.Place(divider, Centre, Centre, new Vector2(0f, 222f), new Vector2(1020f, 4f));

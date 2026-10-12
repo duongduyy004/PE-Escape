@@ -67,6 +67,9 @@ namespace KMA.Gameplay.UI
             if (summaryText != null)
             {
                 summaryText.fontSize = UITheme.Shared.LessonJourney.captionSize - 16f;
+                // This compact strip intentionally uses a smaller size than the initial kit label.
+                summaryText.fontSizeMax = summaryText.fontSize;
+                summaryText.fontSizeMin = Mathf.Min(summaryText.fontSizeMin, summaryText.fontSizeMax);
                 summaryText.text = VietText.Fix("HOÀN TẤT HỌC PHẦN\n" + FormatScoreLines(scores));
             }
             gameObject.SetActive(true);

@@ -52,6 +52,7 @@ namespace KMA.Gameplay.UI
             UiKit.Place(portrait.rectTransform,new Vector2(0,.5f),new Vector2(0,.5f),new Vector2(style.padding,0),new Vector2(style.portraitWidth,size.y-2*style.padding));
             UiKit.Place(speaker.rectTransform,new Vector2(0,1),new Vector2(0,1),new Vector2(style.portraitWidth+2*style.padding,-style.padding),new Vector2(size.x-style.portraitWidth-3*style.padding,header));
             speaker.fontSize=Mathf.Max(style.nameSize,MinigameUiTheme.MinimumFontSize);speaker.textWrappingMode=TextWrappingModes.Normal;
+            UiKit.FitLabel(speaker, speaker.fontSize);
             UiKit.Place(text.rectTransform,new Vector2(0,1),new Vector2(0,1),new Vector2(style.portraitWidth+2*style.padding,-style.padding-header),new Vector2(size.x-style.portraitWidth-3*style.padding,size.y-header-2*style.padding));
             text.textWrappingMode=TextWrappingModes.Normal;text.enableAutoSizing=true;text.fontSizeMin=MinigameUiTheme.MinimumFontSize;text.fontSizeMax=Mathf.Max(style.textSize,MinigameUiTheme.MinimumFontSize);
             if(slot==DialogueHudSlot.Result || slot==DialogueHudSlot.GameOver)

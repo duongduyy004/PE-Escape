@@ -229,10 +229,7 @@ namespace KMA.Gameplay.UI
             nameTagRect.localEulerAngles = new Vector3(0f, 0f, onRight ? 3f : -3f);
 
             body.text = VietText.Fix(DialogueEmoji.Expand(line.Text));
-            body.maxVisibleCharacters = 0;
-            body.ForceMeshUpdate();
-            typewriter.Begin(body.textInfo.characterCount);
-            body.maxVisibleCharacters = typewriter.VisibleCharacters;
+            BeginTypewriter();
 
             bool hasSticker = !string.IsNullOrWhiteSpace(line.Sticker);
             stickerRect.gameObject.SetActive(hasSticker);
@@ -352,15 +349,29 @@ namespace KMA.Gameplay.UI
             lineIndex = 0;
             errorText.text = string.Empty;
             body.text = VietText.Fix(message ?? "Không thể mở bài. Chạm để thử lại.");
-            body.ForceMeshUpdate();
-            body.maxVisibleCharacters = int.MaxValue;
-            typewriter.Begin(body.textInfo.characterCount);
+            BeginTypewriter();
             typewriter.Complete();
+            body.maxVisibleCharacters = typewriter.VisibleCharacters;
             right.Image.enabled = false;
             left.Image.enabled = false;
             BuildDots(0);
             hint.text = VietText.Fix("CHẠM ĐỂ THỬ LẠI »");
             overlay.gameObject.SetActive(true);
+        }
+
+        void BeginTypewriter()
+        {
+            // Ellipsis can reduce characterCount, even to zero while layout is still settling.
+            // Count the complete parsed line so fitting never changes reveal/tap progression.
+            TextOverflowModes boundedMode = body.overflowMode;
+            body.overflowMode = TextOverflowModes.Overflow;
+            body.maxVisibleCharacters = int.MaxValue;
+            body.ForceMeshUpdate();
+            int characters = body.textInfo.characterCount;
+            body.overflowMode = boundedMode;
+            typewriter.Begin(characters);
+            body.maxVisibleCharacters = typewriter.VisibleCharacters;
+            body.ForceMeshUpdate();
         }
 
         void BuildDots(int count)

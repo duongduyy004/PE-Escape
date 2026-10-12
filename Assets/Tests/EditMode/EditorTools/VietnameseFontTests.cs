@@ -101,6 +101,60 @@ namespace KMA.Tests.EditorTools
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }
 
+        [TestCase(VietFontRole.Body)]
+        [TestCase(VietFontRole.BodyBold)]
+        [TestCase(VietFontRole.Title)]
+        [TestCase(VietFontRole.Hud)]
+        public void LongLabelsShrinkInsideTheirBox(VietFontRole role)
+        {
+            var root = new GameObject("TextCanvas", typeof(RectTransform), typeof(Canvas));
+            var label = new GameObject("BoundedLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
+            label.transform.SetParent(root.transform, false);
+            try
+            {
+                var text = label.GetComponent<TextMeshProUGUI>();
+                text.rectTransform.sizeDelta = new Vector2(360f, 100f);
+                text.fontSize = 54f;
+                text.textWrappingMode = TextWrappingModes.NoWrap;
+                text.text = "Nguyễn Quỳnh hoàn thành học phần";
+                VietTypography.Apply(text, role);
+                float boxWidth = text.GetPreferredValues(text.text, Mathf.Infinity, Mathf.Infinity).x * .8f;
+                text.rectTransform.sizeDelta = new Vector2(boxWidth, 100f);
+                text.ForceMeshUpdate(true);
+                Assert.That(text.fontSize, Is.LessThan(54f), "Long captions must fit before truncating.");
+                Assert.That(text.isTextTruncated, Is.False, "Ordinary captions must remain complete.");
+                Assert.That(text.textBounds.size.x, Is.LessThanOrEqualTo(text.rectTransform.rect.width + 1f));
+                Assert.That(text.textBounds.size.y, Is.LessThanOrEqualTo(101f));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(root); }
+        }
+
+        [Test]
+        public void ExcessiveTextUsesEllipsisAtTheConfiguredReadableMinimum()
+        {
+            var root = new GameObject("TextCanvas", typeof(RectTransform), typeof(Canvas));
+            var label = new GameObject("BoundedLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
+            label.transform.SetParent(root.transform, false);
+            try
+            {
+                var text = label.GetComponent<TextMeshProUGUI>();
+                text.rectTransform.sizeDelta = new Vector2(160f, 60f);
+                text.enableAutoSizing = true;
+                text.fontSizeMin = 28f;
+                text.fontSizeMax = 40f;
+                text.textWrappingMode = TextWrappingModes.NoWrap;
+                text.text = string.Join(" ", Enumerable.Repeat("Hướng dẫn hoàn thành học phần", 12));
+                VietTypography.Apply(text, VietFontRole.Body);
+                text.ForceMeshUpdate(true);
+                Assert.That(text.overflowMode, Is.EqualTo(TextOverflowModes.Ellipsis));
+                Assert.That(text.isTextTruncated, Is.True);
+                Assert.That(text.fontSize, Is.GreaterThanOrEqualTo(28f));
+                Assert.That(text.textBounds.size.x, Is.LessThanOrEqualTo(161f));
+                Assert.That(text.textWrappingMode, Is.EqualTo(TextWrappingModes.NoWrap));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(root); }
+        }
+
         [Test]
         public void CurrentProjectCoverageHasNoMissingCharactersOrLegacyComponents()
         {

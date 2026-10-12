@@ -110,7 +110,10 @@ namespace KMA.Gameplay.Core
             text.fontSize = fontSize; text.text = VietText.Fix(value);
             text.alignment = TextAlignmentOptions.Center; text.color = Color.white;
             text.extraPadding = true; text.lineSpacing = 15;
-            text.overflowMode = TextOverflowModes.Overflow;
+            text.enableAutoSizing = true;
+            text.fontSizeMin = fontSize * .6f;
+            text.fontSizeMax = fontSize;
+            text.overflowMode = TextOverflowModes.Ellipsis;
             text.raycastTarget = false;
             return text;
         }

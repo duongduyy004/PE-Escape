@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: KMA.Gameplay.FrogJump::KMA.Gameplay.FrogJump.FrogJumpBalanceConfig
   tuning:
     trackMetres: 60
-    sweepSeconds: 0.7
+    sweepSeconds: 1
     maxJumpMetres: 1.5
     minJumpMetres: 0.25
     safeZone: 0.2

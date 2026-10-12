@@ -627,7 +627,7 @@ namespace KMA.Gameplay.UI
             VietTypography.Apply(text);
             text.alignment = tmpAlignment;
             text.enableWordWrapping = true;
-            text.overflowMode = TextOverflowModes.Overflow;
+            text.overflowMode = TextOverflowModes.Ellipsis;
             UiKit.FitLabel(text, size);
             return text;
         }

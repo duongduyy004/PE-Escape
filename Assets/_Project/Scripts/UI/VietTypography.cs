@@ -81,7 +81,20 @@ namespace KMA.Gameplay.UI
             text.fontStyle &= ~FontStyles.Bold;
             text.extraPadding = true;
             text.lineSpacing = Mathf.Max(text.lineSpacing, 15f);
-            text.overflowMode = TextOverflowModes.Overflow;
+            FitWithinBounds(text);
+        }
+        /// Preserve authored wrapping and size limits; shrink before using a bounded fallback.
+        public static void FitWithinBounds(TMP_Text text)
+        {
+            // World-space TMP meshes use world units rather than UI-sized text boxes.
+            if (!(text is TextMeshProUGUI)) return;
+            float maxSize = text.enableAutoSizing ? text.fontSizeMax : text.fontSize;
+            float minSize = text.enableAutoSizing ? text.fontSizeMin :
+                Mathf.Min(maxSize, Mathf.Max(KMA.UI.Kit.MinigameUiTheme.MinimumFontSize, maxSize * .6f));
+            text.enableAutoSizing = true;
+            text.fontSizeMax = maxSize;
+            text.fontSizeMin = Mathf.Min(maxSize, minSize);
+            text.overflowMode = TextOverflowModes.Ellipsis;
         }
     }
 }

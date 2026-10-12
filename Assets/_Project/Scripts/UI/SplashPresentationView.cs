@@ -219,6 +219,9 @@ namespace KMA.Gameplay.UI
             float titleScale = style.titleScale * HomeMenuResponsive.ScaleFor(safeArea.rect.size);
             titleTop.fontSize = 48f * titleScale;
             titleKma.fontSize = 48f * titleScale;
+            titleTop.fontSizeMax = titleKma.fontSizeMax = 48f * titleScale;
+            titleTop.fontSizeMin = Mathf.Min(titleTop.fontSizeMin, titleTop.fontSizeMax);
+            titleKma.fontSizeMin = Mathf.Min(titleKma.fontSizeMin, titleKma.fontSizeMax);
             float footerWidth = Mathf.Max(0f, Mathf.Min(style.footerSize.x, safeArea.rect.width * .5f - style.footerInset.x * 2f));
             if (versionFooter != null) versionFooter.sizeDelta = new Vector2(footerWidth, style.footerSize.y);
         }

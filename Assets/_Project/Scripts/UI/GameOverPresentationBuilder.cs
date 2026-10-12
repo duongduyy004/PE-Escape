@@ -115,7 +115,7 @@ namespace KMA.Gameplay.UI
             label.fontStyle = FontStyles.Italic;
             label.color = color;
             label.textWrappingMode = TextWrappingModes.NoWrap;
-            label.overflowMode = TextOverflowModes.Overflow;
+            label.overflowMode = TextOverflowModes.Ellipsis;
             At(label.rectTransform, position, box);
             label.rectTransform.localRotation = Quaternion.Euler(0f, 0f, UITheme.Shared.Menu.titleAngle);
             return label;
@@ -125,7 +125,7 @@ namespace KMA.Gameplay.UI
         {
             label.fontStyle = FontStyles.Normal;
             label.textWrappingMode = TextWrappingModes.NoWrap;
-            label.overflowMode = TextOverflowModes.Overflow;
+            label.overflowMode = TextOverflowModes.Ellipsis;
             At(label.rectTransform, position, box);
         }
 
