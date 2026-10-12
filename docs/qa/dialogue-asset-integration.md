@@ -35,9 +35,9 @@ Chưa build APK hoặc kiểm tra thiết bị Android trong nhiệm vụ này. 
 
 ## Quyết định trong quá trình triển khai
 
-- Ruling: create isolated worktree as part of the approved Native execution plan — keeps original user checkout untouched — implementation lives under /tmp until integration is authorized.
-- Ruling: proceed despite existing baseline failures — isolate FMOD with ALSA null and investigate relevant scene authoring during integration — do not claim full suite green until resolved.
-- Ruling: task-done validates fresh Unity XML rather than rerunning an unchanged suite for bookkeeping — developer requires avoiding redundant passes after green — evidence is the actual Unity wrapper command recorded above.
+- Ruling: create isolated worktree as part of the approved Native execution plan — keeps original user checkout untouched — implementation lives under /tmp until integration is authorized. Cost: open this worktree or integrate explicitly before using changes in the original checkout.
+- Ruling: proceed despite existing baseline failures — isolate FMOD with ALSA null and investigate relevant scene authoring during integration — do not claim full suite green until resolved. Cost: null audio sink does not prove audible output on a physical device.
+- Ruling: task-done validates fresh Unity XML rather than rerunning an unchanged suite for bookkeeping — developer requires avoiding redundant passes after green — evidence is the actual Unity wrapper command recorded above. Cost: stale XML would give false evidence, so full-suite results are refreshed on the final tree.
 - Ruling: scene reopening and pointer acceptance are consolidated in Task 12 after real scene wiring; Task 4 verifies host/view isolation and idempotent authoring; cost if wrong: layout fixes during acceptance.
 - Ruling: retain existing SprintStartPresentation phase check, which already prevents countdown ticking while composite gate stays Tutorial; no duplicate readiness check needed. Verified existing countdown/freeze/input tests. Cost if wrong: countdown display drift.
 - Ruling: shot feedback may continue into idle Aiming and stops on charging or another kick; current 0.9s feedback alone cannot fit even the short student line. No gameplay timing changed. Cost if wrong: brief speech while choosing direction.
@@ -47,3 +47,33 @@ Chưa build APK hoặc kiểm tra thiết bị Android trong nhiệm vụ này. 
 - Ruling: larger shared dialogue geometry and 28px font floor fix proven 17px RED; runtime slot enum supplies result/GameOver placements. Add a read-only common timing interface and serialized balance reference to avoid a UI/Frog assembly cycle. Cost if wrong: reserved space needs adjustment in visual QA.
 - Task 12: Ruling: update the legacy PhaseOverlay assertion to retain the guide hold until guide closure, and life label to edited LƯỢT THI remaining/max — the approved start-gate and source-text contracts supersede these old expectations — cost if wrong: callers treating PhaseOverlay.Bind as closing a guide must now close it explicitly.
 - Task 12: Ruling: adapt existing real-controller/audio journey fixtures to close guides and wait for opening completion; old name/pose assertions follow edited source, emoji rendering uses isolated fixture content — old tests bypassed the newly approved gate and assumed retired dialogue jokes — cost if wrong: longer journey test runtime; emoji fixture does not prove an emoji exists in edited story. Keyboard offset assertion measures DSP at callback instead of assuming zero host dispatch latency (observed 320ms overhead) — verifies 125ms compensation against actual audio clock — cost if wrong: up to one 30ms measurement tolerance.
+
+## Review toàn nhánh và sửa lỗi
+
+Fresh-context reviewer đã xem diff `1c5485a..6f718f7`: 4 Important, 1 Minor, không Critical. Đã kiểm tra lại từng nhận xét trên code và nhận cả bốn Important. Một lượt sửa bằng TDD, không dispatch review thứ hai:
+
+- Missing host/adapter: serialized `GameplayOpeningFlow.Awake` đã giữ cổng nhưng adapter không Configure. Flow bỏ riêng hold của thoại sau Start; Chess vẫn cho Bắt đầu/gợi ý hoạt động khi presentation thiếu. Test `SerializedAwakeHoldFailsOpenWhenAdapterCannotConfigure` và `MissingHostKeepsBeginAndHintsPlayable` RED → GREEN.
+- Gợi ý cờ: cấp mới thay ngay câu/gợi ý cũ, validity kiểm tra cả node lẫn cấp gợi ý. Test `LatestHintPreemptsEarlierSpeechNearTimeout` gọi 3 lần khi còn khoảng 10 giây, RED → GREEN.
+- Bật cóc: callback giữ rules của lượt cũ và generation; disable/rebind làm request cũ hết hiệu lực. Test `DisabledOrReboundAdapterInvalidatesOldFall(false/true)` RED (exception hoặc câu còn sống) → GREEN.
+- Nội dung hỏng: kiểm tra từng event trước enqueue ở Emit/EmitText/EmitLine; không kiểm tra toàn thư viện rồi chặn event lành. Null/empty lines, null line, thiếu sprite và icon bắt buộc được bỏ an toàn, diagnostic một lần. Test `MalformedSelectedContentIsOmittedBeforeQueueMutation` 5 trường hợp RED → GREEN; event lành sau đó vẫn phát.
+
+`Builds/TestResults/dialogue-review-red.xml`: **20/30**, 10 lỗi tái hiện. `dialogue-review-final-green.xml`: **30/30**. Một lần GREEN trung gian 29/30 phát hiện câu mẫu hint2 có token để thay bằng gợi ý theo node; EmitText được sửa để kiểm tra template nhưng không resolve các token trước khi thay câu động.
+
+### Rulings từ các mục reviewer chưa kết luận
+
+- Volley giữ point pause 1,2 giây và có thể bỏ câu thứ hai đã lỗi thời theo mục 8 nguồn lời thoại. Cost: ít câu giảng viên trong pha nhanh; không kéo dài gameplay để đọc thoại.
+- Giữ crop nhân vật Bật cóc/hướng dẫn bóng đá ở 4:3 vốn có, theo yêu cầu giữ sân/asset/camera. Cost: hạn chế đọc ở 4:3 vẫn tồn tại.
+- Retry production tạo scene mới; không chứng nhận API tái sử dụng controller sau kết thúc ngay tại chỗ. Disable/rebind cụ thể đã có test và được sửa. Cost: caller bên ngoài muốn reuse tại chỗ có thể phải reset thêm flags adapter.
+- Android/device chưa kiểm tra, đúng giới hạn bàn giao native đã duyệt. Cost: chưa biết lỗi render/input riêng thiết bị.
+
+### Deferred minors
+
+- Celebration ở 2400×1080: bong bóng che một phần đầu giảng viên, vẫn thấy bàn tay/sổ và không che nút hành động.
+
+### Kiểm chứng toàn bộ sau sửa review
+
+- `Builds/TestResults/dialogue-post-review-full-edit.xml`: **1028/1028**, 0 failed, 0 skipped.
+- `Builds/TestResults/dialogue-post-review-full-play-retry.xml`: **382/382**, 0 failed, 0 skipped. Tăng 10 trường hợp hồi quy so với 372 test trước review.
+- Lần Full PlayMode đầu (`dialogue-post-review-full-play.log`) Editor thoát 1 trước khi xuất XML, không có fatal diagnostic; không tính là pass. Khôi phục snapshot rồi chạy lại cùng mã nguồn cho kết quả đầy đủ trên.
+- Đã phục hồi các scene/prefab/font/resources/settings từ snapshot authored trước test, kiểm tra diff để giữ nguyên đúng bản scene đã duyệt. Sửa review chỉ gồm runtime dialogue code và regression tests; không đổi geometry nên dùng lại 36 PNG đã kiểm tra.
+- Chốt nhánh tại worktree để bàn giao theo phạm vi kế hoạch; không merge/push. Workspace SDD tạm được dọn sau khi fixes/QA đã commit; worktree, XML và PNG vẫn giữ lại.

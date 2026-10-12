@@ -40,6 +40,28 @@ namespace KMA.Tests.Presentation
     Assert.That(((Behaviour)host).enabled,Is.True);
    } finally {UnityEngine.Object.DestroyImmediate(go);}
   }
+  [TestCase("null-lines",true)] [TestCase("empty-lines",true)] [TestCase("null-line",true)]
+  [TestCase("missing-pose",false)] [TestCase("missing-icon",false)]
+  public void MalformedSelectedContentIsOmittedBeforeQueueMutation(string defect,bool dynamicText)
+  {
+   var go=new GameObject("invalid content");var content=ScriptableObject.CreateInstance<GameplayDialogueLibrary>();
+   try {
+    var bad=GameplayDialogueLibrary.LoadDefault().Resolve("frog.fall.first",null);
+    switch(defect) {
+     case "null-lines":bad.Lines=null;break;
+     case "empty-lines":bad.Lines=Array.Empty<GameplayDialogueLine>();break;
+     case "null-line":bad.Lines[bad.Lines.Length-1]=null;break;
+     case "missing-pose":bad.Lines[0].Poses=Array.Empty<Sprite>();break;
+     case "missing-icon":bad.Lines[bad.Lines.Length-1].Icon=null;break;
+    }
+    content.SetContent(new[]{bad,GameplayDialogueLibrary.LoadDefault().Resolve("chess.hint1",null)});
+    var host=go.AddComponent<GameplayDialogueHost>();host.Configure(content,null);
+    LogAssert.Expect(LogType.Error,new Regex("Gameplay dialogue unavailable"));
+    bool accepted=true;Assert.DoesNotThrow(()=>accepted=dynamicText?host.EmitText(bad.Id,"Gợi ý",8):host.Emit(bad.Id));
+    Assert.That(accepted,Is.False);Assert.That(host.IsIdle,Is.True);
+    Assert.That(host.EmitText("chess.hint1","Gợi ý hợp lệ",2),Is.True);
+   } finally {UnityEngine.Object.DestroyImmediate(go);UnityEngine.Object.DestroyImmediate(content);}
+  }
   [Test] public void DestroyCancelsQueuedDialogue()
   {
    var type=typeof(MinigameGuideHost).Assembly.GetType("KMA.Gameplay.UI.GameplayDialogueHost");Assert.That(type,Is.Not.Null);

@@ -43,6 +43,13 @@ namespace KMA.Tests.Presentation
    Step(.7f);Assert.That(spy.Seen[1].Speaker,Is.EqualTo(DialogueSpeaker.Teacher));Assert.That(spy.Seen[1].Icon,Is.Not.Null);Assert.That(spy.Seen[1].Poses[0].name,Is.EqualTo("BossPE_command"));
    Step(1.79f);Assert.That(game.Rules.State,Is.EqualTo(FrogJumpState.Fallen));Step(.01f);Assert.That(game.Rules.State,Is.EqualTo(FrogJumpState.Aiming));Assert.That(host.IsIdle,Is.True);Assert.That(game.Rules.Elapsed,Is.EqualTo(2.5f).Within(.001f));
   }
+  [TestCase(false)] [TestCase(true)] public void DisabledOrReboundAdapterInvalidatesOldFall(bool rebind)
+  {
+   Setup();game.Rules.Stop();var adapter=root.GetComponent<FrogJumpDialogueAdapter>();
+   if(rebind)adapter.Configure(game,host,null);else adapter.enabled=false;
+   Assert.DoesNotThrow(()=>scheduler.Tick(.1f,false));Assert.That(host.IsIdle,Is.True);
+   Assert.That(spy.Seen.Count,Is.EqualTo(1));
+  }
   [Test] public void RepeatFallsShareCooldownAndCap()
   {
    Setup();game.Rules.Stop();Step(.7f);Step(1.8f);game.Rules.Stop();Assert.That(spy.Seen.Count,Is.EqualTo(2));Step(2.5f);Step(5);

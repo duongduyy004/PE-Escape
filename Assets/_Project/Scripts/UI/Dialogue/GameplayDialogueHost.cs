@@ -22,18 +22,32 @@ namespace KMA.Gameplay.UI
     var e=library.Resolve(id,tokens);
     if(e.Id=="frog.fall.repeat" && e.Lines.Length>1 && budgetSeconds<3.7f)e.Lines=new[]{e.Lines[e.Lines.Length-1]};
     return scheduler.Enqueue(e,valid,budgetSeconds);
-   } catch(Exception ex){if(!reported){reported=true;Debug.LogError("[KMA] Gameplay dialogue unavailable: "+ex.Message);}return false;}
+   } catch(Exception ex){return Unavailable(ex);}
   }
   public bool EmitText(string id,string words,float seconds=2.5f,Func<bool> valid=null)
   {
-   if(library==null || !library.TryGet(id,out var source))return false;
-   var original=source.Lines[source.Lines.Length-1];
-   return scheduler.Enqueue(new GameplayDialogueEvent {Id=id,Priority=source.Priority,MaximumPlays=source.MaximumPlays,ReactionGroup=source.ReactionGroup,CooldownSeconds=source.CooldownSeconds,
-    Lines=new[]{new GameplayDialogueLine {Speaker=original.Speaker,Text=words,DurationSeconds=seconds,Poses=original.Poses,Icon=original.Icon}}},valid);
+   try {
+    if(library==null)throw new InvalidOperationException("Library is missing");
+    var source=library.Selected(id);
+    var original=source.Lines[source.Lines.Length-1];
+    return EnqueueValidated(new GameplayDialogueEvent {Id=id,Priority=source.Priority,MaximumPlays=source.MaximumPlays,ReactionGroup=source.ReactionGroup,CooldownSeconds=source.CooldownSeconds,
+     Lines=new[]{new GameplayDialogueLine {Speaker=original.Speaker,Text=words,DurationSeconds=seconds,PoseStepSeconds=original.PoseStepSeconds,Poses=original.Poses,Icon=original.Icon}}},valid);
+   } catch(Exception ex){return Unavailable(ex);}
   }
   public bool EmitLine(GameplayDialogueLine line)
   {
-   return scheduler.Enqueue(new GameplayDialogueEvent { Id="manual", Priority=DialoguePriority.Technical,MaximumPlays=0,Lines=new[]{line} });
+   try {return EnqueueValidated(new GameplayDialogueEvent { Id="manual", Priority=DialoguePriority.Technical,MaximumPlays=0,Lines=new[]{line} });}
+   catch(Exception ex){return Unavailable(ex);}
+  }
+  bool EnqueueValidated(GameplayDialogueEvent content,Func<bool> valid=null)
+  {
+   if(!GameplayDialogueLibrary.ValidateEvent(content,out var error))throw new InvalidOperationException(error);
+   return scheduler.Enqueue(content,valid);
+  }
+  bool Unavailable(Exception error)
+  {
+   if(!reported){reported=true;Debug.LogError("[KMA] Gameplay dialogue unavailable: "+error.Message);}
+   return false;
   }
   void Update()
   {

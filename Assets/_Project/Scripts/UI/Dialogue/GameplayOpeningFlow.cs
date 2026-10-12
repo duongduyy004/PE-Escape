@@ -27,6 +27,16 @@ namespace KMA.Gameplay.UI
         }
         void Update()
         {
+            // Start has run before the first Update. A missing adapter/host must not
+            // leave the serialized Awake preparation hold blocking gameplay forever.
+            if (!configured && hold != null)
+            {
+                Debug.LogWarning("[KMA] Opening dialogue was not configured; continuing without speech.");
+                emitted=true;
+                if (game != null && !game.OwnsStartGate) game.RequestStart();
+                Release();
+                return;
+            }
             if (!configured || game == null || Time.frameCount <= configuredFrame) return;
             if (guide != MinigameGuideHost.Current)
             {

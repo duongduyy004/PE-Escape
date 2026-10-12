@@ -10,7 +10,7 @@ namespace KMA.Gameplay.Chess
         [SerializeField] ChessCastView view;
         ChessFinalStateMachine machine;
         bool warned, firstCorrect, relief;
-        public bool OpeningReady=>opening==null || opening.IsComplete;
+        public bool OpeningReady=>host==null || view==null || machine==null || opening==null || opening.IsComplete;
         public void Configure(ChessFinalController source,GameplayDialogueHost dialogue,ChessCastView cast)
         {
             Unsubscribe();controller=source;host=dialogue;view=cast;
@@ -22,21 +22,26 @@ namespace KMA.Gameplay.Chess
         }
         public void Began()
         {
+            if(machine==null || host==null || view==null)return;
             host.Clear();view.SetTeacher("strictLook");view.SetStudent("think");
             if(machine.Puzzle.id=="m2_001")host.Emit("ch.extra.begin",()=>machine.CanMove && machine.PlayerMovesMade==0,budgetSeconds:2.5f);
         }
         public void Mistake(int count)
         {
-            if(count>machine.MaxMistakes)return;
+            if(machine==null || host==null || count>machine.MaxMistakes)return;
             host.Clear();host.Emit(count==1?"chess.mistake1":"chess.mistake2");
         }
         public void Hint(string text)
         {
-            view.SetStudent("think");int node=machine.Node;
-            host.EmitText("chess.hint"+machine.HintLevel,text,8f,()=>machine.Node==node && machine.CanMove);
+            if(machine==null || host==null || view==null)return;
+            view.SetStudent("think");int node=machine.Node, level=machine.HintLevel;
+            // An explicit hint replaces earlier speech, including another hint level.
+            host.Clear();
+            host.EmitText("chess.hint"+level,text,8f,()=>machine!=null && machine.Node==node && machine.HintLevel==level && machine.CanMove);
         }
         public void FinishDialogue(bool solved)
         {
+            if(machine==null || host==null || view==null)return;
             string id=solved?"chess.solved":machine.FailReason==ChessFailReason.TimeUp?"chess.timeout":"chess.failed";
             host.BeginResult(id);view.SetStudent(solved?"happy":"disappointed");host.Emit(id);
         }

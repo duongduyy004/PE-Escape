@@ -81,6 +81,27 @@ namespace KMA.Tests.Gameplay.Chess
    yield return new WaitForSeconds(.35f);Assert.That(completed,Is.EqualTo(1));
    var host=Object.FindFirstObjectByType<GameplayDialogueHost>();Assert.That(host.PreferredResultEventId,Is.EqualTo("chess.solved"));
   }
+  [UnityTest] public IEnumerator LatestHintPreemptsEarlierSpeechNearTimeout()
+  {
+   yield return LoadReady();var game=Object.FindFirstObjectByType<ChessFinalController>();
+   var cast=Object.FindFirstObjectByType<ChessCastView>();game.BeginAttempt();game.Machine.Tick(80f);
+   for(int level=1;level<=3;level++)
+   {
+    game.RevealHint();Assert.That(game.Machine.HintLevel,Is.EqualTo(level));
+    Assert.That(cast.BubbleText,Is.EqualTo(PuzzleHints.For(game.Machine.Puzzle,game.Machine.Node,game.Machine.Position,level)));
+   }
+   Assert.That(game.Machine.CanMove,Is.True);
+  }
+  [UnityTest] public IEnumerator MissingHostKeepsBeginAndHintsPlayable()
+  {
+   yield return SceneManager.LoadSceneAsync("MG_ChessFinal");yield return null;
+   var game=Object.FindFirstObjectByType<ChessFinalController>();
+   var opening=Object.FindFirstObjectByType<GameplayOpeningFlow>();opening.ResetAttempt();
+   var adapter=game.GetComponent<ChessDialogueAdapter>();
+   adapter.Configure(game,null,Object.FindFirstObjectByType<ChessCastView>());
+   Assert.That(adapter.OpeningReady,Is.True);Assert.DoesNotThrow(()=>game.BeginAttempt());
+   Assert.That(game.Machine.CanMove,Is.True);Assert.DoesNotThrow(()=>game.RevealHint());
+  }
   [Test] public void HintsFollowQueenE6H6ThenH6G7()
   {
    var p=ChessPuzzleLibrary.ForDifficulty(ChallengeDifficulty.Normal);var position=ChessPosition.FromFen(p.startFen);

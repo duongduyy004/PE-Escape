@@ -31,6 +31,16 @@ namespace KMA.Tests.Presentation
    opening.Configure(game,host,"missing");LogAssert.Expect(LogType.Error,new Regex("Gameplay dialogue unavailable"));opening.GuideClosed();
    Assert.That(game.StartPreparationReady,Is.True);
   }
+  [Test] public void SerializedAwakeHoldFailsOpenWhenAdapterCannotConfigure()
+  {
+   Object.DestroyImmediate(root);root=new GameObject("serialized opening");root.SetActive(false);
+   game=root.AddComponent<OpeningTestGame>();opening=root.AddComponent<GameplayOpeningFlow>();
+   typeof(GameplayOpeningFlow).GetField("game",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(opening,game);
+   root.SetActive(true);game.RequestStart();Assert.That(game.StartPreparationReady,Is.False);
+   LogAssert.Expect(LogType.Warning,new Regex("Opening dialogue was not configured"));
+   typeof(GameplayOpeningFlow).GetMethod("Update",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(opening,null);
+   Assert.That(game.StartPreparationReady,Is.True);Assert.That(opening.IsComplete,Is.True);
+  }
   [Test] public void UnloadDoesNotOpenNextScene()
   {
    opening.Configure(game,host,"sp.learn.start");opening.GuideClosed();Object.DestroyImmediate(root);root=new GameObject("next");
