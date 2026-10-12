@@ -28,6 +28,9 @@ namespace KMA.Gameplay.Chess
         float bubbleUntil;
         [SerializeField] TMP_Text speakerName;
         [SerializeField] GameplayDialogueHost dialogueHost;
+        [SerializeField] TMP_Text studentName,teacherName;
+        [SerializeField] RectTransform boardFrame;
+        Vector2 lastLayoutSize;
         GameplayDialogueLine spoken;
         float poseTime;
         public DialogueSpeaker BubbleSpeaker { get; private set; }
@@ -36,9 +39,31 @@ namespace KMA.Gameplay.Chess
         {
             if(speakerName!=null || bubble==null)return;
             speakerName=UiKit.Label(bubble.transform,"SpeakerName","",18,MinigameUiTheme.TextPrimary,TextAlignmentOptions.MidlineLeft);
-            UiKit.Place(speakerName.rectTransform,new Vector2(0,1),new Vector2(0,1),new Vector2(18,-10),new Vector2(284,30));
-            bubbleText.rectTransform.offsetMax=new Vector2(-18,-46);
+            RefreshLayout();
         }
+        public void RefreshLayout()
+        {
+            if(bubble==null || !(transform is RectTransform root))return;
+            if(studentName==null)studentName=transform.Find("StudentName")?.GetComponent<TMP_Text>();
+            if(teacherName==null)teacherName=transform.Find("TeacherName")?.GetComponent<TMP_Text>();
+            if(boardFrame==null)boardFrame=transform.Find("BoardFrame") as RectTransform;
+            var style=UITheme.Shared.Dialogue;float available=(root.rect.width-(boardFrame!=null?boardFrame.rect.width:style.chessBoardWidth))*.5f-2*style.chessPadding;
+            float width=root.rect.width>0?Mathf.Min(style.chessBubbleSize.x,Mathf.Max(120f,available)):style.chessBubbleSize.x;
+            float edge=BubbleSpeaker==DialogueSpeaker.Student?0:1;float offset=edge==0?style.chessPadding:-style.chessPadding;
+            UiKit.Place((RectTransform)bubble.transform,new Vector2(edge,style.chessSpeechY),new Vector2(edge,.5f),new Vector2(offset,0),new Vector2(width,style.chessBubbleSize.y));
+            if(speakerName!=null)UiKit.Place(speakerName.rectTransform,new Vector2(0,1),new Vector2(0,1),new Vector2(style.chessPadding,-style.chessPadding),new Vector2(width-2*style.chessPadding,style.chessSpeakerHeight));
+            UiKit.Stretch(bubbleText.rectTransform);bubbleText.rectTransform.offsetMin=new Vector2(style.chessPadding,style.chessPadding);bubbleText.rectTransform.offsetMax=new Vector2(-style.chessPadding,-style.chessPadding-style.chessSpeakerHeight);
+            bubbleText.enableAutoSizing=true;bubbleText.fontSizeMin=MinigameUiTheme.MinimumFontSize;bubbleText.fontSizeMax=Mathf.Max(style.textSize,MinigameUiTheme.MinimumFontSize);
+            void Name(TMP_Text label,float side)
+            {
+                if(label==null)return;UiKit.Place(label.rectTransform,new Vector2(side,1),new Vector2(side,1),new Vector2(side==0?style.chessPadding:-style.chessPadding,-style.chessNameTop),new Vector2(width,style.chessNameHeight));
+                label.textWrappingMode=TextWrappingModes.Normal;label.enableAutoSizing=true;label.fontSizeMin=MinigameUiTheme.MinimumFontSize;label.fontSizeMax=MinigameUiTheme.MinimumFontSize;label.fontSize=MinigameUiTheme.MinimumFontSize;
+            }
+            Name(studentName,0);Name(teacherName,1);
+            foreach(var graphic in bubble.GetComponentsInChildren<Graphic>(true))graphic.raycastTarget=false;student.raycastTarget=teacher.raycastTarget=false;
+            lastLayoutSize=root.rect.size;
+        }
+        void Start()=>RefreshLayout();
         public void Show(GameplayDialogueLine line)
         {
             if(line==null){Hide();return;}
@@ -46,7 +71,7 @@ namespace KMA.Gameplay.Chess
             EnsureSpeakerName();spoken=line;poseTime=0;BubbleSpeaker=line.Speaker;
             bubble.SetActive(true);bubbleText.text=VietText.Fix(line.Text);
             speakerName.text=VietText.Fix(JourneyDialogueLibrary.LoadDefault().GetCharacter(line.Speaker==DialogueSpeaker.Student?"tan_thu":"co_the_chat").DisplayName);
-            var rect=(RectTransform)bubble.transform;rect.anchorMin=rect.anchorMax=new Vector2(line.Speaker==DialogueSpeaker.Student?.1f:.9f,.72f);rect.anchoredPosition=Vector2.zero;
+            RefreshLayout();
             foreach(var graphic in bubble.GetComponentsInChildren<Graphic>(true))graphic.raycastTarget=false;
             student.raycastTarget=teacher.raycastTarget=false;
             ApplyLinePose();
@@ -78,7 +103,7 @@ namespace KMA.Gameplay.Chess
             teacherPoses = teacherSet;
             bubble = speechBubble;
             bubbleText = speechText;
-            EnsureSpeakerName();
+            EnsureSpeakerName();RefreshLayout();
         }
 
         public void SetStudent(string pose)
@@ -118,6 +143,7 @@ namespace KMA.Gameplay.Chess
 
         void Update()
         {
+            if(transform is RectTransform root && lastLayoutSize!=root.rect.size)RefreshLayout();
             if (bubble == null || !bubble.activeSelf) return;
             if(spoken!=null){poseTime+=Time.deltaTime;ApplyLinePose();return;}
             if (Time.timeScale == 0f) bubbleUntil += Time.unscaledDeltaTime;

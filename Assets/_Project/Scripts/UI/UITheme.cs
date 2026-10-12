@@ -13,9 +13,12 @@ namespace KMA.Gameplay.UI
             public Vector2 anchor = new Vector2(1f, .86f);
             public Vector2 offset = new Vector2(-80f, -16f);
             public Vector2 volleyballAnchor = new Vector2(1f,.88f);
-            public Vector2 resultAnchor = new Vector2(.5f,1f), resultOffset = new Vector2(0f,-24f);
-            public Vector2 gameOverAnchor = new Vector2(1f,.60f), gameOverOffset = new Vector2(-24f,0f), gameOverSize = new Vector2(400f,260f);
-            public float gameOverContentWidth = 900f, gameOverNameHeight = 64f;
+            public Vector2 frogAnchor = new Vector2(1f,.82f);
+            public Vector2 resultAnchor = new Vector2(1f,.60f), resultOffset = new Vector2(-24f,0f);
+            public Vector2 gameOverAnchor = new Vector2(1f,.60f), gameOverOffset = new Vector2(-24f,0f), gameOverSize = new Vector2(400f,400f);
+            public float gameOverContentWidth = 900f, gameOverNameHeight = 160f;
+            public Vector2 chessBubbleSize = new Vector2(320f,280f);
+            public float chessSpeechY=.61f, chessNameTop=120f, chessNameHeight=80f, chessSpeakerHeight=80f, chessPadding=16f, chessBoardWidth=804f;
             public float portraitWidth = 90f, padding = 12f, nameSize = 28f, textSize = 28f, iconSize = 32f;
         }
         [SerializeField] DialogueStyle dialogue = new DialogueStyle();

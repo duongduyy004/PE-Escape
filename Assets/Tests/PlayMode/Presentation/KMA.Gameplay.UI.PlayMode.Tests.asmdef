@@ -13,7 +13,11 @@
         "UnityEditor",
         "Unity.TextMeshPro",
         "UnityEngine.UI",
-        "KMA.Gameplay.FrogJump"
+        "KMA.Gameplay.FrogJump",
+        "KMA.Gameplay.Football",
+        "KMA.Gameplay.Volleyball",
+        "KMA.Gameplay.Chess",
+        "KMA.Gameplay.Chess.Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

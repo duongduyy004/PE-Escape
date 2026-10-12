@@ -17,13 +17,21 @@ MonoBehaviour:
     anchor: {x: 1, y: 0.86}
     offset: {x: -80, y: -16}
     volleyballAnchor: {x: 1, y: 0.88}
-    resultAnchor: {x: 0.5, y: 1}
-    resultOffset: {x: 0, y: -24}
+    frogAnchor: {x: 1, y: 0.82}
+    resultAnchor: {x: 1, y: 0.6}
+    resultOffset: {x: -24, y: 0}
     gameOverAnchor: {x: 1, y: 0.6}
     gameOverOffset: {x: -24, y: 0}
-    gameOverSize: {x: 400, y: 260}
+    gameOverSize: {x: 400, y: 400}
     gameOverContentWidth: 900
-    gameOverNameHeight: 64
+    gameOverNameHeight: 160
+    chessBubbleSize: {x: 320, y: 280}
+    chessSpeechY: 0.61
+    chessNameTop: 120
+    chessNameHeight: 80
+    chessSpeakerHeight: 80
+    chessPadding: 16
+    chessBoardWidth: 804
     portraitWidth: 90
     padding: 12
     nameSize: 28

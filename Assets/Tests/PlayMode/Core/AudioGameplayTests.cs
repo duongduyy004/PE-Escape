@@ -5,6 +5,7 @@ using System.Reflection;
 using KMA.Gameplay;
 using KMA.Gameplay.Core;
 using KMA.Gameplay.Volleyball;
+using KMA.Gameplay.UI;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -47,6 +48,13 @@ namespace KMA.Tests.Gameplay.Core
             foreach (var manager in Object.FindObjectsByType<AudioManager>(FindObjectsSortMode.None))
                 Object.Destroy(manager.gameObject);
             yield return null;
+        }
+
+        static IEnumerator WaitForOpening()
+        {
+            var guide=MinigameGuideHost.Current?.Panel;while(guide!=null && guide.IsOpen)guide.PressPrimary();
+            yield return null;var opening=Object.FindFirstObjectByType<GameplayOpeningFlow>();float deadline=Time.realtimeSinceStartup+12;
+            while(opening!=null && !opening.IsComplete){Assert.That(Time.realtimeSinceStartup,Is.LessThan(deadline));yield return null;}
         }
 
         void Record(GameSound sound) => sounds.Add(sound);
@@ -103,6 +111,7 @@ namespace KMA.Tests.Gameplay.Core
         {
             yield return SceneManager.LoadSceneAsync("MG_Volleyball");
             var controller = Object.FindFirstObjectByType<VolleyballController>();
+            yield return WaitForOpening();
             controller.SkipToPlayForTest();
             sounds.Clear();
             controller.Input.FeedActionForTest();
@@ -122,6 +131,7 @@ namespace KMA.Tests.Gameplay.Core
         {
             yield return SceneManager.LoadSceneAsync("MG_Football");
             var controller = Object.FindFirstObjectByType<FootballController>();
+            yield return WaitForOpening();
             Assert.That(controller.BeginMatch(FootballDifficulty.Normal), Is.True);
             var lifecycle = (MinigameLifecycle)typeof(MinigameBase).GetField("lifecycle",
                 BindingFlags.Instance | BindingFlags.NonPublic).GetValue(controller);

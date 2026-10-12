@@ -22,8 +22,8 @@ namespace KMA.Tests.Gameplay.Chess
     var text=new GameObject("text",typeof(RectTransform),typeof(TextMeshProUGUI)).GetComponent<TMP_Text>();text.transform.SetParent(bubble.transform);
     var cast=root.AddComponent<ChessCastView>();cast.Configure(student,teacher,new ChessCastView.Pose[0],new ChessCastView.Pose[0],bubble.gameObject,text);
     var view=(object)cast as IGameplayDialogueView;Assert.That(view,Is.Not.Null);
-    GameplayDialogueLibrary.LoadDefault().TryGet("ch.extra.begin",out var s);view.Show(s.Lines[0]);Assert.That(bubble.rectTransform.anchorMin.x,Is.EqualTo(.1f));
-    GameplayDialogueLibrary.LoadDefault().TryGet("chess.hint1",out var t);view.Show(t.Lines[0]);Assert.That(bubble.rectTransform.anchorMin.x,Is.EqualTo(.9f));
+    GameplayDialogueLibrary.LoadDefault().TryGet("ch.extra.begin",out var s);view.Show(s.Lines[0]);Assert.That(bubble.rectTransform.anchorMin.x,Is.EqualTo(0f));
+    GameplayDialogueLibrary.LoadDefault().TryGet("chess.hint1",out var t);view.Show(t.Lines[0]);Assert.That(bubble.rectTransform.anchorMin.x,Is.EqualTo(1f));
     Assert.That(bubble.GetComponentsInChildren<Graphic>().All(g=>!g.raycastTarget),Is.True);
    } finally {Object.DestroyImmediate(root);}
   }

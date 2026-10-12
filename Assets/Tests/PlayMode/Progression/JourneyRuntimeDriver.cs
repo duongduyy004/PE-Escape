@@ -26,6 +26,16 @@ namespace KMA.Tests.Gameplay.Progression
             yield return null;
         }
 
+        public static IEnumerator WaitForOpening()
+        {
+            var guide=MinigameGuideHost.Current?.Panel;
+            while(guide!=null && guide.IsOpen)guide.PressPrimary();
+            yield return null;
+            var flow=Object.FindFirstObjectByType<GameplayOpeningFlow>();
+            float deadline=Time.realtimeSinceStartup+12f;
+            while(flow!=null && !flow.IsComplete){Assert.That(Time.realtimeSinceStartup,Is.LessThan(deadline),"Opening dialogue must release its hold");yield return null;}
+        }
+
         public static IEnumerator SkipDialogues()
         {
             var presenter = Object.FindFirstObjectByType<JourneyDialoguePresenter>();
@@ -43,6 +53,7 @@ namespace KMA.Tests.Gameplay.Progression
         {
             MinigameBase controller = Object.FindFirstObjectByType<MinigameBase>();
             Assert.That(controller, Is.Not.Null, definition.Id);
+            yield return WaitForOpening();
             bool completed = false;
             ((IChallengeController)controller).ChallengeCompleted += _ => completed = true;
             if (controller is FootballController football)

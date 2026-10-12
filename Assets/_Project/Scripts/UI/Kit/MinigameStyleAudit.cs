@@ -48,7 +48,7 @@ namespace KMA.UI.Kit
         }
 
         static bool IsExempt(Image image) =>
-            image.color.a < .01f || image.name == "Icon" || HasAncestor(image.transform, "FinishLine");
+            (image.GetComponentInParent<GameplayDialogueView>(true)?.IsArtwork(image) ?? false) || image.color.a < .01f || image.name == "Icon" || HasAncestor(image.transform, "FinishLine");
 
         static bool IsScrim(Color color) => MinigameUiTheme.RgbEquals(color, MinigameUiTheme.Scrim);
 

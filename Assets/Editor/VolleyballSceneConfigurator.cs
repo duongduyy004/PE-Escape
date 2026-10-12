@@ -407,6 +407,8 @@ namespace KMA.EditorTools
             controller.Input.Configure(joystick, button, jump);
             controller.Configure(controller.PlayerView, controller.OpponentView, controller.BallView, controller.Input, hud);
 
+            DialoguePresentationAuthoring.BindResult(controller,Object.FindFirstObjectByType<GameplayDialogueHost>());
+
             foreach (Object dirty in new Object[] { joystick, button, jump, hud, controller, controller.Input, hudRoot })
                 EditorUtility.SetDirty(dirty);
             EditorSceneManager.MarkSceneDirty(scene);

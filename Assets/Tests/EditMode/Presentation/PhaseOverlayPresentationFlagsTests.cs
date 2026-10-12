@@ -43,12 +43,15 @@ namespace KMA.Tests.Presentation
         }
 
         [Test]
-        public void CustomTutorialWithSharedCountdownIsReleasedStraightToTheCountdown()
+        public void CustomTutorialWithSharedCountdownWaitsForItsGuide()
         {
             FlagMinigame minigame = Minigame(sharedTutorial: false, sharedCountdown: true, ownsGate: false);
             minigame.SetTutorialGate(true);
             overlay.Bind(minigame);
-            Assert.That(minigame.PresentationPhase, Is.EqualTo(MinigamePhase.Countdown), "the overlay opens the gate");
+            Assert.That(minigame.PresentationPhase,Is.EqualTo(MinigamePhase.Tutorial),"overlay must not release the guide hold");
+            Assert.That(countdownRoot.activeSelf,Is.False);
+            minigame.SetTutorialGate(false);
+            Assert.That(minigame.PresentationPhase, Is.EqualTo(MinigamePhase.Countdown), "closing the guide opens the requested countdown");
             Assert.That(countdownRoot.activeSelf, Is.True);
             Assert.That(tutorialRoot.activeSelf, Is.False);
         }

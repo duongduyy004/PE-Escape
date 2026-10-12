@@ -311,8 +311,8 @@ namespace KMA.Tests.Input
             var map = actions.AddActionMap("Gameplay");
             var rhythmAction = map.AddAction("Rhythm", InputActionType.Button, "<Keyboard>/r");
             var detector = new InputLayer.RhythmBeatInputDetector();
-            double deltaMs = 0d;
-            detector.OnJudge += (_, delta) => deltaMs = delta;
+            double deltaMs = 0d, observedDsp = 0d;
+            detector.OnJudge += (_, delta) => { deltaMs = delta; observedDsp=AudioSettings.dspTime; };
             Router.SetDetectors(null, detector, null, null, null);
             Router.RhythmOffsetMs = 125d;
             Router.ConfigureInputForTest(actions, "Gameplay", rhythmAction);
@@ -321,7 +321,7 @@ namespace KMA.Tests.Input
             Router.RhythmBeatDsp = AudioSettings.dspTime;
             Press(keyboard.rKey);
 
-            Assert.That(deltaMs, Is.EqualTo(125d).Within(30d));
+            Assert.That(deltaMs, Is.EqualTo((observedDsp-Router.RhythmBeatDsp)*1000d+125d).Within(30d));
         }
 
         [Test]

@@ -41,7 +41,7 @@ namespace KMA.Tests.Presentation
             panel.Show(new MinigameResult(false, 0f, Rank.F), "Map");
             Assert.That(panel.IsVisible, Is.True);
             Assert.That(detail.text, Is.EqualTo("2/5 BÀN"));
-            Assert.That(lives.text, Is.EqualTo("CÒN 2 MẠNG"));
+            Assert.That(lives.text, Is.EqualTo("LƯỢT THI: 2/5"));
             Assert.That(retryButton.gameObject.activeSelf, Is.True);
             Assert.That(continueButton.gameObject.activeSelf, Is.True);
             Assert.That(panel.RetryAvailable, Is.True);

@@ -281,7 +281,10 @@ namespace KMA.EditorTools
                     qaState = "";
                     // Game time can lag wall time in a background Editor, so capture shortly after the state lands.
                     if (PlayModeScreenshotQaStates.CaptureSoonAfterApply)
-                        SessionState.SetFloat(KeyCaptureAt, (float)EditorApplication.timeSinceStartup + .5f);
+                    {
+                        untilCapture=PlayModeScreenshotQaStates.CaptureDelaySeconds;
+                        SessionState.SetFloat(KeyCaptureAt, (float)EditorApplication.timeSinceStartup + untilCapture);
+                    }
                 }
                 // A pending QA state holds the capture (up to a minute past the requested wait).
                 if (qaState != "" ? untilCapture > -60f : untilCapture > 0f) return;

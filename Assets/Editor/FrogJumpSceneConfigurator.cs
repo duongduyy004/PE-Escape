@@ -184,6 +184,8 @@ namespace KMA.EditorTools
             var view = Object.FindFirstObjectByType<FrogJumpView>();
             controller.Configure(balance, view, bar, tap, feedback);
 
+            DialoguePresentationAuthoring.BindResult(controller,Object.FindFirstObjectByType<GameplayDialogueHost>());
+
             foreach (Object dirty in new Object[] { tap, bar, controller, view, hudRoot })
                 EditorUtility.SetDirty(dirty);
             EditorSceneManager.MarkSceneDirty(scene);

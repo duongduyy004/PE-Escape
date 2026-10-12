@@ -43,12 +43,18 @@ namespace KMA.Gameplay.UI
         public void BindDialogue(GameplayDialogueHost host)
         {
             dialogueHost=host;
+            var panelCanvas=UiKit.GetOrAdd<Canvas>(gameObject);panelCanvas.overrideSorting=true;panelCanvas.sortingOrder=SortingOrder;
             if(dialogueView==null && transform is RectTransform)
             {
                 var root=UiKit.Rect(transform,"ResultDialogue");UiKit.Stretch(root);
                 dialogueView=root.gameObject.AddComponent<GameplayDialogueView>();
                 dialogueView.SetSlot(DialogueHudSlot.Result);
                 dialogueView.Configure(JourneyDialogueLibrary.LoadDefault(),root);
+            }
+            if(dialogueView!=null)
+            {
+                var canvas=UiKit.GetOrAdd<Canvas>(dialogueView.gameObject);
+                canvas.overrideSorting=true;canvas.sortingOrder=SortingOrder+100;
             }
         }
         float PenaltyTimeLimit => frogBalance is IFrogJumpTimingSource timing ? timing.TimeLimitSeconds : 60f;
@@ -143,6 +149,11 @@ namespace KMA.Gameplay.UI
             var canvas = UiKit.GetOrAdd<Canvas>(gameObject);
             canvas.overrideSorting = true;
             canvas.sortingOrder = SortingOrder;
+            if(dialogueView!=null)
+            {
+                var speechCanvas=UiKit.GetOrAdd<Canvas>(dialogueView.gameObject);
+                speechCanvas.overrideSorting=true;speechCanvas.sortingOrder=SortingOrder+100;
+            }
             if (GetComponent<GraphicRaycaster>() == null)
                 gameObject.AddComponent<GraphicRaycaster>();
         }

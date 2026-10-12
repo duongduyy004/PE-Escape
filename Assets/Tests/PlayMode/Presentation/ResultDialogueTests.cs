@@ -22,6 +22,16 @@ namespace KMA.Tests.Presentation
   }
   [TearDown] public void Cleanup()=>Object.DestroyImmediate(root);
   ChallengeAttemptContext Context()=>new ChallengeAttemptContext("same-attempt","sprint_exam",ChallengeAttemptMode.Journey,ChallengeDifficulty.Normal);
+  [UnityEngine.TestTools.UnityTest] public System.Collections.IEnumerator InactiveAuthoredSpeechCanvasRaisesOnReveal()
+  {
+   yield return UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("MG_Sprint");yield return null;
+   var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+   var result=System.Linq.Enumerable.First(System.Linq.Enumerable.SelectMany(scene.GetRootGameObjects(),g=>g.GetComponentsInChildren<ResultPanel>(true)));
+   var canvas=result.GetComponentInChildren<GameplayDialogueView>(true).GetComponent<Canvas>();
+   result.Show(new MinigameResult(false,0,Rank.F),"Map");
+   Assert.That(canvas.overrideSorting,Is.True);Assert.That(canvas.sortingOrder,Is.GreaterThan(result.GetComponent<Canvas>().sortingOrder));
+   yield return UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Map");
+  }
   [Test] public void SpecificCompletionSuppressesGenericPass()
   {
    host.BeginResult("sp.practice.done");host.Emit("sp.practice.done");var chosen=scheduler.Current;

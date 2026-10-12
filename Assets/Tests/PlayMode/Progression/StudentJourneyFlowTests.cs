@@ -126,7 +126,7 @@ namespace KMA.Tests.Gameplay.Progression
             ResultPanel panel = Object.FindFirstObjectByType<ResultPanel>(FindObjectsInactive.Include);
             Assert.That(panel.IsVisible, Is.True);
             Assert.That(panel.CurrentResult.Pass, Is.True);
-            Assert.That(panel.StatusText, Is.EqualTo(VietText.Fix("VỀ ĐÍCH!")));
+            Assert.That(panel.StatusText, Is.EqualTo(VietText.Fix("VỀ ĐÍCH")));
             Assert.That(panel.ContinueLabel, Is.EqualTo(VietText.Fix("LUYỆN LẠI")));
             panel.Continue();
             yield return JourneyRuntimeDriver.WaitForScene(router, "MG_Sprint");
@@ -179,6 +179,7 @@ namespace KMA.Tests.Gameplay.Progression
                 if (item.name == "HeartBar" && item.GetComponentInParent<Canvas>(true) != null &&
                     item.gameObject.scene.name == "MG_FrogJump")
                     Assert.That(item.gameObject.activeInHierarchy, Is.False, "Unbound frog HUD hearts are hidden.");
+            yield return JourneyRuntimeDriver.WaitForOpening();
             frog.SetTutorialGate(false);
             var lifecycle = (MinigameLifecycle)typeof(MinigameBase).GetField("lifecycle",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(frog);
@@ -260,6 +261,7 @@ namespace KMA.Tests.Gameplay.Progression
         {
             Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("MG_Volleyball"));
             var volley = Object.FindFirstObjectByType<KMA.Gameplay.Volleyball.VolleyballController>();
+            yield return JourneyRuntimeDriver.WaitForOpening();
             volley.SetTutorialGate(false);
             float playBy = Time.realtimeSinceStartup + 8f;
             while (volley.PresentationPhase != MinigamePhase.Play && Time.realtimeSinceStartup < playBy)
@@ -378,6 +380,7 @@ namespace KMA.Tests.Gameplay.Progression
             yield return StartCheckpoint();
             var controller = Object.FindFirstObjectByType<ChessFinalController>();
             var board = Object.FindFirstObjectByType<ChessBoardView>();
+            yield return JourneyRuntimeDriver.WaitForOpening();
             controller.BeginAttempt();
             yield return null;
             yield return null;

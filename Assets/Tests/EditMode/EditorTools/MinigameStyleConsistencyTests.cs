@@ -42,6 +42,17 @@ namespace KMA.Tests.EditorTools
             Assert.That(problems, Is.Empty, string.Join("\n", problems));
         }
 
+        [Test] public void DormantDialogueArtworkIsRecognizedWithoutExemptingItsCard()
+        {
+            var root=new GameObject("Dormant",typeof(RectTransform));
+            try {
+                var view=root.AddComponent<GameplayDialogueView>();view.Configure(KMA.Gameplay.JourneyDialogueLibrary.LoadDefault(),(RectTransform)root.transform);root.SetActive(false);
+                Assert.That(MinigameStyleAudit.Audit(root),Is.Empty);
+                var card=root.transform.Find("DialogueCard").GetComponent<UnityEngine.UI.Image>();card.sprite=AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
+                Assert.That(MinigameStyleAudit.Audit(root).Any(p=>p.Contains("DialogueCard") && p.Contains("sprite")),Is.True);
+            } finally {Object.DestroyImmediate(root);}
+        }
+
         [Test]
         public void AuditCatchesOffKitSpritesColoursFontsAndLegacyText()
         {

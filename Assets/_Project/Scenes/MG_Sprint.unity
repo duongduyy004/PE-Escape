@@ -1502,11 +1502,11 @@ RectTransform:
   - {fileID: 2129019903}
   m_Father: {fileID: 1970181337}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -24}
-  m_SizeDelta: {x: 560, y: 196}
-  m_Pivot: {x: 0.5, y: 1}
+  m_AnchorMin: {x: 1, y: 0.6}
+  m_AnchorMax: {x: 1, y: 0.6}
+  m_AnchoredPosition: {x: -24, y: 0}
+  m_SizeDelta: {x: 234, y: 400}
+  m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &245632595
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2299,13 +2299,44 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6845972009198812864, guid: 520b3a4fb587dcd1598e9938a5e470ba, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1970181337}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1678658187462451708, guid: 520b3a4fb587dcd1598e9938a5e470ba, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 750062372}
   m_SourcePrefab: {fileID: 100100000, guid: 520b3a4fb587dcd1598e9938a5e470ba, type: 3}
 --- !u!224 &750062370 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6845972009198812864, guid: 520b3a4fb587dcd1598e9938a5e470ba, type: 3}
   m_PrefabInstance: {fileID: 750062369}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &750062371 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1678658187462451708, guid: 520b3a4fb587dcd1598e9938a5e470ba, type: 3}
+  m_PrefabInstance: {fileID: 750062369}
+  m_PrefabAsset: {fileID: 0}
+--- !u!223 &750062372
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 750062371}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 500
+  m_TargetDisplay: 0
 --- !u!1001 &762498569
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2595,11 +2626,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 245632594}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.5}
-  m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 12, y: 0}
-  m_SizeDelta: {x: 90, y: 172}
-  m_Pivot: {x: 0, y: 0.5}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 12, y: -12}
+  m_SizeDelta: {x: 90, y: 160}
+  m_Pivot: {x: 0, y: 1}
 --- !u!114 &1108434016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3026,8 +3057,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 114, y: -44}
-  m_SizeDelta: {x: 434, y: 140}
+  m_AnchoredPosition: {x: 12, y: -172}
+  m_SizeDelta: {x: 210, y: 216}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1805779561
 MonoBehaviour:
@@ -3234,6 +3265,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1970181337}
   - component: {fileID: 1970181338}
+  - component: {fileID: 1970181339}
   m_Layer: 0
   m_Name: ResultDialogue
   m_TagString: Untagged
@@ -3281,6 +3313,29 @@ MonoBehaviour:
   text: {fileID: 1805779561}
   layoutRoot: {fileID: 1970181337}
   slot: 4
+--- !u!223 &1970181339
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1970181336}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 600
+  m_TargetDisplay: 0
 --- !u!1 &2042732144
 GameObject:
   m_ObjectHideFlags: 0
@@ -3316,7 +3371,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 114, y: -12}
-  m_SizeDelta: {x: 434, y: 32}
+  m_SizeDelta: {x: 108, y: 160}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2042732146
 MonoBehaviour:

@@ -1,3 +1,4 @@
+using System.Linq;
 using KMA.Gameplay;
 using KMA.Gameplay.Celebration;
 using KMA.Gameplay.Chess;
@@ -34,8 +35,9 @@ namespace KMA.EditorTools
     public static class PlayModeScreenshotQaStates
     {
         public static bool CaptureSoonAfterApply { get; private set; }
+        public static float CaptureDelaySeconds {get;private set;}=.5f;
 
-        public static bool IsKnown(string state) => state == "" || state == "frog-fall" ||
+        public static bool IsKnown(string state) => DialogueStates.Contains(state) || state == "" || state == "frog-fall" ||
             state == "frog-win-keep" || state == "frog-lose-zero" || state == "exam-fail-1" ||
             state == "exam-fail-2" || state == "map-lives-3" || state == "map-lives-0" || state == "chess-select" ||
             state == "chess-wrong" || state == "chess-boss" || state == "chess-hint" ||
@@ -43,10 +45,97 @@ namespace KMA.EditorTools
             state == "map-chess-locked" || state == "map-chess-open" || state == "map-complete" || state == "map-lessons" ||
             state == "celebration-cheer" || state == "celebration-teacher" || state == "celebration-skip";
 
+        static readonly System.Collections.Generic.HashSet<string> DialogueStates=new System.Collections.Generic.HashSet<string>{"frog-first-fall","frog-first-command","frog-repeat-fall","frog-charged-result","chess-student-speech","chess-second-mistake","sprint-lowtime","volley-lostpoint","football-lastkick","gameover-comment","gameover-teacher"};
+        static bool dialoguePrepared;
+        static float firstFallAt;
+        static bool volleyServePrepared;
+        static bool PrepareDialogue(string state)
+        {
+            var guide=MinigameGuideHost.Current?.Panel;while(guide!=null && guide.IsOpen)guide.PressPrimary();
+            if(dialoguePrepared)return true;
+            var game=Object.FindFirstObjectByType<MinigameBase>();if(game==null){dialoguePrepared=true;return true;}
+            var host=Object.FindFirstObjectByType<GameplayDialogueHost>();var opening=Object.FindFirstObjectByType<GameplayOpeningFlow>();
+            string id=state=="sprint-lowtime"?"sprint_exam":state=="volley-lostpoint"?"volleyball_exam":state=="football-lastkick"?"soccer_exam":null;
+            if(id!=null)
+            {
+                var definition=ChallengeCatalog.LoadDefault().Get(id);var context=new ChallengeAttemptContext("qa-dialogue",id,ChallengeAttemptMode.Journey,definition.Difficulty);
+                ((IChallengeController)game).ConfigureChallenge(definition,context);
+                if(game is SprintController sp)sp.GetComponent<SprintDialogueAdapter>().Configure(sp,host,opening);
+                if(game is KMA.Gameplay.Volleyball.VolleyballController vb)vb.GetComponent<KMA.Gameplay.Volleyball.VolleyballDialogueAdapter>().Configure(vb,host,opening);
+                if(game is FootballController fb)fb.GetComponent<FootballDialogueAdapter>().Configure(fb,host,opening);
+            }
+            dialoguePrepared=true;return true;
+        }
+        static bool DialogueState(string state)
+        {
+            if(!PrepareDialogue(state))return false;
+            var host=Object.FindFirstObjectByType<GameplayDialogueHost>();
+            if(state=="gameover-teacher" || state=="gameover-comment")
+            {
+                bool ready=host!=null && !host.IsIdle && (state=="gameover-comment" || Object.FindObjectsByType<TMPro.TMP_Text>(FindObjectsSortMode.None).Any(t=>t.name=="SpeakerName" && t.text=="Giảng viên thể chất"));
+                return ready;
+            }
+            if(state=="frog-charged-result")
+            {
+                var frog=Object.FindFirstObjectByType<FrogJumpController>();if(frog==null || frog.PresentationPhase==MinigamePhase.Tutorial || frog.PresentationPhase==MinigamePhase.Countdown)return false;
+                if(!frog.Rules.IsOver){frog.Rules.Tick(frog.Rules.TimeRemaining+.1f);return false;}
+                var panel=Object.FindFirstObjectByType<ResultPanel>(FindObjectsInactive.Include);if(panel==null || frog.PresentationPhase!=MinigamePhase.Resolve)return false;
+                panel.ShowFrogJump(new FrogJumpResultView(false,false,0,null));return true;
+            }
+            if(state=="chess-student-speech")
+            {
+                var chess=ReadyChess();return chess!=null && chess.Machine.Phase==ChessFinalPhase.PlayerTurn && !host.IsIdle;
+            }
+            if(state=="chess-second-mistake")
+            {
+                var chess=ReadyChess();if(chess==null || chess.Machine.Phase!=ChessFinalPhase.PlayerTurn)return false;
+                if(chess.Machine.Mistakes<2)
+                {
+                    if(!host.IsIdle)return false;
+                    ChessMove.TryParseUci(chess.Machine.Puzzle.nodes[0].moves[0].uci,out var correct);
+                    foreach(var move in MoveGenerator.LegalMoves(chess.Machine.Position))if(move.From!=correct.From || move.To!=correct.To){chess.RequestMove(move.From,move.To);break;}
+                }
+                return chess.Machine.Mistakes==2;
+            }
+            var game=Object.FindFirstObjectByType<MinigameBase>();
+            if(game is FootballController football)football.BeginMatch(FootballDifficulty.Normal);
+            if(game==null || game.PresentationPhase!=MinigamePhase.Play)return false;
+            if(state=="frog-first-fall" || state=="frog-first-command")return FrogFall();
+            if(state=="frog-repeat-fall")
+            {
+                var frog=game as FrogJumpController;
+                if(frog.Rules.Falls==0){if(FrogFall())firstFallAt=Time.time;return false;}
+                if(Time.time-firstFallAt<10.1f || frog.Rules.State!=FrogJumpState.Aiming)return false;
+                return FrogFall();
+            }
+            if(state=="sprint-lowtime")
+            {
+                var sprint=game as SprintController;return sprint.Snapshot.Elapsed>=10 && !host.IsIdle;
+            }
+            if(state=="volley-lostpoint")
+            {
+                var volley=game as KMA.Gameplay.Volleyball.VolleyballController;
+                if(!volleyServePrepared){volleyServePrepared=true;volley.Match.ForceServerForTest(KMA.Gameplay.Volleyball.CourtSide.Player);volley.Match.ResetRally(KMA.Gameplay.Volleyball.CourtSide.Player);}
+                return !host.IsIdle;
+            }
+            if(state=="football-lastkick")
+            {
+                var footballGame=game as FootballController;var rules=footballGame.Rules;
+                if(rules.Kicks<4 && rules.State==FootballState.Aiming){rules.SetAim(.9f);rules.BeginCharge();}
+                else if(rules.Kicks<4 && rules.State==FootballState.Charging){rules.Tick(.1f);rules.ReleaseShot();}
+                else if(rules.State==FootballState.Kicking)rules.Tick(.2f);
+                else if(rules.State==FootballState.Flying)rules.Tick(5f);
+                else if(rules.State==FootballState.ShotResult)rules.Tick(1f);
+                return rules.Kicks==4 && rules.State==FootballState.Aiming && !host.IsIdle;
+            }
+            return false;
+        }
+
         /// Called every editor tick while a capture is active. Returns true once the state is applied.
         public static bool Apply(string state, float secondsToCapture)
         {
-            CaptureSoonAfterApply = false;
+            CaptureSoonAfterApply = false;CaptureDelaySeconds=state.StartsWith("gameover-")?0f:state=="frog-first-command"?1.0f:.5f;
+            if(DialogueStates.Contains(state))return CaptureSoonAfterApply=DialogueState(state);
             switch (state)
             {
                 case "frog-fall": return CaptureSoonAfterApply = FrogFall();

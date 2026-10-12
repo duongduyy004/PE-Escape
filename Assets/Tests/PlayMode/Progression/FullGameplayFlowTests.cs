@@ -151,6 +151,7 @@ namespace KMA.Tests.Gameplay.Progression
 
             var sprint = UnityEngine.Object.FindFirstObjectByType<SprintController>();
             Assert.That(sprint, Is.Not.Null);
+            yield return JourneyRuntimeDriver.WaitForOpening();
             sprint.SetTutorialGate(false);
             sprint.Simulate(4f);
             var input = UnityEngine.Object.FindFirstObjectByType<KMA.Input.GameplayInputRouter>();

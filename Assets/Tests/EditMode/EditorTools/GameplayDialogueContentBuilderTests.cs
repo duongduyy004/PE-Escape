@@ -6,6 +6,15 @@ namespace KMA.Tests.EditorTools
 {
     public sealed class GameplayDialogueContentBuilderTests
     {
+        [Test] public void RegenerationPreservesEditedContentAndSpeed()
+        {
+            string Before()=>string.Join("|",GameplayDialogueLibrary.LoadDefault().Events.SelectMany(e=>e.Lines.Select(l=>e.Id+":"+l.Text+":"+string.Join(",",l.Poses.Select(p=>UnityEditor.AssetDatabase.GetAssetPath(p))))));
+            string before=Before();KMA.EditorTools.GameplayDialogueContentBuilder.Build();KMA.EditorTools.GameplayDialogueContentBuilder.Build();KMA.EditorTools.StudentJourneyContentBuilder.BuildChallenges();
+            Assert.That(Before(),Is.EqualTo(before));
+            var tuning=UnityEditor.AssetDatabase.LoadAssetAtPath<KMA.Gameplay.FrogJump.FrogJumpBalanceConfig>("Assets/_Project/ScriptableObjects/FrogJump/FrogJumpBalance.asset");
+            Assert.That(tuning,Is.Not.Null);Assert.That(tuning.Tuning.sweepSeconds,Is.EqualTo(.7f));
+            Assert.That(KMA.Gameplay.ChallengeCatalog.LoadDefault().Ordered.Count,Is.EqualTo(10));
+        }
         [Test] public void AuthoredLibraryHasAllSpokenEventsAndCorrectReactions()
         {
             var library=GameplayDialogueLibrary.LoadDefault();Assert.That(library,Is.Not.Null);
