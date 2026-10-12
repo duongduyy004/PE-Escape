@@ -282,7 +282,19 @@ namespace KMA.Gameplay
             RectTransform visual = UiKit.Rect(tapRect, "Visual");
             Rect visualRect = SprintUiLayout.ControlVisualRect01;
             UiKit.Anchor(visual, new Vector2(visualRect.xMin, visualRect.yMin), new Vector2(visualRect.xMax, visualRect.yMax));
-            return UiKit.ControlPlate(visual, left ? "←" : "→", left ? "TRÁI" : "PHẢI");
+            ControlPlateHandle control = UiKit.ControlPlate(visual, string.Empty, string.Empty);
+            Sprite shoe = Resources.Load<Sprite>("Icons/SprintShoe");
+            foreach (Image image in new[] { control.Border, control.Background })
+            {
+                image.sprite = shoe;
+                image.type = Image.Type.Simple;
+                image.preserveAspect = true;
+                image.rectTransform.localScale = new Vector3(left ? -1f : 1f, 1f, 1f);
+            }
+            UiKit.Stretch(control.Background.rectTransform, Vector2.one * 6f, -Vector2.one * 6f);
+            control.Arrow.gameObject.SetActive(false);
+            control.Label.gameObject.SetActive(false);
+            return control;
         }
 
         static void DisableSharedMetrics(Transform safeArea)

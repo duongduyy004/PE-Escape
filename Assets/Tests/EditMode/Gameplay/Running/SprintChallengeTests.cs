@@ -31,7 +31,7 @@ namespace KMA.Tests.Gameplay.Running
             ChallengeDefinition practice = catalog.Get("sprint_practice");
             ChallengeDefinition exam = catalog.Get("sprint_exam");
             Assert.That(learn.Kind, Is.EqualTo(ChallengeKind.Learn));
-            Assert.That(learn.TargetCount, Is.EqualTo(12));
+            Assert.That(learn.TargetCount, Is.EqualTo(50));
             Assert.That(practice.Distance, Is.EqualTo(150f));
             Assert.That(practice.TimeLimit, Is.EqualTo(20f));
             Assert.That(exam.Distance, Is.EqualTo(150f));
@@ -39,19 +39,21 @@ namespace KMA.Tests.Gameplay.Running
         }
 
         [Test]
-        public void LearnRequiresTwelveAlternatingInputsAndResetsOnError()
+        public void LearnRequiresFiftyAlternatingInputsAndResetsOnError()
         {
             var challenge = new SprintChallengeRules(catalog.Get("sprint_learn"),
                 SprintBalanceParameters.Default, Array.Empty<RivalPaceProfile>());
             for (int tap = 0; tap < 8; tap++) challenge.Tap(tap % 2 == 0 ? Side.Left : Side.Right);
             challenge.Tap(Side.Right);
             Assert.That(challenge.Race.CorrectStreak, Is.Zero);
-            for (int tap = 0; tap < 12; tap++) challenge.Tap(tap % 2 == 0 ? Side.Left : Side.Right);
+            for (int tap = 0; tap < 49; tap++) challenge.Tap(tap % 2 == 0 ? Side.Left : Side.Right);
+            Assert.That(challenge.IsComplete, Is.False);
+            challenge.Tap(Side.Right);
             Assert.That(challenge.IsComplete, Is.True);
             ChallengeAttemptResult result = challenge.BuildResult(new ChallengeAttemptContext(
                 "learn-1", "sprint_learn", ChallengeAttemptMode.Journey, ChallengeDifficulty.Normal));
             Assert.That(result.Pass, Is.True);
-            Assert.That(result.Metrics.CompletedTargets, Is.EqualTo(12));
+            Assert.That(result.Metrics.CompletedTargets, Is.EqualTo(50));
             Assert.That(result.ExamResult, Is.Null);
         }
 

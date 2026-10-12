@@ -78,8 +78,8 @@ MonoBehaviour:
     volleyball: {r: 0.9607843, g: 0.61960787, b: 0.18039216, a: 1}
     football: {r: 0.20784314, g: 0.6627451, b: 0.35686275, a: 1}
     chess: {r: 0.9098039, g: 0.3529412, b: 0.28235295, a: 1}
-    panelAnchorMin: {x: 0.06, y: 0.2}
-    panelAnchorMax: {x: 0.94, y: 0.7}
+    panelAnchorMin: {x: 0.02, y: 0.15}
+    panelAnchorMax: {x: 0.98, y: 0.75}
     courseAnchorMin: {x: 0, y: 0.41}
     courseAnchorMax: {x: 1, y: 0.915}
     summaryAnchorMin: {x: 0.05, y: 0.84}
@@ -96,10 +96,10 @@ MonoBehaviour:
     nodeLineY: 0.64
     detailAnchorMin: {x: 0.04, y: 0.04}
     detailAnchorMax: {x: 0.96, y: 0.33}
-    nodeSize: 124
+    nodeSize: 149
     nodeCurrentScale: 1.16
-    nodeBadgeSize: 46
-    nodeLabelHeight: 52
+    nodeBadgeSize: 55
+    nodeLabelHeight: 62
     lessonDotSize: 14
     revealDuration: 0.2
     revealStagger: 0.05

@@ -442,14 +442,16 @@ namespace KMA.Tests.Presentation
                 Assert.That(visual.Find("Background").GetComponent<Image>().sprite, Is.Not.Null);
             }
 
-            Assert.That(GameObject.Find("LeftTap").transform.Find("Visual/Label").GetComponent<TMP_Text>().text,
-                Is.EqualTo("TRÁI"));
-            Assert.That(GameObject.Find("RightTap").transform.Find("Visual/Label").GetComponent<TMP_Text>().text,
-                Is.EqualTo("PHẢI"));
-            Assert.That(GameObject.Find("LeftTap").transform.Find("Visual/Arrow").GetComponent<TMP_Text>().text,
-                Is.EqualTo("←"));
-            Assert.That(GameObject.Find("RightTap").transform.Find("Visual/Arrow").GetComponent<TMP_Text>().text,
-                Is.EqualTo("→"));
+            foreach (string tapName in new[] { "LeftTap", "RightTap" })
+            {
+                Transform visual = GameObject.Find(tapName).transform.Find("Visual");
+                Assert.That(visual.Find("Label").gameObject.activeSelf, Is.False);
+                Assert.That(visual.Find("Arrow").gameObject.activeSelf, Is.False);
+                Image shoe = visual.Find("Background").GetComponent<Image>();
+                Assert.That(shoe.sprite, Is.EqualTo(Resources.Load<Sprite>("Icons/SprintShoe")));
+                Assert.That(shoe.preserveAspect, Is.True);
+                Assert.That(shoe.transform.localScale.x, Is.EqualTo(tapName == "LeftTap" ? -1f : 1f));
+            }
         }
 
         [UnityTest]

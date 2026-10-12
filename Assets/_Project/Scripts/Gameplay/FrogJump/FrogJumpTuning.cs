@@ -13,6 +13,6 @@ namespace KMA.Gameplay.FrogJump
         public float safeZone = .4f;
         public float jumpSeconds = .6f;
         public float recoverSeconds = 2.5f;
-        public float timeLimitSeconds = 60f;
+        public float timeLimitSeconds = 40f;
     }
 }

@@ -66,6 +66,25 @@ namespace KMA.Gameplay.UI
         public static void EnsurePopup(RectTransform panel)
         {
             Anchor(panel, Style.panelAnchorMin, Style.panelAnchorMax);
+            // Apply sizing to both newly created menus and the menu saved in the Map scene.
+            foreach (TMP_Text label in panel.GetComponentsInChildren<TMP_Text>(true))
+            {
+                float size = label.name == "CourseTitle" ? Style.headingSize
+                    : label.name == "Objective" ? Style.objectiveSize
+                    : label.name == "Status" ? Style.captionSize : Style.bodySize;
+                label.fontSize = label.fontSizeMax = size * 1.2f;
+                if (label.enableAutoSizing) label.fontSizeMin = (size - 6f) * 1.2f;
+            }
+            for (int index = 0; index < StageCount; index++)
+            {
+                var disc = panel.Find($"Lesson{index + 1}/StageIcon") as RectTransform;
+                if (disc == null) continue;
+                disc.sizeDelta = Vector2.one * Style.nodeSize;
+                var badge = disc.Find("StateBadge") as RectTransform;
+                if (badge != null) badge.sizeDelta = Vector2.one * Style.nodeBadgeSize;
+                var title = panel.Find($"Lesson{index + 1}/StageTitle") as RectTransform;
+                if (title != null) title.offsetMax = new Vector2(0f, Style.nodeLabelHeight);
+            }
             var parent = (RectTransform)panel.parent;
             RectTransform scrim = (RectTransform)parent.Find("LessonScrim");
             if (scrim == null)

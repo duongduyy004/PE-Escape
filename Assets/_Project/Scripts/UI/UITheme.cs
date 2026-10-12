@@ -118,8 +118,8 @@ namespace KMA.Gameplay.UI
             public Color football = new Color32(53, 169, 91, 255);
             public Color chess = new Color32(232, 90, 72, 255);
             // The lesson panel is a popup centred over the map, opened by tapping a stop.
-            public Vector2 panelAnchorMin = new Vector2(.06f, .20f);
-            public Vector2 panelAnchorMax = new Vector2(.94f, .70f);
+            public Vector2 panelAnchorMin = new Vector2(.02f, .15f);
+            public Vector2 panelAnchorMax = new Vector2(.98f, .75f);
             public Vector2 courseAnchorMin = new Vector2(0f, .41f);
             public Vector2 courseAnchorMax = new Vector2(1f, .915f);
             public Vector2 summaryAnchorMin = new Vector2(.05f, .84f);
@@ -138,10 +138,10 @@ namespace KMA.Gameplay.UI
             public Vector2 detailAnchorMin = new Vector2(.04f, .04f);
             public Vector2 detailAnchorMax = new Vector2(.96f, .33f);
             // Stage node sizes, in canvas pixels.
-            public float nodeSize = 124f;
+            public float nodeSize = 149f;
             public float nodeCurrentScale = 1.16f;
-            public float nodeBadgeSize = 46f;
-            public float nodeLabelHeight = 52f;
+            public float nodeBadgeSize = 55f;
+            public float nodeLabelHeight = 62f;
             public float lessonDotSize = 14f;
             public float revealDuration = .20f;
             public float revealStagger = .05f;

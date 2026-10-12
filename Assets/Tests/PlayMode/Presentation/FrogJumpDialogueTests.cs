@@ -73,7 +73,7 @@ namespace KMA.Tests.Presentation
   [Test] public void OpeningReadsSixtyMetres()
   {
    StartOpening(true);Assert.That(game.PresentationPhase,Is.EqualTo(MinigamePhase.Tutorial));scheduler.Tick(2.5f,false);
-   Assert.That(spy.Seen[1].Text,Does.Contain("60 mét").And.Contain("60 giây"));Assert.That(game.Rules.TimeRemaining,Is.EqualTo(60));
+   Assert.That(spy.Seen[1].Text,Does.Contain("60 mét").And.Contain("40 giây"));Assert.That(game.Rules.TimeRemaining,Is.EqualTo(40));
   }
   [Test] public void ChargedBranchNeverClaimsLifeSaved()
   {

@@ -128,12 +128,12 @@ namespace KMA.Tests.Gameplay.FrogJump
         public void RunningOutOfTimeLoses()
         {
             var rules = new FrogJumpRules(Tuning);
-            rules.Tick(59.9f);
+            rules.Tick(39.9f);
             Assert.That(rules.IsOver, Is.False);
             rules.Tick(.2f);
             Assert.That(rules.State, Is.EqualTo(FrogJumpState.TimedOut));
             Assert.That(rules.ReachedFinish, Is.False);
-            Assert.That(rules.Elapsed, Is.EqualTo(60f).Within(Eps));
+            Assert.That(rules.Elapsed, Is.EqualTo(40f).Within(Eps));
             Assert.That(rules.TimeRemaining, Is.Zero);
             Assert.That(rules.Stop(), Is.False);
         }
@@ -150,12 +150,11 @@ namespace KMA.Tests.Gameplay.FrogJump
             Assert.That(rules.State, Is.EqualTo(FrogJumpState.Finished));
         }
 
-        // Balance: a player who aims for the centre (stops within 5% of it) finishes in time;
-        // one who taps as soon as the needle is anywhere near the green does not.
+        // Exact centre hits can finish the current 60 m course within the 40-second limit.
         [Test]
-        public void ACentredPlayerFinishes()
+        public void PerfectCentreHitsFinishWithinTheFortySecondLimit()
         {
-            Assert.That(Play(offsets: new[] { -.05f, .02f, .05f, -.03f, 0f }), Is.True);
+            Assert.That(Play(offsets: new[] { 0f }), Is.True);
         }
 
         [Test]

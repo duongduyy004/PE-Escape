@@ -101,7 +101,7 @@ MonoBehaviour:
     lines:
     - characterId: co_the_chat
       pose: 0
-      text: "Tr\xE1i, ph\u1EA3i lu\xE2n phi\xEAn. L\xE0m \u0111\xFAng 12 nh\u1ECBp
+      text: "Tr\xE1i, ph\u1EA3i lu\xE2n phi\xEAn. L\xE0m \u0111\xFAng 50 nh\u1ECBp
         li\xEAn ti\u1EBFp. \u0110\u1EEBng \u0111\u1EC3 t\xF4i ph\u1EA3i nh\u1EAFc
         l\u1EA1i chuy\u1EC7n tr\xE1i v\u1EDBi ph\u1EA3i."
       sticker:

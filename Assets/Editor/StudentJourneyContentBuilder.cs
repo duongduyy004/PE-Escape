@@ -59,8 +59,8 @@ namespace KMA.EditorTools
             ChallengeSpec[] specs =
             {
                 new ChallengeSpec("sprint_learn", SubjectId.Sprint, ChallengeKind.Learn,
-                    0f, 0f, 12, false, ChallengeDifficulty.Normal, true,
-                    "Bấm TRÁI, PHẢI luân phiên đúng 12 nhịp liên tiếp. Không giới hạn thời gian."),
+                    0f, 0f, 50, false, ChallengeDifficulty.Normal, true,
+                    "Bấm TRÁI, PHẢI luân phiên đúng 50 nhịp liên tiếp. Không giới hạn thời gian."),
                 new ChallengeSpec("sprint_practice", SubjectId.Sprint, ChallengeKind.Practice,
                     150f, 20f, 0, false, ChallengeDifficulty.Normal, true,
                     "Chạy 150 m trong tối đa 20 giây."),
@@ -287,7 +287,7 @@ namespace KMA.EditorTools
                     Line(TanThu, DialoguePose.Idle, "Chưa... Tớ chỉ mong không phải học lại ngay năm đầu."),
                     Line(Co, DialoguePose.Idle, "Chạy, bóng chuyền, bóng đá, rồi bài kiểm tra cuối. Đạt phần trước mới học phần sau. Không học được thì nợ.")),
                 Node("sprint_intro",
-                    Line(Co, DialoguePose.Idle, "Trái, phải luân phiên. Làm đúng 12 nhịp liên tiếp. Đừng để tôi phải nhắc lại chuyện trái với phải."),
+                    Line(Co, DialoguePose.Idle, "Trái, phải luân phiên. Làm đúng 50 nhịp liên tiếp. Đừng để tôi phải nhắc lại chuyện trái với phải."),
                     Line(Mai, DialoguePose.Idle, "Bấm nhầm là đếm lại từ đầu. Cứ chậm một chút cho chắc."),
                     Line(TanThu, DialoguePose.Idle, "Ừ. Để tớ thử từng nhịp đã.")),
                 Node("sprint_exam",

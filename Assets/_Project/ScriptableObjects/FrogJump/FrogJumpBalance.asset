@@ -20,4 +20,4 @@ MonoBehaviour:
     safeZone: 0.4
     jumpSeconds: 0.6
     recoverSeconds: 2.5
-    timeLimitSeconds: 60
+    timeLimitSeconds: 40

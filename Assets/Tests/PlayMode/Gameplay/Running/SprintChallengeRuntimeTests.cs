@@ -45,7 +45,7 @@ namespace KMA.Tests.Gameplay.Running
 
             controller.SetTutorialGate(false);
             controller.Simulate(4f);
-            for (int tap = 0; tap < 12; tap++)
+            for (int tap = 0; tap < 50; tap++)
             {
                 router.FeedSprintTapForTest(tap % 2 == 0 ? KMA.Input.Side.Left : KMA.Input.Side.Right,
                     1d + tap * .2d);

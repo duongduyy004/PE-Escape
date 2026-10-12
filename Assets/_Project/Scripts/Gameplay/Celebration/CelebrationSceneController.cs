@@ -112,7 +112,7 @@ namespace KMA.Gameplay.Celebration
 
         void FillSummary()
         {
-            title.text = VietText.Fix("HOÀN THÀNH HỌC PHẦN THỂ CHẤT");
+            title.text = VietText.Fix("QUA MÔN");
             for (int i = 0; i < Summary.Subjects.Count && i < 3; i++)
             {
                 CelebrationRow row = Summary.Subjects[i];
