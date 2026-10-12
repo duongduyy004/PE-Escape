@@ -283,7 +283,10 @@ namespace KMA.Gameplay.UI
         void UpdateHint()
         {
             string text = !typewriter.IsDone ? "chạm để hiện hết"
-                : lineIndex + 1 >= activeLines.Count ? "ĐÓNG »" : "TIẾP »";
+                : lineIndex + 1 >= activeLines.Count
+                    ? SceneRouter.Instance != null && !string.IsNullOrEmpty(SceneRouter.Instance.PendingJourneyChallengeId)
+                        ? "TIẾP TỤC »" : "ĐÓNG »"
+                    : "TIẾP »";
             hint.text = VietText.Fix(text);
         }
 

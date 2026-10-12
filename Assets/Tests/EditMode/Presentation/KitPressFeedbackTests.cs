@@ -40,6 +40,27 @@ namespace KMA.Tests.Presentation
         }
 
         [Test]
+        public void IconOpacityStaysPressedUntilReleaseAndResetsWhenDisabled()
+        {
+            var face = root.AddComponent<Image>();
+            face.color = Color.white;
+            var feedback = root.AddComponent<KitPressFeedback>();
+            feedback.Configure(face, (RectTransform)root.transform, .55f);
+
+            feedback.OnPointerDown(null);
+            feedback.Tick(1f);
+            Assert.That(face.color.a, Is.EqualTo(.55f).Within(.001f));
+            feedback.OnPointerUp(null);
+            feedback.Tick(MinigameUiTheme.PressRestoreSeconds);
+            Assert.That(face.color, Is.EqualTo(Color.white));
+
+            feedback.OnPointerDown(null);
+            feedback.enabled = false;
+            Assert.That(face.color, Is.EqualTo(Color.white));
+            Assert.That(feedback.IsPressed, Is.False);
+        }
+
+        [Test]
         public void SetRestColorRecoloursAnIdleFace()
         {
             var face = root.AddComponent<Image>();

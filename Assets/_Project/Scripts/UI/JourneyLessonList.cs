@@ -87,6 +87,13 @@ namespace KMA.Gameplay.UI
 
         public void Close() => SetOpen(false);
 
+        public void ShowStartError(string error)
+        {
+            if (status != null) status.text = VietText.Fix(error);
+            if (playLabel != null && playButton != null && playButton.interactable)
+                playLabel.text = VietText.Fix("THỬ LẠI  ›");
+        }
+
         /// Highlights a stage and shows its objective; it never starts the stage, the play button does.
         public void SelectLesson(int index)
         {

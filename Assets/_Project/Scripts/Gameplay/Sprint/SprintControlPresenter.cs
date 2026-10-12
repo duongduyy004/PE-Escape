@@ -131,7 +131,9 @@ namespace KMA.Gameplay
                 : finished ? ControlState.Disabled
                 : expected ? ControlState.Hint
                 : ControlState.Rest;
-            KitControlState.Apply(background, border, state);
+            border.color = KitControlState.Border(state);
+            // Preserve the white shoe artwork; feedback changes opacity rather than its colour.
+            background.color = MinigameUiTheme.WithAlpha(Color.white, pressed ? .85f : finished ? .5f : 1f);
         }
 
         void ApplyBreathe()

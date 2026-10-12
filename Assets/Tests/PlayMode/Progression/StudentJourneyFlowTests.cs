@@ -24,6 +24,42 @@ namespace KMA.Tests.Gameplay.Progression
         int originalFrameRate, originalVsync;
 
         [UnityTest]
+        public IEnumerator ContinueAdvancesEveryLevelAndDialogueWithoutSelectingTheSubjectAgain()
+        {
+            yield return StartRuntime();
+            yield return StartCheckpoint();
+            foreach (string id in new[] { "sprint_learn", "sprint_practice", "sprint_exam",
+                         "volleyball_learn", "volleyball_practice", "volleyball_exam",
+                         "soccer_learn", "soccer_practice", "soccer_exam" })
+            {
+                Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo(id));
+                ChallengeDefinition challenge = router.Session.Journey.Catalog.Get(id);
+                yield return JourneyRuntimeDriver.CompleteCurrent(challenge, true);
+                string next = router.Session.Journey.CheckpointChallengeId;
+                var panel = Object.FindFirstObjectByType<ResultPanel>(FindObjectsInactive.Include);
+                panel.Continue();
+                panel.Continue(); // A second tap must not start another attempt.
+
+                float deadline = Time.realtimeSinceStartup + 15f;
+                while (router.Session.Journey.ActiveAttempt?.ChallengeId != next || router.IsTransitioning)
+                {
+                    Assert.That(Time.realtimeSinceStartup, Is.LessThan(deadline), "Continue did not open " + next);
+                    var dialogue = Object.FindFirstObjectByType<JourneyDialoguePresenter>();
+                    if (dialogue != null && dialogue.IsShowing)
+                    {
+                        Assert.That(router.Session.Journey.ActiveAttempt, Is.Null,
+                            "The next challenge must wait until its journey dialogue finishes.");
+                        dialogue.Advance();
+                    }
+                    yield return null;
+                }
+                Assert.That(saved.journey.activeAttempt.challengeId, Is.EqualTo(next));
+                yield return null;
+            }
+            Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("chess_final"));
+        }
+
+        [UnityTest]
         public IEnumerator BootstrapToSummaryUsesTheRealControllersAndPersistsCompletion()
         {
             yield return StartRuntime();

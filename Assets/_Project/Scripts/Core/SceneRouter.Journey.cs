@@ -18,6 +18,26 @@ namespace KMA.Gameplay.Core
         JourneyCommitOutcome? displayedOutcome;
         string displayedSaveError;
 
+        public string PendingJourneyChallengeId { get; private set; }
+
+        public bool ContinuePendingJourney(out string error)
+        {
+            error = null;
+            string id = PendingJourneyChallengeId;
+            if (string.IsNullOrEmpty(id) || IsTransitioning)
+                return false;
+            if (id != session.Journey.CheckpointChallengeId)
+            {
+                PendingJourneyChallengeId = null;
+                return false;
+            }
+            ChallengeDefinition next = session.Journey.Catalog.Get(id);
+            if (TryStartChallenge(id, ChallengeAttemptMode.Journey, next.Difficulty))
+                return true;
+            error = lastRouteError ?? "Không thể bắt đầu bài tiếp theo. Hãy thử lại.";
+            return false;
+        }
+
         public void ConfigureJourneyPersistence(JourneyPersistHandler persist)
         {
             journeyPersist = persist ?? throw new ArgumentNullException(nameof(persist));
@@ -69,6 +89,8 @@ namespace KMA.Gameplay.Core
             {
                 if (transitioner.TryRoute(SessionRoute.Subject, definition.Subject, sceneName))
                 {
+                    if (id == PendingJourneyChallengeId)
+                        PendingJourneyChallengeId = null;
                     SessionChanged?.Invoke();
                     return true;
                 }
@@ -187,10 +209,16 @@ namespace KMA.Gameplay.Core
                 bool celebrate = displayedResult.Pass && displayedOutcome.HasValue &&
                     displayedOutcome.Value.FinalChallenge && displayedOutcome.Value.CourseComplete &&
                     !session.Journey.CelebrationSeen;
+                PendingJourneyChallengeId = displayedResult.Pass &&
+                    displayedChallenge.Mode == ChallengeAttemptMode.Journey && !celebrate
+                    ? session.Journey.CheckpointChallengeId : null;
                 bool routed = Route(celebrate ? SessionRoute.Celebration : SessionRoute.Map);
                 if (!routed)
+                {
+                    PendingJourneyChallengeId = null;
                     challengePanel?.ShowChallenge(displayedChallenge, displayedResult, displayedOutcome,
                         lastRouteError ?? "Không thể chuyển cảnh. Hãy thử lại.");
+                }
             }
         }
 
@@ -200,6 +228,8 @@ namespace KMA.Gameplay.Core
         void OnJourneyRouteFailed(string message)
         {
             if (!displayedOutcome.HasValue || displayedResult == null || challengePanel == null)
+                return;
+            if (challengePanel is MonoBehaviour view && view == null)
                 return;
             challengePanel.ShowChallenge(displayedChallenge, displayedResult, displayedOutcome, message);
         }

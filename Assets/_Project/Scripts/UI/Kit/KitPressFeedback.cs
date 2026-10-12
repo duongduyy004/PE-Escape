@@ -14,6 +14,7 @@ namespace KMA.UI.Kit
         [SerializeField] RectTransform target;
         [SerializeField] Color restColor = Color.white;
         [SerializeField] Selectable selectable;
+        [SerializeField, Range(0f, 1f)] float pressedOpacity = 1f;
 
         [SerializeField] TMP_Text label;
         Color labelRestColor;
@@ -25,8 +26,9 @@ namespace KMA.UI.Kit
         public float Scale => target == null ? 1f : target.localScale.x;
         public Color RestColor => restColor;
 
-        public void Configure(Graphic faceGraphic, RectTransform scaleTarget)
+        public void Configure(Graphic faceGraphic, RectTransform scaleTarget, float opacityWhilePressed = 1f)
         {
+            pressedOpacity = Mathf.Clamp01(opacityWhilePressed);
             face = faceGraphic;
             target = scaleTarget;
             selectable = GetComponent<Selectable>();
@@ -51,7 +53,7 @@ namespace KMA.UI.Kit
             pressed = true;
             restoreRemaining = 0f;
             if (face != null)
-                face.color = MinigameUiTheme.Lighten(restColor, MinigameUiTheme.PressLighten);
+                face.color = PressedColor;
             SetScale(MinigameUiTheme.PressScale);
         }
 
@@ -72,9 +74,12 @@ namespace KMA.UI.Kit
             restoreRemaining = Mathf.Max(0f, restoreRemaining - deltaTime);
             float t = 1f - restoreRemaining / MinigameUiTheme.PressRestoreSeconds;
             if (face != null)
-                face.color = Color.Lerp(MinigameUiTheme.Lighten(restColor, MinigameUiTheme.PressLighten), restColor, t);
+                face.color = Color.Lerp(PressedColor, restColor, t);
             SetScale(Mathf.Lerp(MinigameUiTheme.PressScale, 1f, t));
         }
+
+        Color PressedColor => MinigameUiTheme.WithAlpha(
+            MinigameUiTheme.Lighten(restColor, MinigameUiTheme.PressLighten), restColor.a * pressedOpacity);
 
         void Update() => Tick(Time.unscaledDeltaTime);
 

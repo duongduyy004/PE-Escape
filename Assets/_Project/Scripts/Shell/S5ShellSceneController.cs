@@ -2,6 +2,7 @@ using KMA.Gameplay;
 using KMA.Gameplay.Core;
 using KMA.Gameplay.UI;
 using KMA.UI.Kit;
+using System.Collections;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -62,6 +63,8 @@ namespace KMA.Gameplay.Shell
                 if (dialogues == null) dialogues = map.gameObject.AddComponent<JourneyDialoguePresenter>();
                 if (router != null && router.Session != null && GameManager.Instance != null)
                     dialogues.ShowJourney(router.Session, GameManager.Instance, mainMenuBackground);
+                if (router != null && !string.IsNullOrEmpty(router.PendingJourneyChallengeId))
+                    StartCoroutine(ContinueJourneyAfterDialogue(router, dialogues));
                 map.SubjectRequested += SelectMapSubject;
                 map.ChallengeRequested += StartChallenge;
                 map.CelebrationRequested += ReplayCelebration;
@@ -85,6 +88,22 @@ namespace KMA.Gameplay.Shell
             {
                 calibrate.OffsetChanged += ApplyOffset;
                 calibrate.BackRequested += OpenSettings;
+            }
+        }
+
+        IEnumerator ContinueJourneyAfterDialogue(SceneRouter router, JourneyDialoguePresenter dialogues)
+        {
+            // Map Awake runs while its scene load is still in progress. Wait for both
+            // the load and all queued dialogue nodes before starting the next challenge.
+            while (router != null && (router.IsTransitioning || dialogues.IsShowing))
+                yield return null;
+            if (router != null && !router.ContinuePendingJourney(out string error) &&
+                !string.IsNullOrEmpty(error))
+            {
+                string id = router.Session.Journey.CheckpointChallengeId;
+                if (!string.IsNullOrEmpty(id))
+                    map.LessonList?.Open(router.Session.Journey.Catalog.Get(id).Subject);
+                map.LessonList?.ShowStartError(error);
             }
         }
 

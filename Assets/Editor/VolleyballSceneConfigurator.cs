@@ -346,17 +346,17 @@ namespace KMA.EditorTools
             buttonRect.anchoredPosition = new Vector2(-18f, 18f);
             buttonRect.gameObject.AddComponent<Image>().color = Color.clear;
             var button = buttonRect.gameObject.AddComponent<ActionButton>();
-            UiKit.RoundButton(buttonRect, "ĐÁNH", MinigameUiTheme.RoundButton * JoystickScale);
+            AddActionIcon(buttonRect, "VolleyballHit");
 
             // NHẢY sits just inside ĐÁNH and a little higher, its hit area clear of ĐÁNH's.
             RectTransform jumpRect = UiRect("JumpButton", controls, Vector2.one, Vector2.one);
             jumpRect.anchorMin = jumpRect.anchorMax = jumpRect.pivot = new Vector2(1f, 0f);
-            // At least as large as the disc, so every visible pixel of NHẢY is tappable.
+            // At least as large as the icon, so every visible pixel of NHẢY is tappable.
             jumpRect.sizeDelta = new Vector2(300f, 300f);
             jumpRect.anchoredPosition = new Vector2(-428f, 120f);
             jumpRect.gameObject.AddComponent<Image>().color = Color.clear;
             var jump = jumpRect.gameObject.AddComponent<JumpButton>();
-            UiKit.RoundButton(jumpRect, "NHẢY", MinigameUiTheme.RoundButton * JoystickScale);
+            AddActionIcon(jumpRect, "VolleyballJump");
 
             Vector2 centre = new Vector2(.5f, .5f);
             Image scoreboard = UiKit.Panel(controls, "VolleyballScoreboard");
@@ -413,6 +413,18 @@ namespace KMA.EditorTools
                 EditorUtility.SetDirty(dirty);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
+        }
+
+        static void AddActionIcon(RectTransform hitArea, string spriteName)
+        {
+            RectTransform icon = UiRect("Icon", hitArea, new Vector2(.5f, .5f), new Vector2(.5f, .5f));
+            icon.sizeDelta = Vector2.one * MinigameUiTheme.RoundButton * JoystickScale;
+            Image image = icon.gameObject.AddComponent<Image>();
+            image.sprite = Resources.Load<Sprite>("Icons/" + spriteName);
+            image.color = Color.white;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            UiKit.GetOrAdd<KitPressFeedback>(hitArea.gameObject).Configure(image, icon, .55f);
         }
 
         static RectTransform UiRect(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax)

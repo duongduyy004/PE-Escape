@@ -195,6 +195,8 @@ namespace KMA.Gameplay.Core
             if (IsTransitioning)
                 return false;
 
+            PendingJourneyChallengeId = null;
+
             EnsureRouteIsConfigured(SessionRoute.Map, null);
             SaveData previous = session.ToSaveData();
             session.ResetCampaign();
@@ -208,6 +210,8 @@ namespace KMA.Gameplay.Core
         {
             if (restoredSession == null)
                 throw new ArgumentNullException(nameof(restoredSession));
+
+            PendingJourneyChallengeId = null;
 
             UnbindSubjects();
             UnbindResultPanel();

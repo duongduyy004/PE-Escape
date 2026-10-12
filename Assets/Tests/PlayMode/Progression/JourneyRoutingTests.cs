@@ -161,5 +161,68 @@ namespace KMA.Tests.Gameplay.Progression
             Assert.That(persistedAtRoute, Is.True);
             Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_learn"));
         }
+
+        [Test]
+        public void PassedLessonContinuesTheCheckpointOnlyOnce()
+        {
+            panel = JourneyRoutingFixture.CreateResultPanel();
+            JourneyRoutingFixture.PassActive(router, panel, "sprint_learn");
+            panel.Continue();
+            Assert.That(router.PendingJourneyChallengeId, Is.EqualTo("sprint_practice"));
+            Assert.That(router.ContinuePendingJourney(out _), Is.True);
+            string attempt = router.Session.Journey.ActiveAttempt.AttemptId;
+            Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_practice"));
+            Assert.That(router.ContinuePendingJourney(out _), Is.False);
+            Assert.That(router.Session.Journey.ActiveAttempt.AttemptId, Is.EqualTo(attempt));
+        }
+
+        [Test]
+        public void RejectedContinueRouteKeepsTheResultUsableAndCancelsAutomaticStart()
+        {
+            panel = JourneyRoutingFixture.CreateResultPanel();
+            JourneyRoutingFixture.PassActive(router, panel, "sprint_learn");
+            router.ConfigureRouteAcceptanceForTests((_, _) => false);
+            panel.Continue();
+            Assert.That(router.PendingJourneyChallengeId, Is.Null);
+            Assert.That(panel.HasContinued, Is.False);
+            Assert.That(panel.ContinueInteractable, Is.True);
+        }
+
+        [Test]
+        public void FailedAutomaticStartCanRetryTheSameCheckpointAfterSavingRecovers()
+        {
+            panel = JourneyRoutingFixture.CreateResultPanel();
+            JourneyRoutingFixture.PassActive(router, panel, "sprint_learn");
+            panel.Continue();
+            bool allowSave = false;
+            router.ConfigureJourneyPersistence((out string error) =>
+            {
+                error = allowSave ? null : "Save unavailable";
+                return allowSave;
+            });
+            Assert.That(router.ContinuePendingJourney(out string saveError), Is.False);
+            Assert.That(saveError, Is.EqualTo("Save unavailable"));
+            Assert.That(router.PendingJourneyChallengeId, Is.EqualTo("sprint_practice"));
+            Assert.That(router.Session.Journey.ActiveAttempt, Is.Null);
+            allowSave = true;
+            Assert.That(router.ContinuePendingJourney(out _), Is.True);
+            Assert.That(router.PendingJourneyChallengeId, Is.Null);
+            Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_practice"));
+        }
+
+        [TestCase(ChallengeAttemptMode.Review)]
+        [TestCase(ChallengeAttemptMode.FreePlay)]
+        public void ReviewAndFreePlayResultsDoNotStartTheJourneyCheckpoint(ChallengeAttemptMode mode)
+        {
+            JourneyRoutingFixture.CompleteThrough(router.Session,
+                mode == ChallengeAttemptMode.FreePlay ? "chess_final" : "sprint_learn");
+            string checkpoint = router.Session.Journey.CheckpointChallengeId;
+            panel = JourneyRoutingFixture.CreateResultPanel();
+            JourneyRoutingFixture.PassActive(router, panel, "sprint_learn", mode);
+            panel.Continue();
+            Assert.That(router.PendingJourneyChallengeId, Is.Null);
+            Assert.That(router.Session.Journey.CheckpointChallengeId, Is.EqualTo(checkpoint));
+            Assert.That(router.Session.Journey.ActiveAttempt, Is.Null);
+        }
     }
 }

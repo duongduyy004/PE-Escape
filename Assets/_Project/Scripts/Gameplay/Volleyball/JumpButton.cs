@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 namespace KMA.Gameplay.Volleyball
 {
-    /// The NHẢY hit area. KitPressFeedback scales the round face on press; the cue pulse scales
+    /// The NHẢY hit area. KitPressFeedback fades and scales the icon on press; the cue pulse scales
     /// this hit area itself, so the two never fight over one transform.
     public sealed class JumpButton : MonoBehaviour, IPointerDownHandler
     {

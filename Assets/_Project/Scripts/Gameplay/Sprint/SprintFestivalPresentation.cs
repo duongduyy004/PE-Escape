@@ -291,6 +291,7 @@ namespace KMA.Gameplay
                 image.preserveAspect = true;
                 image.rectTransform.localScale = new Vector3(left ? -1f : 1f, 1f, 1f);
             }
+            control.Background.color = Color.white;
             UiKit.Stretch(control.Background.rectTransform, Vector2.one * 6f, -Vector2.one * 6f);
             control.Arrow.gameObject.SetActive(false);
             control.Label.gameObject.SetActive(false);
