@@ -61,10 +61,13 @@ namespace KMA.Tests.Presentation
 
                 var fitter = instance.GetComponentInChildren<SafeAreaFitter>(true);
                 Assert.That(fitter, Is.Not.Null);
+                Canvas.ForceUpdateCanvases();
                 fitter.Apply(new Rect(100f, 0f, 1720f, 1080f), new Vector2Int(1920, 1080));
                 var rect = (RectTransform)fitter.transform;
-                Assert.That(rect.offsetMin.x, Is.EqualTo(100f).Within(.01f));
-                Assert.That(rect.offsetMax.x, Is.EqualTo(-100f).Within(.01f));
+                Assert.That(rect.anchorMin.x, Is.EqualTo(100f / 1920f).Within(.001f));
+                Assert.That(rect.anchorMax.x, Is.EqualTo(1820f / 1920f).Within(.001f));
+                Assert.That(rect.offsetMin.x, Is.Zero);
+                Assert.That(rect.offsetMax.x, Is.Zero);
             }
             finally
             {

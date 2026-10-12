@@ -4,6 +4,7 @@ using KMA.Gameplay.UI;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace KMA.Tests.Gameplay.Progression
 {
@@ -115,6 +116,17 @@ namespace KMA.Tests.Gameplay.Progression
                 router.CompleteFrogJumpForTests(true);
                 Assert.That(router.Session.Lives, Is.EqualTo(5));
                 allowSave = false;
+                panel.Continue();
+                Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
+                Assert.That(router.HasPendingJourneyMapContinuation, Is.True);
+                Assert.That(router.CompleteJourneyMapDialogue(router.Session), Is.False);
+                Assert.That(router.Session.Journey.ActiveAttempt, Is.Null);
+                Assert.That(router.HasPendingJourneyMapContinuation, Is.True);
+                allowSave = true;
+                Assert.That(router.CompleteJourneyMapDialogue(router.Session), Is.True);
+                Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_exam"));
+                Assert.That(router.Session.Lives, Is.EqualTo(5));
+                return;
             }
             panel.Continue();
             Assert.That(panel.HasContinued, Is.False, "A failed start must leave the result usable.");
@@ -129,17 +141,148 @@ namespace KMA.Tests.Gameplay.Progression
 
             allowSave = true;
             panel.Continue();
-            if (frogJump)
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Subject));
+            Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_learn"));
+            Assert.That(router.Session.PendingFrogJump, Is.Null);
+        }
+
+        [Test]
+        public void FailedFrogPenaltyReturnsThroughMapDialogueBeforeRetryingCurrentExam()
+        {
+            JourneyRoutingFixture.CompleteThrough(router.Session, "sprint_practice");
+            var routes = new List<SceneRouteTransition>();
+            ReconfigureRouter(routes);
+            panel = JourneyRoutingFixture.CreateResultPanel();
+            JourneyRoutingFixture.FailActive(router, panel, "sprint_exam");
+
+            panel.Continue();
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.FrogJump));
+            router.CompleteFrogJumpForTests(false);
+            Assert.That(router.Session.Lives, Is.EqualTo(4),
+                "The first exam failure defers the life cost to its failed frog penalty.");
+            Assert.That(router.Session.PendingFrogJump, Is.Null);
+
+            panel.Continue();
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
+            Assert.That(router.HasPendingJourneyMapContinuation, Is.True);
+            Assert.That(router.Session.Journey.ActiveAttempt, Is.Null);
+            Assert.That(router.CompleteJourneyMapDialogue(router.Session), Is.True);
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Subject));
+            Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_exam"));
+            Assert.That(router.Session.Lives, Is.EqualTo(4));
+        }
+
+        [Test]
+        public void JourneyWinRoutesThroughMapAndStartsCommittedNextCheckpointAfterDialogue()
+        {
+            var routes = new List<SceneRouteTransition>();
+            ReconfigureRouter(routes);
+            panel = JourneyRoutingFixture.CreateResultPanel();
+            JourneyRoutingFixture.PassActive(router, panel, "sprint_learn");
+            panel.Continue();
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
+            Assert.That(router.Session.Journey.CheckpointChallengeId, Is.EqualTo("sprint_practice"));
+            Assert.That(router.Session.Journey.ActiveAttempt, Is.Null);
+            Assert.That(router.HasPendingJourneyMapContinuation, Is.True);
+            Assert.That(router.CompleteJourneyMapDialogue(router.Session), Is.True);
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Subject));
+            Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_practice"));
+        }
+
+        [Test]
+        public void FailedCheckpointRouteKeepsMapContinuationRetryable()
+        {
+            var routes = new List<SceneRouteTransition>();
+            ReconfigureRouter(routes);
+            panel = JourneyRoutingFixture.CreateResultPanel();
+            JourneyRoutingFixture.PassActive(router, panel, "sprint_learn");
+            panel.Continue();
+            router.ConfigureRouteAcceptanceForTests((transition, complete) =>
             {
-                Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Subject));
-                Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_exam"));
-            }
-            else
+                routes.Add(transition);
+                if (transition.Route == SessionRoute.Subject) return false;
+                complete();
+                return true;
+            });
+            Assert.That(router.CompleteJourneyMapDialogue(router.Session), Is.False);
+            Assert.That(router.HasPendingJourneyMapContinuation, Is.True);
+            Assert.That(router.Session.Journey.ActiveAttempt, Is.Null);
+            ReconfigureRouter(routes);
+            Assert.That(router.CompleteJourneyMapDialogue(router.Session), Is.True);
+            Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_practice"));
+        }
+
+        [Test]
+        public void NewGameAndResumeRouteThroughMapWithCheckpointIntent()
+        {
+            var routes = new List<SceneRouteTransition>();
+            ReconfigureRouter(routes);
+            Assert.That(router.ResetCampaign(), Is.True);
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
+            Assert.That(router.HasPendingJourneyMapContinuation, Is.True);
+            Assert.That(router.CompleteJourneyMapDialogue(router.Session), Is.True);
+            Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_learn"));
+        }
+
+        [Test]
+        public void ResumeCampaignRoutesThroughMapAndStartsCurrentCheckpoint()
+        {
+            var routes = new List<SceneRouteTransition>();
+            ReconfigureRouter(routes);
+            Assert.That(router.ResumeCampaign(), Is.True);
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
+            Assert.That(router.HasPendingJourneyMapContinuation, Is.True);
+            Assert.That(router.CompleteJourneyMapDialogue(router.Session), Is.True);
+            Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_learn"));
+        }
+
+        [Test]
+        public void CompleteCampaignResumeKeepsMapDestinationWithoutCheckpointStart()
+        {
+            JourneyGameplayDriver.CompleteThrough(router.Session, "chess_final");
+            var routes = new List<SceneRouteTransition>();
+            ReconfigureRouter(routes);
+            Assert.That(router.ResumeCampaign(), Is.True);
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
+            Assert.That(router.HasPendingJourneyMapContinuation, Is.False);
+        }
+
+        [Test]
+        public void JourneyFailureContinueRetriesSameChallenge()
+        {
+            var routes = new List<SceneRouteTransition>();
+            ReconfigureRouter(routes);
+            panel = JourneyRoutingFixture.CreateResultPanel();
+            JourneyRoutingFixture.FailActive(router, panel, "sprint_learn");
+            panel.Continue();
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Subject));
+            Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_learn"));
+            Assert.That(router.HasPendingJourneyMapContinuation, Is.False);
+        }
+
+        [Test]
+        public void ReviewWinReturnsToMapWithoutAdvancingCheckpoint()
+        {
+            JourneyGameplayDriver.CompleteThrough(router.Session, "sprint_learn");
+            string checkpoint = router.Session.Journey.CheckpointChallengeId;
+            var routes = new List<SceneRouteTransition>();
+            ReconfigureRouter(routes);
+            panel = JourneyRoutingFixture.CreateResultPanel();
+            JourneyRoutingFixture.PassActive(router, panel, "sprint_learn", ChallengeAttemptMode.Review);
+            panel.Continue();
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
+            Assert.That(router.Session.Journey.CheckpointChallengeId, Is.EqualTo(checkpoint));
+            Assert.That(router.HasPendingJourneyMapContinuation, Is.False);
+        }
+
+        void ReconfigureRouter(List<SceneRouteTransition> routes)
+        {
+            router.ConfigureRouteAcceptanceForTests((transition, complete) =>
             {
-                Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
-                Assert.That(router.Session.Journey.ActiveAttempt, Is.Null);
-                Assert.That(router.Session.PendingFrogJump, Is.Null);
-            }
+                routes.Add(transition);
+                complete();
+                return true;
+            });
         }
 
         [Test]
@@ -160,69 +303,6 @@ namespace KMA.Tests.Gameplay.Progression
             Assert.That(persisted, Is.True);
             Assert.That(persistedAtRoute, Is.True);
             Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_learn"));
-        }
-
-        [Test]
-        public void PassedLessonContinuesTheCheckpointOnlyOnce()
-        {
-            panel = JourneyRoutingFixture.CreateResultPanel();
-            JourneyRoutingFixture.PassActive(router, panel, "sprint_learn");
-            panel.Continue();
-            Assert.That(router.PendingJourneyChallengeId, Is.EqualTo("sprint_practice"));
-            Assert.That(router.ContinuePendingJourney(out _), Is.True);
-            string attempt = router.Session.Journey.ActiveAttempt.AttemptId;
-            Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_practice"));
-            Assert.That(router.ContinuePendingJourney(out _), Is.False);
-            Assert.That(router.Session.Journey.ActiveAttempt.AttemptId, Is.EqualTo(attempt));
-        }
-
-        [Test]
-        public void RejectedContinueRouteKeepsTheResultUsableAndCancelsAutomaticStart()
-        {
-            panel = JourneyRoutingFixture.CreateResultPanel();
-            JourneyRoutingFixture.PassActive(router, panel, "sprint_learn");
-            router.ConfigureRouteAcceptanceForTests((_, _) => false);
-            panel.Continue();
-            Assert.That(router.PendingJourneyChallengeId, Is.Null);
-            Assert.That(panel.HasContinued, Is.False);
-            Assert.That(panel.ContinueInteractable, Is.True);
-        }
-
-        [Test]
-        public void FailedAutomaticStartCanRetryTheSameCheckpointAfterSavingRecovers()
-        {
-            panel = JourneyRoutingFixture.CreateResultPanel();
-            JourneyRoutingFixture.PassActive(router, panel, "sprint_learn");
-            panel.Continue();
-            bool allowSave = false;
-            router.ConfigureJourneyPersistence((out string error) =>
-            {
-                error = allowSave ? null : "Save unavailable";
-                return allowSave;
-            });
-            Assert.That(router.ContinuePendingJourney(out string saveError), Is.False);
-            Assert.That(saveError, Is.EqualTo("Save unavailable"));
-            Assert.That(router.PendingJourneyChallengeId, Is.EqualTo("sprint_practice"));
-            Assert.That(router.Session.Journey.ActiveAttempt, Is.Null);
-            allowSave = true;
-            Assert.That(router.ContinuePendingJourney(out _), Is.True);
-            Assert.That(router.PendingJourneyChallengeId, Is.Null);
-            Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_practice"));
-        }
-
-        [TestCase(ChallengeAttemptMode.Review)]
-        [TestCase(ChallengeAttemptMode.FreePlay)]
-        public void ReviewAndFreePlayResultsDoNotStartTheJourneyCheckpoint(ChallengeAttemptMode mode)
-        {
-            JourneyRoutingFixture.CompleteThrough(router.Session,
-                mode == ChallengeAttemptMode.FreePlay ? "chess_final" : "sprint_learn");
-            string checkpoint = router.Session.Journey.CheckpointChallengeId;
-            panel = JourneyRoutingFixture.CreateResultPanel();
-            JourneyRoutingFixture.PassActive(router, panel, "sprint_learn", mode);
-            panel.Continue();
-            Assert.That(router.PendingJourneyChallengeId, Is.Null);
-            Assert.That(router.Session.Journey.CheckpointChallengeId, Is.EqualTo(checkpoint));
-            Assert.That(router.Session.Journey.ActiveAttempt, Is.Null);
         }
     }
 }

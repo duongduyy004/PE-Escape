@@ -6,7 +6,7 @@ namespace KMA.Gameplay.UI
     // Small vector-like icons generated once, independent of font glyph coverage.
     public static class HomeMenuIcons
     {
-        public enum Shape { Play, Continue, Gear, Power, Chevron, Star }
+        public enum Shape { Play, Continue, Gear, Power, Chevron, Star, Runner, Volleyball }
         static readonly Dictionary<Shape, Sprite> Cache = new Dictionary<Shape, Sprite>();
 
         public static Sprite Get(Shape shape)
@@ -50,9 +50,30 @@ namespace KMA.Gameplay.UI
                     float phase = Mathf.Repeat(angle + 90f, 72f);
                     float edge = Mathf.Lerp(24f, 10f, 1f - Mathf.Abs(phase - 36f) / 36f);
                     return radius < edge ? 1f : 0f;
+                case Shape.Runner:
+                    return ((new Vector2(p.x - 12f, p.y - 18f).sqrMagnitude < 28f) ||
+                           Segment(p, new Vector2(8f, 12f), new Vector2(-2f, 1f), 3.5f) ||
+                           Segment(p, new Vector2(5f, 8f), new Vector2(20f, 4f), 3f) ||
+                           Segment(p, new Vector2(2f, 7f), new Vector2(-10f, 16f), 3f) ||
+                           Segment(p, new Vector2(-2f, 1f), new Vector2(-15f, -9f), 3.5f) ||
+                           Segment(p, new Vector2(-2f, 1f), new Vector2(10f, -10f), 3.5f) ||
+                           Segment(p, new Vector2(-15f, -9f), new Vector2(-25f, -14f), 3f) ||
+                           Segment(p, new Vector2(10f, -10f), new Vector2(22f, -13f), 3f)) ? 1f : 0f;
+                case Shape.Volleyball:
+                    return ((radius > 21f && radius < 25f) ||
+                           (radius < 22f && (Mathf.Abs(p.x * .72f + p.y * .69f) < 2f ||
+                            Mathf.Abs(p.x * .72f - p.y * .69f) < 2f || Mathf.Abs(p.x) < 2f))) ? 1f : 0f;
                 default:
                     return 0f;
             }
+        }
+
+        static bool Segment(Vector2 point, Vector2 start, Vector2 end, float width)
+        {
+            Vector2 delta = end - start;
+            float lengthSquared = delta.sqrMagnitude;
+            float t = lengthSquared <= 0f ? 0f : Mathf.Clamp01(Vector2.Dot(point - start, delta) / lengthSquared);
+            return (point - (start + delta * t)).sqrMagnitude <= width * width;
         }
     }
 }

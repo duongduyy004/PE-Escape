@@ -34,7 +34,7 @@ namespace KMA.Tests.Presentation
         [TestCaseSource(nameof(LandscapeSafeAreas))]
         public void ControlVisualIsSmallerThanTheTapAreaItSitsIn(Rect safe)
         {
-            Rect visual01 = SprintUiLayout.ControlVisualRect01;
+            Rect visual01 = SprintUiLayout.ControlVisualRect01(true);
 
             Assert.That(visual01.width, Is.LessThan(1f).And.GreaterThan(0f));
             Assert.That(visual01.height, Is.LessThan(1f).And.GreaterThan(0f));
@@ -51,13 +51,17 @@ namespace KMA.Tests.Presentation
         }
 
         [Test]
-        public void ControlVisualIsCentredHorizontallyAndSitsLowInItsTapArea()
+        public void ControlsUseThirtyPercentLargerVisualsAtTheOuterBottomCorners()
         {
-            Rect visual01 = SprintUiLayout.ControlVisualRect01;
+            Rect left = SprintUiLayout.ControlVisualRect01(true);
+            Rect right = SprintUiLayout.ControlVisualRect01(false);
 
-            Assert.That(visual01.center.x, Is.EqualTo(.5f).Within(.0001f));
-            Assert.That(visual01.center.y, Is.LessThan(.5f),
-                "The drawn button sits low in the hit box, where a thumb rests and clear of the lane above.");
+            Assert.That(left.width, Is.EqualTo(.52f * 1.3f).Within(.0001f));
+            Assert.That(left.height, Is.EqualTo(.50f * 1.3f).Within(.0001f));
+            Assert.That(left.xMin, Is.Zero);
+            Assert.That(right.xMax, Is.EqualTo(1f));
+            Assert.That(left.yMin, Is.Zero);
+            Assert.That(right.yMin, Is.Zero);
         }
 
         [TestCaseSource(nameof(LandscapeSafeAreas))]
@@ -146,10 +150,11 @@ namespace KMA.Tests.Presentation
         [TestCaseSource(nameof(LandscapeSafeAreas))]
         public void EveryElementStaysInsideTheSafeAreaWithEdgePadding(Rect safe)
         {
-            float padX = safe.width * .02f;
             float padY = safe.height * .01f;
             foreach (SprintUiLayout.NamedRect named in SprintUiLayout.StartStateRects(safe))
             {
+                float padX = named.Name == "LeftControl" || named.Name == "RightControl"
+                    ? safe.height * .0185f : safe.width * .02f;
                 Assert.That(named.Rect.xMin, Is.GreaterThanOrEqualTo(safe.xMin + padX - .01f), $"{named.Name} left");
                 Assert.That(named.Rect.xMax, Is.LessThanOrEqualTo(safe.xMax - padX + .01f), $"{named.Name} right");
                 Assert.That(named.Rect.yMin, Is.GreaterThanOrEqualTo(safe.yMin + padY - .01f), $"{named.Name} bottom");

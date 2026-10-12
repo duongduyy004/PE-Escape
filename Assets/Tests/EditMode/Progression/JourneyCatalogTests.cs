@@ -26,25 +26,25 @@ namespace KMA.Tests.Gameplay.Progression
             {
                 SubjectId.Sprint, SubjectId.Volleyball, SubjectId.Football, SubjectId.Chess
             }));
-            Assert.That(catalog.Get("sprint_learn").TargetCount, Is.EqualTo(50));
+            Assert.That(catalog.Get("sprint_learn").TargetCount, Is.EqualTo(12));
             Assert.That(catalog.Get("sprint_practice").Distance, Is.EqualTo(150f));
             Assert.That(catalog.Get("sprint_practice").TimeLimit, Is.EqualTo(20f));
             Assert.That(catalog.Get("sprint_exam").Distance, Is.EqualTo(150f));
             Assert.That(catalog.Get("sprint_exam").TimeLimit, Is.EqualTo(15f));
             Assert.That(catalog.Get("sprint_practice").TimeLimit,
                 Is.GreaterThan(catalog.Get("sprint_exam").TimeLimit));
-            Assert.That(catalog.Get("volleyball_learn").TargetCount, Is.EqualTo(3));
+            Assert.That(catalog.Get("volleyball_learn").TargetCount, Is.EqualTo(7));
             Assert.That(catalog.Get("volleyball_practice").TargetCount, Is.EqualTo(5));
             Assert.That(catalog.Get("volleyball_exam").TargetCount, Is.EqualTo(10));
-            Assert.That(catalog.Get("volleyball_practice").TimeLimit, Is.EqualTo(120f), "Practice is a race to five inside two minutes.");
-            Assert.That(catalog.Get("volleyball_exam").TimeLimit, Is.Zero, "Volleyball is won on points, not on a clock.");
+            Assert.That(catalog.Get("volleyball_practice").TimeLimit, Is.Zero, "Practice has no deadline.");
+            Assert.That(catalog.Get("volleyball_exam").TimeLimit, Is.EqualTo(90f), "Exam requires ten points within ninety seconds.");
             Assert.That(catalog.Get("soccer_learn").TargetCount, Is.EqualTo(3));
             Assert.That(catalog.Get("soccer_learn").KeeperEnabled, Is.False);
             Assert.That(catalog.Get("soccer_practice").TargetCount, Is.EqualTo(2));
             Assert.That(catalog.Get("soccer_practice").Difficulty, Is.EqualTo(ChallengeDifficulty.Normal));
             Assert.That(catalog.Get("soccer_exam").TargetCount, Is.EqualTo(3));
             Assert.That(catalog.Get("soccer_exam").Difficulty, Is.EqualTo(ChallengeDifficulty.Normal));
-            Assert.That(catalog.Get("sprint_learn").TimeLimit, Is.Zero);
+            Assert.That(catalog.Get("sprint_learn").TimeLimit, Is.EqualTo(45f));
             Assert.That(catalog.Get("volleyball_learn").TimeLimit, Is.Zero);
             Assert.That(catalog.Get("soccer_learn").TimeLimit, Is.Zero);
             Assert.That(catalog.Get("soccer_practice").TimeLimit, Is.Zero);

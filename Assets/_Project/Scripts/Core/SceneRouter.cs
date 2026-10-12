@@ -186,8 +186,12 @@ namespace KMA.Gameplay.Core
         {
             if (IsTransitioning)
                 return false;
-
-            return Route(session.ResumeRoute(), session.ActiveSubject);
+            SessionRoute route = session.ResumeRoute();
+            string checkpoint = route == SessionRoute.Map && !session.Journey.CourseComplete
+                ? session.Journey.CheckpointChallengeId : null;
+            return !string.IsNullOrEmpty(checkpoint)
+                ? RouteToMapForJourney(checkpoint)
+                : Route(route, session.ActiveSubject);
         }
 
         public bool ResetCampaign()
@@ -195,13 +199,19 @@ namespace KMA.Gameplay.Core
             if (IsTransitioning)
                 return false;
 
-            PendingJourneyChallengeId = null;
-
             EnsureRouteIsConfigured(SessionRoute.Map, null);
             SaveData previous = session.ToSaveData();
             session.ResetCampaign();
-            if (!TryRouteMutatedSession(previous, SessionRoute.Map, null))
+            ArmJourneyMapContinuation(session.Journey.CheckpointChallengeId);
+            routingJourneyContinuation = true;
+            bool routed;
+            try { routed = TryRouteMutatedSession(previous, SessionRoute.Map, null); }
+            finally { routingJourneyContinuation = false; }
+            if (!routed)
+            {
+                ClearJourneyMapContinuation();
                 return false;
+            }
             SessionChanged?.Invoke();
             return true;
         }
@@ -211,10 +221,9 @@ namespace KMA.Gameplay.Core
             if (restoredSession == null)
                 throw new ArgumentNullException(nameof(restoredSession));
 
-            PendingJourneyChallengeId = null;
-
             UnbindSubjects();
             UnbindResultPanel();
+            ClearJourneyMapContinuation();
             activeSubject = null;
             awaitingSubjectScene = false;
             session = restoredSession;
@@ -272,6 +281,7 @@ namespace KMA.Gameplay.Core
 
             UnbindSubjects();
             UnbindResultPanel();
+            ClearJourneyMapContinuation();
             activeSubject = null;
             awaitingSubjectScene = false;
             return true;
@@ -281,6 +291,8 @@ namespace KMA.Gameplay.Core
         {
             if (IsTransitioning)
                 return false;
+
+            ClearJourneyMapContinuation();
 
             menuLoading = true;
             return StartSceneLoad(sceneName, () => menuLoading = false);
@@ -397,6 +409,9 @@ namespace KMA.Gameplay.Core
             if (IsTransitioning)
                 return false;
 
+            if (!routingJourneyContinuation)
+                ClearJourneyMapContinuation();
+
             if (!TryGetSceneName(route, subject, out var sceneName))
                 throw new InvalidOperationException($"No loadable scene is configured for {route}" +
                     (subject.HasValue ? $" ({subject.Value})." : "."));
@@ -466,11 +481,21 @@ namespace KMA.Gameplay.Core
         // so each binding step logs its failure and lets the rest run.
         void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
+            RunBindingStep(UnbindChallengePanel);
             RunBindingStep(UnbindFrogJump);
+            if (!string.Equals(scene.name, frogJumpScene, StringComparison.Ordinal))
+                RunBindingStep(UnbindFrogPanel);
             RunBindingStep(UnbindSubjects);
             RunBindingStep(() => BindSubjectScene(scene));
             RunBindingStep(BindJourneyControllers);
             RunBindingStep(() => BindFrogJump(scene));
+            if (pendingChallengeRouteRollback != null &&
+                string.Equals(scene.name, pendingChallengeRouteScene, StringComparison.Ordinal))
+            {
+                bool completedMapIntent = journeyContinuationLoadPending && journeyMapIntentSession == session;
+                ClearPendingChallengeRouteRollback();
+                if (completedMapIntent) ClearJourneyMapContinuation();
+            }
         }
 
         void BindSubjectScene(Scene scene)

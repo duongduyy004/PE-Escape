@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using KMA.Gameplay;
 using TMPro;
 using UnityEngine;
@@ -26,6 +27,10 @@ namespace KMA.Gameplay.UI
             { SubjectId.Sprint, SubjectId.Volleyball, SubjectId.Football, SubjectId.Chess };
         static readonly string[] Labels = { "Chạy nước rút", "Bóng chuyền", "Bóng đá", "Bài kiểm tra cuối" };
         const float ReplayWidth = 300f;
+        const float ReplayGap = 20f;
+        const float TextInset = 16f;
+        public static float TextColumnWidthForContent(float contentWidth) =>
+            Mathf.Max(0f, contentWidth * .9f - TextInset - ReplayWidth - ReplayGap);
         [SerializeField] TMP_Text summaryText;
         [SerializeField] Button replayButton;
         readonly List<JourneyScoreRow> scoreRows = new List<JourneyScoreRow>();
@@ -35,13 +40,18 @@ namespace KMA.Gameplay.UI
         public Button ReplayButton => EnsureReplayButton();
         public event System.Action ReplayRequested;
 
-        public void Configure(TMP_Text text) => summaryText = text;
+        public void Configure(TMP_Text text)
+        {
+            summaryText = text;
+            ConfigureLayout();
+        }
 
         public void Hide() => gameObject.SetActive(false);
 
         public void Show(GameSession session)
         {
             if (session == null) return;
+            ConfigureLayout();
             scoreRows.Clear();
             var scores = new List<string>();
             for (int index = 0; index < CourseOrder.Length; index++)
@@ -56,13 +66,45 @@ namespace KMA.Gameplay.UI
             SupplementaryRounds = session.Journey.SupplementaryRounds;
             if (summaryText != null)
             {
-                // Two lines in the short strip, kept clear of the replay button on the right.
-                summaryText.rectTransform.offsetMax = new Vector2(-(ReplayWidth + 20f), summaryText.rectTransform.offsetMax.y);
-                summaryText.fontSize = UITheme.Shared.LessonJourney.captionSize - 8f;
-                summaryText.text = VietText.Fix("HOÀN TẤT HỌC PHẦN\n" + string.Join(" | ", scores));
+                summaryText.fontSize = UITheme.Shared.LessonJourney.captionSize - 16f;
+                summaryText.text = VietText.Fix("HOÀN TẤT HỌC PHẦN\n" + FormatScoreLines(scores));
             }
             gameObject.SetActive(true);
             EnsureReplayButton();
+        }
+
+        public static string FormatScoreLines(IReadOnlyList<string> scores)
+        {
+            if (scores == null || scores.Count == 0) return string.Empty;
+            int breakAt = (scores.Count + 1) / 2;
+            var text = new StringBuilder();
+            for (int i = 0; i < scores.Count; i++)
+            {
+                if (i > 0) { if (i == breakAt) text.Append('\n'); else text.Append(" | "); }
+                text.Append(scores[i]);
+            }
+            return text.ToString();
+        }
+
+        void ConfigureLayout()
+        {
+            RectTransform panel = transform as RectTransform;
+            if (panel != null)
+            {
+                panel.anchorMin = UITheme.Shared.LessonJourney.summaryAnchorMin;
+                panel.anchorMax = UITheme.Shared.LessonJourney.summaryAnchorMax;
+                panel.offsetMin = panel.offsetMax = Vector2.zero;
+            }
+            if (summaryText == null) return;
+            RectTransform textRect = summaryText.rectTransform;
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.offsetMin = new Vector2(TextInset, 6f);
+            textRect.offsetMax = new Vector2(-(ReplayWidth + ReplayGap), -6f);
+            summaryText.alignment = TextAlignmentOptions.MidlineLeft;
+            summaryText.enableWordWrapping = true;
+            summaryText.textWrappingMode = TextWrappingModes.Normal;
+            summaryText.raycastTarget = false;
         }
 
         Button EnsureReplayButton()
@@ -71,15 +113,15 @@ namespace KMA.Gameplay.UI
             {
                 KMA.UI.Kit.ButtonHandle handle = KMA.UI.Kit.UiKit.Button(transform, "ReplayCelebration",
                     "Xem lại lễ mừng", KMA.UI.Kit.ButtonVariant.Primary);
-                // Fill the strip's height (it is shorter than a kit button) so it never covers the map.
-                var rect = (RectTransform)handle.Button.transform;
-                rect.anchorMin = new Vector2(1f, 0f);
-                rect.anchorMax = Vector2.one;
-                rect.pivot = new Vector2(1f, .5f);
-                rect.anchoredPosition = new Vector2(-8f, 0f);
-                rect.sizeDelta = new Vector2(ReplayWidth, -8f);
                 replayButton = handle.Button;
             }
+            // Fill the strip's height (it is shorter than a kit button) so it never covers the map.
+            var rect = (RectTransform)replayButton.transform;
+            rect.anchorMin = new Vector2(1f, 0f);
+            rect.anchorMax = Vector2.one;
+            rect.pivot = new Vector2(1f, .5f);
+            rect.anchoredPosition = new Vector2(-8f, 0f);
+            rect.sizeDelta = new Vector2(ReplayWidth, -8f);
             replayButton.onClick.RemoveListener(OnReplay);
             replayButton.onClick.AddListener(OnReplay);
             return replayButton;

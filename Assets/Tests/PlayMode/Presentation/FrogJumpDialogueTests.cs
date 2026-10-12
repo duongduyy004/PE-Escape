@@ -63,7 +63,7 @@ namespace KMA.Tests.Presentation
   }
   [Test] public void TenSecondWarningDropsWhileFallen()
   {
-   Setup();game.Rules.Tick(48.999f);game.Rules.Stop();Assert.That(game.Rules.State,Is.EqualTo(FrogJumpState.Fallen));host.Clear();spy.Seen.Clear();Step(1.01f);Step(1.49f);Assert.That(spy.Seen,Is.Empty);
+   Setup();game.Rules.Tick(game.Rules.Tuning.timeLimitSeconds-11.001f);while(!FrogJumpRules.IsFall(game.Rules.Needle01,game.Rules.Tuning))game.Rules.Tick(.01f);game.Rules.Stop();Assert.That(game.Rules.State,Is.EqualTo(FrogJumpState.Fallen));host.Clear();spy.Seen.Clear();Step(1.01f);Step(1.49f);Assert.That(spy.Seen,Is.Empty);
   }
   void StartOpening(bool saves)
   {

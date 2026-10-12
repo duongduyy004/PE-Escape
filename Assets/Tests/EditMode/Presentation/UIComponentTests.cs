@@ -372,8 +372,9 @@ namespace KMA.Tests.Presentation
             foreach (TMP_Text label in root.GetComponentsInChildren<TMP_Text>(true))
             {
                 label.ForceMeshUpdate(true);
-                Assert.That(label.preferredHeight,
+                Assert.That(label.textBounds.size.y,
                     Is.LessThanOrEqualTo(label.rectTransform.rect.height + 1f), label.name);
+                Assert.That(label.isTextTruncated, Is.False, label.name + " must show its full text.");
             }
         }
 
@@ -404,14 +405,12 @@ namespace KMA.Tests.Presentation
                 MapPresentationBuilder.Build(screen, session);
                 var summary = (RectTransform)screen.CourseSummary.transform;
                 var panel = (RectTransform)screen.LessonList.transform;
-                Vector3[] corners = new Vector3[4];
-                summary.GetWorldCorners(corners);
-                var summaryBounds = new Rect(corners[0], corners[2] - corners[0]);
-                panel.GetWorldCorners(corners);
-                Assert.That(summaryBounds.Overlaps(new Rect(corners[0], corners[2] - corners[0])), Is.False,
-                    "Course results must not cover any portion of the replay lessons.");
                 Assert.That(summary.GetComponent<Image>().raycastTarget, Is.False);
                 screen.SelectSubject(SubjectId.Sprint);
+                Transform scrim = panel.parent.Find("LessonScrim");
+                Assert.That(panel.GetSiblingIndex(), Is.GreaterThan(scrim.GetSiblingIndex()));
+                Assert.That(scrim.GetSiblingIndex(), Is.GreaterThan(summary.GetSiblingIndex()),
+                    "The modal lessons must draw above the completed-course summary.");
                 foreach (TMP_Text label in summary.GetComponentsInChildren<TMP_Text>())
                 {
                     label.ForceMeshUpdate(true);
@@ -1017,7 +1016,7 @@ namespace KMA.Tests.Presentation
                 var (screen, grid) = BuildMapAt(root, new Vector2(width, 1080f), new GameSession());
                 Assert.That(screen.LessonList.IsOpen, Is.False, "The map opens on the roadmap alone.");
                 Rect gridRect = WorldRect(grid);
-                Assert.That(gridRect.height, Is.GreaterThan(1080f * .75f), "The roadmap fills the screen under the header.");
+                Assert.That(gridRect.height, Is.GreaterThan(1080f * .65f), "The roadmap leaves room for the header and course summary.");
                 foreach (MapNodeView node in screen.Nodes)
                 {
                     Rect stop = WorldRect((RectTransform)node.transform);
@@ -1029,6 +1028,36 @@ namespace KMA.Tests.Presentation
                 if (width >= 1728f)
                     Assert.That(screen.Nodes[0].transform.localScale.x, Is.GreaterThan(1f),
                         "Stops grow when the map has room, so they stay legible on phones.");
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+
+        [TestCase(1280f, 720f)]
+        [TestCase(1920f, 1080f)]
+        [TestCase(2340f, 1080f)]
+        [TestCase(2400f, 1080f)]
+        public void LessonPopupAndDetailCardStayInsideTheMapContentAcrossPhoneRatios(float width, float height)
+        {
+            var root = new GameObject("popup-geometry", typeof(RectTransform));
+            try
+            {
+                var (screen, _) = BuildMapAt(root, new Vector2(width, height), new GameSession());
+                RectTransform panel = (RectTransform)screen.LessonList.transform;
+                RectTransform content = (RectTransform)panel.parent;
+                RectTransform detail = (RectTransform)panel.Find("DetailCard");
+                RectTransform close = (RectTransform)panel.Find("CloseButton");
+                Rect panelWorld = WorldRect(panel);
+                Rect contentWorld = WorldRect(content);
+                Rect detailWorld = WorldRect(detail);
+                Assert.That(panelWorld.xMin, Is.GreaterThanOrEqualTo(contentWorld.xMin - 1f));
+                Assert.That(panelWorld.xMax, Is.LessThanOrEqualTo(contentWorld.xMax + 1f));
+                Assert.That(panelWorld.yMin, Is.GreaterThanOrEqualTo(contentWorld.yMin - 1f));
+                Assert.That(panelWorld.yMax, Is.LessThanOrEqualTo(contentWorld.yMax + 1f));
+                Assert.That(detailWorld.xMin, Is.GreaterThan(panelWorld.xMin));
+                Assert.That(detailWorld.xMax, Is.LessThan(panelWorld.xMax));
+                Assert.That(detailWorld.yMin, Is.GreaterThan(panelWorld.yMin));
+                Assert.That(close.rect.width, Is.GreaterThan(0f));
+                Assert.That(close.rect.height, Is.GreaterThan(0f));
             }
             finally { Object.DestroyImmediate(root); }
         }
@@ -1166,6 +1195,38 @@ namespace KMA.Tests.Presentation
                 }
             }
             finally { Object.DestroyImmediate(root); }
+        }
+
+        [Test]
+        public void MapBackdropFillsTheCanvasWhileMapControlsStayUnderTheSafeArea()
+        {
+            var canvasObject = new GameObject("canvas", typeof(RectTransform), typeof(Canvas));
+            var safeArea = new GameObject("SafeAreaRoot", typeof(RectTransform));
+            safeArea.transform.SetParent(canvasObject.transform, false);
+            var safeRect = safeArea.GetComponent<RectTransform>();
+            safeRect.anchorMin = new Vector2(.08f, .06f);
+            safeRect.anchorMax = new Vector2(.92f, .94f);
+            var mapObject = new GameObject("MapScreen", typeof(RectTransform), typeof(MapScreen));
+            mapObject.transform.SetParent(safeArea.transform, false);
+            try
+            {
+                var screen = mapObject.GetComponent<MapScreen>();
+                MapPresentationBuilder.Build(screen, new GameSession());
+                Transform mapRoot = mapObject.transform.Find("S5MapPresentation");
+                Transform backdrop = canvasObject.transform.Find("S5MapBackdrop");
+                Assert.That(backdrop, Is.Not.Null, "The backdrop belongs to the full canvas, outside SafeAreaRoot.");
+                Assert.That(backdrop.parent, Is.EqualTo(canvasObject.transform));
+                Assert.That(((RectTransform)backdrop).anchorMin, Is.EqualTo(Vector2.zero));
+                Assert.That(((RectTransform)backdrop).anchorMax, Is.EqualTo(Vector2.one));
+                Assert.That(mapRoot, Is.Not.Null);
+                Assert.That(mapRoot.IsChildOf(safeArea.transform), Is.True,
+                    "Map controls remain inside the fitted safe area.");
+                Assert.That(mapRoot.GetComponentInChildren<Button>(true), Is.Not.Null);
+            }
+            finally
+            {
+                Object.DestroyImmediate(canvasObject);
+            }
         }
 
         static GameSession CompleteSprintJourney()

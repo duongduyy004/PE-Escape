@@ -21,7 +21,9 @@ namespace KMA.UI.Kit
                 if (IsExempt(image))
                     continue;
                 string path = PathOf(image.transform);
-                bool spriteOk = image.sprite == null ? IsScrim(image.color) : kitSprites.Contains(image.sprite);
+                bool sprintFoot = image.name == "FootIcon" && image.sprite != null &&
+                    (image.sprite.name == "SprintLeftFootIcon" || image.sprite.name == "SprintRightFootIcon");
+                bool spriteOk = image.sprite == null ? IsScrim(image.color) : kitSprites.Contains(image.sprite) || sprintFoot;
                 if (!spriteOk)
                     problems.Add($"{path}: sprite {(image.sprite == null ? "none" : image.sprite.name)} is not a UI kit sprite");
                 if (!IsToken(image.color))

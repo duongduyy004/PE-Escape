@@ -27,7 +27,7 @@ namespace KMA.Gameplay.UI
             Anchor(accent.rectTransform, new Vector2(.025f, .982f), new Vector2(.975f, .989f));
 
             Image emblem = Shape(panel, "CourseIcon", Theme.LessonJourney.sprint, true);
-            Place(emblem.rectTransform, new Vector2(.025f, .90f), new Vector2(52f, 52f), new Vector2(0f, .5f));
+            Place(emblem.rectTransform, new Vector2(.025f, .90f), new Vector2(78f, 78f), new Vector2(0f, .5f));
             SubjectId[] subjects = { SubjectId.Sprint, SubjectId.Volleyball, SubjectId.Football, SubjectId.Chess };
             foreach (SubjectId subject in subjects)
             {
@@ -42,16 +42,16 @@ namespace KMA.Gameplay.UI
             TMP_Text heading = Label(panel, "CourseTitle", Style.headingSize, Theme.TextPrimary, FontStyles.Bold,
                 VietFontRole.Hud);
             Anchor(heading.rectTransform, new Vector2(.025f, .83f), new Vector2(.40f, .97f));
-            heading.rectTransform.offsetMin = new Vector2(70f, 0f);
+            heading.rectTransform.offsetMin = new Vector2(100f, 0f);
 
             Image star = Shape(panel, "ProgressStar", Theme.Accent);
             star.sprite = MapStopBuilder.StarSprite();
             star.type = Image.Type.Simple;
             star.preserveAspect = true;
-            Place(star.rectTransform, new Vector2(.42f, .90f), new Vector2(34f, 34f), new Vector2(0f, .5f));
+            Place(star.rectTransform, new Vector2(.42f, .90f), new Vector2(51f, 51f), new Vector2(0f, .5f));
             TMP_Text progress = Label(panel, "CourseProgress", Style.bodySize, Theme.MapHint);
             Anchor(progress.rectTransform, new Vector2(.42f, .83f), new Vector2(.88f, .97f));
-            progress.rectTransform.offsetMin = new Vector2(44f, 0f);
+            progress.rectTransform.offsetMin = new Vector2(66f, 0f);
 
             // Roads first so the stage nodes draw over their ends.
             for (int index = 0; index < StageCount - 1; index++) CreateRoad(panel, index);
@@ -66,25 +66,6 @@ namespace KMA.Gameplay.UI
         public static void EnsurePopup(RectTransform panel)
         {
             Anchor(panel, Style.panelAnchorMin, Style.panelAnchorMax);
-            // Apply sizing to both newly created menus and the menu saved in the Map scene.
-            foreach (TMP_Text label in panel.GetComponentsInChildren<TMP_Text>(true))
-            {
-                float size = label.name == "CourseTitle" ? Style.headingSize
-                    : label.name == "Objective" ? Style.objectiveSize
-                    : label.name == "Status" ? Style.captionSize : Style.bodySize;
-                label.fontSize = label.fontSizeMax = size * 1.2f;
-                if (label.enableAutoSizing) label.fontSizeMin = (size - 6f) * 1.2f;
-            }
-            for (int index = 0; index < StageCount; index++)
-            {
-                var disc = panel.Find($"Lesson{index + 1}/StageIcon") as RectTransform;
-                if (disc == null) continue;
-                disc.sizeDelta = Vector2.one * Style.nodeSize;
-                var badge = disc.Find("StateBadge") as RectTransform;
-                if (badge != null) badge.sizeDelta = Vector2.one * Style.nodeBadgeSize;
-                var title = panel.Find($"Lesson{index + 1}/StageTitle") as RectTransform;
-                if (title != null) title.offsetMax = new Vector2(0f, Style.nodeLabelHeight);
-            }
             var parent = (RectTransform)panel.parent;
             RectTransform scrim = (RectTransform)parent.Find("LessonScrim");
             if (scrim == null)
@@ -107,8 +88,8 @@ namespace KMA.Gameplay.UI
             if (panel.Find("CloseButton") != null) return;
             Image close = Shape(panel, "CloseButton", HomeMenuStyle.Navy, true);
             close.raycastTarget = true;
-            Place(close.rectTransform, Vector2.one, new Vector2(72f, 72f));
-            close.rectTransform.anchoredPosition = new Vector2(-10f, -10f);
+            Place(close.rectTransform, Vector2.one, new Vector2(96f, 96f));
+            close.rectTransform.anchoredPosition = new Vector2(-32f, -32f);
             Outline ring = close.gameObject.AddComponent<Outline>();
             ring.effectColor = HomeMenuStyle.Gold;
             ring.effectDistance = new Vector2(3f, -3f);
@@ -121,7 +102,7 @@ namespace KMA.Gameplay.UI
                 Image stroke = Shape(close.transform, "Stroke", HomeMenuStyle.White);
                 stroke.sprite = null;
                 stroke.type = Image.Type.Simple;
-                Place(stroke.rectTransform, Vector2.one * .5f, new Vector2(34f, 7f));
+                Place(stroke.rectTransform, Vector2.one * .5f, new Vector2(45f, 9f));
                 stroke.rectTransform.localRotation = Quaternion.Euler(0f, 0f, angle);
             }
         }
@@ -204,11 +185,11 @@ namespace KMA.Gameplay.UI
             Anchor(completeMark, new Vector2(.18f, .18f), new Vector2(.82f, .82f));
             Image shortStroke = Shape(completeMark, "ShortStroke", Theme.Surface);
             shortStroke.sprite = null;
-            Place(shortStroke.rectTransform, new Vector2(.32f, .42f), new Vector2(12f, 5f));
+            Place(shortStroke.rectTransform, new Vector2(.32f, .42f), new Vector2(18f, 7.5f));
             shortStroke.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -45f);
             Image longStroke = Shape(completeMark, "LongStroke", Theme.Surface);
             longStroke.sprite = null;
-            Place(longStroke.rectTransform, new Vector2(.62f, .54f), new Vector2(22f, 5f));
+            Place(longStroke.rectTransform, new Vector2(.62f, .54f), new Vector2(33f, 7.5f));
             longStroke.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
             Image lockIcon = Shape(badge.transform, "LockIcon", Theme.Surface);
             lockIcon.sprite = MapPresentationBuilder.LockSprite();
@@ -248,7 +229,7 @@ namespace KMA.Gameplay.UI
             objective.lineSpacing = 0f;
             objective.enableAutoSizing = true;
             objective.fontSizeMax = Style.objectiveSize;
-            objective.fontSizeMin = Style.objectiveSize - 6f;
+            objective.fontSizeMin = Mathf.Max(32f, Style.objectiveSize - 7f);
             Inset(objective.rectTransform, new Vector2(0f, .40f), new Vector2(.68f, 1f),
                 new Vector2(pad, 0f), new Vector2(0f, -10f));
 
@@ -256,7 +237,7 @@ namespace KMA.Gameplay.UI
                 FontStyles.Normal, VietFontRole.Body);
             status.enableAutoSizing = true;
             status.fontSizeMax = Style.captionSize;
-            status.fontSizeMin = Style.captionSize - 4f;
+            status.fontSizeMin = Style.captionSize - 3f;
             Inset(status.rectTransform, Vector2.zero, new Vector2(.68f, .40f),
                 new Vector2(pad, 8f), Vector2.zero);
 

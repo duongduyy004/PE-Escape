@@ -14,9 +14,11 @@ namespace KMA.UI.Kit
         [SerializeField] RectTransform target;
         [SerializeField] Color restColor = Color.white;
         [SerializeField] Selectable selectable;
-        [SerializeField, Range(0f, 1f)] float pressedOpacity = 1f;
 
         [SerializeField] TMP_Text label;
+        CanvasGroup targetGroup;
+        bool hasInteractableOverride;
+        bool interactableOverride = true;
         Color labelRestColor;
         bool wasDisabled;
         bool pressed;
@@ -26,14 +28,21 @@ namespace KMA.UI.Kit
         public float Scale => target == null ? 1f : target.localScale.x;
         public Color RestColor => restColor;
 
-        public void Configure(Graphic faceGraphic, RectTransform scaleTarget, float opacityWhilePressed = 1f)
+        public void Configure(Graphic faceGraphic, RectTransform scaleTarget)
         {
-            pressedOpacity = Mathf.Clamp01(opacityWhilePressed);
             face = faceGraphic;
             target = scaleTarget;
             selectable = GetComponent<Selectable>();
+            targetGroup = scaleTarget != null ? scaleTarget.GetComponent<CanvasGroup>() : null;
             if (face != null)
                 restColor = face.color;
+        }
+
+        public void SetInteractable(bool interactable)
+        {
+            hasInteractableOverride = true;
+            interactableOverride = interactable;
+            ApplyInteractable();
         }
 
         public void SetRestColor(Color color)
@@ -48,12 +57,12 @@ namespace KMA.UI.Kit
 
         public void Press()
         {
-            if (selectable != null && !selectable.interactable)
+            if (IsDisabled)
                 return;
             pressed = true;
             restoreRemaining = 0f;
             if (face != null)
-                face.color = PressedColor;
+                face.color = MinigameUiTheme.Lighten(restColor, MinigameUiTheme.PressLighten);
             SetScale(MinigameUiTheme.PressScale);
         }
 
@@ -74,12 +83,9 @@ namespace KMA.UI.Kit
             restoreRemaining = Mathf.Max(0f, restoreRemaining - deltaTime);
             float t = 1f - restoreRemaining / MinigameUiTheme.PressRestoreSeconds;
             if (face != null)
-                face.color = Color.Lerp(PressedColor, restColor, t);
+                face.color = Color.Lerp(MinigameUiTheme.Lighten(restColor, MinigameUiTheme.PressLighten), restColor, t);
             SetScale(Mathf.Lerp(MinigameUiTheme.PressScale, 1f, t));
         }
-
-        Color PressedColor => MinigameUiTheme.WithAlpha(
-            MinigameUiTheme.Lighten(restColor, MinigameUiTheme.PressLighten), restColor.a * pressedOpacity);
 
         void Update() => Tick(Time.unscaledDeltaTime);
 
@@ -113,14 +119,16 @@ namespace KMA.UI.Kit
                 labelRestColor = label.color;
         }
 
+        bool IsDisabled => hasInteractableOverride ? !interactableOverride :
+            selectable != null && !selectable.interactable;
+
         void ApplyInteractable()
         {
-            if (selectable == null)
-                return;
-            bool disabled = !selectable.interactable;
+            bool disabled = IsDisabled;
             if (disabled == wasDisabled)
                 return;
             wasDisabled = disabled;
+            if (targetGroup != null) targetGroup.alpha = disabled ? .58f : 1f;
             if (disabled)
             {
                 pressed = false;

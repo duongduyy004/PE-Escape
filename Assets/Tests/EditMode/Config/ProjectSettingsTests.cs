@@ -23,7 +23,7 @@ namespace KMA.Tests.Config
 
                 ProjectConfigurator.Apply();
 
-                Assert.That(PlayerSettings.productName, Is.EqualTo("Thể Chất KMA"));
+                Assert.That(PlayerSettings.productName, Is.EqualTo("Chạy trốn thể chất"));
             }
             finally
             {

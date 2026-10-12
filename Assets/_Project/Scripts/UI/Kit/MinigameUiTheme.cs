@@ -7,6 +7,7 @@ namespace KMA.UI.Kit
     public static class MinigameUiTheme
     {
         public static Color Surface => UITheme.Shared.Surface;
+        public static Color VolleyballControlSurface => UITheme.Shared.VolleyballControlSurface;
         public static Color TextPrimary => UITheme.Shared.TextPrimary;
         public static Color Accent => UITheme.Shared.Accent;
         public static Color Player => UITheme.Shared.Player;
@@ -66,7 +67,7 @@ namespace KMA.UI.Kit
 
         /// Every colour a minigame UI may draw with, compared without alpha (Track is white).
         public static Color[] Palette() =>
-            new[] { Surface, TextPrimary, Accent, Player, Energy, TextOutline, Success, Track };
+            new[] { Surface, VolleyballControlSurface, TextPrimary, Accent, Player, Energy, TextOutline, Success, Track };
 
         public static Color WithAlpha(Color color, float alpha)
         {

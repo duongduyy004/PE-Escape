@@ -101,3 +101,17 @@ style by `tools/render-journey-emoji.js` and packed into a 360x216 atlas
 white pixel for tinted quads) is drawn by `tools/render-campus-art.js` as SVG and rasterised with
 `@resvg/resvg-js` on 2026-10-06. Same palette and ink outline as the Football GoalView art. `CampusSkyline.png` is not drawn: it is
 cropped, pixels unchanged, from the Sprint campus illustration `Art/Environments/Sprint/Campus.png`.
+
+## Menu branding composition and procedural controls (2026-10-12)
+
+The menu's two-line `CHẠY TRỐN / THỂ CHẤT` wordmark is rendered with TextMeshPro
+by `Scripts/UI/HomePresentationBuilder.cs`; it is text composition, not a newly
+exported logo image or font. The school badge is assembled from project-authored
+UI shapes in the same builder. `Scripts/UI/HomeMenuIcons.cs` draws the menu's
+functional icons at runtime, and `Scripts/Gameplay/Sprint/SprintFootIcons.cs`
+draws the left/right shoe icons at runtime. These are project-authored code
+assets with no third-party artwork or icon-font dependency.
+
+The existing `Art/Brand/GameLogo.png` and `Art/Brand/AppIcon.png` remain the
+separately credited project-generated art dated 2026-09-05 above; this update
+does not create or reattribute those PNGs.

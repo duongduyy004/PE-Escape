@@ -75,14 +75,32 @@ namespace KMA.EditorTools
             Image summary = UiKit.Panel(parent, "Summary");
             UiKit.Place(summary.rectTransform, centre, centre, Vector2.zero, new Vector2(1100f, 620f));
             var summaryGroup = summary.gameObject.AddComponent<CanvasGroup>();
-            TMP_Text title = UiKit.Label(summary.transform, "Title", "Đã qua thể chất!",
+            TMP_Text title = UiKit.Label(summary.transform, "Title", "QUA MÔN",
                 MinigameUiTheme.Display * .5f, MinigameUiTheme.Accent, outline: true);
-            UiKit.Place(title.rectTransform, top, top, new Vector2(0f, -24f), new Vector2(1000f, 100f));
+            title.rectTransform.anchorMin = new Vector2(.04f, 1f);
+            title.rectTransform.anchorMax = new Vector2(.96f, 1f);
+            title.rectTransform.pivot = new Vector2(.5f, 1f);
+            title.rectTransform.sizeDelta = new Vector2(0f, 100f);
+            title.rectTransform.anchoredPosition = new Vector2(0f, -24f);
+            title.enableAutoSizing = true;
+            title.fontSizeMin = 34f;
+            title.fontSizeMax = title.fontSize;
+            title.enableWordWrapping = false;
+            title.overflowMode = TextOverflowModes.Ellipsis;
             TMP_Text[] rows = Enumerable.Range(0, 4).Select(i =>
             {
                 TMP_Text row = UiKit.Label(summary.transform, "Row" + i, string.Empty, MinigameUiTheme.Body,
                     MinigameUiTheme.TextPrimary, TextAlignmentOptions.Left);
-                UiKit.Place(row.rectTransform, centre, centre, new Vector2(0f, 160f - 76f * i), new Vector2(980f, 60f));
+                RectTransform rowRect = row.rectTransform;
+                rowRect.anchorMin = new Vector2(.05f, .5f);
+                rowRect.anchorMax = new Vector2(.95f, .5f);
+                rowRect.sizeDelta = new Vector2(0f, 64f);
+                rowRect.anchoredPosition = new Vector2(0f, 160f - 76f * i);
+                row.enableAutoSizing = true;
+                row.fontSizeMin = 24f;
+                row.fontSizeMax = row.fontSize;
+                row.textWrappingMode = TextWrappingModes.Normal;
+                row.overflowMode = TextOverflowModes.Ellipsis;
                 return row;
             }).ToArray();
             TMP_Text footnote = UiKit.Label(summary.transform, "Footnote", string.Empty, MinigameUiTheme.Caption,

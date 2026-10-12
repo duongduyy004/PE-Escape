@@ -38,6 +38,9 @@ namespace KMA.Gameplay.UI
                 existing.kma = existing.transform.Find("TitleKMA") as RectTransform;
                 existing.titleTop = existing.transform.Find("TitleTop")?.GetComponent<TMP_Text>();
                 existing.titleKma = existing.kma?.GetComponent<TMP_Text>();
+                if (existing.titleTop != null) existing.titleTop.text = VietText.Fix("CHẠY TRỐN");
+                if (existing.titleKma != null) existing.titleKma.text = VietText.Fix("THỂ CHẤT");
+                HomePresentationBuilder.RestyleBadge(existing.transform.Find("SportBadge") as RectTransform);
                 existing.Status = existing.transform.Find("LoadingStatus")?.GetComponent<TMP_Text>();
                 existing.Percent = existing.transform.Find("ProgressPercent")?.GetComponent<TMP_Text>();
                 existing.LoadingBar = existing.GetComponentInChildren<Slider>(true);
@@ -95,9 +98,9 @@ namespace KMA.Gameplay.UI
             // Center those same parts here so the artwork and shine share one axis.
             foreach (RectTransform part in badge)
                 part.anchorMin = part.anchorMax = Vector2.one * .5f;
-            var top = Label(panel, "TitleTop", "THỂ CHẤT", HomeMenuStyle.TitleTopSize * style.titleScale,
+            var top = Label(panel, "TitleTop", "CHẠY TRỐN", 48f * style.titleScale,
                 VietFontRole.Title, new Vector2(0f, style.titleTopY), style.titleTopSize);
-            var title = Label(panel, "TitleKMA", "KMA", HomeMenuStyle.TitleKmaSize * style.titleScale,
+            var title = Label(panel, "TitleKMA", "THỂ CHẤT", 48f * style.titleScale,
                 VietFontRole.Title, new Vector2(0f, style.titleKmaY), style.titleKmaSize);
             foreach (var text in new[] { top, title })
             {
@@ -214,8 +217,8 @@ namespace KMA.Gameplay.UI
                 available.y / style.contentSize.y), 0f, 1f);
             layout.localScale = Vector3.one * scale;
             float titleScale = style.titleScale * HomeMenuResponsive.ScaleFor(safeArea.rect.size);
-            titleTop.fontSize = HomeMenuStyle.TitleTopSize * titleScale;
-            titleKma.fontSize = HomeMenuStyle.TitleKmaSize * titleScale;
+            titleTop.fontSize = 48f * titleScale;
+            titleKma.fontSize = 48f * titleScale;
             float footerWidth = Mathf.Max(0f, Mathf.Min(style.footerSize.x, safeArea.rect.width * .5f - style.footerInset.x * 2f));
             if (versionFooter != null) versionFooter.sizeDelta = new Vector2(footerWidth, style.footerSize.y);
         }

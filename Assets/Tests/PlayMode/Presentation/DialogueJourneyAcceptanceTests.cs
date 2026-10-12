@@ -61,12 +61,13 @@ namespace KMA.Tests.Presentation
    {
     yield return Load(scene);var game=Object.FindFirstObjectByType<MinigameBase>();var football=game as FootballController;if(football!=null)football.BeginMatch(FootballDifficulty.Normal);
     float end=Time.realtimeSinceStartup+12;while(game.PresentationPhase!=MinigamePhase.Play && Time.realtimeSinceStartup<end){if(game is ChessFinalController ch)ch.BeginAttempt();yield return null;}
+    yield return null; // Let the controller render its newly enabled action buttons after countdown.
     Host().Clear();Host().Emit("frog.fall.first");Canvas.ForceUpdateCanvases();
     foreach(var graphic in Object.FindObjectsByType<GameplayDialogueView>(FindObjectsInactive.Include,FindObjectsSortMode.None).SelectMany(v=>v.GetComponentsInChildren<UnityEngine.UI.Graphic>(true)))Assert.That(graphic.raycastTarget,Is.False);
     if(game is FrogJumpController frog){Down(Object.FindFirstObjectByType<FrogJumpTapArea>());Assert.That(frog.Rules.State,Is.Not.EqualTo(FrogJumpState.Aiming));}
     else if(game is VolleyballController volley){Down(Object.FindFirstObjectByType<ActionButton>());Assert.That(volley.Input.ConsumePresses(),Is.EqualTo(1));}
     else if(football!=null){Down(Object.FindFirstObjectByType<FootballHud>().ShootButton);Assert.That(football.Rules.State,Is.EqualTo(FootballState.Kicking));}
-    else if(game is SprintController sprint){int taps=0;sprint.CadenceTapped+=_=>taps++;Down(Object.FindFirstObjectByType<ScreenTapArea>());yield return null;Assert.That(taps,Is.EqualTo(1));}
+    else if(game is SprintController sprint){int taps=0;sprint.CadenceTapped+=_=>taps++;Down(Object.FindFirstObjectByType<ScreenTapArea>());yield return null;Assert.That(taps,Is.EqualTo(1),$"scene={scene}; learning={sprint.IsLearnChallenge}; phase={sprint.Phase}; scale={Time.timeScale}; hostIdle={Host().IsIdle}; elapsed={sprint.Snapshot.Elapsed}");}
     else if(game is ChessFinalController chess)
     {
      var board=Object.FindFirstObjectByType<ChessBoardView>();ChessMove.TryParseUci(chess.Machine.Puzzle.nodes[0].moves[0].uci,out var move);

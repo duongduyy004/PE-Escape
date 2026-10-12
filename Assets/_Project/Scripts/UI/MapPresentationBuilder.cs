@@ -101,11 +101,7 @@ namespace KMA.Gameplay.UI
 
             RectTransform root = Rect(screen.transform, "S5MapPresentation");
             Stretch(root, Vector2.zero, Vector2.zero);
-            Image backdrop = root.gameObject.AddComponent<Image>();
-            backdrop.color = sharedBackground != null ? Color.white : background;
-            backdrop.sprite = sharedBackground;
-            backdrop.preserveAspect = false;
-            if (sharedBackground != null) AddBackdropShade(root);
+            CreateFullBleedBackdrop(root, sharedBackground, background);
             RectTransform content = Rect(root, "Content");
             Stretch(content, new Vector2(64, 40), new Vector2(-64, -40));
 
@@ -141,23 +137,48 @@ namespace KMA.Gameplay.UI
         static void ApplySharedBackground(Transform root, Sprite sharedBackground)
         {
             if (root == null || sharedBackground == null) return;
-            Image backdrop = root.GetComponent<Image>();
-            if (backdrop == null) backdrop = root.gameObject.AddComponent<Image>();
-            backdrop.sprite = sharedBackground;
-            backdrop.color = Color.white;
-            backdrop.preserveAspect = false;
-            AddBackdropShade(root);
+            Color fallback = Color.Lerp(UITheme.Shared.Background, UITheme.Shared.MapBackgroundTint, .46f);
+            CreateFullBleedBackdrop(root, sharedBackground, fallback);
         }
 
-        static void AddBackdropShade(Transform root)
+        static void CreateFullBleedBackdrop(Transform contentRoot, Sprite sprite, Color fallback)
         {
-            if (root.Find("BackgroundShade") != null) return;
-            RectTransform shade = Rect(root, "BackgroundShade");
-            Stretch(shade, Vector2.zero, Vector2.zero);
-            Image image = shade.gameObject.AddComponent<Image>();
-            image.color = new Color(HomeMenuStyle.Navy.r, HomeMenuStyle.Navy.g, HomeMenuStyle.Navy.b, .42f);
+            // MapScreen can live under SafeAreaRoot. Keep its controls there, but draw scenery
+            // on the root Canvas so it extends behind system bars and gesture insets.
+            Canvas canvas = contentRoot.GetComponentInParent<Canvas>();
+            Transform canvasRoot = canvas != null ? canvas.rootCanvas.transform : contentRoot.root;
+            const string backdropName = "S5MapBackdrop";
+            Transform old = canvasRoot.Find(backdropName);
+            GameObject backgroundObject = old != null ? old.gameObject
+                : new GameObject(backdropName, typeof(RectTransform), typeof(Image));
+            RectTransform backgroundRect = (RectTransform)backgroundObject.transform;
+            if (backgroundRect.parent != canvasRoot) backgroundRect.SetParent(canvasRoot, false);
+            Stretch(backgroundRect, Vector2.zero, Vector2.zero);
+            Image image = backgroundObject.GetComponent<Image>();
+            image.sprite = sprite;
+            image.color = sprite != null ? Color.white : fallback;
+            image.preserveAspect = false;
             image.raycastTarget = false;
-            shade.SetAsFirstSibling();
+            backgroundRect.SetAsFirstSibling();
+            Transform oldShade = canvasRoot.Find(backdropName + "Shade");
+            if (sprite == null) { if (oldShade != null) oldShade.gameObject.SetActive(false); }
+            else
+            {
+                GameObject shadeObject = oldShade != null ? oldShade.gameObject
+                    : new GameObject(backdropName + "Shade", typeof(RectTransform), typeof(Image));
+                RectTransform shadeRect = (RectTransform)shadeObject.transform;
+                shadeRect.SetParent(canvasRoot, false);
+                Stretch(shadeRect, Vector2.zero, Vector2.zero);
+                Image shade = shadeObject.GetComponent<Image>();
+                shade.color = new Color(HomeMenuStyle.Navy.r, HomeMenuStyle.Navy.g, HomeMenuStyle.Navy.b, .42f);
+                shade.raycastTarget = false;
+                shadeRect.SetAsFirstSibling();
+                backgroundRect.SetAsFirstSibling();
+            }
+            Image insetImage = contentRoot.GetComponent<Image>();
+            if (insetImage != null) insetImage.enabled = false;
+            Transform insetShade = contentRoot.Find("BackgroundShade");
+            if (insetShade != null) insetShade.gameObject.SetActive(false);
         }
 
         static void ConfigureJourneyPath(Transform selectionGrid, MapNodeView[] nodes)
@@ -200,7 +221,7 @@ namespace KMA.Gameplay.UI
             label.alignment = TextAlignmentOptions.Center;
             UiKit.StyleLabel(label, UITheme.Shared.LessonJourney.captionSize, UITheme.Shared.TextPrimary);
             label.fontSize = UITheme.Shared.LessonJourney.captionSize;
-            label.enableWordWrapping = false;
+            label.enableWordWrapping = true;
             label.raycastTarget = false;
             JourneyCourseSummary view = panel.AddComponent<JourneyCourseSummary>();
             view.Configure(label);

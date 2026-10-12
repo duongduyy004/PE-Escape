@@ -347,8 +347,8 @@ namespace KMA.Tests.Presentation
                 Assert.That(splash.transform.Find("Illustration"), Is.Not.Null);
                 Transform content = splash.transform.Find("SplashSafeArea/SplashLayout");
                 Assert.That(content, Is.Not.Null, "Splash must build its presentation inside the safe area.");
-                Assert.That(content.Find("TitleTop").GetComponent<TMP_Text>().text, Is.EqualTo("THỂ CHẤT"));
-                Assert.That(content.Find("TitleKMA").GetComponent<TMP_Text>().text, Is.EqualTo("KMA"));
+                Assert.That(content.Find("TitleTop").GetComponent<TMP_Text>().text, Is.EqualTo("CHẠY TRỐN"));
+                Assert.That(content.Find("TitleKMA").GetComponent<TMP_Text>().text, Is.EqualTo("THỂ CHẤT"));
                 Assert.That(content.Find("Slogan").GetComponent<TMP_Text>().text,
                     Is.EqualTo("Hành trình rèn luyện thể chất"));
                 Assert.That(content.Find("TitleKMA").GetComponent<TMP_Text>().fontSharedMaterial,

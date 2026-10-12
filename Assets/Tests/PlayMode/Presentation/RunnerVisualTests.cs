@@ -11,6 +11,33 @@ namespace KMA.Tests.Presentation
     public sealed class RunnerVisualTests
     {
         [UnityTest]
+        public IEnumerator LargerVisualScaleLivesOutsideAnimatedSpriteTransforms()
+        {
+            yield return SceneManager.LoadSceneAsync("MG_Sprint");
+            var player = GameObject.Find("Player").GetComponentInChildren<RunnerVisualPresenter>(true);
+            Assert.That(player.transform.localScale.x, Is.EqualTo(1.25f).Within(.001f));
+            var playerAnimator = player.GetComponent<Animator>();
+            Assert.That(playerAnimator, Is.Not.Null);
+            playerAnimator.Play("Run", 0, 0f);
+            playerAnimator.Update(0f);
+            playerAnimator.Play("Idle", 0, 0f);
+            playerAnimator.Update(0f);
+            Assert.That(player.transform.localScale.x, Is.EqualTo(1.25f).Within(.001f),
+                "State clips must not reset the enlarged player parent.");
+
+            foreach (var rival in Object.FindObjectsByType<RivalRunnerAI>(FindObjectsSortMode.None))
+            {
+                Assert.That(rival.transform.localScale.x, Is.EqualTo(1.625f).Within(.001f));
+                rival.Animator.Play("Run", 0, 0f);
+                rival.Animator.Update(0f);
+                rival.Animator.Play("Idle", 0, 0f);
+                rival.Animator.Update(0f);
+                Assert.That(rival.transform.localScale.x, Is.EqualTo(1.625f).Within(.001f),
+                    "State clips must not reset the enlarged rival parent.");
+            }
+        }
+
+        [UnityTest]
         public IEnumerator PlayIsUninterrupted_KeepsPlayerAndRivalsRunning()
         {
             yield return SceneManager.LoadSceneAsync("MG_Sprint");

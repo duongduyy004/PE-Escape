@@ -52,6 +52,8 @@ namespace KMA.Gameplay.UI
         [SerializeField] private Color disabledSurface = new Color32(74, 92, 110, 255);
         [SerializeField] private Color disabledText = new Color32(190, 201, 212, 255);
         [SerializeField] private Color surface = new Color32(8, 35, 61, 255);
+        [SerializeField] private Color volleyballControlSurface = new Color(.025f, .075f, .14f, .94f);
+        public Color VolleyballControlSurface => volleyballControlSurface;
         [SerializeField] private Color textPrimary = new Color32(255, 249, 231, 255);
         [SerializeField] private Color textOutline = new Color32(3, 18, 33, 255);
         [SerializeField] private Color player = new Color32(58, 230, 255, 255);
@@ -118,18 +120,18 @@ namespace KMA.Gameplay.UI
             public Color football = new Color32(53, 169, 91, 255);
             public Color chess = new Color32(232, 90, 72, 255);
             // The lesson panel is a popup centred over the map, opened by tapping a stop.
-            public Vector2 panelAnchorMin = new Vector2(.02f, .15f);
-            public Vector2 panelAnchorMax = new Vector2(.98f, .75f);
+            public Vector2 panelAnchorMin = new Vector2(.03f, .08f);
+            public Vector2 panelAnchorMax = new Vector2(.97f, .85f);
             public Vector2 courseAnchorMin = new Vector2(0f, .41f);
             public Vector2 courseAnchorMax = new Vector2(1f, .915f);
-            public Vector2 summaryAnchorMin = new Vector2(.05f, .84f);
+            public Vector2 summaryAnchorMin = new Vector2(.05f, .80f);
             public Vector2 summaryAnchorMax = new Vector2(.95f, .915f);
             public float borderWidth = 3f;
-            public float headingSize = 36f;
-            public float stageSize = 36f;
-            public float bodySize = 28f;
-            public float captionSize = 26f;
-            public float objectiveSize = 26f;
+            public float headingSize = 54f;
+            public float stageSize = 54f;
+            public float bodySize = 42f;
+            public float captionSize = 39f;
+            public float objectiveSize = 39f;
             // Level-select layout, in panel fractions: stage nodes on a dotted road, details below.
             public float nodeRowBottom = .36f;
             public float nodeRowTop = .82f;
@@ -138,11 +140,11 @@ namespace KMA.Gameplay.UI
             public Vector2 detailAnchorMin = new Vector2(.04f, .04f);
             public Vector2 detailAnchorMax = new Vector2(.96f, .33f);
             // Stage node sizes, in canvas pixels.
-            public float nodeSize = 149f;
+            public float nodeSize = 186f;
             public float nodeCurrentScale = 1.16f;
-            public float nodeBadgeSize = 55f;
-            public float nodeLabelHeight = 62f;
-            public float lessonDotSize = 14f;
+            public float nodeBadgeSize = 69f;
+            public float nodeLabelHeight = 78f;
+            public float lessonDotSize = 21f;
             public float revealDuration = .20f;
             public float revealStagger = .05f;
             public float revealScale = .94f;
@@ -150,7 +152,7 @@ namespace KMA.Gameplay.UI
             public Vector2 glowAlpha = new Vector2(.12f, .32f);
             // Journey map: the map zone fills everything under the compact header.
             public Vector2 mapAnchorMin = new Vector2(0f, .02f);
-            public Vector2 mapAnchorMax = new Vector2(1f, .90f);
+            public Vector2 mapAnchorMax = new Vector2(1f, .78f);
             // Fixed-size stop: tag + badge area + name + star/status pill.
             public Vector2 stopSize = new Vector2(320f, 400f);
             public float stopBadgeSize = 170f;

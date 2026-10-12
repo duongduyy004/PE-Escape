@@ -69,7 +69,8 @@ namespace KMA.Tests.Gameplay.Progression
             if (controller is SprintController sprint)
             {
                 var input = Object.FindFirstObjectByType<KMA.Input.GameplayInputRouter>();
-                for (int frame = 0; frame < 31 * 240 && !completed; frame++)
+                int frameLimit = Mathf.CeilToInt(Mathf.Max(31f, definition.TimeLimit + 5f) * 240f);
+                for (int frame = 0; frame < frameLimit && !completed; frame++)
                 {
                     if (pass && frame % 40 == 0)
                         input.FeedSprintTapForTest((frame / 40) % 2 == 0 ? KMA.Input.Side.Left : KMA.Input.Side.Right,
@@ -111,13 +112,12 @@ namespace KMA.Tests.Gameplay.Progression
                     }
                     else if (pass && match.BallState == BallState.InPlay && match.Rally.Possession == CourtSide.Player)
                     {
-                        bool smash = match.Rally.Touches == 2;
+                        // One receive then smash is legal and fits the 90-second exam.
+                        // VolleyballChallengeTests verifies ten points with this sequence.
+                        bool smash = match.Rally.Touches >= 1;
                         float ideal = match.Flight.TimeAtHeightDescending(smash
                             ? ActionResolver.SmashContactHeight : ActionResolver.ReceiveContactHeight);
-                        // At the second receive, wait beyond the smash window. The
-                        // context button prioritizes a smash if both windows overlap.
-                        float contactTime = ideal + (!smash && match.Rally.Touches == 1 ? .1f : 0f);
-                        if (Mathf.Abs(match.FlightTime - contactTime) <= .005f)
+                        if (Mathf.Abs(match.FlightTime - ideal) <= .005f)
                         {
                             match.Player.PlaceAt(match.Flight.GroundAt(ideal));
                             if (smash)

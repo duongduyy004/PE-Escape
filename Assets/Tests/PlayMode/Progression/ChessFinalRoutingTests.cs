@@ -40,9 +40,9 @@ namespace KMA.Tests.Gameplay.Progression
             JourneyRoutingFixture.FailActive(router, panel, "chess_final");
 
             Assert.That(router.Session.PendingFrogJump, Is.Null);
-            Assert.That(panel.RetryAvailable, Is.True);
-            Assert.That(panel.ContinueLabel, Is.EqualTo(VietText.Fix("TIẾP TỤC")));
-            panel.Retry();
+            Assert.That(panel.RetryAvailable, Is.False);
+            Assert.That(panel.ContinueLabel, Is.EqualTo(VietText.Fix("THI LẠI")));
+            panel.Continue();
             Assert.That(routes.Last().Route, Is.EqualTo(SessionRoute.Subject));
             Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("chess_final"));
         }

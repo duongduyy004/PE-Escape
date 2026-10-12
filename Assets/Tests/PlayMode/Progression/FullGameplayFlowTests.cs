@@ -162,6 +162,7 @@ namespace KMA.Tests.Gameplay.Progression
                     1d + tap * .2d);
                 yield return null;
             }
+            sprint.Simulate(sprint.LearnTimeRemaining + .1f);
             var resultPanel = UnityEngine.Object.FindFirstObjectByType<ResultPanel>(FindObjectsInactive.Include);
             Assert.That(resultPanel, Is.Not.Null);
             Assert.That(resultPanel.CurrentResult.Pass, Is.True);

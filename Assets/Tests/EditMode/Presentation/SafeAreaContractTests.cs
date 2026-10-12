@@ -18,6 +18,35 @@ namespace KMA.Tests.Presentation
         const string HudPrefabPath = "Assets/_Project/Prefabs/UI/HUD_Minigame.prefab";
 
         [Test]
+        public void SafeAreaWaitsForTheCanvasTransformBeforeChangingAnchors()
+        {
+            var root = new GameObject("uninitialized-canvas", typeof(RectTransform), typeof(Canvas));
+            root.SetActive(false);
+            try
+            {
+                root.GetComponent<Canvas>().renderMode = RenderMode.WorldSpace;
+                var canvasRect = (RectTransform)root.transform;
+                canvasRect.sizeDelta = new Vector2(1920f, 1080f);
+                canvasRect.localScale = Vector3.zero;
+                var child = new GameObject("safe-area", typeof(RectTransform));
+                child.transform.SetParent(root.transform, false);
+                var rect = (RectTransform)child.transform;
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = rect.offsetMax = Vector2.zero;
+                var fitter = child.AddComponent<SafeAreaFitter>();
+                fitter.Apply(new Rect(0, 0, 1920, 1080), new Vector2Int(1920, 1080));
+                Assert.That(rect.anchorMin, Is.EqualTo(Vector2.zero));
+                Assert.That(rect.anchorMax, Is.EqualTo(Vector2.one));
+                canvasRect.localScale = Vector3.one;
+                fitter.Apply(new Rect(100, 0, 1720, 1080), new Vector2Int(1920, 1080));
+                Assert.That(rect.anchorMin.x, Is.EqualTo(100f / 1920f).Within(.001f));
+                Assert.That(rect.anchorMax.x, Is.EqualTo(1820f / 1920f).Within(.001f));
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+
+        [Test]
         public void SafeAreaFitterLeavesACoincidentAnchorRectUnresized()
         {
             var host = new GameObject("coincident-anchors", typeof(RectTransform));
@@ -62,6 +91,49 @@ namespace KMA.Tests.Presentation
             {
                 Object.DestroyImmediate(host);
             }
+        }
+
+        [TestCase(1920, 1080, 72, 36, 1776, 1008, 72, 72, 36, 36)]
+        [TestCase(2160, 1080, 80, 0, 1970, 1070, 80, 110, 10, 0)]
+        [TestCase(2340, 1080, 90, 70, 2160, 986, 90, 90, 24, 70)]
+        [TestCase(2400, 1080, 120, 0, 2200, 1060, 120, 80, 20, 0)]
+        public void SafeAreaFitterCalculatesInsetsForCommonLandscapeRatiosAndAsymmetricCutouts(
+            int width, int height, int left, int bottom, int safeWidth, int safeHeight,
+            float expectedLeft, float expectedRight, float expectedTop, float expectedBottom)
+        {
+            var host = new GameObject("safe-area-offsets", typeof(RectTransform));
+            try
+            {
+                var fitter = host.AddComponent<SafeAreaFitter>();
+                SafeAreaFitter.Offsets offsets = fitter.CalculateOffsets(
+                    new Rect(left, bottom, safeWidth, safeHeight), new Vector2(width, height));
+                Assert.That(offsets.left, Is.EqualTo(expectedLeft).Within(.01f));
+                Assert.That(offsets.right, Is.EqualTo(expectedRight).Within(.01f));
+                Assert.That(offsets.top, Is.EqualTo(expectedTop).Within(.01f));
+                Assert.That(offsets.bottom, Is.EqualTo(expectedBottom).Within(.01f));
+            }
+            finally { Object.DestroyImmediate(host); }
+        }
+
+        [Test]
+        public void SafeAreaFitterReappliesInsetsWhenTheScreenSizeChanges()
+        {
+            var host = new GameObject("safe-area-resize", typeof(RectTransform));
+            try
+            {
+                var rect = host.GetComponent<RectTransform>();
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                var fitter = host.AddComponent<SafeAreaFitter>();
+                fitter.Apply(new Rect(72f, 36f, 1776f, 1008f), new Vector2Int(1920, 1080));
+                Assert.That(rect.offsetMin, Is.EqualTo(new Vector2(72f, 36f)));
+                Assert.That(rect.offsetMax, Is.EqualTo(new Vector2(-72f, -36f)));
+
+                fitter.Apply(new Rect(120f, 0f, 2200f, 1060f), new Vector2Int(2400, 1080));
+                Assert.That(rect.offsetMin, Is.EqualTo(new Vector2(120f, 0f)));
+                Assert.That(rect.offsetMax, Is.EqualTo(new Vector2(-80f, -20f)));
+            }
+            finally { Object.DestroyImmediate(host); }
         }
 
         [Test]

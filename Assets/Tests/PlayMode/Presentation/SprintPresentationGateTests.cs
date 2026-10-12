@@ -84,12 +84,13 @@ namespace KMA.Tests.Presentation
             var rightRect = right.GetComponent<RectTransform>();
             // With the Canvas sized correctly the tap areas take their inset from SprintUiLayout;
             // the authored scene rect only survived while the safe rect was degenerate.
-            var unitSafe = new Rect(0f, 0f, 1f, 1f);
+            var safeSize = ((RectTransform)safeArea.transform).rect.size;
+            var unitSafe = new Rect(0f, 0f, safeSize.x, safeSize.y);
             Assert.That(leftRect.anchorMin.x,
-                Is.EqualTo(SprintUiLayout.ControlRect(unitSafe, true).xMin).Within(.001f));
+                Is.EqualTo(SprintUiLayout.ControlRect(unitSafe, true).xMin / safeSize.x).Within(.001f));
             Assert.That(leftRect.anchorMax.x, Is.LessThan(rightRect.anchorMin.x));
             Assert.That(rightRect.anchorMax.x,
-                Is.EqualTo(SprintUiLayout.ControlRect(unitSafe, false).xMax).Within(.001f));
+                Is.EqualTo(SprintUiLayout.ControlRect(unitSafe, false).xMax / safeSize.x).Within(.001f));
             Assert.That(1920f * (leftRect.anchorMax.x - leftRect.anchorMin.x) + leftRect.sizeDelta.x, Is.GreaterThanOrEqualTo(140f));
             Assert.That(1920f * (rightRect.anchorMax.x - rightRect.anchorMin.x) + rightRect.sizeDelta.x, Is.GreaterThanOrEqualTo(140f));
         }
@@ -402,7 +403,7 @@ namespace KMA.Tests.Presentation
         }
 
         [UnityTest]
-        public IEnumerator SprintControls_DrawASmallVisualInsideTheirFullSizeHitAreas()
+        public IEnumerator SprintControls_DrawLargeFootIconsInsideTheirFullSizeHitAreas()
         {
             yield return LoadSprint();
             var scene = SceneManager.GetActiveScene();
@@ -413,9 +414,9 @@ namespace KMA.Tests.Presentation
                 var visual = tap.Find("Visual") as RectTransform;
                 Assert.That(visual, Is.Not.Null, $"{tapName} must own a Visual child.");
 
-                // The drawn button is deliberately smaller than the area a thumb can hit, so it can
-                // sit on the running lanes without hiding the runner in the lane beneath it.
-                Rect expected = SprintUiLayout.ControlVisualRect01;
+                // The plate is 30% larger than baseline and sits against the safe area corner; the full tap rect can
+                // still be larger for reliable thumb input.
+                Rect expected = SprintUiLayout.ControlVisualRect01(tapName == "LeftTap");
                 Assert.That(visual.anchorMin,
                     Is.EqualTo(new Vector2(expected.xMin, expected.yMin)).Within(.0001f));
                 Assert.That(visual.anchorMax,
@@ -429,8 +430,16 @@ namespace KMA.Tests.Presentation
                     Is.LessThan(tap.rect.width * tap.rect.height * .5f),
                     $"{tapName}'s drawn button must be markedly smaller than the area it answers for.");
 
+                var icon = visual.Find("FootIcon")?.GetComponent<UnityEngine.UI.Image>();
+                Assert.That(icon, Is.Not.Null);
+                Assert.That(icon.sprite, Is.Not.Null);
+                Assert.That(icon.raycastTarget, Is.False);
+                Assert.That(visual.Find("Arrow").gameObject.activeSelf, Is.False);
+                Assert.That(visual.Find("Label").gameObject.activeSelf, Is.False);
+
                 // The hit box itself is untouched: still the full ControlRect, still raycasting.
-                var safeAreaRect = GameObject.Find("SafeAreaRoot").GetComponent<RectTransform>().rect;
+                var safeAreaRect = ((RectTransform)GameObject.Find("SprintBroadcastChrome")
+                    .GetComponentInParent<SafeAreaFitter>().transform).rect;
                 Rect expectedTap = SprintUiLayout.ControlRect(
                     new Rect(0f, 0f, safeAreaRect.width, safeAreaRect.height), tapName == "LeftTap");
                 Assert.That(tap.rect.width, Is.EqualTo(expectedTap.width).Within(1f),
@@ -442,16 +451,10 @@ namespace KMA.Tests.Presentation
                 Assert.That(visual.Find("Background").GetComponent<Image>().sprite, Is.Not.Null);
             }
 
-            foreach (string tapName in new[] { "LeftTap", "RightTap" })
-            {
-                Transform visual = GameObject.Find(tapName).transform.Find("Visual");
-                Assert.That(visual.Find("Label").gameObject.activeSelf, Is.False);
-                Assert.That(visual.Find("Arrow").gameObject.activeSelf, Is.False);
-                Image shoe = visual.Find("Background").GetComponent<Image>();
-                Assert.That(shoe.sprite, Is.EqualTo(Resources.Load<Sprite>("Icons/SprintShoe")));
-                Assert.That(shoe.preserveAspect, Is.True);
-                Assert.That(shoe.transform.localScale.x, Is.EqualTo(tapName == "LeftTap" ? -1f : 1f));
-            }
+            Assert.That(GameObject.Find("LeftTap").transform.Find("Visual/FootIcon").GetComponent<Image>().sprite,
+                Is.SameAs(SprintFootIcons.Left));
+            Assert.That(GameObject.Find("RightTap").transform.Find("Visual/FootIcon").GetComponent<Image>().sprite,
+                Is.SameAs(SprintFootIcons.Right));
         }
 
         [UnityTest]

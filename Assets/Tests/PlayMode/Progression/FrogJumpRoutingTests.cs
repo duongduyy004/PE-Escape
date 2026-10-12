@@ -57,6 +57,8 @@ namespace KMA.Tests.Gameplay.Progression
             Assert.That(router.Session.PendingFrogJump, Is.Null);
             Assert.That(panel.ContinueLabel, Is.EqualTo(VietText.Fix("THI LẠI")));
             panel.Continue();
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
+            Assert.That(router.CompleteJourneyMapDialogue(router.Session), Is.True);
             Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Subject));
             Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_exam"));
         }
@@ -106,6 +108,7 @@ namespace KMA.Tests.Gameplay.Progression
 
             Assert.That(panel.ContinueLabel, Is.EqualTo(VietText.Fix("LUYỆN LẠI")));
             panel.Continue();
+            Assert.That(router.CompleteJourneyMapDialogue(router.Session), Is.True);
             Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_practice"));
         }
 
@@ -156,9 +159,10 @@ namespace KMA.Tests.Gameplay.Progression
             JourneyRoutingFixture.FailActive(router, panel, "sprint_learn");
 
             Assert.That(router.Session.PendingFrogJump, Is.Null);
-            Assert.That(panel.ContinueLabel, Is.EqualTo(VietText.Fix("TIẾP TỤC")));
+            Assert.That(panel.ContinueLabel, Is.EqualTo(VietText.Fix("HỌC LẠI")));
             panel.Continue();
-            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Subject));
+            Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_learn"));
         }
 
         [Test]

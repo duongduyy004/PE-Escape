@@ -52,6 +52,9 @@ namespace KMA.Gameplay.UI
         int lineIndex;
         float stickerAge = -1f;
         Action closed;
+        Action journeyCompleted;
+        Action continuationRetry;
+        bool journeyCompletionRaised;
 
         public bool IsShowing => overlay != null && overlay.gameObject.activeSelf;
         public int CurrentLineIndex => lineIndex;
@@ -68,12 +71,22 @@ namespace KMA.Gameplay.UI
 
         public void Show(string nodeId, Action onClosed) => Show(nodeId, nodeId, onClosed);
 
-        public void ShowJourney(GameSession session, GameManager manager, Sprite sharedBackground = null)
+        public void ShowJourney(GameSession session, GameManager manager, Sprite sharedBackground = null,
+            Action onCompleted = null)
         {
             if (session == null || manager == null) return;
-            Configure(JourneyDialogueLibrary.LoadDefault(), key => manager.TryMarkJourneyDialogueSeen(key, out _),
-                sharedBackground);
+            ShowJourney(session, JourneyDialogueLibrary.LoadDefault(),
+                key => manager.TryMarkJourneyDialogueSeen(key, out _), sharedBackground, onCompleted);
+        }
+
+        public void ShowJourney(GameSession session, JourneyDialogueLibrary dialogueLibrary,
+            Func<string, bool> saveSeen, Sprite sharedBackground = null, Action onCompleted = null)
+        {
+            if (session == null || dialogueLibrary == null || saveSeen == null) return;
+            Configure(dialogueLibrary, saveSeen, sharedBackground);
             pending.Clear();
+            journeyCompleted = onCompleted;
+            journeyCompletionRaised = false;
             JourneyProgress journey = session.Journey;
             void Add(string node, string key = null)
             {
@@ -112,6 +125,14 @@ namespace KMA.Gameplay.UI
                 typewriter.Complete();
                 body.maxVisibleCharacters = typewriter.VisibleCharacters;
                 UpdateHint();
+                return;
+            }
+            if (continuationRetry != null)
+            {
+                Action retry = continuationRetry;
+                continuationRetry = null;
+                overlay.gameObject.SetActive(false);
+                retry();
                 return;
             }
             if (lineIndex + 1 < activeLines.Count)
@@ -283,15 +304,17 @@ namespace KMA.Gameplay.UI
         void UpdateHint()
         {
             string text = !typewriter.IsDone ? "chạm để hiện hết"
-                : lineIndex + 1 >= activeLines.Count
-                    ? SceneRouter.Instance != null && !string.IsNullOrEmpty(SceneRouter.Instance.PendingJourneyChallengeId)
-                        ? "TIẾP TỤC »" : "ĐÓNG »"
-                    : "TIẾP »";
+                : lineIndex + 1 >= activeLines.Count ? "ĐÓNG »" : "TIẾP »";
             hint.text = VietText.Fix(text);
         }
 
         void FinishNode()
         {
+            if (continuationRetry != null)
+            {
+                Advance();
+                return;
+            }
             errorText.text = string.Empty;
             if (persistSeen == null || !persistSeen(activeSeenKey))
             {
@@ -307,9 +330,37 @@ namespace KMA.Gameplay.UI
 
         void ShowNext()
         {
-            if (pending.Count == 0) return;
+            if (pending.Count == 0)
+            {
+                if (journeyCompletionRaised) return;
+                journeyCompletionRaised = true;
+                Action callback = journeyCompleted;
+                journeyCompleted = null;
+                callback?.Invoke();
+                return;
+            }
             DialogueRequest request = pending.Dequeue();
             Show(request.NodeId, request.SeenKey, ShowNext);
+        }
+
+        public void ShowContinuationError(string message, Action retry)
+        {
+            EnsureView();
+            journeyCompleted = null;
+            continuationRetry = retry;
+            activeLines = Array.Empty<JourneyDialogueLine>();
+            lineIndex = 0;
+            errorText.text = string.Empty;
+            body.text = VietText.Fix(message ?? "Không thể mở bài. Chạm để thử lại.");
+            body.ForceMeshUpdate();
+            body.maxVisibleCharacters = int.MaxValue;
+            typewriter.Begin(body.textInfo.characterCount);
+            typewriter.Complete();
+            right.Image.enabled = false;
+            left.Image.enabled = false;
+            BuildDots(0);
+            hint.text = VietText.Fix("CHẠM ĐỂ THỬ LẠI »");
+            overlay.gameObject.SetActive(true);
         }
 
         void BuildDots(int count)
