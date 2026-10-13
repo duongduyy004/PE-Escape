@@ -36,6 +36,33 @@ namespace KMA.Tests.Gameplay.Running
             yield return null;
         }
 
+        [Test]
+        public void RunnersKeepPullingUpAfterTheResultOpens()
+        {
+            var controller = CreateSprintController();
+            try
+            {
+                controller.AdvanceToDistance(SprintRules.RaceDistance - 1f, new[] { new RivalPaceProfile("Fast", 500f, 500f) });
+                for (int i = 0; i < 4; i++) { controller.OnLeftTap(); controller.OnRightTap(); }
+                for (int i = 0; i < 300 && controller.Phase != MinigamePhase.Resolve; i++) controller.Simulate(.01f);
+                Assert.That(controller.Phase, Is.EqualTo(MinigamePhase.Resolve));
+
+                float player = controller.PlayerPosition;
+                float rival = controller.GetRivalPosition(0);
+                Assert.That(player, Is.LessThan(SprintRules.RaceDistance + 4.05f));
+                for (int i = 0; i < 300; i++) controller.Simulate(.01f);
+
+                Assert.That(controller.PlayerPosition, Is.GreaterThan(player), "the player pulls up, not freezes");
+                Assert.That(controller.PlayerPosition - SprintRules.RaceDistance, Is.InRange(3.8f, 4.05f));
+                Assert.That(controller.GetRivalPosition(0), Is.GreaterThanOrEqualTo(rival));
+                Assert.That(controller.PlayerMetersPerSecond, Is.Zero);
+                Assert.That(controller.IsPlayerFinished, Is.True);
+            }
+            finally
+            {
+                DestroyController(controller);
+            }
+        }
 
         [UnityTest]
         public IEnumerator ReachingTheFinish_EmitsOnePassResultAndIgnoresPostResolveTaps()

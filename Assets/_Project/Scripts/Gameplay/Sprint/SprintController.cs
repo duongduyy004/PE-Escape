@@ -86,6 +86,15 @@ namespace KMA.Gameplay
         public IReadOnlyList<TutorialStep> BuildGuide() =>
             SprintGuide.Build(challengeDefinition?.Kind, TargetCount, TargetDistance, TargetTime, RivalCount);
         public float GetRivalDistance(int index) => rules == null ? 0f : rules.GetRivalDistance(index);
+        /// Where the player's body is on the straight, including the run-out past the line.
+        public float PlayerPosition => rules == null ? 0f : rules.Position;
+        public float PlayerMetersPerSecond => rules == null ? 0f : rules.MetersPerSecond;
+        public bool IsPlayerFinished => rules != null && rules.IsFinished;
+        /// The line everyone races to; Learn has none.
+        public float RaceGoal => IsLearnChallenge ? float.PositiveInfinity : TargetDistance;
+        public float GetRivalPosition(int index) => rules == null ? 0f : rules.GetRivalPosition(index);
+        public float GetRivalSpeed(int index) => rules == null ? 0f : rules.GetRivalSpeed(index);
+        public bool HasRivalFinished(int index) => rules != null && rules.HasRivalFinished(index);
         public bool IsRivalSurging(int index) => rules != null && rules.IsRivalSurging(index);
         public bool IsRivalSlowing(int index) => rules != null && rules.IsRivalSlowing(index);
 
@@ -94,6 +103,12 @@ namespace KMA.Gameplay
             base.Awake();
             rules = CreateRulesFromAuthoredProfiles();
             ConfigureInputActions();
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+            if (Lifecycle.Phase == MinigamePhase.Resolve) rules?.TickAfterRace(Time.deltaTime);
         }
 
         public void ConfigureChallenge(ChallengeDefinition definition, ChallengeAttemptContext context)
@@ -108,7 +123,8 @@ namespace KMA.Gameplay
             challengeDefinition = definition;
             challengeContext = context;
             challengeRules = new SprintChallengeRules(definition, SprintBalanceConfig.LoadDefault().ToRuntime(),
-                CreateRuntimeProfiles());
+                CreateRuntimeProfiles(),
+                UnityEngine.Random.Range(RivalMotionTraits.MinStopDistance, RivalMotionTraits.MaxStopDistance));
             rules = challengeRules.Race;
             terminalResolved = false;
             rivalWaitElapsed = 0f;
@@ -251,6 +267,8 @@ namespace KMA.Gameplay
             Lifecycle.Tick(dt);
             if (Lifecycle.Phase == MinigamePhase.Play)
                 TickPlay(dt);
+            else if (Lifecycle.Phase == MinigamePhase.Resolve)
+                rules.TickAfterRace(dt);
         }
 
         public void OnLeftTap() => OnTap(Side.Left);
@@ -359,12 +377,11 @@ namespace KMA.Gameplay
             if (!finished && !timedOut)
                 return;
 
-            if (!learn && finished && rules.RivalCount > 0 && !rules.AllRivalsReached(TargetDistance))
+            if (!learn && finished)
             {
-                // Lock the player's result and let the rivals run in before the result card opens.
                 rules.FinishRace();
                 rivalWaitElapsed = 0f;
-                return;
+                if (rules.RivalCount > 0 && !rules.AllRivalsReached(TargetDistance)) return;
             }
 
             Resolve();

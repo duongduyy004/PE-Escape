@@ -115,7 +115,8 @@ namespace KMA.Tests.Gameplay.Running
             controller.Simulate(.02f);
             Assert.That(received, Is.Not.Null);
             Assert.That(received.Pass, Is.True);
-            Assert.That(received.Metrics.Elapsed, Is.EqualTo(40f));
+            // The rules interpolate the exact crossing instant inside the frame, so it lands just under the deadline.
+            Assert.That(received.Metrics.Elapsed, Is.InRange(39.99f, 40f));
             yield return null;
         }
 
