@@ -45,7 +45,7 @@ Checks: close glyph renders as a bold x (not a box); disabled Continue reads as 
 ## Known issues
 
 - `FrogJumpRulesTests.FasterDefaultSweepsEachEdgeInPointSevenSeconds` (EditMode) and `FrogJumpDialogueTests.FinishOnFinalLandingDoesNotQueueGoodJump` (PlayMode) fail: stale since c111cf1 changed sweepSeconds from 0.7 to 1. Unrelated to this pass.
-- Map: the "DANG O DAY" tag touches the top of the yellow glow ring around the current stop (the blue badge itself is clear). Raising `stopTagHeight` 52 to 56 and re-authoring Map produced an identical capture, so it was left at 52.
+- Map (fixed in 8e29038, re-captured 2026-10-13): the "DANG O DAY" tag now sits just above the yellow glow ring around stop 1 with a small visible gap (about 7 px at 1920x1080) instead of touching it; the stop label and star/status plate stay on screen (bottom plate ends about 70 px above the bottom edge). The lesson popup close button is fully inside the panel. Map captures above are the refreshed ones.
 - Bootstrap capture lands mid fade-in (dimmed, 25%).
 - Volleyball "DOI THU GHI DIEM" banner (yellow on light court) has low contrast; pre-existing, outside this pass.
 - Journey dialogue speaker tag sits close to the first text line; legible, left as is.
