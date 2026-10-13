@@ -175,7 +175,7 @@ namespace KMA.Tests.Gameplay.Progression
                     { SubjectId.Sprint, SubjectId.Volleyball, SubjectId.Football, SubjectId.Chess }));
                 foreach (MapNodeView node in screen.Nodes)
                 {
-                    Assert.That(node.transform.Find("Badge").GetComponent<Image>().sprite, Is.Not.Null, node.name);
+                    Assert.That(node.transform.Find("Badge/" + KMA.UI.Kit.ShellKit.FaceName).GetComponent<Image>().sprite, Is.Not.Null, node.name);
                     Image glyph = node.transform.Find("Badge/IconGlyph").GetComponent<Image>();
                     Assert.That(glyph.sprite, Is.Not.Null, node.name);
                     Assert.That(glyph.preserveAspect, Is.True, node.name);
