@@ -55,6 +55,23 @@ namespace KMA.Gameplay
         }
     }
 
+    /// A one-shot hint from the router to the next scene: "this start is a retry of that challenge".
+    public static class ChallengeRetryIntent
+    {
+        static string armedChallengeId;
+
+        public static void Arm(string challengeId) => armedChallengeId = challengeId;
+
+        public static void Clear() => armedChallengeId = null;
+
+        public static bool Consume(string challengeId)
+        {
+            if (string.IsNullOrEmpty(challengeId) || armedChallengeId != challengeId) return false;
+            armedChallengeId = null;
+            return true;
+        }
+    }
+
     public sealed class FrogJumpPending
     {
         public string Id { get; }

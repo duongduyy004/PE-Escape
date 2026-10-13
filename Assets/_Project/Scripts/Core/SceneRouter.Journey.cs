@@ -264,8 +264,13 @@ namespace KMA.Gameplay.Core
                 (action == JourneyResultAction.Continue && displayedChallenge.Mode == ChallengeAttemptMode.Journey &&
                     !displayedResult.Pass && !displayedOutcome.Value.FrogJumpRequired))
             {
+                ChallengeRetryIntent.Arm(displayedChallenge.ChallengeId);
                 if (!TryStartChallenge(displayedChallenge.ChallengeId, displayedChallenge.Mode,
-                    displayedChallenge.Difficulty)) RestoreChallengeActions();
+                    displayedChallenge.Difficulty))
+                {
+                    ChallengeRetryIntent.Clear();
+                    RestoreChallengeActions();
+                }
             }
             else if (action == JourneyResultAction.FrogJump)
             {

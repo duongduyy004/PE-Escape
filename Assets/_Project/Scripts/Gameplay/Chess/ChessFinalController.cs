@@ -101,6 +101,17 @@ namespace KMA.Gameplay.Chess
                 yield return null;
             currentLevel = adapter != null && adapter.Context != null ? LevelFor(adapter.Context.Difficulty) : ChessLevel.Normal;
 
+            // A Journey retry of the Final repeats the failed puzzle; every other start gets a new one.
+            bool retry = ChallengeRetryIntent.Consume(adapter?.Context?.ChallengeId);
+            ChessPuzzleSnapshot reuse = ChessRetryStore.TakeIfRetry(retry);
+            if (reuse != null)
+            {
+                currentLevel = reuse.Level;
+                lastFen = reuse.fen;
+                StartAttempt(reuse);
+                yield break;
+            }
+
             provider = new ChessPuzzleProvider();
             provider.Begin(currentLevel, Environment.TickCount, lastFen);
             ChessPuzzleResult result = null;
@@ -277,6 +288,8 @@ namespace KMA.Gameplay.Chess
         {
             if (resolving) return;
             resolving = true;
+            if (solved) ChessRetryStore.Forget();
+            else ChessRetryStore.Remember(machine.Snapshot);
             StartCoroutine(Resolve(solved));
         }
 

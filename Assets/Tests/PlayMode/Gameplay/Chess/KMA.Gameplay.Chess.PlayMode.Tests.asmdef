@@ -6,6 +6,7 @@
         "KMA.Gameplay",
         "KMA.Gameplay.Chess",
         "KMA.Gameplay.Chess.Core",
+        "KMA.Gameplay.Core",
         "KMA.Gameplay.Progression",
         "KMA.Gameplay.UI",
         "UnityEngine.UI",

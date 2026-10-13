@@ -17,6 +17,7 @@ namespace KMA.Tests.Gameplay.Progression
         public void SetUp()
         {
             routes.Clear();
+            ChallengeRetryIntent.Clear();
             router = JourneyRoutingFixture.CreateRouter(routes);
             panel = JourneyRoutingFixture.CreateResultPanel();
         }
@@ -45,6 +46,34 @@ namespace KMA.Tests.Gameplay.Progression
             panel.Continue();
             Assert.That(routes.Last().Route, Is.EqualTo(SessionRoute.Subject));
             Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("chess_final"));
+        }
+
+        [Test]
+        public void RetryingAFailedFinalArmsTheRetryIntentForTheNextScene()
+        {
+            JourneyRoutingFixture.CompleteThrough(router.Session, "soccer_exam");
+            JourneyRoutingFixture.FailActive(router, panel, "chess_final");
+            panel.Continue();
+            Assert.That(routes.Last().SceneName, Is.EqualTo("MG_ChessFinal"));
+            Assert.That(ChallengeRetryIntent.Consume("chess_final"), Is.True);
+        }
+
+        [Test]
+        public void AFreshStartFromTheMapDoesNotArmTheRetryIntent()
+        {
+            JourneyRoutingFixture.CompleteThrough(router.Session, "soccer_exam");
+            Assert.That(router.TryStartChallenge("chess_final"), Is.True);
+            Assert.That(ChallengeRetryIntent.Consume("chess_final"), Is.False);
+        }
+
+        [Test]
+        public void AFailedRetryStartDoesNotLeaveTheIntentArmed()
+        {
+            JourneyRoutingFixture.CompleteThrough(router.Session, "soccer_exam");
+            JourneyRoutingFixture.FailActive(router, panel, "chess_final");
+            router.ConfigureJourneyPersistence((out string error) => { error = "disk full"; return false; });
+            panel.Continue();
+            Assert.That(ChallengeRetryIntent.Consume("chess_final"), Is.False);
         }
 
         [Test]

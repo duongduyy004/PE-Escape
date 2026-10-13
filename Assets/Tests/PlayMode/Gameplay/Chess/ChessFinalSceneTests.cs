@@ -170,6 +170,70 @@ namespace KMA.Tests.Gameplay.Chess
             Assert.That(panel.RankText, Does.Contain("A+"));
         }
 
+        /// Loads the scene as the router would for a Journey start: the adapter carries the context before Start runs.
+        IEnumerator LoadAsJourneyStart(bool armRetry, ChessPuzzleSnapshot remembered)
+        {
+            ChessRetryStore.Forget();
+            ChallengeRetryIntent.Clear();
+            if (remembered != null) ChessRetryStore.Remember(remembered);
+            UnityEngine.Events.UnityAction<UnityEngine.SceneManagement.Scene, LoadSceneMode> bind = (scene, mode) =>
+            {
+                var target = UnityEngine.Object.FindFirstObjectByType<ChessFinalController>();
+                ChallengeDefinition definition = new GameSession().Journey.Catalog.Get("chess_final");
+                var context = new ChallengeAttemptContext("retry-test", "chess_final", ChallengeAttemptMode.Journey,
+                    ChallengeDifficulty.Normal);
+                target.gameObject.AddComponent<KMA.Gameplay.Core.JourneyControllerAdapter>().ConfigureChallenge(definition, context);
+                if (armRetry) ChallengeRetryIntent.Arm("chess_final");
+            };
+            SceneManager.sceneLoaded += bind;
+            yield return SceneManager.LoadSceneAsync("MG_ChessFinal", LoadSceneMode.Single);
+            SceneManager.sceneLoaded -= bind;
+            controller = UnityEngine.Object.FindFirstObjectByType<ChessFinalController>();
+            board = UnityEngine.Object.FindFirstObjectByType<ChessBoardView>();
+            yield return WaitFor(() => controller.PuzzleReady, "the puzzle was not ready", 20f);
+        }
+
+        [UnityTest]
+        public IEnumerator RetryStartRepeatsTheRememberedPuzzleWhateverTheContextLevel()
+        {
+            ChessPuzzleSnapshot failed = ChessFallbackLibrary.Pick(ChessLevel.Hard, 1, null);
+            yield return LoadAsJourneyStart(true, failed);
+            ChessAttemptMachine machine = controller.Machine;
+            Assert.That(machine.Snapshot.fen, Is.EqualTo(failed.fen));
+            Assert.That(machine.MaxMoves, Is.EqualTo(failed.maxMoves));
+            Assert.That(machine.OptimalMoves, Is.EqualTo(failed.optimalMoves));
+            Assert.That(machine.Clock.Limit, Is.EqualTo((float)failed.timeSeconds));
+            Assert.That(machine.MovesUsed, Is.EqualTo(0));
+            Assert.That(ChessRetryStore.HasSnapshot, Is.False, "the stored puzzle is used once");
+        }
+
+        [UnityTest]
+        public IEnumerator FreshStartIgnoresAndClearsTheStoredPuzzle()
+        {
+            ChessPuzzleSnapshot old = ChessFallbackLibrary.Pick(ChessLevel.Hard, 1, null);
+            yield return LoadAsJourneyStart(false, old);
+            Assert.That(controller.Machine.OptimalMoves, Is.EqualTo(2), "a fresh start uses the context level");
+            Assert.That(controller.Machine.Snapshot.fen, Is.Not.EqualTo(old.fen));
+            Assert.That(ChessRetryStore.HasSnapshot, Is.False);
+        }
+
+        [UnityTest]
+        public IEnumerator FailingRemembersThePuzzleAndSolvingForgetsIt()
+        {
+            ChessRetryStore.Forget();
+            yield return Begin();
+            string fen = controller.Machine.Snapshot.fen;
+            controller.Machine.Tick(controller.Machine.Clock.Limit);
+            yield return WaitFor(() => controller.Machine.Phase == ChessAttemptPhase.Failed, "the clock failed the attempt");
+            Assert.That(ChessRetryStore.HasSnapshot, Is.True);
+            Assert.That(ChessRetryStore.TakeIfRetry(true).fen, Is.EqualTo(fen));
+
+            ChessRetryStore.Remember(controller.Machine.Snapshot);
+            yield return LoadScene();
+            yield return PlayOptimalLineToTheResult();
+            Assert.That(ChessRetryStore.HasSnapshot, Is.False, "passing clears the store");
+        }
+
         [UnityTest]
         public IEnumerator SuboptimalMoveIsPlayedNotUndone()
         {
