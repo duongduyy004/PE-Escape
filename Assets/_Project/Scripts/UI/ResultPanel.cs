@@ -11,7 +11,8 @@ using UnityEngine.UI;
 namespace KMA.Gameplay.UI
 {
     /// The shared result screen of every minigame. Tiếp tục raises the preview route; Chơi lại
-    /// (only when a retry is configured) raises ResultPanelActions.Retry.
+    /// (only when a retry is configured) raises ResultPanelActions.Retry. Journey cards may use the
+    /// same second slot for Quay về, which returns to the map without starting anything.
     public sealed class ResultPanel : MonoBehaviour, IRetryResultPreviewPanel, IChallengeResultPanel,
         IFrogJumpResultPanel
     {
@@ -79,6 +80,8 @@ namespace KMA.Gameplay.UI
         int remainingLives;
         bool retryConfigured;
         bool retryAvailable;
+        // The second slot offers QUAY VỀ instead of a retry (journey chapters and the frog jump).
+        bool backAvailable;
         bool actionPending;
         bool listenersBound;
         bool frogMode;
@@ -91,11 +94,13 @@ namespace KMA.Gameplay.UI
         public event Action<string> ActionRequested;
         public event Action<JourneyResultAction> JourneyActionRequested;
         public event Action FrogJumpContinueRequested;
+        public event Action FrogJumpBackRequested;
 
         public MinigameResult CurrentResult { get; private set; }
         public string PreviewRoute { get; private set; } = string.Empty;
         public bool HasContinued { get; private set; }
         public bool RetryAvailable => retryAvailable;
+        public bool BackAvailable => backAvailable;
         public bool IsActionPending => actionPending;
         public bool IsVisible => contentRoot ? contentRoot.activeInHierarchy : gameObject.activeInHierarchy;
         public bool ContinueInteractable => actionButton && actionButton.interactable;
@@ -241,6 +246,7 @@ namespace KMA.Gameplay.UI
             SetButtonLabel(retryButton, "CHƠI LẠI");
 
             retryAvailable = !result.Pass && remainingLives > 0;
+            backAvailable = false;
             RefreshButtons();
             SpeakResult(result.Pass,ChallengeKind.Exam,null,null,null);
             Reveal(result.Score);
@@ -278,6 +284,25 @@ namespace KMA.Gameplay.UI
                 return;
             }
             ActionRequested?.Invoke(ResultPanelActions.Retry);
+        }
+
+        /// QUAY VỀ: back to the map without starting the next chapter or the retry.
+        public void Back()
+        {
+            if (CurrentResult == null || HasContinued || actionPending || !backAvailable)
+                return;
+            HasContinued = true;
+            if (frogMode)
+                FrogJumpBackRequested?.Invoke();
+            else
+                JourneyActionRequested?.Invoke(JourneyResultAction.BackToMap);
+        }
+
+        // The second slot is a retry (Review/FreePlay) or QUAY VỀ (Journey), never both.
+        void PressSecondary()
+        {
+            if (backAvailable) Back();
+            else Retry();
         }
 
         public void ShowChallenge(ChallengeAttemptContext context, ChallengeAttemptResult result,
@@ -356,10 +381,16 @@ namespace KMA.Gameplay.UI
             retryAvailable = context.Mode != ChallengeAttemptMode.Journey && result.ExamResult != null &&
                 !result.Pass && outcome.HasValue &&
                 (final || outcome.Value.AttemptsRemaining > 0) && !frogJump;
+            // A committed journey win (except the course-completing final) or Learn failure may
+            // stop at the map; a failure that owes a frog jump may not.
+            bool courseFinished = final && outcome.Value.CourseComplete;
+            backAvailable = context.Mode == ChallengeAttemptMode.Journey && saveError == null &&
+                outcome.HasValue && !frogJump &&
+                (result.Pass ? !courseFinished : definition?.Kind == ChallengeKind.Learn);
             if (retryButton != null)
             {
-                retryButton.gameObject.SetActive(retryAvailable);
-                SetButtonLabel(retryButton, final ? "CHƠI LẠI" : "THI LẠI");
+                retryButton.gameObject.SetActive(retryAvailable || backAvailable);
+                SetButtonLabel(retryButton, backAvailable ? "QUAY VỀ" : final ? "CHƠI LẠI" : "THI LẠI");
             }
             if (livesLabel != null)
             {
@@ -425,6 +456,7 @@ namespace KMA.Gameplay.UI
             SetRect(detailLabel != null ? detailLabel.rectTransform : null, .51f, .63f);
             SetRect(livesLabel != null ? livesLabel.rectTransform : null, .38f, .48f);
             SetRect(actionButton != null ? (RectTransform)actionButton.transform : null, .06f, .27f);
+            SetRect(retryButton != null ? (RectTransform)retryButton.transform : null, .06f, .27f);
         }
 
         public void ShowFrogJump(FrogJumpResultView view)
@@ -465,6 +497,9 @@ namespace KMA.Gameplay.UI
             SetButtonLabel(actionButton, view.LivesRemaining <= 0 ? "VỀ BẢN ĐỒ"
                 : view.RetryIsPractice ? "LUYỆN LẠI" : "THI LẠI");
             retryAvailable = false;
+            // With lives left the retry can wait: QUAY VỀ keeps the failed challenge as the checkpoint.
+            backAvailable = view.LivesRemaining > 0;
+            SetButtonLabel(retryButton, "QUAY VỀ");
             RefreshButtons();
             if(dialogueHost!=null)
             {
@@ -496,7 +531,7 @@ namespace KMA.Gameplay.UI
             if (!listenersBound)
                 return;
             if (actionButton != null) actionButton.onClick.RemoveListener(Continue);
-            if (retryButton != null) retryButton.onClick.RemoveListener(Retry);
+            if (retryButton != null) retryButton.onClick.RemoveListener(PressSecondary);
             listenersBound = false;
         }
 
@@ -512,7 +547,7 @@ namespace KMA.Gameplay.UI
             if (listenersBound)
                 return;
             if (actionButton != null) actionButton.onClick.AddListener(Continue);
-            if (retryButton != null) retryButton.onClick.AddListener(Retry);
+            if (retryButton != null) retryButton.onClick.AddListener(PressSecondary);
             listenersBound = actionButton != null || retryButton != null;
         }
 
@@ -544,19 +579,24 @@ namespace KMA.Gameplay.UI
         {
             if (retryButton != null)
             {
-                retryButton.gameObject.SetActive(retryAvailable);
+                retryButton.gameObject.SetActive(retryAvailable || backAvailable);
                 retryButton.interactable = !actionPending;
+                // QUAY VỀ is the quiet choice; a Review retry keeps the primary look.
+                if (retryButton.GetComponent<KitPressFeedback>() != null)
+                    UiKit.ApplyVariant(UiKit.ButtonParts(retryButton),
+                        backAvailable ? ButtonVariant.Secondary : ButtonVariant.Primary);
             }
             if (actionButton == null)
                 return;
             actionButton.interactable = !actionPending;
 
-            bool paired = retryAvailable && retryButton != null;
+            bool paired = (retryAvailable || backAvailable) && retryButton != null;
             var action = (RectTransform)actionButton.transform;
             action.anchorMin = new Vector2(paired ? .52f : .25f, action.anchorMin.y);
             action.anchorMax = new Vector2(paired ? .94f : .75f, action.anchorMax.y);
             if (actionButton.GetComponent<KitPressFeedback>() != null)
-                UiKit.ApplyVariant(UiKit.ButtonParts(actionButton), paired ? ButtonVariant.Secondary : ButtonVariant.Primary);
+                UiKit.ApplyVariant(UiKit.ButtonParts(actionButton),
+                    paired && !backAvailable ? ButtonVariant.Secondary : ButtonVariant.Primary);
         }
 
         static void SetButtonLabel(Button button, string value)

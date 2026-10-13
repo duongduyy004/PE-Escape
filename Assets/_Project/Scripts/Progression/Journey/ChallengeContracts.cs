@@ -63,7 +63,9 @@ namespace KMA.Gameplay
         // Retained for serialized values; the supplementary practice route was removed.
         Practice,
         RetrySave,
-        FrogJump
+        FrogJump,
+        // Return to the map without starting the next (or the same) chapter.
+        BackToMap
     }
 
     public interface IChallengeResultPanel
@@ -96,6 +98,8 @@ namespace KMA.Gameplay
     public interface IFrogJumpResultPanel
     {
         event Action FrogJumpContinueRequested;
+        /// The player chose the map over retrying the failed challenge now.
+        event Action FrogJumpBackRequested;
         void ShowFrogJump(FrogJumpResultView view);
     }
 }

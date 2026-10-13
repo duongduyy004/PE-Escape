@@ -213,6 +213,73 @@ namespace KMA.Tests.Gameplay.Progression
         }
 
         [UnityTest]
+        public IEnumerator BackToMapAfterAChapterWinKeepsTheNextChapterUnstarted()
+        {
+            yield return StartRuntime();
+            yield return StartCheckpoint();
+            yield return JourneyRuntimeDriver.CompleteCurrent(router.Session.Journey.Catalog.Get("sprint_learn"), true);
+            yield return PressBack(true);
+            yield return AssertMapStaysIdle();
+            Assert.That(router.Session.Journey.CheckpointChallengeId, Is.EqualTo("sprint_practice"));
+            Assert.That(saved.journey.completedChallengeIds, Does.Contain("sprint_learn"));
+        }
+
+        [UnityTest]
+        public IEnumerator BackToMapAfterALearnFailureDoesNotRetryIt()
+        {
+            yield return StartRuntime();
+            yield return StartCheckpoint();
+            yield return JourneyRuntimeDriver.CompleteCurrent(router.Session.Journey.Catalog.Get("sprint_learn"), false);
+            yield return PressBack(false);
+            yield return AssertMapStaysIdle();
+            Assert.That(router.Session.Journey.CheckpointChallengeId, Is.EqualTo("sprint_learn"));
+            Assert.That(router.Session.Lives, Is.EqualTo(5));
+        }
+
+        [UnityTest]
+        public IEnumerator BackToMapAfterAFrogJumpDoesNotRetryTheFailedChallenge()
+        {
+            yield return StartRuntime();
+            yield return PlayCheckpoint();
+            yield return StartCheckpoint();
+            yield return FailIntoFrogJump(router.Session.Journey.Catalog.Get("sprint_practice"));
+            router.CompleteFrogJumpForTests(false);
+            Assert.That(router.Session.Lives, Is.EqualTo(4), "Losing the first-failure frog jump costs the life.");
+            yield return PressBack(false);
+            yield return AssertMapStaysIdle();
+            Assert.That(router.Session.Journey.CheckpointChallengeId, Is.EqualTo("sprint_practice"));
+            Assert.That(router.Session.PendingFrogJump, Is.Null);
+            Assert.That(router.Session.Lives, Is.EqualTo(4));
+            Assert.That(saved.lives, Is.EqualTo(4));
+        }
+
+        IEnumerator PressBack(bool pass)
+        {
+            ResultPanel panel = Object.FindFirstObjectByType<ResultPanel>(FindObjectsInactive.Include);
+            Assert.That(panel.IsVisible, Is.True);
+            Assert.That(panel.CurrentResult.Pass, Is.EqualTo(pass));
+            Assert.That(panel.BackAvailable, Is.True);
+            panel.Back();
+            yield return JourneyRuntimeDriver.WaitForScene(router, "Map");
+        }
+
+        // Gives the map's dialogue time to run (and skips what is left) before checking that
+        // nothing started on its own.
+        IEnumerator AssertMapStaysIdle()
+        {
+            float settle = Time.realtimeSinceStartup + 3f;
+            while (Time.realtimeSinceStartup < settle) yield return null;
+            yield return JourneyRuntimeDriver.SkipDialogues();
+            settle = Time.realtimeSinceStartup + 1f;
+            while (Time.realtimeSinceStartup < settle) yield return null;
+            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("Map"));
+            Assert.That(router.IsTransitioning, Is.False);
+            Assert.That(router.HasPendingJourneyMapContinuation, Is.False);
+            Assert.That(router.Session.Journey.ActiveAttempt, Is.Null);
+            Assert.That(router.Session.ActiveSubject, Is.Null);
+        }
+
+        [UnityTest]
         public IEnumerator VolleyballPauseExitTapReturnsToTheMap()
         {
             yield return StartRuntime();

@@ -5,7 +5,8 @@ using UnityEngine.SceneManagement;
 namespace KMA.Gameplay.Core
 {
     /// The mandatory frog jump after a failed journey practice/exam: route to its scene, apply its
-    /// result once, then retry the failed challenge (or return to the map with no lives left).
+    /// result once, then retry the failed challenge (or return to the map with no lives left, or
+    /// when the player chooses Quay về).
     public sealed partial class SceneRouter
     {
         [SerializeField] string frogJumpScene = "MG_FrogJump";
@@ -90,6 +91,7 @@ namespace KMA.Gameplay.Core
             frogPanel = FindFrogJumpPanel() ??
                 throw new InvalidOperationException("A frog jump result panel is required.");
             frogPanel.FrogJumpContinueRequested += OnFrogJumpContinue;
+            frogPanel.FrogJumpBackRequested += OnFrogJumpBack;
             frogView = new FrogJumpResultView(result.Pass, savesLife, session.Lives, saveError,
                 frogRetryIsPractice);
             frogPanel.ShowFrogJump(frogView);
@@ -97,17 +99,8 @@ namespace KMA.Gameplay.Core
 
         void OnFrogJumpContinue()
         {
-            if (frogPanel == null || frogContinueUsed)
+            if (frogPanel == null || frogContinueUsed || !FlushFrogSave())
                 return;
-            if (frogSavePending)
-            {
-                if (!TryPersistJourney(out string saveError))
-                {
-                    ShowFrogError(saveError);
-                    return;
-                }
-                frogSavePending = false;
-            }
 
             frogContinueUsed = true;
             bool routed;
@@ -130,6 +123,34 @@ namespace KMA.Gameplay.Core
             }
         }
 
+        /// QUAY VỀ on the frog result: the map without the retry; the failed challenge stays the checkpoint.
+        void OnFrogJumpBack()
+        {
+            if (frogPanel == null || frogContinueUsed || !FlushFrogSave())
+                return;
+
+            frogContinueUsed = true;
+            if (!Route(SessionRoute.Map))
+            {
+                frogContinueUsed = false;
+                ShowFrogError(lastRouteError ?? "Không thể chuyển cảnh. Hãy thử lại.");
+            }
+        }
+
+        // The frog result must be saved before its scene is left.
+        bool FlushFrogSave()
+        {
+            if (!frogSavePending)
+                return true;
+            if (!TryPersistJourney(out string saveError))
+            {
+                ShowFrogError(saveError);
+                return false;
+            }
+            frogSavePending = false;
+            return true;
+        }
+
         void ShowFrogError(string error)
         {
             frogView = new FrogJumpResultView(frogView.ReachedFinish, frogView.SavesLife, session.Lives, error,
@@ -149,7 +170,10 @@ namespace KMA.Gameplay.Core
         void UnbindFrogPanel()
         {
             if (frogPanel != null)
+            {
                 frogPanel.FrogJumpContinueRequested -= OnFrogJumpContinue;
+                frogPanel.FrogJumpBackRequested -= OnFrogJumpBack;
+            }
             frogPanel = null;
         }
 
