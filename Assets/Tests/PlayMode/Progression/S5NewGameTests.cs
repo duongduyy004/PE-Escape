@@ -381,7 +381,7 @@ namespace KMA.Tests.Gameplay.Progression
                 foreach (TMP_Text label in lessonPanel.GetComponentsInChildren<TMP_Text>(true))
                 {
                     Assert.That(Contains(lessonPanel, label.rectTransform), Is.True,
-                        $"{label.name} must remain inside JourneyLessons at {resolution.x}x{resolution.y}.");
+                        $"{PathUnder(lessonPanel, label.rectTransform)} must remain inside JourneyLessons at {resolution.x}x{resolution.y}. label={WorldBounds(label.rectTransform)} panel={WorldBounds(lessonPanel)}");
                     if (!label.gameObject.activeInHierarchy) continue;
                     label.ForceMeshUpdate();
                     Assert.That(label.textBounds.size.y,
@@ -684,6 +684,13 @@ namespace KMA.Tests.Gameplay.Progression
             data.lives = lives;
             session.Restore(data);
             return session;
+        }
+
+        static string PathUnder(Transform root, Transform leaf)
+        {
+            string path = leaf.name;
+            for (Transform t = leaf.parent; t != null && t != root.parent; t = t.parent) path = t.name + "/" + path;
+            return path;
         }
 
         static Rect WorldBounds(RectTransform rect)

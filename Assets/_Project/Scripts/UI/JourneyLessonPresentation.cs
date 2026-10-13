@@ -91,7 +91,7 @@ namespace KMA.Gameplay.UI
             if (panel.Find("CloseButton") != null) return;
             ShellButtonHandle close = ShellKit.IconButton(panel, "CloseButton", "×");
             Place((RectTransform)close.Button.transform, Vector2.one, Vector2.one * ShellTheme.IconButtonSize);
-            ((RectTransform)close.Button.transform).anchoredPosition = new Vector2(-32f, -32f);
+            ((RectTransform)close.Button.transform).anchoredPosition = Vector2.one * -(ShellTheme.IconButtonSize * .5f + 16f);
         }
 
         /// Centres of the visible stage nodes along the road, as panel x fractions.
