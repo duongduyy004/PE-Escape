@@ -27,7 +27,7 @@ namespace KMA.Tests.EditorTools
                     Assert.That(catalog.Get("sprint_exam").TimeLimit, Is.EqualTo(15f));
                     Assert.That(catalog.Get("sprint_exam").Distance, Is.EqualTo(150f));
                     Assert.That(catalog.Get("volleyball_practice").TimeLimit, Is.Zero);
-                    Assert.That(catalog.Get("volleyball_exam").TimeLimit, Is.EqualTo(90f));
+                    Assert.That(catalog.Get("volleyball_exam").TimeLimit, Is.Zero);
                 }
             }
             finally

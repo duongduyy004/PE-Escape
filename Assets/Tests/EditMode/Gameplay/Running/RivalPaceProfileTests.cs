@@ -64,8 +64,8 @@ namespace KMA.Tests.Gameplay.Running
 
             Assert.That(a.SustainedSpeed, Is.EqualTo(b.SustainedSpeed));
             Assert.That(a.OpeningSpeed, Is.EqualTo(b.OpeningSpeed));
-            Assert.That(a.SurgePeriod, Is.EqualTo(b.SurgePeriod));
-            Assert.That(a.SurgePhase, Is.EqualTo(b.SurgePhase));
+            for (float t = 0f; t < 30f; t += .25f)
+                Assert.That(a.SpeedAt(t), Is.EqualTo(b.SpeedAt(t)));
         }
 
         [Test]
@@ -117,8 +117,33 @@ namespace KMA.Tests.Gameplay.Running
             }
 
             Assert.That(rolled.SpeedAt(1f), Is.EqualTo(6f));
-            Assert.That(fastest, Is.GreaterThan(6f * 1.15f));
+            Assert.That(fastest, Is.GreaterThan(6f * 1.08f));
             Assert.That(slowest, Is.LessThan(6f * .85f));
+        }
+
+        // The pace is irregular rather than a smooth wave, and rivals surge more often than they fade.
+        [Test]
+        public void RolledPaceSurgesMoreOftenThanItFades()
+        {
+            int surges = 0, fades = 0;
+            for (int seed = 0; seed < 200; seed++)
+            {
+                RivalPaceProfile rolled = RivalPaceRandomizer.Roll(new RivalPaceProfile("Steady", 6f, 6f), 6f, 6f,
+                    new Random(seed));
+                Assert.That(rolled.PaceSegmentCount, Is.GreaterThan(1));
+                float drift = 0f;
+                for (int i = 0; i < rolled.PaceSegmentCount; i++)
+                {
+                    PaceSegment segment = rolled.GetPaceSegment(i);
+                    Assert.That(segment.Seconds, Is.InRange(RivalPaceRandomizer.MinSegmentSeconds,
+                        RivalPaceRandomizer.MaxSegmentSeconds));
+                    if (segment.IsSurge) surges++;
+                    else fades++;
+                    drift += (segment.Multiplier - 1f) * segment.Seconds;
+                    Assert.That(Math.Abs(drift), Is.LessThan(1.5f), "seed " + seed);
+                }
+            }
+            Assert.That(surges, Is.GreaterThan(fades * 1.4f));
         }
 
         static RivalPaceProfile[] LoadAuthoredProfiles() => SprintRivalMappings.Required

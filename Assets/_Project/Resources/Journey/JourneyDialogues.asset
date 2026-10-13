@@ -159,7 +159,7 @@ MonoBehaviour:
     lines:
     - characterId: co_the_chat
       pose: 0
-      text: "Ghi đủ 10 điểm trước đối thủ trong 90 giây. Hết giờ chưa đủ điểm vẫn chưa đạt."
+      text: "Ghi đủ 10 điểm trước đối thủ . Không giới hạn thời gian, cứ chắc từng điểm."
       sticker: "10 \u0110I\u1EC2M"
     - characterId: mai_toang
       pose: 0

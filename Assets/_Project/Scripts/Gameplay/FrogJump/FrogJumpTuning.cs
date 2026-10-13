@@ -5,7 +5,7 @@ namespace KMA.Gameplay.FrogJump
     [Serializable]
     public sealed class FrogJumpTuning
     {
-        public float trackMetres = 60f;
+        public float trackMetres = 30f;
         public float sweepSeconds = 1f;
         public float maxJumpMetres = 1.5f;
         public float minJumpMetres = .25f;

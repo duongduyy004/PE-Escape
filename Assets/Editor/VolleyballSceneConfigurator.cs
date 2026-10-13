@@ -50,13 +50,25 @@ namespace KMA.EditorTools
             Dive = new[] { "fallForwardRight", "fallSitRight" }
         };
 
+        // The opponent's pack has no volleyball art, so every touch is mapped onto its real
+        // play poses; the celebration (cheer) poses never stand in for hitting the ball.
         static readonly AthletePoses SharedVolleyPoses = new AthletePoses
         {
             Idle = new[] { "idle" },
             Run = new[] { "run0", "run1", "run2", "run1" },
             Receive = new[] { "duck", "hold" },
             Smash = new[] { "jump", "attack1" },
-            Block = new[] { "jump", "cheer1" },
+            Block = new[] { "jump", "hit" },
+            Serve = new[] { "attack1" },
+            ServeToss = new[] { "hold" },
+            Dig = new[] { "duck" },
+            Set = new[] { "hit" },
+            Recover = new[] { "idle" },
+            JumpLoad = new[] { "duck" },
+            SpikeWindup = new[] { "jump" },
+            SpikeContact = new[] { "attack1" },
+            SpikeFollow = new[] { "attack1" },
+            Land = new[] { "duck" },
             Dive = new[] { "fall", "slide" }
         };
         // Character poses are 1.28 units tall; scaled up so the athletes read clearly on a phone.

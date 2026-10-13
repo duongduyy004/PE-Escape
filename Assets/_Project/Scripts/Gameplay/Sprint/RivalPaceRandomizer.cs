@@ -4,10 +4,18 @@ namespace KMA.Gameplay
 {
     public static class RivalPaceRandomizer
     {
-        // How far a rival's pace swings above and below their sustained speed mid-race.
-        public const float SurgeAmplitude = .2f;
-        public const float MinSurgePeriod = 2.5f;
-        public const float MaxSurgePeriod = 4.5f;
+        // Mid-race the pace is a run of random segments: surges are frequent but mild, fades are
+        // rarer but deeper, so rivals speed up more often than they slow down while their
+        // average stays on the rolled sustained speed.
+        public const float SurgeChance = .65f;
+        public const float MinSurge = .08f, MaxSurge = .22f;
+        public const float MinFade = .2f, MaxFade = .35f;
+        public const float MinSegmentSeconds = .8f, MaxSegmentSeconds = 2.2f;
+        // Longer than any race plus the wait for stragglers; the schedule repeats after this.
+        public const float ScheduleSeconds = 40f;
+        // Once a rival is this many "seconds at sustained speed" ahead of or behind their average,
+        // the next segment pulls them back, so luck never decides a whole race.
+        const float MaxDrift = .6f;
         // Each rival rolls inside the middle of their own band, so neighbouring bands never touch.
         const float BandMargin = .15f;
 
@@ -20,11 +28,30 @@ namespace KMA.Gameplay
 
             float openingRatio = authored.SustainedSpeed > 0f ? authored.OpeningSpeed / authored.SustainedSpeed : 1f;
             float sustained = minSpeed + (maxSpeed - minSpeed) * (float)random.NextDouble();
-            float period = MinSurgePeriod + (MaxSurgePeriod - MinSurgePeriod) * (float)random.NextDouble();
-            float phase = 2f * MathF.PI * (float)random.NextDouble();
-            return new RivalPaceProfile(authored.Name, sustained * openingRatio, sustained,
-                SurgeAmplitude, period, phase);
+            return new RivalPaceProfile(authored.Name, sustained * openingRatio, sustained, RollSchedule(random));
         }
+
+        public static PaceSegment[] RollSchedule(Random random)
+        {
+            var segments = new System.Collections.Generic.List<PaceSegment>();
+            float total = 0f, drift = 0f;
+            while (total < ScheduleSeconds)
+            {
+                bool surge = drift > MaxDrift ? false
+                    : drift < -MaxDrift ? true
+                    : random.NextDouble() < SurgeChance;
+                float change = surge
+                    ? Range(random, MinSurge, MaxSurge)
+                    : -Range(random, MinFade, MaxFade);
+                float seconds = Range(random, MinSegmentSeconds, MaxSegmentSeconds);
+                segments.Add(new PaceSegment(seconds, 1f + change));
+                drift += change * seconds;
+                total += seconds;
+            }
+            return segments.ToArray();
+        }
+
+        static float Range(Random random, float min, float max) => min + (max - min) * (float)random.NextDouble();
 
         // Rolls the whole field at once: the speed range is split into one band per rival and the
         // bands are shuffled, so every race has a clearly fast, middle and slow rival.

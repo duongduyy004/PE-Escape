@@ -75,7 +75,11 @@ namespace KMA.Tests.EditorTools
             Assert.That(Opponent(AthleteAction.Idle), Is.EqualTo(new[] { "FemaleAdventurer_idle" }));
             Assert.That(Opponent(AthleteAction.Run), Is.EqualTo(new[]
                 { "FemaleAdventurer_run0", "FemaleAdventurer_run1", "FemaleAdventurer_run2", "FemaleAdventurer_run1" }));
-            Assert.That(Opponent(AthleteAction.Smash), Is.EqualTo(new[] { "FemaleAdventurer_jump", "FemaleAdventurer_attack1" }));
+            Assert.That(Opponent(AthleteAction.Smash), Is.EqualTo(new[]
+                { "FemaleAdventurer_jump", "FemaleAdventurer_attack1", "FemaleAdventurer_attack1", "FemaleAdventurer_duck" }));
+            Assert.That(Opponent(AthleteAction.Block),
+                Is.EqualTo(new[] { "FemaleAdventurer_duck", "FemaleAdventurer_hit", "FemaleAdventurer_duck" }));
+            Assert.That(Opponent(AthleteAction.ServeToss), Is.EqualTo(new[] { "FemaleAdventurer_hold" }));
         }
 
         [Test]

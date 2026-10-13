@@ -58,7 +58,7 @@ namespace KMA.Tests.Presentation
   }
   [Test] public void FinishOnFinalLandingDoesNotQueueGoodJump()
   {
-   Setup();typeof(FrogJumpRules).GetField("<Distance>k__BackingField",F).SetValue(game.Rules,58.5f);Step(.35f);game.Rules.Stop();Step(.6f);
+   Setup();typeof(FrogJumpRules).GetField("<Distance>k__BackingField",F).SetValue(game.Rules,28.5f);Step(.35f);game.Rules.Stop();Step(.6f);
    Assert.That(game.Rules.ReachedFinish,Is.True);Assert.That(host.PreferredResultEventId,Is.EqualTo("frog.finish"));Assert.That(spy.Seen.Count,Is.EqualTo(1));Assert.That(spy.Seen[0].Text,Does.Contain("Cuối cùng"));
   }
   [Test] public void TenSecondWarningDropsWhileFallen()
@@ -73,7 +73,7 @@ namespace KMA.Tests.Presentation
   [Test] public void OpeningReadsSixtyMetres()
   {
    StartOpening(true);Assert.That(game.PresentationPhase,Is.EqualTo(MinigamePhase.Tutorial));scheduler.Tick(2.5f,false);
-   Assert.That(spy.Seen[1].Text,Does.Contain("60 mét").And.Contain("40 giây"));Assert.That(game.Rules.TimeRemaining,Is.EqualTo(40));
+   Assert.That(spy.Seen[1].Text,Does.Contain("30 mét").And.Contain("40 giây"));Assert.That(game.Rules.TimeRemaining,Is.EqualTo(40));
   }
   [Test] public void ChargedBranchNeverClaimsLifeSaved()
   {

@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System;
+using System.Linq;
 using KMA.EditorTools;
 using KMA.Gameplay.UI;
 using KMA.Gameplay.Volleyball;
@@ -81,6 +82,19 @@ namespace KMA.Tests.EditorTools
                 Assert.That(view.GetComponent<SpriteRenderer>().color, Is.EqualTo(Color.white), view.name);
                 Assert.That(view.transform.localScale, Is.EqualTo(Vector3.one * VolleyballSceneConfigurator.AthleteScale), view.name);
             }
+        }
+
+        [Test]
+        public void OpponentHitsTheBallWithPlayPosesNotCelebrationPoses()
+        {
+            VolleyballSceneConfigurator.BuildScene();
+            EditorSceneManager.OpenScene(VolleyballSceneConfigurator.ScenePath, OpenSceneMode.Single);
+            var opponent = Object.FindFirstObjectByType<VolleyballController>().OpponentView;
+            foreach (AthleteAction action in Enum.GetValues(typeof(AthleteAction)))
+                foreach (Sprite sprite in opponent.FramesFor(action))
+                    Assert.That(sprite.name, Does.Not.Contain("cheer"), action + " shows a celebration pose");
+            Assert.That(opponent.FramesFor(AthleteAction.Smash).Select(sprite => sprite.name),
+                Has.Some.Contains("attack1"));
         }
 
         [Test]

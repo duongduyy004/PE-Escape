@@ -37,7 +37,7 @@ namespace KMA.Tests.Gameplay.Progression
             Assert.That(catalog.Get("volleyball_practice").TargetCount, Is.EqualTo(5));
             Assert.That(catalog.Get("volleyball_exam").TargetCount, Is.EqualTo(10));
             Assert.That(catalog.Get("volleyball_practice").TimeLimit, Is.Zero, "Practice has no deadline.");
-            Assert.That(catalog.Get("volleyball_exam").TimeLimit, Is.EqualTo(90f), "Exam requires ten points within ninety seconds.");
+            Assert.That(catalog.Get("volleyball_exam").TimeLimit, Is.Zero, "Exam requires ten points with no clock.");
             Assert.That(catalog.Get("soccer_learn").TargetCount, Is.EqualTo(3));
             Assert.That(catalog.Get("soccer_learn").KeeperEnabled, Is.False);
             Assert.That(catalog.Get("soccer_practice").TargetCount, Is.EqualTo(2));

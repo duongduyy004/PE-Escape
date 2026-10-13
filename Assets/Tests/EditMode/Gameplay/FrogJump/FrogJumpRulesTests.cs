@@ -123,7 +123,7 @@ namespace KMA.Tests.Gameplay.FrogJump
         }
 
         [Test]
-        public void ReachingSixtyMetresWinsAndClampsDistance()
+        public void ReachingThirtyMetresWinsAndClampsDistance()
         {
             var rules = new FrogJumpRules(Tuning);
             for (int i = 0; i < 50 && !rules.IsOver; i++)
@@ -134,7 +134,7 @@ namespace KMA.Tests.Gameplay.FrogJump
             }
             Assert.That(rules.State, Is.EqualTo(FrogJumpState.Finished));
             Assert.That(rules.ReachedFinish, Is.True);
-            Assert.That(rules.Distance, Is.EqualTo(60f));
+            Assert.That(rules.Distance, Is.EqualTo(30f));
             Assert.That(rules.Progress01, Is.EqualTo(1f));
         }
 
@@ -164,7 +164,7 @@ namespace KMA.Tests.Gameplay.FrogJump
             Assert.That(rules.State, Is.EqualTo(FrogJumpState.Finished));
         }
 
-        // Exact centre hits can finish the current 60 m course within the 40-second limit.
+        // Exact centre hits can finish the current 30 m course within the 40-second limit.
         [Test]
         public void PerfectCentreHitsFinishWithinTheFortySecondLimit()
         {

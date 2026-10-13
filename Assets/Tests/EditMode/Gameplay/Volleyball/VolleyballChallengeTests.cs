@@ -131,26 +131,16 @@ namespace KMA.Tests.Gameplay.Volleyball
         }
 
         [Test]
-        public void ExamFailsAtNinetySecondsEvenWhileLeading()
+        public void ExamHasNoClockAndContinuesUntilAPointTargetIsReached()
         {
             var rules = new VolleyballChallengeRules(ChallengeCatalog.LoadDefault().Get("volleyball_exam"));
-            for (int i = 0; i < 90 * 60 - 1; i++)
+            for (int i = 0; i < 150 * 60; i++)
             {
                 rules.Match.SetScoreForTest(9, 0);
                 rules.Tick(Step);
             }
             Assert.That(rules.IsComplete, Is.False);
-            for (int i = 0; i < 10 && !rules.IsComplete; i++)
-            {
-                rules.Match.SetScoreForTest(9, 0);
-                rules.Tick(Step);
-            }
-            Assert.That(rules.IsComplete, Is.True);
-            Assert.That(rules.Match.Elapsed, Is.EqualTo(90f).Within(.001f));
-            var result = rules.BuildResult(new ChallengeAttemptContext("attempt", "volleyball_exam",
-                ChallengeAttemptMode.Journey, ChallengeDifficulty.Normal));
-            Assert.That(result.Pass, Is.False);
-            Assert.That(result.ExamResult.Pass, Is.False);
+            Assert.That(rules.Match.Elapsed, Is.GreaterThan(120f));
         }
 
         static ChallengeAttemptContext Practice() => new ChallengeAttemptContext("attempt", "volleyball_practice",
@@ -161,7 +151,7 @@ namespace KMA.Tests.Gameplay.Volleyball
         {
             var rules = new VolleyballChallengeRules(ChallengeCatalog.LoadDefault().Get("volleyball_exam"));
             Assert.That(rules.Match.WinningPoints, Is.EqualTo(10));
-            Assert.That(rules.Match.ClockLimit, Is.EqualTo(90f));
+            Assert.That(rules.Match.ClockLimit, Is.Zero);
 
             // The player serves first; standing still must not hold the ball until a deadline.
             for (float t = 0f; t < 600f && !rules.IsComplete; t += Step) rules.Tick(Step);

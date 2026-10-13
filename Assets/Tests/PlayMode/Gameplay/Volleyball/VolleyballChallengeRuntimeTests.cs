@@ -15,7 +15,7 @@ namespace KMA.Tests.Gameplay.Volleyball
         Sprite[] poseSprites;
 
         [UnityTest]
-        public IEnumerator ExamDeadlineProducesOneTypedScoredResult()
+        public IEnumerator ExamHasNoDeadlineWhileThePlayerLeads()
         {
             root = new GameObject("JourneyVolleyballController");
             root.SetActive(false);
@@ -45,24 +45,18 @@ namespace KMA.Tests.Gameplay.Volleyball
             yield return null;
             controller.SkipToPlayForTest();
 
-            // Keep a lead below the target: only the deadline can end this match.
+            // Keep a lead below the target well past the old 90 s deadline: the exam has no clock.
             for (int i = 0; i < 100 * 60 && !controller.Match.IsOver; i++)
             {
                 controller.Match.SetScoreForTest(9, 0);
                 controller.Match.Tick(1f / 60f);
             }
             yield return null;
-            Assert.That(controller.Match.Elapsed, Is.EqualTo(90f).Within(.001f));
-            Assert.That(controller.Match.PlayerPoints, Is.EqualTo(9));
-            Assert.That(typed, Is.EqualTo(1));
-            Assert.That(result.Pass, Is.False);
-            Assert.That(result.ExamResult, Is.Not.Null);
-            Assert.That(result.ExamResult.Pass, Is.False);
-            controller.Match.Tick(1f);
-            yield return null;
-            Assert.That(typed, Is.EqualTo(1), "The deadline must resolve the attempt only once.");
-            Assert.That(session.SubmitChallengeResult(result).Accepted, Is.True);
-            Assert.That(session.Journey.CheckpointChallengeId, Is.EqualTo("volleyball_exam"));
+            Assert.That(controller.Match.ClockLimit, Is.Zero);
+            Assert.That(controller.Match.Elapsed, Is.GreaterThan(90f));
+            Assert.That(controller.Match.IsOver, Is.False);
+            Assert.That(typed, Is.Zero, "Only points can end the exam.");
+            Assert.That(result, Is.Null);
         }
 
         // On device the PhaseOverlay can open the start gate before the router binds the scene;

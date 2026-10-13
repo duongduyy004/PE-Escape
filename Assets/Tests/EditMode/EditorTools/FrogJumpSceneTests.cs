@@ -17,7 +17,7 @@ namespace KMA.Tests.EditorTools
         {
             var config = AssetDatabase.LoadAssetAtPath<FrogJumpBalanceConfig>(
                 "Assets/_Project/ScriptableObjects/FrogJump/FrogJumpBalance.asset");
-            Assert.That(config.Tuning.trackMetres, Is.EqualTo(60f));
+            Assert.That(config.Tuning.trackMetres, Is.EqualTo(30f));
             Assert.That(config.Tuning.timeLimitSeconds, Is.EqualTo(40f));
             Assert.That(config.Tuning.safeZone, Is.EqualTo(.2f));
             Assert.That(config.Tuning.minJumpMetres, Is.EqualTo(.25f));
