@@ -76,7 +76,7 @@ namespace KMA.EditorTools
             UiKit.Place(summary.Root, centre, centre, Vector2.zero, new Vector2(1100f, 620f));
             var summaryGroup = summary.Root.gameObject.AddComponent<CanvasGroup>();
             float titleSize = MinigameUiTheme.Display * .55f;
-            ShellTitleHandle titleHandle = ShellKit.Title(summary.Root, "Title", "QUA MÔN", titleSize);
+            ShellTitleHandle titleHandle = ShellKit.Title(summary.Root, "Title", "HOÀN THÀNH HỌC PHẦN THỂ CHẤT", titleSize);
             RectTransform titleRoot = titleHandle.Root;
             titleRoot.anchorMin = new Vector2(.04f, 1f);
             titleRoot.anchorMax = new Vector2(.96f, 1f);

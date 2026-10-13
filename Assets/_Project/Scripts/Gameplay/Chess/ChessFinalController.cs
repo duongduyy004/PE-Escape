@@ -141,13 +141,13 @@ namespace KMA.Gameplay.Chess
         /// Shows the intro for the machine's puzzle in its initial state (also used by Restart).
         void ShowFreshAttempt()
         {
-            hud.SetObjective(machine.OptimalMoves);
+            hud.SetObjective(machine.OptimalMoves, machine.MaxMoves);
             hud.SetMoves(0, machine.MaxMoves);
             hud.SetClock(machine.Clock.Remaining);
             hud.SetTurn(machine.Phase);
             hud.SetHintAvailable(false);
             hud.ShowAnalysisError(false);
-            hud.SetIntro($"Tối đa {machine.MaxMoves} nước.\nThời gian suy nghĩ {ChessGuide.TimeWords(machine.Clock.Limit)}.");
+            hud.SetIntro($"Chiếu hết trong tối đa {machine.MaxMoves} nước.\nThời gian suy nghĩ: {Mathf.RoundToInt(machine.Clock.Limit)} giây.");
             hud.ShowIntro(true);
             board.Render(machine.Position, null);
             RefreshInput();

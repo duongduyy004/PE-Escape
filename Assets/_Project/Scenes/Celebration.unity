@@ -2617,7 +2617,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "QUA M\xD4N"
+  m_text: "HO\u00C0N TH\u00C0NH H\u1ECCC PH\u1EA6N TH\u1EC2 CH\u1EA4T"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b35539ffcf6039a27afe5bd2a0ce072a, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: b26e7c1b9e3ad6f13a6c61e0803c25f1, type: 2}
@@ -3143,7 +3143,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "QUA M\xD4N"
+  m_text: "HO\u00C0N TH\u00C0NH H\u1ECCC PH\u1EA6N TH\u1EC2 CH\u1EA4T"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3e65c36a8d957244285db1901ea34ff3, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 4e89de635520eef378cde06c140ada11, type: 2}

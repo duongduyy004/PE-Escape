@@ -56,23 +56,23 @@ namespace KMA.Gameplay.Chess
                     return Unknown(request.Id, level);
                 bool check = MoveGenerator.IsInCheck(position.Apply(move));
                 idea = check
-                    ? $"Có đường chiếu hết trong {best.Distance} nước. Nhìn các nước chiếu trước."
-                    : $"Có đường chiếu hết trong {best.Distance} nước. Nước đầu không chiếu: hãy khóa đường thoát của vua đen.";
+                    ? $"Còn đường chiếu hết trong {best.Distance} nước. Nhìn các nước chiếu, đừng chỉ ngồi nhìn quân."
+                    : $"Còn đường chiếu hết trong {best.Distance} nước. Nước này phải khóa đường thoát của vua đen trước, không phải cứ chiếu là xong.";
             }
             else
             {
                 move = SafeWaitingMove(position);
-                idea = "Không còn đường chiếu hết bắt buộc trong số nước còn lại. Hãy giữ quân an toàn và tránh thế hòa.";
+                idea = "Không còn cách buộc chiếu hết trong số nước còn lại. Cậu tự đi vào thế này đấy. Giữ quân cho chắc, tránh hòa cờ.";
             }
 
             string piece = PieceName(Piece.TypeOf(position[move.From]));
             string text = level == 1
                 ? idea
                 : level == 2
-                    ? $"Xem lại quân {piece} ở {Square.Name(move.From)}."
+                    ? $"Nhìn quân {piece} ở {Square.Name(move.From)}. Cậu bỏ qua quân đó rồi."
                     : $"Đi {piece} từ {Square.Name(move.From)} đến {Square.Name(move.To)}" +
                       (move.Promotion != 0 ? $" và phong thành {PieceName(move.Promotion)}" : string.Empty) +
-                      ". Tôi đã chỉ rõ rồi.";
+                      ". Tôi chỉ đến thế này rồi, đừng bảo là chưa biết đi đâu.";
             return new ChessHint(request.Id, SearchStatus.Complete, level, best.Forced, level == 3, move, text);
         }
 

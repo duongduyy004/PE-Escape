@@ -34,7 +34,7 @@ namespace KMA.Tests.Gameplay.Chess
         public void RulesDescribeRealMovesAndScoring()
         {
             string rules = ChessGuide.Build(2, 3, 90)[2].Instruction;
-            Assert.That(rules, Does.Contain("không thể đi lại"));
+            Assert.That(rules, Does.Contain("không thể hoàn tác"));
             Assert.That(rules, Does.Contain("70%"));
             Assert.That(rules, Does.Contain("30%"));
             Assert.That(rules, Does.Contain("hạng tối đa ở A"));
@@ -44,12 +44,5 @@ namespace KMA.Tests.Gameplay.Chess
         public void NoPageMentionsTheOldMistakeRule() =>
             Assert.That(ChessGuide.Build(3, 5, 150).Select(p => p.Instruction),
                 Has.None.Contain("sửa sai").Or.None.Contain("lần sửa"));
-
-        [TestCase(60f, "một phút")]
-        [TestCase(90f, "một phút rưỡi")]
-        [TestCase(120f, "hai phút")]
-        [TestCase(45f, "45 giây")]
-        public void TimeWordsReadAloud(float seconds, string expected) =>
-            Assert.That(ChessGuide.TimeWords(seconds), Is.EqualTo(expected));
     }
 }

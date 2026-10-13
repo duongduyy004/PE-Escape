@@ -114,7 +114,7 @@ namespace KMA.Gameplay.Celebration
         void FillSummary()
         {
             // The title is a Shell title: a gold drop copy sits behind the face text, so both change together.
-            ShellKit.SetTitleText(title.transform.parent, "QUA MÔN");
+            ShellKit.SetTitleText(title.transform.parent, "HOÀN THÀNH HỌC PHẦN THỂ CHẤT");
             for (int i = 0; i < Summary.Subjects.Count && i < 3; i++)
             {
                 CelebrationRow row = Summary.Subjects[i];

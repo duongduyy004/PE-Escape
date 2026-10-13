@@ -150,7 +150,7 @@ namespace KMA.EditorTools
             Image errorCard = UiKit.Panel(parent, "AnalysisErrorCard", alpha: 1f);
             UiKit.Place(errorCard.rectTransform, centre, centre, new Vector2(0f, -30f), new Vector2(640f, 320f));
             TMP_Text errorText = UiKit.Label(errorCard.transform, "Text",
-                "Chưa phân tích được nước đi này.\nNước của bạn vẫn được giữ. Đồng hồ đã dừng.",
+                "Chưa phân tích được nước đi này. Thử phân tích lại hoặc bắt đầu lại thế cờ.",
                 MinigameUiTheme.BodyLarge, MinigameUiTheme.TextPrimary);
             UiKit.Place(errorText.rectTransform, top, top, new Vector2(0f, -36f), new Vector2(580f, 140f));
             ButtonHandle retry = UiKit.Button(errorCard.transform, "RetryAnalysisButton", "Thử lại", ButtonVariant.Primary);

@@ -21,8 +21,10 @@ namespace KMA.Tests.EditorTools
             Assert.That(library.Validate(out string error),Is.True,error);
             Assert.That(library.Events.Count,Is.EqualTo(55));
             Assert.That(library.Events.Select(e=>e.Id).Distinct().Count(),Is.EqualTo(55));
-            var lines=library.Resolve("sp.practice.start",new Dictionary<string,string>{{"time","20"}}).Lines;
-            Assert.That(lines[0].Text,Does.Contain("20 giây"));
+            var lines=library.Resolve("frog.start.save",new Dictionary<string,string>{{"distance","30"},{"time","20"}}).Lines;
+            Assert.That(lines[1].Text,Does.Contain("30 mét trong 20 giây"));
+            var chess=library.Resolve("chess.start",new Dictionary<string,string>{{"maxMoves","3"},{"timeSeconds","90"}}).Lines;
+            Assert.That(chess[0].Text,Does.Contain("Tối đa 3 nước, 90 giây"));
             foreach(var e in library.Events)
                 foreach(var line in e.Lines.Where(l=>l.Speaker==DialogueSpeaker.Teacher))
                     foreach(var pose in line.Poses)

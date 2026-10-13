@@ -5847,9 +5847,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Ch\u01B0a ph\xE2n t\xEDch \u0111\u01B0\u1EE3c n\u01B0\u1EDBc \u0111i n\xE0y.\nN\u01B0\u1EDBc
-    c\u1EE7a b\u1EA1n v\u1EABn \u0111\u01B0\u1EE3c gi\u1EEF. \u0110\u1ED3ng h\u1ED3
-    \u0111\xE3 d\u1EEBng."
+  m_text: "Ch\u01B0a ph\u00E2n t\u00EDch \u0111\u01B0\u1EE3c n\u01B0\u1EDBc \u0111i n\u00E0y. Th\u1EED ph\u00E2n t\u00EDch l\u1EA1i ho\u1EB7c b\u1EAFt \u0111\u1EA7u l\u1EA1i th\u1EBF c\u1EDD."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e2fb29186b981b74191bedd015960b0f, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: b15b201b3261465dc84fd26a46195ecb, type: 2}

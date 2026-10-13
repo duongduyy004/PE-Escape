@@ -11,16 +11,17 @@ namespace KMA.Gameplay.UI
         IDisposable hold;
         string eventId;
         IReadOnlyDictionary<string,string> tokens;
+        Func<bool> ready;
         bool configured, emitted;
         int configuredFrame;
         MinigameGuideHost guide;
         public bool IsComplete => emitted && !configured;
         void Awake() { if (game != null) hold = game.AcquireStartHold("opening dialogue"); }
         public void Configure(MinigameBase source, GameplayDialogueHost dialogue, string id,
-            IReadOnlyDictionary<string,string> values = null)
+            IReadOnlyDictionary<string,string> values = null, Func<bool> ready = null)
         {
             if (game != source) { hold?.Dispose(); hold = null; }
-            game=source; host=dialogue; eventId=id; tokens=values;
+            game=source; host=dialogue; eventId=id; tokens=values; this.ready=ready;
             if (game != null && hold == null) hold=game.AcquireStartHold("opening dialogue");
             configured=true; emitted=false; configuredFrame=Time.frameCount;
             if (game != null && !game.OwnsStartGate) game.RequestStart();
@@ -53,6 +54,8 @@ namespace KMA.Gameplay.UI
             if (!configured) return;
             if (!emitted)
             {
+                // The line may read data that is not there yet (a generated puzzle); hold the start until it is.
+                if (ready != null && !ready()) return;
                 emitted=true;
                 if (host == null || string.IsNullOrEmpty(eventId) || !host.Emit(eventId,tokens:tokens)) Release();
             }

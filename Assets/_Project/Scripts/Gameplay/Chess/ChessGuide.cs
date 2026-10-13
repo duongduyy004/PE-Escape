@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using KMA.Gameplay.UI;
-using UnityEngine;
 
 namespace KMA.Gameplay.Chess
 {
@@ -15,25 +14,21 @@ namespace KMA.Gameplay.Chess
         public static IReadOnlyList<TutorialStep> Build(int optimalMoves, int maxMoves, int timeSeconds)
         {
             string time = timeSeconds > 0
-                ? $"Có {MinigameGuidePages.Number(timeSeconds)} giây suy nghĩ cho thế cờ này."
+                ? $"Có {MinigameGuidePages.Number(timeSeconds)} giây suy nghĩ."
                 : "Thời gian suy nghĩ được tính theo độ khó của thế cờ.";
-            string goal = $"Chiếu hết trong tối đa {maxMoves} nước; có cách chiếu hết trong {optimalMoves} nước. {time} " +
+            string goal = "Bạn nhận một thế cờ ngẫu nhiên theo độ khó đã chọn. " +
+                          $"Chiếu hết trong tối đa {maxMoves} nước; có cách chiếu hết trong {optimalMoves} nước. {time} " +
                           "Trượt bài này không bị trừ lượt thi và không phải Bật cóc.";
-            string rules = "Mọi nước đi hợp lệ đều được tính và không thể đi lại. Nước không hợp lệ không tính nước. " +
-                           "Đồng hồ chỉ chạy khi đến lượt bạn nghĩ. Hết giờ, hết nước, bị chiếu hết hoặc hòa là chưa đạt. " +
+            string rules = "Mỗi nước đi hợp lệ của bạn tính một nước và không thể hoàn tác. " +
+                           "Nước không hợp lệ không tính nước; nước của giảng viên không trừ vào giới hạn của bạn. " +
+                           $"Chiếu hết trong tối đa {maxMoves} nước là đạt, kể cả ở nước cuối cùng được phép đi. " +
+                           "Hết giờ, dùng hết số nước mà chưa chiếu hết, bị chiếu hết hoặc hòa đều là chưa đạt. " +
+                           "Đồng hồ chỉ chạy trong lượt suy nghĩ của bạn. " +
                            "Điểm gồm chất lượng từng nước (70%) và số nước đã dùng (30%); dùng gợi ý chỉ rõ nước đi giới hạn hạng tối đa ở A.";
             return MinigameGuidePages.Pages(
                 new TutorialStep("MỤC TIÊU", goal),
                 new TutorialStep("ĐIỀU KHIỂN", Controls),
                 new TutorialStep("LUẬT", rules));
         }
-
-        public static string TimeWords(float seconds) => Mathf.RoundToInt(seconds) switch
-        {
-            60 => "một phút",
-            90 => "một phút rưỡi",
-            120 => "hai phút",
-            int s => $"{s} giây"
-        };
     }
 }

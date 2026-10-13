@@ -36,7 +36,7 @@ namespace KMA.Tests.Gameplay.Celebration
             var fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
             var summary = (CanvasGroup)typeof(CelebrationSceneController).GetField("summaryGroup", fields).GetValue(controller);
             var title = (TMPro.TMP_Text)typeof(CelebrationSceneController).GetField("title", fields).GetValue(controller);
-            Assert.That(title.text, Is.EqualTo("QUA MÔN"));
+            Assert.That(title.text, Is.EqualTo("HOÀN THÀNH HỌC PHẦN THỂ CHẤT"));
             var rows = (TMPro.TMP_Text[])typeof(CelebrationSceneController).GetField("rows", fields).GetValue(controller);
             RectTransform cardRect = summary.transform as RectTransform;
             foreach (float width in new[] { 1100f, 900f }) // 16:9 reference width and a narrow 20:9 safe-area panel.

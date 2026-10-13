@@ -40,11 +40,11 @@ namespace KMA.Tests.Gameplay.Progression
                 .Where(l => l.Contains("Id=\"chess.") || l.Contains("Id=\"ch.extra."))));
 
         [Test]
-        public void JourneyChessChallengeAndIntroCarryNoStaleCopy()
+        public void JourneyChessChallengeCarriesNoStaleCopy()
         {
             const string file = "Assets/Editor/StudentJourneyContentBuilder.cs";
             AssertClean("chess_final spec", Block(file, "new ChallengeSpec(\"chess_final\"", 3));
-            AssertClean("chess_intro node", Block(file, "Node(\"chess_intro\"", 4));
+            // The chess_intro dialogue keeps the author's "90 giây" line; it is story talk, not a rule shown in the app.
         }
 
         [TestCase("PLAN.md", "Bài kiểm tra cuối (cờ vua)")]

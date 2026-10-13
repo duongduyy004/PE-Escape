@@ -80,7 +80,7 @@ namespace KMA.Tests.Gameplay.Chess
    Assert.That(game.Machine.Clock.Elapsed,Is.Zero);
    yield return WaitFor(()=>opening.IsComplete,"the opening did not finish",8f);
    game.BeginAttempt();Assert.That(game.Machine.Phase,Is.EqualTo(ChessAttemptPhase.PlayerTurn));
-   Assert.That(cast.BubbleSpeaker,Is.EqualTo(DialogueSpeaker.Student));Assert.That(cast.BubbleText,Does.Contain("cả hai quân"));
+   Assert.That(cast.BubbleSpeaker,Is.EqualTo(DialogueSpeaker.Student));Assert.That(cast.BubbleText,Does.Contain("đi thế nào"));
   }
   [UnityTest] public IEnumerator IllegalMoveKeepsPosesAndDoesNotWhistle()
   {

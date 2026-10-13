@@ -49,7 +49,8 @@ namespace KMA.Gameplay.Chess
         }
 
         public void ShowIntro(bool visible) => introCard.SetActive(visible);
-        public void SetObjective(int optimalMoves) => objective.text = VietText.Fix($"Chiếu hết, tối ưu {optimalMoves} nước");
+        public void SetObjective(int optimalMoves, int maxMoves) =>
+            objective.text = VietText.Fix($"Chiếu hết trong tối đa {maxMoves} nước (tối ưu {optimalMoves} nước)");
         public void SetClock(float remaining) => clock.text = FormatClock(remaining);
         public void SetMoves(int used, int max) => moves.text = VietText.Fix($"Nước: {used}/{max}");
         public void SetIntro(string text) => introLabel.text = VietText.Fix(text);

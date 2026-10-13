@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using KMA.Gameplay.UI;
 using UnityEngine;
 namespace KMA.Gameplay.Chess
@@ -10,6 +11,8 @@ namespace KMA.Gameplay.Chess
         [SerializeField] ChessCastView view;
         ChessAttemptMachine machine;
         bool warned, firstCorrect, relief;
+        // Read by the opening line when it plays, so it carries the limits of the puzzle that is on the board.
+        readonly Dictionary<string,string> openingTokens=new Dictionary<string,string>();
         public bool OpeningReady=>host==null || view==null || opening==null || opening.IsComplete;
         public void Configure(ChessFinalController source,GameplayDialogueHost dialogue,ChessCastView cast)
         {
@@ -17,7 +20,7 @@ namespace KMA.Gameplay.Chess
             if(source==null || host==null || view==null)return;
             view.BindDialogue(host);host.SetView(view);
             view.SetStudent("fear");
-            opening?.Configure(source,host,"chess.start");
+            opening?.Configure(source,host,"chess.start",openingTokens,()=>machine!=null);
             source.PuzzleReadyEvent+=Bind;
             if(source.Machine!=null)Bind(source.Machine);
         }
@@ -26,6 +29,8 @@ namespace KMA.Gameplay.Chess
             if(machine!=null){machine.MoveCommitted-=OnMove;machine.PhaseChanged-=OnPhase;}
             machine=next;warned=firstCorrect=relief=false;
             if(machine==null)return;
+            openingTokens["maxMoves"]=machine.MaxMoves.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            openingTokens["timeSeconds"]=Mathf.RoundToInt(machine.Clock.Limit).ToString(System.Globalization.CultureInfo.InvariantCulture);
             machine.MoveCommitted+=OnMove;machine.PhaseChanged+=OnPhase;
         }
         public void Began()
@@ -77,7 +82,11 @@ namespace KMA.Gameplay.Chess
                 if(!firstCorrect && machine.MovesUsed==1 && machine.Moves.Count==1 && machine.Moves[0].Q>=0.999)
                 {firstCorrect=true;host.Emit("ch.extra.firstcorrect",()=>machine.CanMove && machine.MovesUsed==1,budgetSeconds:3.7f);}
                 if(!warned && machine.Clock.Remaining<=15 && machine.Clock.Remaining>0)
-                {warned=true;host.Emit("ch.extra.lowtime",()=>machine.CanMove,budgetSeconds:machine.Clock.Remaining);}
+                {
+                    warned=true;
+                    var remaining=new Dictionary<string,string>{{"secondsRemaining",Mathf.CeilToInt(machine.Clock.Remaining).ToString(System.Globalization.CultureInfo.InvariantCulture)}};
+                    host.Emit("ch.extra.lowtime",()=>machine.CanMove,budgetSeconds:machine.Clock.Remaining,tokens:remaining);
+                }
             }
             if(machine.Phase==ChessAttemptPhase.Completed && host.IsIdle && !relief)
             {
