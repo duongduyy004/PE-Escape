@@ -73,7 +73,42 @@ namespace KMA.Tests.Presentation
             var rect = (RectTransform)retry.transform;
             Assert.That(rect.anchorMin, Is.EqualTo(new Vector2(.5f, .5f)));
             Assert.That(rect.anchoredPosition.x, Is.EqualTo(0f));
-            Assert.That(retry.GetComponent<HomeMenuButton>(), Is.Not.Null);
+            Assert.That(retry.GetComponent<KitPressFeedback>(), Is.Not.Null);
+            Assert.That(retry.GetComponent<HomeMenuButton>(), Is.Null);
+        }
+
+        // The card matches the Home key art: cream panel, navy border, gold primary action.
+        [Test]
+        public void LayoutUsesTheMenuCardStyle()
+        {
+            GameOverPresentationBuilder.Build(screen, new GameSession());
+
+            var panel = root.transform.Find("GameOverLayout/MenuPanel");
+            Assert.That(panel.GetComponent<Image>().color, Is.EqualTo(HomeMenuStyle.Navy));
+            Assert.That(panel.Find("Face").GetComponent<Image>().color, Is.EqualTo(GameOverPresentationBuilder.Cream));
+            var title = root.transform.Find("GameOverLayout/TitleMain").GetComponent<TMP_Text>();
+            Assert.That(title.color, Is.EqualTo(GameOverPresentationBuilder.TitleRed));
+            Assert.That(title.enableVertexGradient, Is.False, "a gold gradient would tint the headline");
+            Assert.That(root.transform.Find("GameOverLayout/TitleMainDrop"), Is.Null);
+            Color Face(string name) => root.transform.Find("GameOverLayout/" + name + "/Face").GetComponent<Image>().color;
+            Assert.That(Face("RETRYButton"), Is.EqualTo(GameOverPresentationBuilder.ButtonGold));
+            Assert.That(Face("NEW GAMEButton"), Is.EqualTo(GameOverPresentationBuilder.Cream));
+            Assert.That(Face("MAIN MENUButton"), Is.EqualTo(GameOverPresentationBuilder.Cream));
+        }
+
+        [Test]
+        public void AnOlderDarkLayoutIsReplacedAndKeepsItsButtons()
+        {
+            var old = new GameObject("GameOverLayout", typeof(RectTransform)).transform;
+            old.SetParent(root.transform, false);
+            foreach (var button in root.GetComponentsInChildren<Button>(true).ToArray())
+                button.transform.SetParent(old, false);
+
+            GameOverPresentationBuilder.Build(screen, new GameSession());
+
+            Assert.That(root.transform.Cast<Transform>().Count(t => t.name == "GameOverLayout"), Is.EqualTo(1));
+            Assert.That(root.transform.Find("GameOverLayout/MenuPanel"), Is.Not.Null);
+            Assert.That(root.transform.Find("GameOverLayout").GetComponentsInChildren<Button>(true).Length, Is.EqualTo(3));
         }
 
         [Test]
@@ -103,7 +138,7 @@ namespace KMA.Tests.Presentation
         }
 
         [Test]
-        public void BackgroundAddsIllustrationAndWashAfterTheOpaqueVeil()
+        public void BackgroundShowsTheIllustrationAtFullBrightnessOverTheOpaqueVeil()
         {
             var tex = new Texture2D(40, 20);
             var sprite = Sprite.Create(tex, new Rect(0, 0, 40, 20), new Vector2(.5f, .5f));
@@ -118,9 +153,8 @@ namespace KMA.Tests.Presentation
             Assert.That(fitter, Is.Not.Null, "the illustration must cover any screen aspect, not a size baked once");
             Assert.That(fitter.aspectMode, Is.EqualTo(AspectRatioFitter.AspectMode.EnvelopeParent));
             Assert.That(fitter.aspectRatio, Is.EqualTo(2f).Within(.01f));
-            var wash = veil.Find("Wash").GetComponent<Image>();
-            Assert.That(wash.color.a, Is.EqualTo(.78f).Within(.001f));
-            Assert.That(art.transform.GetSiblingIndex(), Is.LessThan(wash.transform.GetSiblingIndex()));
+            Assert.That(art.color, Is.EqualTo(Color.white));
+            Assert.That(veil.Find("Wash"), Is.Null, "the menu backdrop is not darkened");
             Object.DestroyImmediate(sprite); Object.DestroyImmediate(tex);
         }
 
@@ -136,7 +170,7 @@ namespace KMA.Tests.Presentation
 
             var veil = screen.transform.Find("GameOverVeil");
             Assert.That(veil.Cast<Transform>().Count(t => t.name == "Illustration"), Is.EqualTo(1));
-            Assert.That(veil.Cast<Transform>().Count(t => t.name == "Wash"), Is.EqualTo(1));
+            Assert.That(veil.Cast<Transform>().Count(t => t.name == "Wash"), Is.Zero);
             Assert.That(veil.Find("Illustration").GetComponents<AspectRatioFitter>().Length, Is.EqualTo(1));
             Object.DestroyImmediate(sprite); Object.DestroyImmediate(tex);
         }

@@ -13,40 +13,32 @@ namespace KMA.Gameplay.UI
         static Sprite disc;
         static readonly Dictionary<(float, float, int, int, bool), Sprite> SlantSprites = new Dictionary<(float, float, int, int, bool), Sprite>();
 
-        // The scenery stays in the key art. Product text and controls are live UI so they can be
-        // localized, resized, and read by assistive tools.
+        // The panel, title and button faces are painted into the menu key art (Art/UI/MenuKeyArtPanel.png),
+        // so the real buttons are invisible hit areas laid over the painted ones. The button captions are
+        // kept as clear labels so the buttons still read as "CHƠI MỚI", "TIẾP TỤC", ... to tests and tools.
         const float ArtWidth = 1672f;
         const float ArtHeight = 941f;
-        const float PanelCenterX = 349f - ArtWidth * .5f;
+        const float ButtonLeft = 102f;
+        const float ButtonRight = 592f;
 
         public static void Build(MainMenuScreen screen)
         {
-            if (screen == null) return;
-            var authoredLayout = screen.transform.Find("HomeMenuLayout");
-            if (authoredLayout != null)
-            {
-                if (authoredLayout.Find("ProductTitle") != null && authoredLayout.Find("HomeBrandPanel") != null) return;
-                Rebuild(screen);
-                return;
-            }
+            if (screen == null || screen.transform.Find("HomeMenuLayout") != null) return;
             var layout = Rect(screen.transform, "HomeMenuLayout");
             layout.anchorMin = Vector2.zero;
             layout.anchorMax = Vector2.one;
             layout.offsetMin = layout.offsetMax = Vector2.zero;
+            // The hit areas follow the fitted panel frame; older scenes without one fall back to the full art.
             var art = (screen.transform.root.Find("HomePanelFrame") ?? screen.transform.root.Find("HomeIllustration")) as RectTransform;
             layout.gameObject.AddComponent<HomeKeyArtLayout>().Configure(art != null ? art : (RectTransform)screen.transform);
-            Transform paintedPanel = screen.transform.root.Find("HomePanelFrame/HomePanelArt");
-            if (paintedPanel != null) paintedPanel.gameObject.SetActive(false);
             var oldLogo = screen.transform.Find("HomeLogo");
             if (oldLogo != null) oldLogo.gameObject.SetActive(false);
             var oldTitle = screen.transform.Find("HomeTitle");
             if (oldTitle != null) oldTitle.gameObject.SetActive(false);
-            BuildPanel(layout);
-            BuildTitle(layout);
-            StyleSceneButton(screen, layout, "NEW GAMEButton", "CHƠI MỚI", HomeMenuButton.Kind.NewGame, 36f);
-            StyleSceneButton(screen, layout, "CONTINUEButton", "TIẾP TỤC", HomeMenuButton.Kind.Continue, -42f);
-            StyleSceneButton(screen, layout, "SETTINGSButton", "CÀI ĐẶT", HomeMenuButton.Kind.Secondary, -120f);
-            StyleSceneButton(screen, layout, "QUITButton", "THOÁT", HomeMenuButton.Kind.Exit, -198f);
+            HitArea(screen, layout, "NEW GAMEButton", "CHƠI MỚI", 426f, 530f);
+            HitArea(screen, layout, "CONTINUEButton", "TIẾP TỤC", 532f, 634f);
+            HitArea(screen, layout, "SETTINGSButton", "CÀI ĐẶT", 636f, 738f);
+            HitArea(screen, layout, "QUITButton", "THOÁT", 740f, 842f);
         }
 
         /// Drops an earlier menu layout (keeping the scene's buttons) so authoring can rebuild it.
@@ -63,62 +55,45 @@ namespace KMA.Gameplay.UI
             Build(screen);
         }
 
-        static void BuildPanel(RectTransform parent)
-        {
-            var panel = Rect(parent, "HomeBrandPanel");
-            panel.anchorMin = panel.anchorMax = Vector2.one * .5f;
-            panel.pivot = Vector2.one * .5f;
-            panel.sizeDelta = new Vector2(602f, 847f);
-            panel.anchoredPosition = new Vector2(PanelCenterX, 0f);
-            var image = panel.gameObject.AddComponent<Image>();
-            image.color = new Color(HomeMenuStyle.Navy.r, HomeMenuStyle.Navy.g, HomeMenuStyle.Navy.b, .94f);
-            image.raycastTarget = false;
-            var outline = panel.gameObject.AddComponent<Outline>();
-            outline.effectColor = HomeMenuStyle.Gold;
-            outline.effectDistance = new Vector2(3f, -3f);
-            outline.useGraphicAlpha = false;
-        }
-
-        static void BuildTitle(RectTransform parent)
-        {
-            RectTransform badge = CreateBadge(parent, "SportBadge");
-            badge.anchorMin = badge.anchorMax = Vector2.one * .5f;
-            badge.pivot = Vector2.one * .5f;
-            badge.anchoredPosition = new Vector2(PanelCenterX, 280f);
-            badge.localScale = Vector3.one * .72f;
-
-            var titleRect = Rect(parent, "ProductTitle");
-            titleRect.anchorMin = titleRect.anchorMax = Vector2.one * .5f;
-            titleRect.pivot = Vector2.one * .5f;
-            titleRect.anchoredPosition = new Vector2(PanelCenterX, 188f);
-            titleRect.sizeDelta = new Vector2(510f, 88f);
-            var title = UiKit.EnsureTmpLabel(titleRect, 42, HomeMenuStyle.White);
-            title.text = VietText.Fix("CHẠY TRỐN\nTHỂ CHẤT");
-            title.fontStyle = FontStyles.Bold;
-            title.alignment = TextAlignmentOptions.Center;
-            title.enableAutoSizing = true;
-            title.fontSizeMin = 30f;
-            title.fontSizeMax = 42f;
-            title.raycastTarget = false;
-            Stretch(title.rectTransform, Vector2.zero, Vector2.zero);
-        }
-
-        static void StyleSceneButton(Component screen, RectTransform parent, string name, string caption,
-            HomeMenuButton.Kind kind, float y)
+        // top/bottom are pixel rows of the painted button in the 1672 x 941 key art, measured from the top.
+        static void HitArea(Component screen, RectTransform parent, string name, string caption, float top, float bottom)
         {
             var button = screen.GetComponentsInChildren<Button>(true)
                 .FirstOrDefault(candidate => string.Equals(candidate.name, name, StringComparison.Ordinal));
             if (button == null) return;
-            foreach (var childName in new[] { "Fill", "Icon", "HoverArrow", "DisabledShade" })
+            var rect = (RectTransform)button.transform;
+            rect.SetParent(parent, false);
+            foreach (var stale in new[] { "Fill", "Icon", "HoverArrow", "DisabledShade" })
             {
-                var child = button.transform.Find(childName);
-                if (child != null) UnityEngine.Object.DestroyImmediate(child.gameObject);
+                var old = rect.Find(stale);
+                if (old != null) UnityEngine.Object.DestroyImmediate(old.gameObject);
             }
             foreach (var old in button.GetComponents<HomeMenuButton>()) UnityEngine.Object.DestroyImmediate(old);
-            foreach (var old in button.GetComponents<HomeKeyArtButton>()) UnityEngine.Object.DestroyImmediate(old);
-            HomeMenuButton visual = StyleButton(button, parent, caption, kind,
-                Vector2.one * .5f, new Vector2(PanelCenterX, y), new Vector2(390f, 64f));
-            if (kind == HomeMenuButton.Kind.NewGame) visual.SetPrimary(true);
+            rect.anchorMin = new Vector2(ButtonLeft / ArtWidth, 1f - bottom / ArtHeight);
+            rect.anchorMax = new Vector2(ButtonRight / ArtWidth, 1f - top / ArtHeight);
+            rect.pivot = new Vector2(.5f, .5f);
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            rect.localScale = Vector3.one;
+            var hit = button.GetComponent<Image>() ?? button.gameObject.AddComponent<Image>();
+            hit.sprite = null;
+            hit.type = Image.Type.Simple;
+            hit.color = Color.white;
+            hit.raycastTarget = true;
+            hit.canvasRenderer.cullTransparentMesh = false;
+            var oldOutline = button.GetComponent<Outline>();
+            if (oldOutline != null) oldOutline.enabled = false;
+            var shade = Rect(rect, "DisabledShade");
+            Stretch(shade, Vector2.one * 3f, -Vector2.one * 3f);
+            var shadeImage = shade.gameObject.AddComponent<Image>();
+            shadeImage.color = new Color(.84f, .83f, .8f, .6f);
+            shadeImage.raycastTarget = false;
+            var label = UiKit.EnsureTmpLabel(rect, 22, Color.clear);
+            label.text = VietText.Fix(caption);
+            label.color = Color.clear;
+            label.raycastTarget = false;
+            Stretch(label.rectTransform, Vector2.zero, Vector2.zero);
+            var visual = button.GetComponent<HomeKeyArtButton>() ?? button.gameObject.AddComponent<HomeKeyArtButton>();
+            visual.Configure(button, shadeImage);
         }
 
         // Splash and menu share the same badge sprites, rim and shine component.

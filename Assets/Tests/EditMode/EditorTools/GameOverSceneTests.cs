@@ -25,11 +25,20 @@ namespace KMA.Tests.EditorTools
         }
 
         [Test]
-        public void GameOverSceneAssignsTheCampusIllustration()
+        public void GameOverSceneAssignsTheMenuBackdrop()
         {
             EditorSceneManager.OpenScene(ScenePath);
             var screen = Object.FindFirstObjectByType<GameOverScreen>(FindObjectsInactive.Include);
-            Assert.That(AssetDatabase.GetAssetPath(screen.Background), Does.EndWith("Art/UI/HomeIllustration.png"));
+            Assert.That(AssetDatabase.GetAssetPath(screen.Background), Does.EndWith("Art/UI/MenuKeyArtBackdrop.png"));
+        }
+
+        [Test]
+        public void GameOverSceneIsBakedInTheMenuCardStyle()
+        {
+            EditorSceneManager.OpenScene(ScenePath);
+            var screen = Object.FindFirstObjectByType<GameOverScreen>(FindObjectsInactive.Include);
+            Assert.That(screen.transform.Find("GameOverLayout/MenuPanel"), Is.Not.Null);
+            Assert.That(screen.transform.Find("GameOverVeil/Wash"), Is.Null);
         }
     }
 }

@@ -9,8 +9,14 @@ namespace KMA.Gameplay
         static Sprite left;
         static Sprite right;
 
-        public static Sprite Left => left != null ? left : left = Create(false);
-        public static Sprite Right => right != null ? right : right = Create(true);
+        static Sprite shoe;
+
+        /// <summary>Authored shoe art (Resources/Icons/SprintShoe); toe faces right. Null if the asset is missing.</summary>
+        public static Sprite Shoe => shoe != null ? shoe : shoe = Resources.Load<Sprite>("Icons/SprintShoe");
+
+        // Both sides share the authored shoe; the left control mirrors it via the Image's scale.
+        public static Sprite Left => Shoe != null ? Shoe : left != null ? left : left = Create(false);
+        public static Sprite Right => Shoe != null ? Shoe : right != null ? right : right = Create(true);
 
         static Sprite Create(bool mirror)
         {

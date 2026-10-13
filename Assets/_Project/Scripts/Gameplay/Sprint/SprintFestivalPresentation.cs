@@ -292,6 +292,9 @@ namespace KMA.Gameplay
             icon.preserveAspect = true;
             icon.color = Color.white;
             icon.raycastTarget = false;
+            // The authored shoe faces right; mirror it so the left control's toe points left.
+            if (left && SprintFootIcons.Shoe != null)
+                iconRoot.localScale = new Vector3(-1f, 1f, 1f);
             return plate;
         }
 

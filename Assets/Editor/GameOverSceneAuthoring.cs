@@ -9,7 +9,8 @@ namespace KMA.EditorTools
     public static class GameOverSceneAuthoring
     {
         const string ScenePath = "Assets/_Project/Scenes/GameOver.unity";
-        const string IllustrationPath = "Assets/_Project/Art/UI/HomeIllustration.png";
+        // The same bright backdrop the Home key art is painted over.
+        const string IllustrationPath = "Assets/_Project/Art/UI/MenuKeyArtBackdrop.png";
 
         [MenuItem("KMA/GameOver/Apply Presentation")]
         public static void Apply()
@@ -19,8 +20,8 @@ namespace KMA.EditorTools
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             var screen = Object.FindFirstObjectByType<GameOverScreen>(FindObjectsInactive.Include);
             screen.SetBackground(AssetDatabase.LoadAssetAtPath<Sprite>(IllustrationPath));
-            // The scene keeps its baked layout; Build adds the illustration and wash to the existing veil.
-            GameOverPresentationBuilder.Build(screen, null);
+            // Build replaces an older-style baked layout with the menu-style card and keeps the scene's buttons.
+            GameOverPresentationBuilder.Rebuild(screen, null);
             EditorUtility.SetDirty(screen);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
