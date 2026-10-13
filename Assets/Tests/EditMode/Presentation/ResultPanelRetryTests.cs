@@ -109,6 +109,9 @@ namespace KMA.Tests.Presentation
         {
             panel.SetTitles("HOÀN THÀNH!", "THẤT BẠI");
             panel.Show(new MinigameResult(true, 8.4f, Rank.A), "Map");
+            Assert.That(status.font, Is.SameAs(VietTypography.Library.regular));
+            Assert.That(status.fontStyle, Is.EqualTo(FontStyles.Normal));
+            Assert.That(status.enableVertexGradient, Is.False);
             Assert.That(status.text, Is.EqualTo("HOÀN THÀNH!"));
             Assert.That(status.color, Is.EqualTo(MinigameUiTheme.Success));
             Assert.That(score.text, Is.EqualTo("8.4"));

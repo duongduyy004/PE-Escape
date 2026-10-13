@@ -522,6 +522,11 @@ namespace KMA.Gameplay.UI
             if (backdrop != null) backdrop.color = MinigameUiTheme.Scrim;
             Image card = contentRoot != null ? contentRoot.GetComponent<Image>() : null;
             if (card != null) UiKit.StylePanel(card);
+            if (statusLabel != null)
+            {
+                statusLabel.fontStyle = FontStyles.Normal;
+                VietTypography.Apply(statusLabel, VietFontRole.Body);
+            }
             if (scoreLabel != null) scoreLabel.color = MinigameUiTheme.Accent;
             if (rankLabel != null) rankLabel.color = MinigameUiTheme.TextPrimary;
             if (detailLabel != null) detailLabel.color = MinigameUiTheme.TextPrimary;

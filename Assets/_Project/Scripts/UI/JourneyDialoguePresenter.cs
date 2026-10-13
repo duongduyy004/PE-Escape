@@ -46,6 +46,7 @@ namespace KMA.Gameplay.UI
         RectTransform overlay, nameTagRect, dotsRoot, stickerRect;
         Image backgroundImage;
         TMP_Text nameTag, body, errorText, hint, stickerText;
+        float stickerMirror = 1f;
         IReadOnlyList<JourneyDialogueLine> activeLines;
         string activeSeenKey;
         int lineIndex;
@@ -177,7 +178,7 @@ namespace KMA.Gameplay.UI
                 stickerAge += dt;
                 float t = Mathf.Clamp01(stickerAge / StickerSeconds);
                 float scale = t < .6f ? Mathf.Lerp(0f, 1.15f, t / .6f) : Mathf.Lerp(1.15f, 1f, (t - .6f) / .4f);
-                stickerRect.localScale = new Vector3(scale, scale, 1f);
+                stickerRect.localScale = new Vector3(stickerMirror * scale, scale, 1f);
                 if (t >= 1f) stickerAge = -1f;
             }
         }
@@ -235,8 +236,11 @@ namespace KMA.Gameplay.UI
             if (hasSticker)
             {
                 stickerText.text = VietText.Fix(line.Sticker);
-                stickerRect.anchoredPosition = new Vector2(speaking.HomeX + (onRight ? -170f : 170f),
-                    ActorBottom + ActorHeight * .82f);
+                stickerRect.SetParent(speaking.Image.rectTransform, false);
+                stickerRect.anchorMin = stickerRect.anchorMax = new Vector2(.75f, .56f);
+                stickerRect.pivot = new Vector2(.5f, .5f);
+                stickerRect.anchoredPosition = Vector2.zero;
+                stickerMirror = onRight ? -1f : 1f;
                 stickerRect.localEulerAngles = new Vector3(0f, 0f, UnityEngine.Random.Range(-8f, 8f));
                 stickerRect.localScale = Vector3.zero;
             }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Linq;
 using KMA.Gameplay;
 using KMA.Gameplay.UI;
@@ -28,6 +29,34 @@ namespace KMA.Tests.Presentation
     Assert.That(go.GetComponentsInChildren<Graphic>(true).All(g=>!g.raycastTarget),Is.True);
     Assert.That(go.GetComponentsInChildren<Transform>(true).Count(t=>t.name=="DialogueCard"),Is.EqualTo(1));
    } finally {UnityEngine.Object.DestroyImmediate(go);}
+  }
+  [UnityTest] public IEnumerator TimedDialogueFadesToInactiveAndResultClearsAnOngoingFade()
+  {
+   var go=new GameObject("dialogue fade",typeof(RectTransform));
+   try {
+    var view=go.AddComponent<GameplayDialogueView>();view.Configure(JourneyDialogueLibrary.LoadDefault(),(RectTransform)go.transform);
+    var host=go.AddComponent<GameplayDialogueHost>();host.Configure(GameplayDialogueLibrary.LoadDefault(),view);
+    var scheduler=(GameplayDialogueScheduler)typeof(GameplayDialogueHost).GetField("scheduler",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(host);
+    Assert.That(host.EmitText("chess.hint1","Gợi ý",.05f),Is.True);
+    scheduler.Tick(.05f,false);
+    var card=go.transform.Find("DialogueCard").gameObject;
+    var group=card.GetComponent<CanvasGroup>();
+    Assert.That(card.activeSelf,Is.True);
+    Assert.That(group.alpha,Is.EqualTo(1f));
+    Assert.That(group.blocksRaycasts,Is.False);
+    yield return new WaitForSecondsRealtime(.3f);
+    Assert.That(group.alpha,Is.EqualTo(0f));
+    Assert.That(card.activeSelf,Is.False);
+
+    host.ResetAttempt();
+    Assert.That(host.EmitText("chess.hint1","Gợi ý",.05f),Is.True);
+    scheduler.Tick(.05f,false);
+    Assert.That(card.activeSelf,Is.True);
+    host.BeginResult();
+    Assert.That(group.alpha,Is.EqualTo(0f));
+    Assert.That(card.activeSelf,Is.False);
+   } finally {UnityEngine.Object.DestroyImmediate(go);}
+   yield return null;
   }
   [Test] public void MissingLibraryReturnsFalseWithoutDisablingGame()
   {

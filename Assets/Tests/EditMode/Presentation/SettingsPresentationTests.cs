@@ -1,6 +1,7 @@
 using KMA.Gameplay.UI;
 using KMA.UI.Kit;
 using NUnit.Framework;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,6 +24,20 @@ namespace KMA.Tests.Presentation
             Assert.That(root.GetComponent<Image>().color, Is.EqualTo(UITheme.Shared.Scrim));
             var problems = ShellStyleAudit.Audit(root);
             Assert.That(problems, Is.Empty, string.Join("\n", problems));
+        }
+
+        [Test]
+        public void SettingsTitleUsesTheVietnameseBodyFontWithoutEffects()
+        {
+            var screen = root.AddComponent<SettingsScreen>();
+            SettingsPresentationBuilder.Build(screen);
+            TMP_Text title = root.transform.Find("SettingsPanel/Title").GetComponent<TMP_Text>();
+            Assert.That(title.text, Is.EqualTo("CÀI ĐẶT"));
+            Assert.That(title.font, Is.SameAs(VietTypography.Library.regular));
+            Assert.That(title.fontSize, Is.EqualTo(MinigameUiTheme.Headline));
+            Assert.That(title.fontStyle, Is.EqualTo(FontStyles.Normal));
+            Assert.That(title.enableVertexGradient, Is.False);
+            Assert.That(root.transform.Find("SettingsPanel/Title/Drop"), Is.Null);
         }
 
         [Test]

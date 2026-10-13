@@ -14,7 +14,7 @@ namespace KMA.Gameplay.UI
   void Awake(){scheduler.LineChanged+=Present;if(library==null)library=GameplayDialogueLibrary.LoadDefault();}
   public void Configure(GameplayDialogueLibrary content,IGameplayDialogueView view){library=content;presenter=view as MonoBehaviour;}
   public void SetView(IGameplayDialogueView view){if(presenter!=null)((IGameplayDialogueView)presenter).Hide();presenter=view as MonoBehaviour;if(presenter!=null && scheduler.Current!=null)view.Show(scheduler.Current);}
-  void Present(GameplayDialogueLine line){if(presenter==null)return;var view=(IGameplayDialogueView)presenter;if(line==null)view.Hide();else view.Show(line);}
+  void Present(GameplayDialogueLine line,bool fadeOut){if(presenter==null)return;var view=(IGameplayDialogueView)presenter;if(line!=null)view.Show(line);else if(fadeOut && presenter is GameplayDialogueView dialogueView)dialogueView.FadeOut();else view.Hide();}
   public bool Emit(string id,Func<bool> valid=null,float budgetSeconds=float.PositiveInfinity,IReadOnlyDictionary<string,string> tokens=null)
   {
    try {

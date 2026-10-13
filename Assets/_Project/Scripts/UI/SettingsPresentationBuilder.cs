@@ -21,8 +21,9 @@ namespace KMA.Gameplay.UI
 
             var panel = Rect(root, "SettingsPanel", new Vector2(.22f, .14f), new Vector2(.78f, .86f));
             ShellKit.StyleCard(panel);
-            ShellTitleHandle title = ShellKit.Title(panel, "Title", "CÀI ĐẶT", MinigameUiTheme.Title);
-            Stretch(title.Root, new Vector2(.08f, .82f), new Vector2(.92f, .96f));
+            TMP_Text title = ShellKit.Label(panel, "Title", "CÀI ĐẶT", MinigameUiTheme.Headline,
+                ShellTheme.Ink, VietFontRole.Body);
+            Stretch(title.rectTransform, new Vector2(.08f, .82f), new Vector2(.92f, .96f));
             var music = Volume(panel, "MusicSlider", "ÂM LƯỢNG NHẠC", .58f, out TMP_Text musicValue);
             var sfx = Volume(panel, "SfxSlider", "ÂM LƯỢNG HIỆU ỨNG", .36f, out TMP_Text sfxValue);
 
