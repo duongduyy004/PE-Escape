@@ -96,6 +96,9 @@ namespace KMA.Gameplay.UI
         public LessonJourneyStyle LessonJourney => lessonJourney;
         [Header("Menu palette and geometry")]
         [SerializeField] private MenuStyle menu = new MenuStyle();
+        [Header("Shell screens (everything outside the minigames)")]
+        [SerializeField] private ShellStyle shell = new ShellStyle();
+        public ShellStyle Shell => shell;
         [Header("Splash presentation")]
         [SerializeField] private SplashStyle splash = new SplashStyle();
         public SplashStyle Splash => splash;
@@ -183,6 +186,31 @@ namespace KMA.Gameplay.UI
             [Range(-45f, 45f)] public float titleAngle = -8f;
             [Range(0f, 40f)] public float buttonSlantAngle = 12.094757f;
             [Range(.5f, 1f)] public float pressScale = .96f;
+        }
+
+        /// The look of every screen outside the minigames, taken from the menu key art:
+        /// cream faces in a navy border over a hard navy offset shadow.
+        [Serializable]
+        public sealed class ShellStyle
+        {
+            public Color cream = new Color32(0xFB, 0xF4, 0xE4, 0xFF);
+            public Color ink = new Color32(0x0B, 0x2A, 0x4A, 0xFF);
+            public Color gold = new Color32(0xF9, 0xC8, 0x2B, 0xFF);
+            public Color goldLight = new Color32(255, 224, 102, 255);
+            public Color goldDark = new Color32(255, 180, 0, 255);
+            public Color titleRed = new Color32(0xC6, 0x28, 0x28, 0xFF);
+            public Color bodyText = new Color32(0x33, 0x47, 0x5E, 0xFF);
+            public Color disabledFace = new Color32(0xE6, 0xE1, 0xD6, 0xFF);
+            public Color disabledText = new Color32(0x7F, 0x89, 0x98, 0xFF);
+            [Min(0f)] public float cardBorder = 6f;
+            [Min(0f)] public float controlBorder = 4f;
+            [Min(0f)] public float cardRadius = 20f;
+            [Min(0f)] public float controlRadius = 12f;
+            public Vector2 cardShadow = new Vector2(8f, -8f);
+            public Vector2 controlShadow = new Vector2(5f, -5f);
+            public Vector2 titleDrop = new Vector2(3f, -3f);
+            [Range(-45f, 45f)] public float titleAngle = -8f;
+            [Range(0f, 40f)] public float slantAngle = 12.094757f;
         }
 
         [Serializable]
