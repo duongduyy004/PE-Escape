@@ -69,7 +69,7 @@ namespace KMA.Gameplay.UI
             float stopScale = Mathf.Min(style.stopMaxScale, size.y / (style.stopSize.y + 20f));
             for (int i = 1; i < count; i++)
                 stopScale = Mathf.Min(stopScale, (style.stopX[i] - style.stopX[i - 1]) * size.x / style.stopSize.x);
-            float badgeFromTop = style.stopTagHeight + style.stopBadgeSize * style.stopCurrentScale * .5f;
+            float badgeFromTop = MapStopBuilder.BadgeCenterFromTop(style);
             float minCenter = (style.stopSize.y - badgeFromTop) * stopScale;
             float maxCenter = size.y - badgeFromTop * stopScale;
             float halfWidth = style.stopSize.x * stopScale * .5f;

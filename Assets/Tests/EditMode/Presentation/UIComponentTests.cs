@@ -76,6 +76,27 @@ namespace KMA.Tests.Presentation
         }
 
         [Test]
+        public void MapStopCurrentRingClearsTheTagChip()
+        {
+            var root = new GameObject("map", typeof(RectTransform));
+            try
+            {
+                var screen = root.AddComponent<MapScreen>();
+                MapPresentationBuilder.Build(screen, new GameSession());
+                MapNodeView node = screen.Nodes[0];
+                node.SetJourneyMarkers(true, true);
+                var corners = new Vector3[4];
+                node.transform.Find("SelectionRing").GetComponent<RectTransform>().GetWorldCorners(corners);
+                float ringTop = corners[1].y;
+                node.transform.Find("CurrentTag/" + ShellKit.ShadowName).GetComponent<RectTransform>().GetWorldCorners(corners);
+                float chipBottom = corners[0].y;
+                Assert.That(ringTop, Is.LessThanOrEqualTo(chipBottom + .01f),
+                    "The current stop's glow ring must sit below the ĐANG Ở ĐÂY chip and its shadow");
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+
+        [Test]
         public void SharedFontAssetsExposeSourceAndAtlasTextures()
         {
             foreach (var assetName in new[] { "Baloo2-ExtraBold", "Nunito-Bold" })

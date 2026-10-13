@@ -14,6 +14,14 @@ namespace KMA.Gameplay.UI
         static Sprite flagSprite;
         static UITheme.LessonJourneyStyle Style => UITheme.Shared.LessonJourney;
 
+        const float RingPad = 28f;
+
+        // The badge drops far enough that the current stop's enlarged glow ring clears the tag chip
+        // and its hard drop shadow.
+        internal static float BadgeCenterFromTop(UITheme.LessonJourneyStyle style) =>
+            style.stopTagHeight + (style.stopBadgeSize + RingPad) * style.stopCurrentScale * .5f
+            - ShellTheme.ControlShadow.y;
+
         public static MapNodeView Build(Transform parent, MapScreen screen, SubjectId subject,
             string label, Color accent, int order)
         {
@@ -26,7 +34,7 @@ namespace KMA.Gameplay.UI
             button.transition = Selectable.Transition.None;
 
             float badgeSize = Style.stopBadgeSize;
-            float badgeCenterFromTop = Style.stopTagHeight + badgeSize * Style.stopCurrentScale * .5f;
+            float badgeCenterFromTop = BadgeCenterFromTop(Style);
 
             // Tag above the badge ("ĐANG Ở ĐÂY"), shown only on the current stop.
             ShellChipHandle tag = ShellKit.Chip(root, "CurrentTag", "ĐANG Ở ĐÂY", ShellTheme.Gold);
@@ -38,7 +46,7 @@ namespace KMA.Gameplay.UI
 
             // Gold ring behind the badge (current or selected).
             RectTransform ring = MapPresentationBuilder.Rect(root, "SelectionRing");
-            Place(ring, new Vector2(.5f, 1f), Vector2.one * (badgeSize + 28f), new Vector2(0f, -badgeCenterFromTop));
+            Place(ring, new Vector2(.5f, 1f), Vector2.one * (badgeSize + RingPad), new Vector2(0f, -badgeCenterFromTop));
             Image ringImage = ring.gameObject.AddComponent<Image>();
             ringImage.sprite = UiKitAssets.Load().Circle;
             ringImage.color = ShellTheme.Gold;

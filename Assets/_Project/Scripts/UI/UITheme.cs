@@ -147,7 +147,7 @@ namespace KMA.Gameplay.UI
             public Vector2 mapAnchorMin = new Vector2(0f, .02f);
             public Vector2 mapAnchorMax = new Vector2(1f, .78f);
             // Fixed-size stop: tag + badge area + name + star/status pill.
-            public Vector2 stopSize = new Vector2(320f, 400f);
+            public Vector2 stopSize = new Vector2(320f, 420f);
             public float stopBadgeSize = 170f;
             public float stopCurrentScale = 1.3f;
             public float stopTagHeight = 52f;
