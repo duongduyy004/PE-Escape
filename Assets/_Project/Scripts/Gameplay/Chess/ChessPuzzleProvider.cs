@@ -21,8 +21,19 @@ namespace KMA.Gameplay.Chess
 
         readonly ConcurrentQueue<(ChessPuzzleSnapshot generated, GenerationStats stats, ChessLevel level, int seed, string avoid, int ticket)> done =
             new ConcurrentQueue<(ChessPuzzleSnapshot, GenerationStats, ChessLevel, int, string, int)>();
+        /// The generator seam: tests can swap in one that crashes.
+        public delegate ChessPuzzleSnapshot Generator(ChessLevel level, int seed, string avoidFen, Func<bool> isCancelled,
+            out GenerationStats stats);
+
+        readonly Generator generate;
         CancellationTokenSource cancel = new CancellationTokenSource();
         int ticket;
+
+        public ChessPuzzleProvider(Generator generator = null) => generate = generator ?? DefaultGenerator;
+
+        static ChessPuzzleSnapshot DefaultGenerator(ChessLevel level, int seed, string avoidFen, Func<bool> isCancelled,
+            out GenerationStats stats) =>
+            ChessPuzzleGenerator.TryGenerate(level, seed, ChessGeneratorLimits.Default, avoidFen, isCancelled, out stats);
 
         public void Begin(ChessLevel level, int seed, string avoidFen)
         {
@@ -31,8 +42,16 @@ namespace KMA.Gameplay.Chess
             CancellationToken token = cancel.Token;
             Task.Run(() =>
             {
-                ChessPuzzleSnapshot snapshot = ChessPuzzleGenerator.TryGenerate(level, seed, ChessGeneratorLimits.Default,
-                    avoidFen, () => token.IsCancellationRequested, out GenerationStats stats);
+                ChessPuzzleSnapshot snapshot = null;
+                var stats = new GenerationStats();
+                try { snapshot = generate(level, seed, avoidFen, () => token.IsCancellationRequested, out stats); }
+                catch (Exception exception)
+                {
+                    // A crashed generator must not leave the exam on "generating" forever: take the fallback.
+                    Debug.LogError("[KMA] Chess puzzle generator crashed: " + exception);
+                    snapshot = null;
+                    stats = stats ?? new GenerationStats();
+                }
                 if (!token.IsCancellationRequested) done.Enqueue((snapshot, stats, level, seed, avoidFen, mine));
             });
         }

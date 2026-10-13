@@ -1,6 +1,9 @@
+using System;
 using System.Diagnostics;
 using KMA.Gameplay.Chess;
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace KMA.Tests.Gameplay.Chess
 {
@@ -52,6 +55,23 @@ namespace KMA.Tests.Gameplay.Chess
             provider.Begin(ChessLevel.Easy, 8, null);
             WaitFor(provider);
             Assert.That(ChessPuzzleProvider.GeneratedCount + ChessPuzzleProvider.FallbackCount, Is.EqualTo(before + 1));
+        }
+
+        [Test]
+        public void AGeneratorCrashFallsBackToAVerifiedPuzzleOfTheSameLevel()
+        {
+            LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("generator crashed"));
+            using var provider = new ChessPuzzleProvider(Crash);
+            provider.Begin(ChessLevel.Hard, 3, null);
+            ChessPuzzleSnapshot s = WaitFor(provider).Snapshot;
+            Assert.That(s.Level, Is.EqualTo(ChessLevel.Hard));
+            Assert.That(s.source, Is.EqualTo(ChessPuzzleSnapshot.FallbackSource));
+        }
+
+        static ChessPuzzleSnapshot Crash(ChessLevel level, int seed, string avoid, Func<bool> cancelled, out GenerationStats stats)
+        {
+            stats = new GenerationStats();
+            throw new InvalidOperationException("boom");
         }
 
         [Test]

@@ -44,6 +44,8 @@ namespace KMA.Gameplay.Chess
             Snapshot = snapshot ?? throw new ArgumentNullException(nameof(snapshot));
             if (snapshot.maxMoves < 1 || snapshot.optimalMoves < 1 || snapshot.timeSeconds <= 0)
                 throw new ArgumentException("The snapshot has no move limit or time.", nameof(snapshot));
+            if (snapshot.playerColor != "w")
+                throw new ArgumentException("Only a white player is supported.", nameof(snapshot));
             start = snapshot.StartPosition;
             Clock = new ThinkClock(snapshot.timeSeconds);
             Reset();
@@ -284,8 +286,9 @@ namespace KMA.Gameplay.Chess
             hintPending = false;
             if (hint.Status == SearchStatus.Unknown)
             {
-                ReturnToPlayer();
+                // Report first: the listener clears its wait for a hint, so the old hint text is not shown again.
                 HintFailed?.Invoke();
+                ReturnToPlayer();
                 return;
             }
             HintLevel = hint.Level;

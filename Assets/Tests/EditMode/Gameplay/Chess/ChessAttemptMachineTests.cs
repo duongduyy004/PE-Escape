@@ -358,6 +358,29 @@ namespace KMA.Tests.Gameplay.Chess
         }
 
         [Test]
+        public void FailedHintIsReportedBeforeTheTurnComesBack()
+        {
+            Create(ChessSearchEngineTests.LadderMateIn2, 2, 3);
+            machine.Begin();
+            HintRequest request = null;
+            machine.HintRequested += r => request = r;
+            var order = new System.Collections.Generic.List<string>();
+            machine.HintFailed += () => order.Add("failed");
+            machine.PhaseChanged += p => order.Add(p.ToString());
+            machine.RequestHint();
+            machine.CompleteHint(ChessHintBuilder.Build(new ChessSearchEngine(new SearchBudget(2, 60)), request));
+            Assert.That(order, Is.EqualTo(new[] { "Analyzing", "failed", "PlayerTurn" }));
+        }
+
+        [Test]
+        public void OnlyAWhitePlayerIsSupported()
+        {
+            ChessPuzzleSnapshot black = Snapshot(ChessSearchEngineTests.LadderMateIn2, 2, 3);
+            black.playerColor = "b";
+            Assert.Throws<System.ArgumentException>(() => new ChessAttemptMachine(black));
+        }
+
+        [Test]
         public void HintResultForAnOldRequestIsIgnored()
         {
             Create(ChessSearchEngineTests.LadderMateIn2, 2, 3);
