@@ -6,6 +6,7 @@ namespace KMA.Gameplay.UI
 {
     public sealed class GameplayDialogueView : MonoBehaviour,IGameplayDialogueView
     {
+        const float FadeSeconds=.22f;
         [SerializeField] JourneyDialogueLibrary cast;
         [SerializeField] GameObject card;
         [SerializeField] Image portrait,icon;
@@ -13,9 +14,14 @@ namespace KMA.Gameplay.UI
         [SerializeField] RectTransform layoutRoot;
         [SerializeField] DialogueHudSlot slot;
         GameplayDialogueLine line;
+        CanvasGroup fadeGroup;
+        float fadeAge,fadeStartAlpha;
+        bool fading;
         float poseTime;
         Vector2 lastSize;
         public bool IsArtwork(Image image)=>image==portrait || image==icon;
+        void Awake()=>EnsureFadeGroup();
+        void EnsureFadeGroup(){if(card!=null && fadeGroup==null){fadeGroup=card.GetComponent<CanvasGroup>();if(fadeGroup==null)fadeGroup=card.AddComponent<CanvasGroup>();}}
         public void SetSlot(DialogueHudSlot value){slot=value;RefreshLayout();}
         public void Configure(JourneyDialogueLibrary library,RectTransform safeArea)
         {
@@ -28,6 +34,7 @@ namespace KMA.Gameplay.UI
                 text=UiKit.Label(card.transform,"SpeechText","",MinigameUiTheme.Caption,MinigameUiTheme.TextPrimary,TextAlignmentOptions.TopLeft);
                 icon=UiKit.Rect(card.transform,"PointingIcon").gameObject.AddComponent<Image>();icon.preserveAspect=true;
             }
+            EnsureFadeGroup();
             RefreshLayout();Hide();
         }
         void Start()
@@ -68,6 +75,7 @@ namespace KMA.Gameplay.UI
         {
             if(card==null)return;line=value;poseTime=0;
             if(value==null){Hide();return;}
+            EnsureFadeGroup();fading=false;fadeAge=0;fadeGroup.alpha=1;fadeGroup.interactable=false;fadeGroup.blocksRaycasts=false;
             RefreshLayout();card.SetActive(true);
             var character=cast.GetCharacter(value.Speaker==DialogueSpeaker.Student?"tan_thu":"co_the_chat");
             speaker.text=VietText.Fix(character.DisplayName);text.text=VietText.Fix(value.Text);
@@ -77,10 +85,17 @@ namespace KMA.Gameplay.UI
         void Update()
         {
             if(layoutRoot!=null && lastSize!=layoutRoot.rect.size)RefreshLayout();
+            if(fading)
+            {
+                fadeAge+=Time.unscaledDeltaTime;
+                fadeGroup.alpha=fadeStartAlpha*(1f-Mathf.Clamp01(fadeAge/FadeSeconds));
+                if(fadeAge>=FadeSeconds)Hide();
+            }
             if(line==null || line.Poses==null || line.Poses.Length<2 || !card.activeSelf)return;
             poseTime+=Time.deltaTime;
             int n=Mathf.Min(line.Poses.Length-1,Mathf.FloorToInt(poseTime/Mathf.Max(.01f,line.PoseStepSeconds)));portrait.sprite=line.Poses[n];
         }
-        public void Hide(){line=null;if(card!=null)card.SetActive(false);}
+        public void FadeOut(){line=null;if(card==null)return;EnsureFadeGroup();if(!card.activeSelf){Hide();return;}fading=true;fadeAge=0;fadeStartAlpha=fadeGroup.alpha;fadeGroup.interactable=false;fadeGroup.blocksRaycasts=false;}
+        public void Hide(){line=null;fading=false;fadeAge=0;if(card!=null){EnsureFadeGroup();fadeGroup.alpha=0;fadeGroup.interactable=false;fadeGroup.blocksRaycasts=false;card.SetActive(false);}}
     }
 }

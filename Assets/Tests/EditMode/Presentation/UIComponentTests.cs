@@ -193,15 +193,16 @@ namespace KMA.Tests.Presentation
                 Assert.That(header.Find("Divider"), Is.Null);
 
                 LayoutElement back = header.Find("BackButton").GetComponent<LayoutElement>();
-                Assert.That(back.preferredWidth, Is.GreaterThanOrEqualTo(56f));
-                Assert.That(back.preferredHeight, Is.GreaterThanOrEqualTo(56f));
+                Assert.That(back.preferredWidth, Is.GreaterThanOrEqualTo(104f));
+                Assert.That(back.preferredHeight, Is.GreaterThanOrEqualTo(104f));
 
                 TMP_Text title = header.Find("Heading/TitleContainer/Title/Text").GetComponent<TMP_Text>();
-                Assert.That(title.fontSize, Is.InRange(36, 44));
+                Assert.That(title.fontSize, Is.InRange(44, 56));
                 Assert.That(title.text, Is.EqualTo("CHỌN MÔN THI"));
                 Assert.That(title.font, Is.SameAs(VietTypography.Library.title));
                 Assert.That(title.extraPadding, Is.True);
                 Assert.That(header.Find("Heading/SubtitleContainer"), Is.Null);
+                Assert.That(header.Find("BackButton").GetComponentInChildren<TMP_Text>(true).text, Is.EqualTo("←"));
 
                 Transform livesPanel = header.Find("LivesPanel");
                 Assert.That(livesPanel, Is.Not.Null);

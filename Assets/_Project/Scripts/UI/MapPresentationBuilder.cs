@@ -76,6 +76,7 @@ namespace KMA.Gameplay.UI
                     ?.GetComponent<TMP_Text>());
                 screen.RefreshJourney(session ?? new GameSession());
                 ConfigureJourneyPath(existing.Find("Content/SelectionGrid"), existingNodes);
+                ApplyHeaderLayout(existing.Find("Content/Header"));
                 var back = existing.Find("Content/Header/BackButton")?.GetComponent<Button>();
                 if (back != null)
                 {
@@ -105,7 +106,7 @@ namespace KMA.Gameplay.UI
             Stretch(content, new Vector2(64, 40), new Vector2(-64, -40));
 
             HeartBar hearts = Header(content, session);
-            PinToTop((RectTransform)hearts.transform.parent.parent, 84f);
+            PinToTop((RectTransform)hearts.transform.parent.parent, HeaderHeight);
             RectTransform grid = Rect(content, "SelectionGrid");
             Anchor(grid, new Vector2(0f, .37f), new Vector2(1f, .84f));
             GridLayoutGroup gridLayout = grid.gameObject.AddComponent<GridLayoutGroup>();
@@ -229,8 +230,39 @@ namespace KMA.Gameplay.UI
 
         // Header blocks are Shell cards: a cream face in an ink border over a hard ink drop,
         // floating on the scenery instead of sitting on a strip.
-        const float BlockHeight = 72f;
+        const float BlockHeight = 104f, HeaderHeight = 116f, TitleBoxHeight = 76f;
         const float HeartSize = 40f;
+
+        static void ApplyHeaderLayout(Transform header)
+        {
+            if (header == null) return;
+            PinToTop((RectTransform)header, HeaderHeight);
+            LayoutElement headerElement = header.GetComponent<LayoutElement>();
+            if (headerElement != null) headerElement.minHeight = headerElement.preferredHeight = HeaderHeight;
+
+            RectTransform back = (RectTransform)header.Find("BackButton");
+            LayoutElement backElement = back.GetComponent<LayoutElement>();
+            backElement.preferredWidth = backElement.preferredHeight = BlockHeight;
+            back.sizeDelta = Vector2.one * BlockHeight;
+            TMP_Text arrow = back.GetComponentInChildren<TMP_Text>(true);
+            if (arrow != null)
+            {
+                arrow.text = VietText.Fix("←");
+                arrow.fontSize = MinigameUiTheme.Headline;
+                UiKit.FitLabel(arrow, MinigameUiTheme.Headline);
+            }
+
+            LayoutElement heading = header.Find("Heading").GetComponent<LayoutElement>();
+            heading.preferredWidth = 480f;
+            heading.preferredHeight = BlockHeight;
+            header.Find("Heading/TitleContainer").GetComponent<LayoutElement>().preferredHeight = TitleBoxHeight;
+            foreach (TMP_Text text in header.Find("Heading/TitleContainer/Title").GetComponentsInChildren<TMP_Text>(true))
+            {
+                text.fontSize = MinigameUiTheme.Title;
+                UiKit.FitLabel(text, MinigameUiTheme.Title);
+            }
+            header.Find("LivesPanel").GetComponent<LayoutElement>().preferredHeight = BlockHeight;
+        }
 
         static HeartBar Header(Transform parent, GameSession session)
         {
@@ -242,16 +274,16 @@ namespace KMA.Gameplay.UI
             layout.spacing = 20; layout.childAlignment = TextAnchor.MiddleLeft; layout.childControlWidth = true;
             layout.childControlHeight = true; layout.childForceExpandWidth = false; layout.childForceExpandHeight = false;
             LayoutElement headerElement = header.gameObject.AddComponent<LayoutElement>();
-            headerElement.minHeight = 84;
-            headerElement.preferredHeight = 84;
+            headerElement.minHeight = HeaderHeight;
+            headerElement.preferredHeight = HeaderHeight;
             headerElement.flexibleHeight = 0;
-            Button back = HeaderButton(header, "BackButton", "‹");
+            Button back = HeaderButton(header, "BackButton", "←");
             back.onClick.AddListener(() => KMA.Gameplay.Core.SceneRouter.Instance?.RouteToMenu());
 
             RectTransform heading = Rect(header, "Heading");
             ShellKit.StyleCard(heading, decorated: true);
             LayoutElement headingElement = heading.gameObject.AddComponent<LayoutElement>();
-            headingElement.preferredWidth = 440;
+            headingElement.preferredWidth = 480;
             headingElement.flexibleWidth = 0;
             headingElement.preferredHeight = BlockHeight;
             VerticalLayoutGroup headingLayout = heading.gameObject.AddComponent<VerticalLayoutGroup>();
@@ -261,8 +293,8 @@ namespace KMA.Gameplay.UI
             headingLayout.childControlHeight = true;
             headingLayout.childForceExpandHeight = false;
             RectTransform titleBox = Rect(heading, "TitleContainer");
-            titleBox.gameObject.AddComponent<LayoutElement>().preferredHeight = 52;
-            ShellTitleHandle title = ShellKit.Title(titleBox, "Title", "CHỌN MÔN THI", MinigameUiTheme.BodyLarge);
+            titleBox.gameObject.AddComponent<LayoutElement>().preferredHeight = TitleBoxHeight;
+            ShellTitleHandle title = ShellKit.Title(titleBox, "Title", "CHỌN MÔN THI", MinigameUiTheme.Title);
             Stretch(title.Root, Vector2.zero, Vector2.zero);
             title.Text.alignment = title.Drop.alignment = TextAlignmentOptions.Left;
 

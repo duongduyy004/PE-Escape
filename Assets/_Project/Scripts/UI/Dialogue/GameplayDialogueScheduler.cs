@@ -12,7 +12,7 @@ namespace KMA.Gameplay.UI
         Request active;int index;float remaining,clock;
         public GameplayDialogueLine Current { get;private set; }
         public bool IsIdle => active==null && pending.Count==0;
-        public event Action<GameplayDialogueLine> LineChanged;
+        public event Action<GameplayDialogueLine, bool> LineChanged;
         string Group(GameplayDialogueEvent e)=>string.IsNullOrEmpty(e.ReactionGroup)?e.Id:e.ReactionGroup;
         bool Allowed(GameplayDialogueEvent e)
         {
@@ -49,9 +49,9 @@ namespace KMA.Gameplay.UI
             if(active==null)return;
             var l=active.Event.Lines[index];
             if(l==null || l.DurationSeconds<=0 || float.IsNaN(l.DurationSeconds) || float.IsInfinity(l.DurationSeconds)) { Hide();return; }
-            Current=l;remaining=Math.Min(l.DurationSeconds,active.Until-clock);LineChanged?.Invoke(l);
+            Current=l;remaining=Math.Min(l.DurationSeconds,active.Until-clock);LineChanged?.Invoke(l,false);
         }
-        void Hide() { active=null;Current=null;remaining=0;LineChanged?.Invoke(null); }
+        void Hide(bool fadeOut=false) { active=null;Current=null;remaining=0;LineChanged?.Invoke(null,fadeOut); }
         void NextRequest()
         {
             while(active==null && pending.Count>0)
@@ -71,7 +71,8 @@ namespace KMA.Gameplay.UI
                 if(active==null){clock=end;return;}
                 float step=Math.Min(end-clock,remaining);clock+=step;remaining-=step;
                 if(remaining>1e-5f)return;
-                if(Valid(active) && ++index<active.Event.Lines.Length)Show();else Hide();
+                bool canContinue=Valid(active);
+                if(canContinue && ++index<active.Event.Lines.Length)Show();else Hide(canContinue);
                 if(clock>=end-1e-5f){NextRequest();return;}
             }
             clock=end;Clear();

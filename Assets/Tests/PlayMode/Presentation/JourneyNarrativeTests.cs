@@ -217,6 +217,13 @@ namespace KMA.Tests.Presentation
             TapToLine(1);
             Assert.That(sticker.gameObject.activeSelf, Is.True);
             Assert.That(sticker.GetComponentInChildren<TMP_Text>(true).text, Is.EqualTo("ÉT O ÉT!"));
+            Assert.That(new[] { "LeftActor", "RightActor" }, Does.Contain(sticker.parent.name));
+            Assert.That(sticker.anchorMin, Is.EqualTo(new Vector2(.75f, .56f)));
+            Assert.That(sticker.anchorMax, Is.EqualTo(new Vector2(.75f, .56f)));
+            Assert.That(sticker.anchoredPosition, Is.EqualTo(Vector2.zero));
+            yield return new WaitForSecondsRealtime(.3f);
+            Assert.That(sticker.localScale.x * sticker.parent.lossyScale.x, Is.GreaterThan(0f),
+                $"the sticker text stays unmirrored on either actor (local {sticker.localScale}, parent {sticker.parent.lossyScale})");
             TapToLine(2);
             Assert.That(sticker.gameObject.activeSelf, Is.False);
         }
