@@ -8,7 +8,6 @@ namespace KMA.Gameplay
         public const float MinTau = .9f, MaxTau = 1.4f;
         public const float MinFinishStyle = -.06f, MaxFinishStyle = .08f;
         public const float MinStopDistance = 3f, MaxStopDistance = 5f;
-        public const float MinTetherSlot = 1.5f, MaxTetherSlot = 3.5f;
 
         public float ReactionSeconds { get; }
         /// Seconds the gap to the target pace takes to close by ~63 %; 0 jumps straight to pace.
@@ -17,20 +16,17 @@ namespace KMA.Gameplay
         public float FinishStyle { get; }
         /// Metres past the line the rival runs before standing still.
         public float StopDistance { get; }
-        /// Learn only: where the rival settles relative to the player, in metres (negative = behind).
-        public float TetherSlot { get; }
 
         public RivalMotionTraits(float reactionSeconds, float accelerationTau, float finishStyle,
-            float stopDistance, float tetherSlot)
+            float stopDistance)
         {
             ReactionSeconds = reactionSeconds;
             AccelerationTau = accelerationTau;
             FinishStyle = finishStyle;
             StopDistance = stopDistance;
-            TetherSlot = tetherSlot;
         }
 
-        public static RivalMotionTraits Instant => new RivalMotionTraits(0f, 0f, 0f, 4f, 0f);
+        public static RivalMotionTraits Instant => new RivalMotionTraits(0f, 0f, 0f, 4f);
 
         public static RivalMotionTraits Roll(System.Random random)
         {
@@ -38,8 +34,7 @@ namespace KMA.Gameplay
             float tau = Range(random, MinTau, MaxTau);
             float style = Range(random, MinFinishStyle, MaxFinishStyle);
             float stop = Range(random, MinStopDistance, MaxStopDistance);
-            float slot = Range(random, MinTetherSlot, MaxTetherSlot) * (random.NextDouble() < .5 ? -1f : 1f);
-            return new RivalMotionTraits(reaction, tau, style, stop, slot);
+            return new RivalMotionTraits(reaction, tau, style, stop);
         }
 
         static float Range(System.Random random, float min, float max) =>

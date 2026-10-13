@@ -38,7 +38,7 @@ namespace KMA.Gameplay
                     : controller.LastResult != null && controller.LastResult.Pass ? "Celebrate" : "Fail")
                 : falling ? "Stumble"
                 : controller.Phase != MinigamePhase.Play || resting ? "Idle"
-                : !controller.IsLearnChallenge && !controller.IsPlayerFinished &&
+                : !controller.IsPlayerFinished &&
                   controller.Snapshot.Distance >= controller.TargetDistance * .7f
                     ? "Burst" : "Run";
             animator.speed = state == "Run" || state == "Burst"

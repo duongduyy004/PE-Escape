@@ -26,7 +26,7 @@ line slides in from the right edge. After this change:
 | Start / finish | `StartX = -9.6`; finish at `WorldX(TargetDistance)` = 140.4 for 150 m | Keeps today's start spot; finish is a static object. |
 | Off-screen rivals | Edge chip in the rival's lane row showing `+4.2 m` / `−3.1 m` relative to the player | Player always knows how far ahead/behind each rival is. |
 | Finish behaviour | Everyone runs through the line and brakes to a stop within a per-runner rolled 3–5 m | Real but short run-out. |
-| Learn | Endless run, no finish line, rivals tethered near the player | Removes the 66 % clamp hack; keeps a race feel without rivals vanishing hundreds of metres ahead. |
+| Learn | Same 150 m finish line; rivals race to it independently like Practice/Exam. The player still drills for 50 s and passes on best streak ≥ 12, not placement. | Learn looks and feels like a race; if the player crosses 150 m early they run through and pull up, and the attempt ends once rivals are in (or the wait cap / time runs out). |
 | Player tap model | Unchanged (impulse, drag, combo boost, fall on wrong tap, stand still when idle) | It is the gameplay; only the finish behaviour changes. |
 
 ## World & Camera
@@ -53,9 +53,8 @@ line slides in from the right edge. After this change:
   tiles recycle around the camera as today. The parallax maths is a static function for tests.
 - **Finish line**: `SprintFinishLinePresenter` places the checkerboard once at `FinishWorldX(TargetDistance)`
   and keeps it active (camera culling hides it off-screen). A start line is drawn at `StartX`.
-  Learn hides the finish line.
 - **Runners**: `RunnerVisualPresenter` and `RivalRunnerAI` set `x = WorldX(distance)` (rivals still divide
-  out their parent's scale). The Learn 66 % clamp is removed.
+  out their parent's scale). The Learn 66 % clamp is removed; Learn rivals run the same independent race as every other kind.
 - **`SprintOffscreenRivalChips`** (new, HUD): for each rival whose world X is outside the camera view,
   show a chip at the left or right screen edge at that rival's lane row, with the lane label (`LÀN n`) and
   signed gap to the player in metres (one decimal). Hidden when the rival is on screen and in Tutorial,
@@ -83,11 +82,6 @@ rival finishes 150 m in ≈ 15–17 s and the slowest in ≈ 18–20 s.
 rolls the new parameters alongside the existing band and schedule. `IsSurging` / `IsSlowing` are
 derived from actual `v` against `vMax`.
 
-**Learn tether:** in Learn each rival has a slot offset rolled in ±1.5–3.5 m around the player.
-`vTarget = playerSpeed × pace + 1.5 × (playerX + slot − x)`, where `pace` keeps 35 % of the rival's own
-surge/fade, so rivals edge ahead and drop back but stay within about 6 m of the player (simulated worst
-case 5.7 m). No finish, no run-out.
-
 ### Player
 
 - Tap model unchanged.
@@ -108,7 +102,7 @@ case 5.7 m). No finish, no run-out.
 - State selection from velocity and phase: Idle (stopped / pre-race / after the run-out),
   Run, Burst (finishing stretch or surging), Stumble (player fall), Celebrate / Fail in Resolve once the
   runner has stopped (a body still moving in Resolve keeps its Run stride). A player stopped short of the
-  line when the result opens (time out, Learn) pulls up over the run-out distance too; this moves only
+  line when the result opens (time out) pulls up over the run-out distance too; this moves only
   the body, never Distance, Elapsed, Rank or the result.
 
 ## Files
@@ -121,7 +115,7 @@ case 5.7 m). No finish, no run-out.
 | `Gameplay/Sprint/SprintTrackLayout.cs`, `SprintUiLayout.cs` | `StartX`, `WorldX`, `FinishWorldX`; remove reveal helpers |
 | `Gameplay/Sprint/SprintCameraFollow.cs` | New |
 | `Gameplay/Sprint/SprintParallax.cs` | Driven by camera X with per-layer world-follow factor |
-| `Gameplay/Sprint/SprintFinishLinePresenter.cs` | Static finish + start line; hidden in Learn |
+| `Gameplay/Sprint/SprintFinishLinePresenter.cs` | Static finish + start line, shown in every challenge kind |
 | `Gameplay/Sprint/RunnerVisualPresenter.cs`, `RivalRunnerAI.cs` | World X; animator speed; remove Learn clamp |
 | `Gameplay/Sprint/SprintOffscreenRivalChips.cs` | New |
 | `Gameplay/Sprint/SprintController.cs` | Expose player world X / finish state as needed; terminal flow unchanged |
@@ -131,8 +125,9 @@ case 5.7 m). No finish, no run-out.
 
 - **EditMode — motion:** rival stands still during reaction; reaches ≈ 95 % `vMax` within 3–4 s; field
   finish times within 15–20 s over many seeds; every runner (player and rivals) stops 3–5 m past the
-  line; rank by interpolated finish time including two crossings in one tick; Learn rivals stay within
-  6 m of a steadily running player; finish style changes speed only after 80 %.
+  line; rank by interpolated finish time including two crossings in one tick; in Learn every rival
+  finishes and stands 3–5 m past 150 m after the 50 s lesson, and a streak ≥ 12 still passes whatever the
+  placement; finish style changes speed only after 80 %.
 - **EditMode — presentation maths:** `WorldX` / `FinishWorldX`; camera step holds at `cameraStartX`
   until the player passes it, then sits exactly on the player (holds when `dt = 0`); parallax offsets per factor.
 - **PlayMode:** update `SprintControllerTests`, `SprintRuntimeInputTests`, `SprintChallengeRuntimeTests`,

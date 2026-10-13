@@ -11,8 +11,8 @@ namespace KMA.Tests.Gameplay.Running
         static RivalPaceProfile Steady(float speed, RivalMotionTraits traits) =>
             new RivalPaceProfile("Steady", speed, speed, Array.Empty<PaceSegment>(), traits);
 
-        static RivalMotionTraits Traits(float reaction = 0f, float tau = 1f, float style = 0f, float stop = 4f,
-            float slot = 0f) => new RivalMotionTraits(reaction, tau, style, stop, slot);
+        static RivalMotionTraits Traits(float reaction = 0f, float tau = 1f, float style = 0f,
+            float stop = 4f) => new RivalMotionTraits(reaction, tau, style, stop);
 
         static float TimeToReach(RivalMotion rival, float speed, float goal = 1000f)
         {
@@ -87,20 +87,6 @@ namespace KMA.Tests.Gameplay.Running
         }
 
         [Test]
-        public void TetheredRivalSettlesBesideTheRunningPlayer()
-        {
-            var rival = new RivalMotion(Steady(9f, Traits(slot: 3f)));
-            float clock = 0f, player = 0f;
-            for (int i = 0; i < 120 * 20; i++, clock += Dt)
-            {
-                player += 8f * Dt;
-                rival.StepTethered(clock, Dt, player, 8f);
-            }
-            Assert.That(rival.Position - player, Is.EqualTo(3f).Within(.5f));
-            Assert.That(rival.HasFinished, Is.False);
-        }
-
-        [Test]
         public void SameSeedRollsTheSameTraitsInsideTheirRanges()
         {
             for (int seed = 0; seed < 200; seed++)
@@ -112,7 +98,6 @@ namespace KMA.Tests.Gameplay.Running
                 Assert.That(a.AccelerationTau, Is.InRange(RivalMotionTraits.MinTau, RivalMotionTraits.MaxTau));
                 Assert.That(a.FinishStyle, Is.InRange(RivalMotionTraits.MinFinishStyle, RivalMotionTraits.MaxFinishStyle));
                 Assert.That(a.StopDistance, Is.InRange(RivalMotionTraits.MinStopDistance, RivalMotionTraits.MaxStopDistance));
-                Assert.That(Math.Abs(a.TetherSlot), Is.InRange(RivalMotionTraits.MinTetherSlot, RivalMotionTraits.MaxTetherSlot));
             }
         }
 

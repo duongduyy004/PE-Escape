@@ -298,15 +298,6 @@ namespace KMA.Tests.Gameplay.Running
         }
 
         [Test]
-        public void Rival_NeverBurstsInLearn()
-        {
-            var runner = new GameObject("Rival").AddComponent<RivalRunnerAI>();
-            runner.RefreshForTest(400f, 9f, false, float.PositiveInfinity, MinigamePhase.Play, null);
-            Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Run));
-            Object.DestroyImmediate(runner.gameObject);
-        }
-
-        [Test]
         public void CadenceCombo_TracksConsecutiveValidTapsAndResetsOnWrongSide()
         {
             var controller = CreateSprintController();

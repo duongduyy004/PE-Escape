@@ -9,10 +9,6 @@ namespace KMA.Gameplay
     {
         public const float MaxAcceleration = 7f;
         public const float FinishStretchFrom = .8f;
-        // Learn: speed added per metre a rival is away from their slot beside the player.
-        public const float TetherGain = 1.5f;
-        // Learn: how much of the rival's own surge/fade survives, so they wander without running away.
-        public const float TetherPaceDamping = .35f;
         public const float SurgingRatio = 1.06f;
         public const float SlowingRatio = .9f;
         // A runner who barely has room left before their stop point pulls up at once.
@@ -70,20 +66,6 @@ namespace KMA.Gameplay
                 brake = room > MinBrakeRoom ? Velocity * Velocity / (2f * room) : float.PositiveInfinity;
                 if (float.IsPositiveInfinity(brake)) Velocity = 0f;
             }
-        }
-
-        /// Learn has no line: the rival runs beside the player, pulled toward their own slot.
-        public void StepTethered(float clock, float dt, float playerPosition, float playerSpeed)
-        {
-            if (dt <= 0f) return;
-            float end = clock + dt;
-            if (end <= traits.ReactionSeconds) { Acceleration = 0f; return; }
-            float pace = end > RivalPaceProfile.OpeningSeconds && profile.SustainedSpeed > 0f
-                ? 1f + (profile.SpeedAt(end) / profile.SustainedSpeed - 1f) * TetherPaceDamping
-                : 1f;
-            float gap = playerPosition + traits.TetherSlot - Position;
-            Chase(Mathf.Max(0f, playerSpeed * pace + TetherGain * gap), dt);
-            Position += Velocity * dt;
         }
 
         float StopDistance => traits.StopDistance > 0f ? traits.StopDistance : 4f;

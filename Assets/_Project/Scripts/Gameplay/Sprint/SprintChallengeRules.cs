@@ -14,9 +14,7 @@ namespace KMA.Gameplay
             this.definition = definition ?? throw new ArgumentNullException(nameof(definition));
             if (definition.Subject != SubjectId.Sprint)
                 throw new ArgumentException("Sprint challenge rules require a Sprint definition.", nameof(definition));
-            // Learn is a cadence drill on an endless straight; races run to the authored distance.
-            float goal = definition.Kind == ChallengeKind.Learn ? float.PositiveInfinity
-                : definition.Distance > 0f ? definition.Distance : SprintRules.RaceDistance;
+            float goal = definition.Distance > 0f ? definition.Distance : SprintRules.RaceDistance;
             Race = new SprintRules(definition.TimeLimit, rivals, new[] { Side.Left, Side.Right }, balance, goal,
                 runOutDistance);
         }

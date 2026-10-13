@@ -3,7 +3,7 @@ using UnityEngine;
 namespace KMA.Gameplay
 {
     /// Holds the start and finish lines on the track at their world positions. They never move; the
-    /// camera brings them into view as the player runs. Learn has no finish line.
+    /// camera brings them into view as the player runs. Every challenge, Learn included, has the finish line.
     public sealed class SprintFinishLinePresenter : MonoBehaviour
     {
         SprintController controller;
@@ -24,7 +24,7 @@ namespace KMA.Gameplay
 
         public void RefreshForTest()
         {
-            IsVisible = controller != null && !controller.IsLearnChallenge;
+            IsVisible = controller != null;
             if (finishRoot != null)
             {
                 finishRoot.SetActive(IsVisible);

@@ -81,8 +81,8 @@ namespace KMA.Gameplay
         public float PlayerPosition => rules == null ? 0f : rules.Position;
         public float PlayerMetersPerSecond => rules == null ? 0f : rules.MetersPerSecond;
         public bool IsPlayerFinished => rules != null && rules.IsFinished;
-        /// The line everyone races to; Learn has none.
-        public float RaceGoal => IsLearnChallenge ? float.PositiveInfinity : TargetDistance;
+        /// The line everyone races to, Learn included.
+        public float RaceGoal => TargetDistance;
         public float GetRivalPosition(int index) => rules == null ? 0f : rules.GetRivalPosition(index);
         public float GetRivalSpeed(int index) => rules == null ? 0f : rules.GetRivalSpeed(index);
         public bool HasRivalFinished(int index) => rules != null && rules.HasRivalFinished(index);

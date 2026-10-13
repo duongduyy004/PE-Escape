@@ -127,8 +127,6 @@ namespace KMA.Gameplay
         public Side ExpectedSide => authoredSequence[sequenceIndex];
         public Side[] AuthoredSequence => (Side[])authoredSequence.Clone();
         public RivalPaceProfile[] RivalProfiles => (RivalPaceProfile[])rivalProfiles.Clone();
-        /// Learn has no finish line: rivals run beside the player instead of racing to one.
-        public bool IsEndless => float.IsPositiveInfinity(goalDistance);
         public float GoalDistance => goalDistance;
         /// Where the player actually is, including the metres they run on past the line.
         public float Position => distance + runOut;
@@ -152,8 +150,8 @@ namespace KMA.Gameplay
         public float GetRivalSpeed(int index) => RivalAt(index)?.Velocity ?? 0f;
         public bool HasRivalFinished(int index) => RivalAt(index) != null && RivalAt(index).HasFinished;
         public float GetRivalFinishTime(int index) => RivalAt(index)?.FinishTime ?? -1f;
-        public bool IsRivalSurging(int index) => !IsEndless && RivalAt(index) != null && RivalAt(index).IsSurgingAt(raceClock);
-        public bool IsRivalSlowing(int index) => !IsEndless && RivalAt(index) != null && RivalAt(index).IsSlowingAt(raceClock);
+        public bool IsRivalSurging(int index) => RivalAt(index) != null && RivalAt(index).IsSurgingAt(raceClock);
+        public bool IsRivalSlowing(int index) => RivalAt(index) != null && RivalAt(index).IsSlowingAt(raceClock);
         public SprintSnapshot Snapshot => new SprintSnapshot(distance, speed, elapsed);
 
         // Races without an authored balance asset use the default tuning.
@@ -244,7 +242,7 @@ namespace KMA.Gameplay
             distance += step;
             AdvanceRivals(clock, dt);
 
-            if (!IsEndless && before < goalDistance && distance >= goalDistance)
+            if (before < goalDistance && distance >= goalDistance)
             {
                 finishTime = startElapsed + dt * (step > 0f ? (goalDistance - before) / step : 1f);
                 elapsed = finishTime;
@@ -269,7 +267,7 @@ namespace KMA.Gameplay
             if (dt <= 0f || float.IsNaN(dt) || float.IsInfinity(dt)) return;
             float clock = raceClock;
             raceClock += dt;
-            // A player stopped short of the line (time out, Learn) still pulls up rather than freezing;
+            // A player stopped short of the line (time out) still pulls up rather than freezing;
             // the run-out only moves the body, never Distance, Elapsed or Rank.
             if (!finished && runOutSpeed <= 0f && speed > 0f) StartRunOut(speed * Tuning.DistanceScale);
             AdvanceRunOut(dt);
@@ -281,8 +279,7 @@ namespace KMA.Gameplay
             for (int i = 0; i < rivals.Length; i++)
             {
                 if (rivals[i] == null) continue;
-                if (IsEndless) rivals[i].StepTethered(clock, dt, Position, MetersPerSecond);
-                else rivals[i].StepRace(clock, dt, goalDistance);
+                rivals[i].StepRace(clock, dt, goalDistance);
             }
         }
 

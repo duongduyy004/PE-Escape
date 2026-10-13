@@ -306,31 +306,6 @@ namespace KMA.Tests.Gameplay.Running
         }
 
         [Test]
-        public void Endless_RivalsStayBesideARunningPlayerAndNeverFinish()
-        {
-            var authored = new[]
-            {
-                new RivalPaceProfile("A", 8.5f, 5.7f), new RivalPaceProfile("B", 5.8f, 5.7f),
-                new RivalPaceProfile("C", 6f, 7.1f)
-            };
-            var rules = new SprintRules(60f, RivalPaceRandomizer.RollField(authored, 8.5f, 10f, new System.Random(3)),
-                null, SprintBalanceParameters.Default, float.PositiveInfinity);
-            Side next = Side.Left;
-            for (int i = 0; i < 60 * 50; i++)
-            {
-                if (i % 10 == 0) { rules.Tap(next); next = next == Side.Left ? Side.Right : Side.Left; }
-                rules.Tick(1f / 60f);
-                if (i < 60 * 5) continue;
-                for (int r = 0; r < rules.RivalCount; r++)
-                    Assert.That(Mathf.Abs(rules.GetRivalPosition(r) - rules.Position), Is.LessThan(6f),
-                        $"rival {r} at {i / 60f:0.0}s");
-            }
-            Assert.That(rules.IsEndless, Is.True);
-            Assert.That(rules.IsFinished, Is.False);
-            for (int r = 0; r < rules.RivalCount; r++) Assert.That(rules.HasRivalFinished(r), Is.False);
-        }
-
-        [Test]
         public void TickAfterRace_PullsUpAnUnfinishedPlayerWithoutChangingTheRace()
         {
             var rules = SprintRules.ForTest(distance: 20f, elapsed: 22f, rank: 1,

@@ -617,6 +617,26 @@ namespace KMA.Tests.Presentation
         }
 
         [UnityTest]
+        public IEnumerator SprintFinishLineIsShownInLearnAtTheRaceDistance()
+        {
+            yield return LoadSprint();
+
+            var scene = SceneManager.GetActiveScene();
+            var controller = SceneObjects<SprintController>(scene)[0];
+            var finish = SceneObjects<SprintFinishLinePresenter>(scene)[0];
+            ChallengeDefinition learn = ChallengeCatalog.LoadDefault().Get("sprint_learn");
+            controller.ConfigureChallenge(learn, new ChallengeAttemptContext(
+                "learn-line", learn.Id, ChallengeAttemptMode.Journey, learn.Difficulty));
+            finish.RefreshForTest();
+
+            Assert.That(controller.IsLearnChallenge, Is.True);
+            Assert.That(finish.IsVisible, Is.True);
+            Assert.That(finish.FinishRoot.activeSelf, Is.True);
+            Assert.That(finish.FinishRoot.transform.position.x,
+                Is.EqualTo(SprintTrackLayout.FinishWorldX(SprintRules.RaceDistance)).Within(.0001f));
+        }
+
+        [UnityTest]
         public IEnumerator SprintScene_ShowsNoLegacyHudChrome()
         {
             yield return LoadSprint();

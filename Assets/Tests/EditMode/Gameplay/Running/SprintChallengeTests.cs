@@ -65,6 +65,50 @@ namespace KMA.Tests.Gameplay.Running
             Assert.That(result.ExamResult, Is.Null);
         }
 
+        static SprintChallengeRules LearnWithRivals()
+        {
+            var authored = new[]
+            {
+                new RivalPaceProfile("A", 8.5f, 5.7f), new RivalPaceProfile("B", 5.8f, 5.7f),
+                new RivalPaceProfile("C", 6f, 7.1f)
+            };
+            return new SprintChallengeRules(ChallengeCatalog.LoadDefault().Get("sprint_learn"),
+                SprintBalanceParameters.Default,
+                RivalPaceRandomizer.RollField(authored, 8.5f, 10f, new System.Random(3)));
+        }
+
+        [Test]
+        public void LearnRivalsRaceToTheSameFinishLineAsPracticeAndRunThroughIt()
+        {
+            SprintChallengeRules challenge = LearnWithRivals();
+            Assert.That(challenge.Race.GoalDistance, Is.EqualTo(150f));
+            for (int i = 0; i < 60 * 50; i++) challenge.Tick(1f / 60f);
+            challenge.Tick(1f); // closes any float drift left under the 50 s limit
+
+            Assert.That(challenge.IsComplete, Is.True);
+            for (int r = 0; r < challenge.Race.RivalCount; r++)
+            {
+                Assert.That(challenge.Race.HasRivalFinished(r), Is.True, $"rival {r} finished");
+                Assert.That(challenge.Race.GetRivalPosition(r) - 150f,
+                    Is.InRange(RivalMotionTraits.MinStopDistance - .05f, RivalMotionTraits.MaxStopDistance + .05f),
+                    $"rival {r} pulled up past the line");
+            }
+        }
+
+        [Test]
+        public void LearnStillPassesOnTheStreakWhenEveryRivalBeatsThePlayer()
+        {
+            SprintChallengeRules challenge = LearnWithRivals();
+            for (int tap = 0; tap < 12; tap++) challenge.Tap(tap % 2 == 0 ? Side.Left : Side.Right);
+            for (int i = 0; i < 60 * 50; i++) challenge.Tick(1f / 60f);
+            challenge.Tick(1f); // closes any float drift left under the 50 s limit
+
+            ChallengeAttemptResult result = challenge.BuildResult(new ChallengeAttemptContext(
+                "learn-last", "sprint_learn", ChallengeAttemptMode.Journey, ChallengeDifficulty.Normal));
+            Assert.That(result.Metrics.Placement, Is.EqualTo(challenge.Race.RivalCount + 1), "last place");
+            Assert.That(result.Pass, Is.True, "Learn is judged by the streak, not by placement.");
+        }
+
         [Test]
         public void LearnWithoutTheMinimumStreakFailsAfterTheFullLessonAndClampsDelta()
         {
