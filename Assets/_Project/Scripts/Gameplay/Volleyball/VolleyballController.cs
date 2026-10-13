@@ -16,6 +16,7 @@ namespace KMA.Gameplay.Volleyball
         [SerializeField] VolleyBallView ballView;
         [SerializeField] VolleyballInputBridge input;
         [SerializeField] VolleyballHud hud;
+        [SerializeField] StartLecturer lecturer;
         float stepDistance;
         VolleyballChallengeRules challengeRules;
         ChallengeDefinition challengeDefinition;
@@ -28,6 +29,7 @@ namespace KMA.Gameplay.Volleyball
         public VolleyBallView BallView => ballView;
         public VolleyballInputBridge Input => input;
         public VolleyballHud Hud => hud;
+        public StartLecturer Lecturer => lecturer;
         public bool HasAllReferences => playerView && opponentView && ballView && input && hud;
         public SubjectId Subject => SubjectId.Volleyball;
         public string GuideKey => VolleyballGuide.Key;
@@ -37,22 +39,30 @@ namespace KMA.Gameplay.Volleyball
         public ChallengeDefinition CurrentChallenge => challengeDefinition;
 
         public void Configure(VolleyAthleteView player, VolleyAthleteView opponent, VolleyBallView ball,
-            VolleyballInputBridge inputBridge, VolleyballHud volleyballHud)
+            VolleyballInputBridge inputBridge, VolleyballHud volleyballHud, StartLecturer startLecturer = null)
         {
             playerView = player;
             opponentView = opponent;
             ballView = ball;
             input = inputBridge;
             hud = volleyballHud;
+            if (startLecturer != null) lecturer = startLecturer;
         }
 
         protected override void Awake()
         {
             base.Awake();
             VolleyballCameraFraming.Apply(Camera.main);
+            EnsureLecturer();
             Match = new VolleyballMatch();
             SubscribeMatch(Match);
             PhaseChanged += OnPhaseChanged;
+        }
+
+        void EnsureLecturer()
+        {
+            if (lecturer == null)
+                lecturer = FindFirstObjectByType<StartLecturer>();
         }
 
         public void ConfigureChallenge(ChallengeDefinition definition, ChallengeAttemptContext context)
@@ -82,6 +92,7 @@ namespace KMA.Gameplay.Volleyball
             match.PlayerActed += OnPlayerActed;
             match.PointScored += OnPointScored;
             match.PlayerBlocked += OnPlayerBlocked;
+            match.ServeStarting += OnServeStarting;
         }
 
         void UnsubscribeMatch(VolleyballMatch match)
@@ -91,6 +102,7 @@ namespace KMA.Gameplay.Volleyball
             match.PlayerActed -= OnPlayerActed;
             match.PointScored -= OnPointScored;
             match.PlayerBlocked -= OnPlayerBlocked;
+            match.ServeStarting -= OnServeStarting;
         }
 
         void Start()
@@ -192,8 +204,21 @@ namespace KMA.Gameplay.Volleyball
 
         void OnPhaseChanged(MinigamePhase phase)
         {
-            if (phase == MinigamePhase.Play && input)
-                input.ClearPresses();
+            if (phase == MinigamePhase.Play)
+            {
+                if (input) input.ClearPresses();
+                EnsureLecturer();
+                lecturer?.Whistle();
+            }
+        }
+
+        void OnServeStarting(CourtSide server)
+        {
+            if (PresentationPhase == MinigamePhase.Play && !Match.IsOver)
+            {
+                EnsureLecturer();
+                lecturer?.Whistle();
+            }
         }
 
         void OnPlayerActed(ActionDecision decision)
@@ -214,6 +239,11 @@ namespace KMA.Gameplay.Volleyball
                 GameAudio.Play(winner == CourtSide.Player ? GameSound.Point : GameSound.Miss);
             if (hud)
                 hud.ShowPoint(winner);
+            EnsureLecturer();
+            if (winner == CourtSide.Player)
+                lecturer?.WriteScore();
+            else
+                lecturer?.PointThenWrite();
         }
 
         void OnMatchCompleted()

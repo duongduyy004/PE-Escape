@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using KMA.EditorTools;
 using KMA.Gameplay;
+using KMA.Gameplay.Volleyball;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -147,6 +148,119 @@ namespace KMA.Tests.EditorTools
             {
                 Object.DestroyImmediate(go);
             }
+        }
+
+        [Test]
+        public void WhistleBlastsWhistleAndReturnsToSupervising()
+        {
+            var go = new GameObject("lecturer");
+            try
+            {
+                var renderer = go.AddComponent<SpriteRenderer>();
+                var lecturer = go.AddComponent<StartLecturer>();
+                Sprite wait = Boss("idleBoss");
+                Sprite raise = Boss("whistle0");
+                Sprite blow = Boss("whistle1");
+                lecturer.Configure(renderer, wait, raise, blow, false, 0f);
+                ConfigureGestures(lecturer);
+
+                lecturer.Whistle();
+                Assert.That(lecturer.Current, Is.EqualTo(StartLecturer.Pose.WhistleBlown));
+                Assert.That(renderer.sprite, Is.SameAs(blow));
+                lecturer.Tick(StartLecturer.BlastSeconds + .01f);
+                Assert.That(lecturer.Current, Is.EqualTo(StartLecturer.Pose.Command));
+                lecturer.Tick(.81f);
+                Assert.That(lecturer.Current, Is.EqualTo(StartLecturer.Pose.StrictLook));
+            }
+            finally
+            {
+                Object.DestroyImmediate(go);
+            }
+        }
+
+        [Test]
+        public void WritingScoreShowsHoldThenWriteThenWait()
+        {
+            var go = new GameObject("lecturer");
+            try
+            {
+                var renderer = go.AddComponent<SpriteRenderer>();
+                var lecturer = go.AddComponent<StartLecturer>();
+                lecturer.Configure(renderer, Boss("idleBoss"), Boss("whistle0"), Boss("whistle1"), false, 0f);
+                ConfigureGestures(lecturer);
+                Sprite hold = Boss("scoreHold");
+                Sprite write = Boss("scoreWrite");
+                lecturer.ConfigureScore(hold, write);
+
+                lecturer.WriteScore();
+                Assert.That(lecturer.Current, Is.EqualTo(StartLecturer.Pose.ScoreHold));
+                Assert.That(renderer.sprite, Is.SameAs(hold));
+                lecturer.Tick(.36f);
+                Assert.That(lecturer.Current, Is.EqualTo(StartLecturer.Pose.ScoreWrite));
+                Assert.That(renderer.sprite, Is.SameAs(write));
+                lecturer.Tick(1.41f);
+                Assert.That(lecturer.Current, Is.EqualTo(StartLecturer.Pose.Waiting));
+            }
+            finally
+            {
+                Object.DestroyImmediate(go);
+            }
+        }
+
+        [Test]
+        public void PointThenWriteShowsPenaltyThenWriteThenWait()
+        {
+            var go = new GameObject("lecturer");
+            try
+            {
+                var renderer = go.AddComponent<SpriteRenderer>();
+                var lecturer = go.AddComponent<StartLecturer>();
+                lecturer.Configure(renderer, Boss("idleBoss"), Boss("whistle0"), Boss("whistle1"), false, 0f);
+                ConfigureGestures(lecturer);
+                Sprite write = Boss("scoreWrite");
+                lecturer.ConfigureScore(Boss("scoreHold"), write);
+
+                lecturer.PointThenWrite();
+                Assert.That(lecturer.Current, Is.EqualTo(StartLecturer.Pose.Penalty));
+                Assert.That(renderer.sprite, Is.SameAs(Boss("penalty0")));
+                lecturer.Tick(.71f);
+                Assert.That(lecturer.Current, Is.EqualTo(StartLecturer.Pose.ScoreWrite));
+                Assert.That(renderer.sprite, Is.SameAs(write));
+                lecturer.Tick(1.41f);
+                Assert.That(lecturer.Current, Is.EqualTo(StartLecturer.Pose.Waiting));
+            }
+            finally
+            {
+                Object.DestroyImmediate(go);
+            }
+        }
+
+        [Test]
+        public void FootballTeacherStandsOutsidePenaltyArea()
+        {
+            FootballSceneConfigurator.BuildScene();
+            EditorSceneManager.OpenScene("Assets/_Project/Scenes/MG_Football.unity", OpenSceneMode.Single);
+            var lecturer = Object.FindFirstObjectByType<StartLecturer>();
+            Assert.That(lecturer, Is.Not.Null);
+            // World position converted to screen coordinates: must be outside the penalty arc (x > 850 in screen px)
+            float screenX = lecturer.transform.position.x / FootballPresentation.PixelToWorld + 600f;
+            Assert.That(screenX, Is.GreaterThan(850f), "Football teacher must stand outside penalty area arc (x > 850)");
+            Assert.That(lecturer.FacesLeft, Is.True, "Football teacher faces the kicker");
+        }
+
+        [Test]
+        public void VolleyballTeacherScaleMatchesAthletesAndDoesNotBlockCourt()
+        {
+            VolleyballSceneConfigurator.BuildScene();
+            EditorSceneManager.OpenScene("Assets/_Project/Scenes/MG_Volleyball.unity", OpenSceneMode.Single);
+            var lecturer = Object.FindFirstObjectByType<StartLecturer>();
+            Assert.That(lecturer, Is.Not.Null);
+            Assert.That(lecturer.transform.localScale.x, Is.EqualTo(VolleyballSceneConfigurator.AthleteScale),
+                "Teacher scale matches athlete scale");
+            // Teacher is to the left of baseline (-CourtSpace.HalfLength)
+            float worldBaselineX = -CourtSpace.HalfLength * CourtSpace.PixelsPerMetreX / CourtSpace.BackgroundPixelsPerUnit * CourtSpace.WorldStretchX;
+            Assert.That(lecturer.transform.position.x, Is.LessThan(worldBaselineX),
+                "Teacher stands outside the court boundary");
         }
 
         static Sprite Boss(string pose) => CharacterArt.Load(CharacterArt.Boss, pose);
