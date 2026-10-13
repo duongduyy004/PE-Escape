@@ -24,8 +24,8 @@ namespace KMA.Gameplay.UI
             {
                 card=UiKit.Panel(safeArea,"DialogueCard").gameObject;
                 portrait=UiKit.Rect(card.transform,"Portrait").gameObject.AddComponent<Image>();portrait.preserveAspect=true;
-                speaker=UiKit.Label(card.transform,"SpeakerName","",28,MinigameUiTheme.TextPrimary,TextAlignmentOptions.MidlineLeft);
-                text=UiKit.Label(card.transform,"SpeechText","",28,MinigameUiTheme.TextPrimary,TextAlignmentOptions.TopLeft);
+                speaker=UiKit.Label(card.transform,"SpeakerName","",MinigameUiTheme.Caption,MinigameUiTheme.TextPrimary,TextAlignmentOptions.MidlineLeft);
+                text=UiKit.Label(card.transform,"SpeechText","",MinigameUiTheme.Caption,MinigameUiTheme.TextPrimary,TextAlignmentOptions.TopLeft);
                 icon=UiKit.Rect(card.transform,"PointingIcon").gameObject.AddComponent<Image>();icon.preserveAspect=true;
             }
             RefreshLayout();Hide();

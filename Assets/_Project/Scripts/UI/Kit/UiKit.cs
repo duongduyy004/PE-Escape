@@ -271,6 +271,20 @@ namespace KMA.UI.Kit
         public static RoundButtonHandle RoundButton(RectTransform hitArea, string text,
             float size = MinigameUiTheme.RoundButton)
         {
+            RoundButtonHandle shape = RoundShape(hitArea, size);
+            TMP_Text label = Label(shape.Face.transform, "Label", text, MinigameUiTheme.Headline, MinigameUiTheme.Surface);
+            VietTypography.Apply(label, VietFontRole.ButtonPrimary);
+            Stretch(label.rectTransform);
+            FitLabel(label, MinigameUiTheme.Headline);
+            return new RoundButtonHandle(shape.Root, shape.Shadow, shape.Rim, shape.Face, label, shape.Feedback);
+        }
+
+        /// The round action button without a caption, for controls drawn as icons (Volleyball attack and jump).
+        public static RoundButtonHandle RoundIconButton(RectTransform hitArea, float size = MinigameUiTheme.RoundButton) =>
+            RoundShape(hitArea, size);
+
+        static RoundButtonHandle RoundShape(RectTransform hitArea, float size)
+        {
             RectTransform root = Rect(hitArea, "RoundButton");
             Place(root, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, Vector2.one * size);
             float drop = MinigameUiTheme.ShadowOffset.y * 2f;
@@ -283,14 +297,9 @@ namespace KMA.UI.Kit
             float inset = size * 3f / 64f;
             Image face = Disc(root, "Face", false, MinigameUiTheme.Accent);
             Stretch(face.rectTransform, Vector2.one * inset, -Vector2.one * inset);
-            TMP_Text label = Label(face.transform, "Label", text, MinigameUiTheme.Headline, MinigameUiTheme.Surface);
-            VietTypography.Apply(label, VietFontRole.ButtonPrimary);
-            Stretch(label.rectTransform);
-            FitLabel(label, MinigameUiTheme.Headline);
-
             var feedback = GetOrAdd<KitPressFeedback>(hitArea);
             feedback.Configure(face, root);
-            return new RoundButtonHandle(root, shadow, rim, face, label, feedback);
+            return new RoundButtonHandle(root, shadow, rim, face, null, feedback);
         }
 
         public static ControlPlateHandle ControlPlate(RectTransform visual, string arrow, string text)

@@ -42,6 +42,39 @@ namespace KMA.Tests.EditorTools
             Assert.That(problems, Is.Empty, string.Join("\n", problems));
         }
 
+        [TestCase(ChessFinalSceneConfigurator.ScenePath)]
+        [TestCase(FrogJumpSceneConfigurator.ScenePath)]
+        public void MoreMinigameHudsFollowTheKit(string scenePath)
+        {
+            var scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+            GameObject hud = scene.GetRootGameObjects().Single(go => go.name == "S2_HUD_Minigame");
+            var problems = MinigameStyleAudit.Audit(hud);
+            Assert.That(problems, Is.Empty, string.Join("\n", problems));
+        }
+
+        [Test]
+        public void CelebrationCanvasesFollowTheKit()
+        {
+            var scene = EditorSceneManager.OpenScene(CelebrationSceneConfigurator.ScenePath, OpenSceneMode.Single);
+            var problems = scene.GetRootGameObjects().Where(go => go.GetComponent<Canvas>() != null)
+                .SelectMany(MinigameStyleAudit.Audit).ToList();
+            Assert.That(problems, Is.Empty, string.Join("\n", problems));
+        }
+
+        [Test]
+        public void VolleyballActionButtonsUseTheRoundKitShape()
+        {
+            var scene = EditorSceneManager.OpenScene(VolleyballSceneConfigurator.ScenePath, OpenSceneMode.Single);
+            foreach (string name in new[] { "ActionButton", "JumpButton" })
+            {
+                Transform button = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<Transform>(true))
+                    .First(t => t.name == name);
+                Assert.That(button.Find("RoundButton/Rim"), Is.Not.Null, name);
+                Assert.That(button.Find("RoundButton/Face").GetComponent<UnityEngine.UI.Image>().color,
+                    Is.EqualTo(MinigameUiTheme.Accent), name);
+            }
+        }
+
         [Test] public void DormantDialogueArtworkIsRecognizedWithoutExemptingItsCard()
         {
             var root=new GameObject("Dormant",typeof(RectTransform));

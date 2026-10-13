@@ -140,6 +140,7 @@ namespace KMA.EditorTools
             track.offsetMin = new Vector2(12f, 12f);
             track.offsetMax = new Vector2(-12f, -12f);
             RectTransform segments = UiRect("Segments", track, Vector2.zero, Vector2.one);
+            segments.gameObject.AddComponent<StyleExempt>();
             for (int i = 0; i < Segments; i++)
             {
                 RectTransform segment = UiRect("Segment" + i, segments, new Vector2(i / (float)Segments, 0f),
@@ -154,6 +155,7 @@ namespace KMA.EditorTools
             var needleImage = needle.gameObject.AddComponent<Image>();
             needleImage.color = Color.white;
             needleImage.raycastTarget = false;
+            needle.gameObject.AddComponent<StyleExempt>();
             var needleOutline = needle.gameObject.AddComponent<Outline>();
             needleOutline.effectColor = MinigameUiTheme.TextPrimary;
             needleOutline.effectDistance = new Vector2(2f, -2f);

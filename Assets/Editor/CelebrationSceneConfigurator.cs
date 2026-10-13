@@ -97,7 +97,7 @@ namespace KMA.EditorTools
                 rowRect.sizeDelta = new Vector2(0f, 64f);
                 rowRect.anchoredPosition = new Vector2(0f, 160f - 76f * i);
                 row.enableAutoSizing = true;
-                row.fontSizeMin = 24f;
+                row.fontSizeMin = MinigameUiTheme.MinimumFontSize;
                 row.fontSizeMax = row.fontSize;
                 row.textWrappingMode = TextWrappingModes.Normal;
                 row.overflowMode = TextOverflowModes.Ellipsis;
@@ -117,6 +117,7 @@ namespace KMA.EditorTools
             Image fade = Rect(parent, "FadeIn", Vector2.zero, Vector2.one).gameObject.AddComponent<Image>();
             fade.color = Color.black;
             fade.raycastTarget = false;
+            fade.gameObject.AddComponent<StyleExempt>();
 
             var controller = canvasObject.AddComponent<CelebrationSceneController>();
             controller.Configure(student, classmate, teacher, Poses(CharacterArt.Hero, HeroPoses),
@@ -142,6 +143,7 @@ namespace KMA.EditorTools
             var image = rect.gameObject.AddComponent<Image>();
             image.sprite = sprite;
             image.preserveAspect = true;
+            image.gameObject.AddComponent<StyleExempt>();
             image.raycastTarget = false;
             return image;
         }

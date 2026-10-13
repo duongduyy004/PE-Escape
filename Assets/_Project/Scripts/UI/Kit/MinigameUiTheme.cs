@@ -21,6 +21,7 @@ namespace KMA.UI.Kit
         public const float SurfaceSoft = .82f;
         public const float SurfaceControlActive = .95f;
         public const float SurfaceDisabled = .30f;
+        public const float DisabledGroupAlpha = .58f;
         public const float BorderHint = .75f;
         public const float BorderActive = 1f;
         public const float BorderDisabled = .15f;

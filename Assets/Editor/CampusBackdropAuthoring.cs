@@ -76,6 +76,7 @@ namespace KMA.EditorTools
             rect.offsetMin = rect.offsetMax = Vector2.zero;
             rect.SetAsFirstSibling();
             var backdrop = UiKit.GetOrAdd<CampusBackdropUi>(rect);
+            UiKit.GetOrAdd<StyleExempt>(rect.gameObject);
             backdrop.Configure(EnsureArt(), horizon01, skylineHeight01, ground);
             EditorUtility.SetDirty(backdrop);
             return backdrop;

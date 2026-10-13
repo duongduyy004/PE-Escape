@@ -128,7 +128,7 @@ namespace KMA.UI.Kit
             if (disabled == wasDisabled)
                 return;
             wasDisabled = disabled;
-            if (targetGroup != null) targetGroup.alpha = disabled ? .58f : 1f;
+            if (targetGroup != null) targetGroup.alpha = disabled ? MinigameUiTheme.DisabledGroupAlpha : 1f;
             if (disabled)
             {
                 pressed = false;

@@ -148,6 +148,17 @@ namespace KMA.Tests.Presentation
         }
 
         [Test]
+        public void RoundIconButtonHasTheRoundShapeAndNoLabel()
+        {
+            RectTransform hit = UiKit.Rect(root.transform, "Hit");
+            RoundButtonHandle handle = UiKit.RoundIconButton(hit, 200f);
+            Assert.That(hit.Find("RoundButton/Face").GetComponent<Image>().color, Is.EqualTo(MinigameUiTheme.Accent));
+            Assert.That(hit.GetComponentsInChildren<TMP_Text>(true), Is.Empty);
+            Assert.That(hit.GetComponent<KitPressFeedback>(), Is.Not.Null);
+            Assert.That(handle.Label, Is.Null);
+        }
+
+        [Test]
         public void StylePauseButton_DrawsTwoBarsOnceAndDropsLegacyText()
         {
             var pause = new GameObject("PausePanel", typeof(RectTransform), typeof(Image), typeof(Button));

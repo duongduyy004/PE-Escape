@@ -80,6 +80,7 @@ namespace KMA.EditorTools
             var washImage = wash.gameObject.AddComponent<Image>();
             washImage.color = MinigameUiTheme.WithAlpha(UITheme.Shared.Background, .62f);
             washImage.raycastTarget = false;
+            washImage.gameObject.AddComponent<StyleExempt>();
             wash.SetSiblingIndex(1);
 
             TMP_Text title = UiKit.Label(parent, "Title", "Bài kiểm tra cuối", MinigameUiTheme.Title,
@@ -203,6 +204,7 @@ namespace KMA.EditorTools
             var image = rect.gameObject.AddComponent<Image>();
             image.sprite = sprite;
             image.preserveAspect = true;
+            image.gameObject.AddComponent<StyleExempt>();
             image.raycastTarget = false;
             return image;
         }

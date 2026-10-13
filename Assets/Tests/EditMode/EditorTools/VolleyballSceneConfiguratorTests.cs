@@ -199,7 +199,7 @@ namespace KMA.Tests.EditorTools
             var action = Object.FindFirstObjectByType<ActionButton>();
             var feedback = action.GetComponent<KitPressFeedback>();
             Assert.That(feedback, Is.Not.Null);
-            Assert.That(feedback.RestColor, Is.EqualTo(MinigameUiTheme.VolleyballControlSurface));
+            Assert.That(feedback.RestColor, Is.EqualTo(MinigameUiTheme.Accent));
 
             Assert.That(GameObject.Find("JoystickBase").GetComponent<Image>().sprite, Is.SameAs(assets.Circle));
             Assert.That(GameObject.Find("PlayerTitle").GetComponent<TMPro.TMP_Text>().color, Is.EqualTo(MinigameUiTheme.Player));
