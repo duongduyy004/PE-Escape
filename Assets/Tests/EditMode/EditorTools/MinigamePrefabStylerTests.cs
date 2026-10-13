@@ -79,7 +79,6 @@ namespace KMA.Tests.EditorTools
                     float smallest = text.enableAutoSizing ? text.fontSizeMin : text.fontSize;
                     Assert.That(smallest, Is.GreaterThanOrEqualTo(MinigameUiTheme.MinimumFontSize), text.name);
                 }
-                Assert.That(root.GetComponentsInChildren<BrutalButton>(true), Is.Empty);
             }
             finally
             {

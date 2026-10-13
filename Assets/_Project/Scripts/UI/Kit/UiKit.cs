@@ -440,10 +440,6 @@ namespace KMA.UI.Kit
                     DestroyObject(effect);
                 Stretch((RectTransform)visual);
             }
-
-            BrutalButton brutal = root.GetComponent<BrutalButton>();
-            if (brutal != null)
-                DestroyObject(brutal);
         }
 
         static void DestroyObject(Object target)

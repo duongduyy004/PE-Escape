@@ -80,7 +80,6 @@ namespace KMA.Tests.Presentation
         {
             var legacy = new GameObject("NextButton", typeof(RectTransform), typeof(Image), typeof(Button), typeof(Outline));
             legacy.transform.SetParent(root.transform, false);
-            legacy.AddComponent<BrutalButton>();
             new GameObject("Shadow", typeof(RectTransform), typeof(Image)).transform.SetParent(legacy.transform, false);
             var visual = new GameObject("Visual", typeof(RectTransform), typeof(Image));
             visual.transform.SetParent(legacy.transform, false);
@@ -94,7 +93,6 @@ namespace KMA.Tests.Presentation
             Assert.That(legacy.transform.Find("Shadow"), Is.Null);
             Assert.That(visual.GetComponent<Image>(), Is.Null);
             Assert.That(legacy.GetComponent<Outline>(), Is.Null);
-            Assert.That(legacy.GetComponent<BrutalButton>(), Is.Null);
             Assert.That(legacy.GetComponents<KitPressFeedback>(), Has.Length.EqualTo(1));
             int fills = 0;
             foreach (Transform child in legacy.transform)

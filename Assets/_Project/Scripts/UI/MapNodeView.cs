@@ -1,4 +1,5 @@
 using KMA.Gameplay;
+using KMA.UI.Kit;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -169,14 +170,14 @@ namespace KMA.Gameplay.UI
                 float extra = current ? badge * (UITheme.Shared.LessonJourney.stopCurrentScale - 1f) * .5f : 0f;
                 labelGroup.anchoredPosition = new Vector2(labelGroup.anchoredPosition.x, labelBaseY - extra);
             }
-            if (selectionRing != null) selectionRing.color = HomeMenuStyle.Gold;
+            if (selectionRing != null) selectionRing.color = ShellTheme.Gold;
         }
 
         void Update()
         {
             if (!IsCurrent || selectionRing == null) return;
             float pulse = (Mathf.Sin(Time.unscaledTime * UITheme.Shared.LessonJourney.glowSpeed) + 1f) * .5f;
-            Color gold = HomeMenuStyle.Gold;
+            Color gold = ShellTheme.Gold;
             selectionRing.color = new Color(gold.r, gold.g, gold.b, Mathf.Lerp(.55f, 1f, pulse));
         }
 
@@ -189,9 +190,6 @@ namespace KMA.Gameplay.UI
         {
             if (button != null)
                 button.interactable = selectable;
-            BrutalButton feedback = GetComponent<BrutalButton>();
-            if (feedback != null)
-                feedback.enabled = selectable;
             if (detailLabel != null)
             {
                 detailLabel.text = VietText.Fix(selectable
@@ -225,14 +223,14 @@ namespace KMA.Gameplay.UI
             if (lockIcon != null) lockIcon.SetActive(locked);
             if (doneMark != null) doneMark.SetActive(completed && !locked);
             if (badgeImage != null) badgeImage.color = locked ? LockedCard : subjectColor;
-            if (glyphImage != null) glyphImage.color = locked ? UITheme.Shared.MapLockedText : UITheme.Shared.Surface;
+            if (glyphImage != null) glyphImage.color = locked ? UITheme.Shared.MapLockedText : ShellTheme.Ink;
             if (badgeImage != null && statusLabel != null)
                 statusLabel.color = locked ? UITheme.Shared.MapHint
-                    : completed ? HomeMenuStyle.Gold : HomeMenuStyle.GoldLight;
+                    : completed ? ShellTheme.Gold : ShellTheme.GoldLight;
             for (int i = 0; i < starImages.Length; i++)
                 if (starImages[i] != null)
                     starImages[i].color = i < Stars && !locked
-                        ? UITheme.Shared.Menu.gold : UITheme.Shared.MapLockedIcon;
+                        ? ShellTheme.Gold : UITheme.Shared.MapLockedIcon;
         }
     }
 }

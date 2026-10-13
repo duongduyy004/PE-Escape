@@ -24,54 +24,41 @@ namespace KMA.Gameplay.UI
             Button button = root.gameObject.AddComponent<Button>();
             button.targetGraphic = hit;
             button.transition = Selectable.Transition.None;
-            root.gameObject.AddComponent<BrutalButton>();
 
             float badgeSize = Style.stopBadgeSize;
             float badgeCenterFromTop = Style.stopTagHeight + badgeSize * Style.stopCurrentScale * .5f;
 
             // Tag above the badge ("ĐANG Ở ĐÂY"), shown only on the current stop.
-            RectTransform tag = MapPresentationBuilder.Rect(root, "CurrentTag");
-            Place(tag, new Vector2(.5f, 1f), new Vector2(190f, 38f), new Vector2(0f, -4f));
-            tag.pivot = new Vector2(.5f, 1f);
-            Image tagSurface = tag.gameObject.AddComponent<Image>();
-            tagSurface.sprite = UiKitAssets.Load().RoundRect20;
-            tagSurface.type = Image.Type.Sliced;
-            tagSurface.color = HomeMenuStyle.Gold;
-            tagSurface.raycastTarget = false;
-            Outline tagOutline = tag.gameObject.AddComponent<Outline>();
-            tagOutline.effectColor = HomeMenuStyle.Navy;
-            tagOutline.effectDistance = new Vector2(3f, -3f);
-            MapPresentationBuilder.LayoutLabel(tag, "Tag", "ĐANG Ở ĐÂY", 20, HomeMenuStyle.Navy,
-                TextAnchor.MiddleCenter);
-            StretchChild(tag);
+            ShellChipHandle tag = ShellKit.Chip(root, "CurrentTag", "ĐANG Ở ĐÂY", ShellTheme.Gold);
+            RectTransform tagRect = tag.Card.Root;
+            Place(tagRect, new Vector2(.5f, 1f), new Vector2(240f, 48f), new Vector2(0f, -4f));
+            tagRect.pivot = new Vector2(.5f, 1f);
+            tag.Label.fontSize = MinigameUiTheme.Caption;
+            UiKit.FitLabel(tag.Label, MinigameUiTheme.Caption);
 
             // Gold ring behind the badge (current or selected).
             RectTransform ring = MapPresentationBuilder.Rect(root, "SelectionRing");
             Place(ring, new Vector2(.5f, 1f), Vector2.one * (badgeSize + 28f), new Vector2(0f, -badgeCenterFromTop));
             Image ringImage = ring.gameObject.AddComponent<Image>();
             ringImage.sprite = UiKitAssets.Load().Circle;
-            ringImage.color = HomeMenuStyle.Gold;
+            ringImage.color = ShellTheme.Gold;
             ringImage.raycastTarget = false;
 
             // Badge.
             RectTransform badge = MapPresentationBuilder.Rect(root, "Badge");
             Place(badge, new Vector2(.5f, 1f), Vector2.one * badgeSize, new Vector2(0f, -badgeCenterFromTop));
-            Image badgeImage = badge.gameObject.AddComponent<Image>();
-            badgeImage.sprite = UiKitAssets.Load().Circle;
-            badgeImage.color = accent;
-            badgeImage.raycastTarget = false;
-            Outline border = badge.gameObject.AddComponent<Outline>();
-            border.effectColor = Color.white;
-            border.effectDistance = new Vector2(6f, -6f);
-            Shadow shadow = badge.gameObject.AddComponent<Shadow>();
-            shadow.effectColor = MinigameUiTheme.ShadowColor;
-            shadow.effectDistance = MinigameUiTheme.ShadowOffset;
+            ShellCardHandle badgeLayers = ShellKit.Badge(badge, accent);
+            Image badgeImage = badgeLayers.Face;
+            // The stop recolours its own badge per state; the feedback only slides it.
+            var press = root.gameObject.AddComponent<ShellPressFeedback>();
+            press.Configure(badge, null, null, Color.white, Color.white);
 
             RectTransform glyph = MapPresentationBuilder.Rect(badge, "IconGlyph");
             MapPresentationBuilder.Stretch(glyph, new Vector2(34f, 34f), new Vector2(-34f, -34f));
             Image glyphImage = glyph.gameObject.AddComponent<Image>();
             glyphImage.sprite = MapPresentationBuilder.SportIconSprite(subject);
-            glyphImage.color = UITheme.Shared.Surface;
+            glyphImage.color = ShellTheme.Ink;
+            glyphImage.gameObject.AddComponent<StyleExempt>();
             glyphImage.preserveAspect = true;
             glyphImage.raycastTarget = false;
 
@@ -79,9 +66,9 @@ namespace KMA.Gameplay.UI
             Place(orderBadge, new Vector2(.14f, .86f), Vector2.one * 44f, Vector2.zero);
             Image orderImage = orderBadge.gameObject.AddComponent<Image>();
             orderImage.sprite = UiKitAssets.Load().Circle;
-            orderImage.color = HomeMenuStyle.Navy;
+            orderImage.color = ShellTheme.Ink;
             orderImage.raycastTarget = false;
-            MapPresentationBuilder.LayoutLabel(orderBadge, "Order", order.ToString(), 24, HomeMenuStyle.Gold,
+            MapPresentationBuilder.LayoutLabel(orderBadge, "Order", order.ToString(), (int)MinigameUiTheme.Caption, ShellTheme.Gold,
                 TextAnchor.MiddleCenter);
             StretchChild(orderBadge);
 
@@ -89,13 +76,14 @@ namespace KMA.Gameplay.UI
             Place(done, new Vector2(.86f, .86f), Vector2.one * 48f, Vector2.zero);
             Image doneImage = done.gameObject.AddComponent<Image>();
             doneImage.sprite = UiKitAssets.Load().Circle;
-            doneImage.color = HomeMenuStyle.Gold;
+            doneImage.color = ShellTheme.Gold;
             doneImage.raycastTarget = false;
             RectTransform check = MapPresentationBuilder.Rect(done, "CheckGlyph");
             MapPresentationBuilder.Stretch(check, new Vector2(10f, 10f), new Vector2(-10f, -10f));
             Image checkImage = check.gameObject.AddComponent<Image>();
             checkImage.sprite = CheckSprite();
-            checkImage.color = HomeMenuStyle.Navy;
+            checkImage.color = ShellTheme.Ink;
+            checkImage.gameObject.AddComponent<StyleExempt>();
             checkImage.preserveAspect = true;
             checkImage.raycastTarget = false;
 
@@ -103,13 +91,14 @@ namespace KMA.Gameplay.UI
             Place(lockRect, new Vector2(.84f, .14f), Vector2.one * 52f, Vector2.zero);
             Image lockPlate = lockRect.gameObject.AddComponent<Image>();
             lockPlate.sprite = UiKitAssets.Load().Circle;
-            lockPlate.color = HomeMenuStyle.Navy;
+            lockPlate.color = ShellTheme.Ink;
             lockPlate.raycastTarget = false;
             RectTransform lockGlyph = MapPresentationBuilder.Rect(lockRect, "Glyph");
             MapPresentationBuilder.Stretch(lockGlyph, new Vector2(11f, 9f), new Vector2(-11f, -13f));
             Image lockImage = lockGlyph.gameObject.AddComponent<Image>();
             lockImage.sprite = MapPresentationBuilder.LockSprite();
             lockImage.color = Color.white;
+            lockImage.gameObject.AddComponent<StyleExempt>();
             lockImage.preserveAspect = true;
             lockImage.raycastTarget = false;
 
@@ -122,8 +111,8 @@ namespace KMA.Gameplay.UI
                 flagImage.sprite = FlagSprite();
                 flagImage.preserveAspect = true;
                 flagImage.raycastTarget = false;
-                flag.gameObject.AddComponent<Outline>().effectColor = HomeMenuStyle.Navy;
-            }
+                flagImage.gameObject.AddComponent<StyleExempt>();
+                }
 
             // Name + meta pill below the badge.
             RectTransform labelGroup = MapPresentationBuilder.Rect(root, "LabelGroup");
@@ -142,7 +131,7 @@ namespace KMA.Gameplay.UI
             title.fontStyle = FontStyles.Bold;
             title.enableWordWrapping = false;
             title.outlineWidth = .2f;
-            title.outlineColor = HomeMenuStyle.Navy;
+            title.outlineColor = ShellTheme.Ink;
 
             RectTransform pill = MapPresentationBuilder.Rect(labelGroup, "MetaPill");
             pill.anchorMin = pill.anchorMax = new Vector2(.5f, 1f);
@@ -152,7 +141,7 @@ namespace KMA.Gameplay.UI
             Image pillImage = pill.gameObject.AddComponent<Image>();
             pillImage.sprite = UiKitAssets.Load().RoundRect20;
             pillImage.type = Image.Type.Sliced;
-            pillImage.color = MinigameUiTheme.WithAlpha(HomeMenuStyle.Navy, .8f);
+            pillImage.color = MinigameUiTheme.WithAlpha(ShellTheme.Ink, .8f);
             pillImage.raycastTarget = false;
 
             RectTransform starsRoot = MapPresentationBuilder.Rect(pill, "Stars");
@@ -173,12 +162,13 @@ namespace KMA.Gameplay.UI
                 stars[i].sprite = StarSprite();
                 stars[i].preserveAspect = true;
                 stars[i].raycastTarget = false;
+                stars[i].gameObject.AddComponent<StyleExempt>();
                 var element = star.gameObject.AddComponent<LayoutElement>();
                 element.preferredWidth = element.preferredHeight = 30f;
             }
 
-            TMP_Text status = MapPresentationBuilder.LayoutLabel(pill, "Status", string.Empty, 24,
-                HomeMenuStyle.GoldLight, TextAnchor.MiddleRight);
+            TMP_Text status = MapPresentationBuilder.LayoutLabel(pill, "Status", string.Empty, (int)MinigameUiTheme.Caption,
+                ShellTheme.GoldLight, TextAnchor.MiddleRight);
             RectTransform statusBox = (RectTransform)status.transform.parent;
             statusBox.anchorMin = new Vector2(.32f, 0f);
             statusBox.anchorMax = Vector2.one;
@@ -189,9 +179,9 @@ namespace KMA.Gameplay.UI
 
             MapNodeView node = root.gameObject.AddComponent<MapNodeView>();
             node.Bind(button, title, null);
-            node.BindPresentation(status, null, null, null, border, accent);
+            node.BindPresentation(status, null, null, null, null, accent);
             node.BindJourneyStop(badgeImage, stars, lockRect.gameObject, done.gameObject,
-                tag.gameObject, ringImage, badge, labelGroup, glyphImage);
+                tagRect.gameObject, ringImage, badge, labelGroup, glyphImage);
             node.Configure(subject, label, false, null, 5);
             button.onClick.AddListener(() => screen.SelectSubject(subject));
             return node;

@@ -127,12 +127,12 @@ namespace KMA.Gameplay.UI
                 }
             }
             for (int i = 0; i < SegmentsPerLeg; i++)
-                leg.Outline.Add(Piece(rect, "Outline" + (i + 1), HomeMenuStyle.Navy, null));
+                leg.Outline.Add(Piece(rect, "Outline" + (i + 1), ShellTheme.Ink, null));
             for (int i = 0; i < SegmentsPerLeg; i++)
-                leg.Fill.Add(Piece(rect, "Fill" + (i + 1), HomeMenuStyle.Gold, null));
+                leg.Fill.Add(Piece(rect, "Fill" + (i + 1), ShellTheme.Gold, null));
             Sprite circle = UiKitAssets.Load().Circle;
             for (int i = 0; i < DotsPerLeg; i++)
-                leg.Dots.Add(Piece(rect, "Dot" + (i + 1), HomeMenuStyle.White, circle));
+                leg.Dots.Add(Piece(rect, "Dot" + (i + 1), ShellTheme.White, circle));
             return leg;
         }
 

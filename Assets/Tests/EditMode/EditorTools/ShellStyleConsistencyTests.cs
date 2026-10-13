@@ -39,6 +39,15 @@ namespace KMA.Tests.EditorTools
             Assert.That(card.GetComponentsInChildren<Button>(true).Select(b => b.name),
                 Is.EquivalentTo(new[] { "XÁC NHẬNButton", "QUAY LẠIButton" }));
         }
+
+        [Test]
+        public void MapSceneHasNoMissingScripts()
+        {
+            var scene = EditorSceneManager.OpenScene("Assets/_Project/Scenes/Map.unity", OpenSceneMode.Single);
+            int missing = scene.GetRootGameObjects().Sum(go => go.GetComponentsInChildren<Transform>(true)
+                .Sum(t => UnityEditor.GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(t.gameObject)));
+            Assert.That(missing, Is.Zero);
+        }
     }
 }
 #endif

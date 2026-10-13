@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor;
 using KMA.Gameplay;
 using KMA.Gameplay.UI;
+using KMA.UI.Kit;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
@@ -44,30 +45,34 @@ namespace KMA.Tests.Presentation
         }
 
         [Test]
-        public void BrutalButtonReturnsToRestAfterPointerUp()
+        public void MapPresentationFollowsTheShellStyle()
         {
-            var root = new GameObject("brutal-button", typeof(RectTransform));
+            var root = new GameObject("map", typeof(RectTransform));
             try
             {
-                var shadowObject = new GameObject("shadow", typeof(RectTransform));
-                shadowObject.transform.SetParent(root.transform, false);
-                var shadow = shadowObject.GetComponent<RectTransform>();
-                shadow.anchoredPosition = new Vector2(6f, -6f);
-                var button = root.AddComponent<BrutalButton>();
-                SetPrivateField(button, "shadow", shadow);
-
-                button.SetPressedForTest(true);
-                Assert.That(button.CurrentVisualOffset, Is.EqualTo(new Vector2(4f, -4f)));
-                Assert.That(shadow.anchoredPosition, Is.EqualTo(Vector2.zero));
-
-                button.SetPressedForTest(false);
-                Assert.That(button.CurrentVisualOffset, Is.EqualTo(Vector2.zero));
-                Assert.That(shadow.anchoredPosition, Is.EqualTo(new Vector2(6f, -6f)));
+                var screen = root.AddComponent<MapScreen>();
+                MapPresentationBuilder.Build(screen, CompleteSprintJourney());
+                var problems = ShellStyleAudit.Audit(root.transform.Find("S5MapPresentation/Content/Header").gameObject);
+                problems.AddRange(ShellStyleAudit.Audit(root.transform.Find("S5MapPresentation/Content/SelectionGrid").gameObject));
+                Assert.That(problems, Is.Empty, string.Join("\n", problems));
             }
-            finally
+            finally { Object.DestroyImmediate(root); }
+        }
+
+        [Test]
+        public void MapStopTagFitsAtTheFontFloor()
+        {
+            var root = new GameObject("map", typeof(RectTransform));
+            try
             {
-                Object.DestroyImmediate(root);
+                var screen = root.AddComponent<MapScreen>();
+                MapPresentationBuilder.Build(screen, new GameSession());
+                TMP_Text tag = screen.Nodes[0].transform.Find("CurrentTag").GetComponentInChildren<TMP_Text>(true);
+                Assert.That(tag.fontSizeMin, Is.GreaterThanOrEqualTo(MinigameUiTheme.MinimumFontSize));
+                tag.ForceMeshUpdate();
+                Assert.That(tag.isTextOverflowing, Is.False, "ĐANG Ở ĐÂY must fit its tag");
             }
+            finally { Object.DestroyImmediate(root); }
         }
 
         [Test]
@@ -170,16 +175,16 @@ namespace KMA.Tests.Presentation
                 Assert.That(back.preferredWidth, Is.GreaterThanOrEqualTo(56f));
                 Assert.That(back.preferredHeight, Is.GreaterThanOrEqualTo(56f));
 
-                TMP_Text title = header.Find("Heading/TitleContainer/Title").GetComponent<TMP_Text>();
+                TMP_Text title = header.Find("Heading/TitleContainer/Title/Text").GetComponent<TMP_Text>();
                 Assert.That(title.fontSize, Is.InRange(36, 44));
                 Assert.That(title.text, Is.EqualTo("CHỌN MÔN THI"));
-                Assert.That(title.font, Is.SameAs(VietTypography.Library.bold));
+                Assert.That(title.font, Is.SameAs(VietTypography.Library.title));
                 Assert.That(title.extraPadding, Is.True);
                 Assert.That(header.Find("Heading/SubtitleContainer"), Is.Null);
 
                 Transform livesPanel = header.Find("LivesPanel");
                 Assert.That(livesPanel, Is.Not.Null);
-                Assert.That(livesPanel.GetComponent<Image>(), Is.Not.Null);
+                Assert.That(livesPanel.Find(ShellKit.FaceName).GetComponent<Image>(), Is.Not.Null);
                 TMP_Text lives = livesPanel.Find("LivesLabelContainer/LivesLabel").GetComponent<TMP_Text>();
                 Assert.That(lives.text, Is.EqualTo("Lượt thi: 5/5"));
                 Assert.That(lives.fontSize, Is.GreaterThanOrEqualTo(24));
@@ -209,30 +214,25 @@ namespace KMA.Tests.Presentation
                 var screen = root.AddComponent<MapScreen>();
                 MapPresentationBuilder.Build(screen, new GameSession());
                 Transform header = root.transform.Find("S5MapPresentation/Content/Header");
-                Color cream = UITheme.Shared.TextPrimary;
+                Color cream = ShellTheme.Cream;
 
                 foreach (string block in new[] { "BackButton", "Heading", "LivesPanel" })
                 {
                     Transform rect = header.Find(block);
-                    Assert.That(rect.GetComponent<Image>().color, Is.EqualTo(HomeMenuStyle.Navy), block);
-                    Shadow shadow = rect.GetComponents<Shadow>().FirstOrDefault(s => !(s is Outline));
-                    Assert.That(shadow, Is.Not.Null, block + " needs the hard drop shadow");
-                    Assert.That(shadow.effectColor, Is.EqualTo(HomeMenuStyle.Navy), block);
-                    Assert.That(shadow.effectDistance.x, Is.GreaterThan(0f), block);
-                    Assert.That(shadow.effectDistance.y, Is.LessThan(0f), block);
-                    Assert.That(rect.Find("Fill").GetComponent<Image>().color, Is.EqualTo(cream), block);
+                    Transform layers = block == "BackButton" ? rect.Find(ShellKit.BodyName) : rect;
+                    Assert.That(layers.Find(ShellKit.BorderName).GetComponent<Image>().color, Is.EqualTo(ShellTheme.Ink), block);
+                    Assert.That(layers.Find(ShellKit.FaceName).GetComponent<Image>().color, Is.EqualTo(ShellTheme.Cream), block);
+                    Assert.That(rect.GetComponents<Shadow>(), Is.Empty, block + " draws its drop as a layer");
+                    Assert.That(rect.Find(ShellKit.ShadowName), Is.Not.Null, block);
                 }
-
-                TMP_Text title = header.Find("Heading/TitleContainer/Title").GetComponent<TMP_Text>();
-                Assert.That(title.color, Is.EqualTo(HomeMenuStyle.Navy));
-                Assert.That(title.fontStyle & FontStyles.Italic, Is.EqualTo(FontStyles.Italic));
-                TMP_Text titleShadow = header.Find("Heading/TitleContainer/TitleShadow").GetComponent<TMP_Text>();
+                TMP_Text title = header.Find("Heading/TitleContainer/Title/Text").GetComponent<TMP_Text>();
+                Assert.That(title.color, Is.EqualTo(ShellTheme.Ink));
+                TMP_Text titleShadow = header.Find("Heading/TitleContainer/Title/Drop").GetComponent<TMP_Text>();
                 Assert.That(titleShadow.text, Is.EqualTo(title.text));
-                Assert.That(titleShadow.color, Is.EqualTo(HomeMenuStyle.Gold));
-                Assert.That(header.Find("Heading/Accent").GetComponent<Image>().color, Is.EqualTo(HomeMenuStyle.Red));
-
+                Assert.That(titleShadow.color, Is.EqualTo(ShellTheme.Gold));
+                Assert.That(header.Find("Heading").Cast<Transform>().Any(t => t.name.StartsWith(ShellKit.AccentPrefix)), Is.True);
                 TMP_Text arrow = header.Find("BackButton").GetComponentInChildren<TMP_Text>(true);
-                Assert.That(arrow.color, Is.EqualTo(HomeMenuStyle.Navy));
+                Assert.That(arrow.color, Is.EqualTo(ShellTheme.Ink));
                 TMP_Text lives = header.Find("LivesPanel/LivesLabelContainer/LivesLabel").GetComponent<TMP_Text>();
                 Assert.That(ContrastRatio(lives.color, cream), Is.GreaterThanOrEqualTo(4.5f));
 
@@ -447,7 +447,7 @@ namespace KMA.Tests.Presentation
                 Assert.That(completed.transform.Find("Badge/DoneMark").gameObject.activeSelf, Is.True);
                 Assert.That(football.StatusText, Is.EqualTo("CHƯA MỞ KHÓA"));
                 Assert.That(football.transform.Find("Badge/LockIcon").gameObject.activeSelf, Is.True);
-                Assert.That(completed.GetComponent<BrutalButton>(), Is.Not.Null);
+                Assert.That(completed.GetComponent<ShellPressFeedback>(), Is.Not.Null);
                 Assert.That(football.GetComponent<Button>().interactable, Is.False);
                 var iconSprites = screen.Nodes.Select(node => node.transform.Find("Badge/IconGlyph")
                     .GetComponent<Image>().sprite).ToArray();
@@ -494,10 +494,10 @@ namespace KMA.Tests.Presentation
                 foreach (MapNodeView node in screen.Nodes)
                 {
                     Transform badge = node.transform.Find("Badge");
-                    Assert.That(badge.GetComponent<Image>().sprite, Is.Not.Null, node.name);
-                    Shadow shadow = badge.GetComponent<Shadow>();
+                    Assert.That(badge.Find(ShellKit.FaceName).GetComponent<Image>().sprite, Is.Not.Null, node.name);
+                    RectTransform shadow = (RectTransform)badge.Find(ShellKit.ShadowName);
                     Assert.That(shadow, Is.Not.Null, node.name);
-                    Assert.That(Mathf.Abs(shadow.effectDistance.y), Is.LessThanOrEqualTo(8f), node.name);
+                    Assert.That(Mathf.Abs(shadow.offsetMin.y), Is.LessThanOrEqualTo(8f), node.name);
                 }
             }
             finally { Object.DestroyImmediate(root); }
@@ -634,7 +634,7 @@ namespace KMA.Tests.Presentation
                 Assert.That(lockIcon.activeSelf, Is.True);
                 Assert.That(doneMark.activeSelf, Is.False);
                 Assert.That(node.StatusText, Is.EqualTo("CHƯA MỞ KHÓA"));
-                Assert.That(stars.Count(star => star.color == UITheme.Shared.Menu.gold), Is.Zero);
+                Assert.That(stars.Count(star => star.color == ShellTheme.Gold), Is.Zero);
 
                 var record = new SubjectRecord();
                 record.Accept(new MinigameResult(true, 0f, Rank.C));
@@ -644,7 +644,7 @@ namespace KMA.Tests.Presentation
                 Assert.That(lockIcon.activeSelf, Is.False);
                 Assert.That(doneMark.activeSelf, Is.True);
                 Assert.That(node.StatusText, Is.EqualTo("HOÀN THÀNH"));
-                int filled = stars.Count(star => star.color == UITheme.Shared.Menu.gold);
+                int filled = stars.Count(star => star.color == ShellTheme.Gold);
                 Assert.That(filled, Is.EqualTo(node.Stars), "Filled stars must equal Stars, not always 3.");
                 Assert.That(node.Stars, Is.LessThan(3));
 
@@ -711,10 +711,10 @@ namespace KMA.Tests.Presentation
                 var stars = new System.Collections.Generic.HashSet<Sprite>();
                 foreach (MapNodeView node in screen.Nodes)
                 {
-                    Image badge = node.transform.Find("Badge").GetComponent<Image>();
+                    Image badge = node.transform.Find("Badge/" + ShellKit.FaceName).GetComponent<Image>();
                     Assert.That(badge.sprite, Is.SameAs(KMA.UI.Kit.UiKitAssets.Load().Circle), node.name);
                     Assert.That(badge.type, Is.EqualTo(Image.Type.Simple), node.name);
-                    Assert.That(badge.GetComponent<Shadow>(), Is.Not.Null, node.name);
+                    Assert.That(node.transform.Find("Badge/" + ShellKit.ShadowName), Is.Not.Null, node.name);
                     foreach (Image star in node.transform.Find("LabelGroup/MetaPill/Stars").GetComponentsInChildren<Image>())
                     {
                         Assert.That(star.sprite, Is.Not.Null, node.name);
@@ -745,7 +745,7 @@ namespace KMA.Tests.Presentation
                 Assert.That(sprint.StatusText, Is.EqualTo("HOÀN THÀNH"));
                 Assert.That(sprint.transform.Find("Badge/DoneMark").gameObject.activeSelf, Is.True);
                 int filled = sprint.transform.Find("LabelGroup/MetaPill/Stars").GetComponentsInChildren<Image>()
-                    .Count(star => star.color == UITheme.Shared.Menu.gold);
+                    .Count(star => star.color == ShellTheme.Gold);
                 Assert.That(filled, Is.EqualTo(sprint.Stars));
             }
             finally { Object.DestroyImmediate(root); }
@@ -859,12 +859,12 @@ namespace KMA.Tests.Presentation
                 MapPresentationBuilder.Build(screen, CompleteSprintJourney());
                 foreach (MapNodeView node in screen.Nodes)
                 {
-                    Color pill = HomeMenuStyle.Navy;
+                    Color pill = ShellTheme.Ink;
                     Color status = node.transform.Find("LabelGroup/MetaPill/StatusContainer/Status")
                         .GetComponent<TMP_Text>().color;
                     Assert.That(ContrastRatio(status, pill), Is.GreaterThanOrEqualTo(4.5f),
                         node.name + " status text on the navy pill");
-                    Color badge = node.transform.Find("Badge").GetComponent<Image>().color;
+                    Color badge = node.transform.Find("Badge/" + ShellKit.FaceName).GetComponent<Image>().color;
                     Color glyph = node.transform.Find("Badge/IconGlyph").GetComponent<Image>().color;
                     Assert.That(ContrastRatio(glyph, badge), Is.GreaterThanOrEqualTo(2f),
                         node.name + " sport icon must stand out from its badge");
@@ -1130,13 +1130,14 @@ namespace KMA.Tests.Presentation
                 MapNodeView node = screen.Nodes.Single(candidate =>
                     candidate.SubjectId == SubjectId.Sprint);
                 Button button = node.GetComponent<Button>();
-                BrutalButton feedback = node.GetComponent<BrutalButton>();
+                ShellPressFeedback feedback = node.GetComponent<ShellPressFeedback>();
                 TMP_Text status = node.transform.Find("LabelGroup/MetaPill/StatusContainer/Status").GetComponent<TMP_Text>();
 
                 node.SetAvailability(false, "TẠM KHÓA");
 
                 Assert.That(button.interactable, Is.False);
-                Assert.That(feedback.enabled, Is.False);
+                feedback.Press();
+                Assert.That(feedback.IsPressed, Is.False, "a locked stop does not press");
                 Assert.That(status.text, Is.EqualTo("TẠM KHÓA"));
 
                 node.SetAvailability(true, "TẠM KHÓA");
@@ -1161,11 +1162,11 @@ namespace KMA.Tests.Presentation
                 var screen = root.AddComponent<MapScreen>();
                 MapPresentationBuilder.Build(screen, session);
                 MapNodeView sprint = screen.Nodes.Single(node => node.SubjectId == SubjectId.Sprint);
-                Color sprintAccent = sprint.transform.Find("Badge").GetComponent<Image>().color;
+                Color sprintAccent = sprint.transform.Find("Badge/" + ShellKit.FaceName).GetComponent<Image>().color;
                 Assert.That(sprintAccent.b, Is.GreaterThan(sprintAccent.r),
                     "Subject accents should not use warning red.");
                 Assert.That(sprint.transform.Find("Badge/DoneMark").GetComponent<Image>().color,
-                    Is.EqualTo(HomeMenuStyle.Gold));
+                    Is.EqualTo(ShellTheme.Gold));
             }
             finally { Object.DestroyImmediate(root); }
         }
