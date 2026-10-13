@@ -377,7 +377,7 @@ namespace KMA.Tests.Gameplay.Progression
             });
         }
 
-        /// Plays the puzzle main line on the real board, like ChessFinalSceneTests, and waits for the
+        /// Plays the optimal line on the real board, like ChessFinalSceneTests, and waits for the
         /// committed result on the real result panel.
         IEnumerator PlayChessFinal()
         {
@@ -385,17 +385,22 @@ namespace KMA.Tests.Gameplay.Progression
             var controller = Object.FindFirstObjectByType<ChessFinalController>();
             var board = Object.FindFirstObjectByType<ChessBoardView>();
             yield return JourneyRuntimeDriver.WaitForOpening();
+            float deadline = Time.realtimeSinceStartup + 20f;
+            while (!controller.PuzzleReady)
+            {
+                Assert.That(Time.realtimeSinceStartup, Is.LessThan(deadline), "The puzzle was not generated.");
+                yield return null;
+            }
             controller.BeginAttempt();
             yield return null;
             yield return null;
-            PuzzleDefinition puzzle = controller.Machine.Puzzle;
-            yield return PlayChessMove(board, puzzle.nodes[0].moves[0].uci);
-            float deadline = Time.realtimeSinceStartup + 10f;
-            while (controller.Machine.Phase != ChessFinalPhase.Completed)
+            deadline = Time.realtimeSinceStartup + 20f;
+            while (controller.Machine.Phase != ChessAttemptPhase.Completed)
             {
-                Assert.That(Time.realtimeSinceStartup, Is.LessThan(deadline), "The boss reply did not arrive.");
-                if (controller.Machine.Phase == ChessFinalPhase.PlayerTurn)
-                    yield return PlayChessMove(board, puzzle.nodes[controller.Machine.Node].moves[0].uci);
+                Assert.That(Time.realtimeSinceStartup, Is.LessThan(deadline), "The puzzle was not solved in time.");
+                Assert.That(controller.Machine.Phase, Is.Not.EqualTo(ChessAttemptPhase.Failed));
+                if (controller.Machine.Phase == ChessAttemptPhase.PlayerTurn)
+                    yield return PlayChessMove(board, OptimalChessMove(controller.Machine));
                 else yield return null;
             }
             ResultPanel panel = null;
@@ -410,9 +415,12 @@ namespace KMA.Tests.Gameplay.Progression
             Assert.That(router.Session.Journey.CourseComplete, Is.True);
         }
 
-        static IEnumerator PlayChessMove(ChessBoardView board, string uci)
+        static ChessMove OptimalChessMove(ChessAttemptMachine machine) => ChessHintBuilder.Build(
+            new ChessSearchEngine(SearchBudget.Default()),
+            new HintRequest { Id = 0, Fen = machine.Position.ToFen(), MovesLeft = machine.MaxMoves - machine.MovesUsed, Level = 3 }).Move;
+
+        static IEnumerator PlayChessMove(ChessBoardView board, ChessMove move)
         {
-            Assert.That(ChessMove.TryParseUci(uci, out ChessMove move), Is.True, uci);
             board.ClickSquare(move.From);
             board.ClickSquare(move.To);
             yield return null;

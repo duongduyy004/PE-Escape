@@ -22,13 +22,13 @@ namespace KMA.EditorTools
     ///   map-chess-open     Map with the course done through soccer_exam (final exam is the checkpoint)
     ///   map-complete       Map with the whole course done (summary and replay button)
     ///   map-lessons        Map with the Sprint stop tapped, so the HỌC/LUYỆN/THI popup is open
-    ///   chess-select       MG_ChessFinal: start the attempt and select the first main-line piece
-    ///   chess-wrong        MG_ChessFinal: one wrong move (Sai: 1/2, whistle)
+    ///   chess-select       MG_ChessFinal: start the attempt and select the piece of the optimal first move
+    ///   chess-wrong        MG_ChessFinal: one suboptimal move played (Nước: 1/3)
     ///   chess-boss         MG_ChessFinal: first correct move played, boss turn
     ///   chess-hint         MG_ChessFinal: hint level 2 shown
     ///   chess-promotion    MG_ChessFinal: promotion picker opened directly (the demo puzzle has no promotion)
-    ///   chess-win          MG_ChessFinal: whole main line played, result panel (use a long wait)
-    ///   chess-timeout      MG_ChessFinal: clock set to 89.9 s and ticked out, result panel (use a long wait)
+    ///   chess-win          MG_ChessFinal: optimal line played, result panel (use a long wait)
+    ///   chess-timeout      MG_ChessFinal: clock ticked out, result panel (use a long wait)
     ///   celebration-cheer  Celebration: wait until the timeline reaches 3 s (cheer beat)
     ///   celebration-teacher Celebration: wait until the timeline reaches 6 s (teacher and bubble)
     ///   celebration-skip   Celebration: press Skip and wait for the summary to fade in
@@ -45,7 +45,7 @@ namespace KMA.EditorTools
             state == "map-chess-locked" || state == "map-chess-open" || state == "map-complete" || state == "map-lessons" ||
             state == "celebration-cheer" || state == "celebration-teacher" || state == "celebration-skip";
 
-        static readonly System.Collections.Generic.HashSet<string> DialogueStates=new System.Collections.Generic.HashSet<string>{"frog-first-fall","frog-first-command","frog-repeat-fall","frog-charged-result","chess-student-speech","chess-second-mistake","sprint-lowtime","volley-lostpoint","football-lastkick","gameover-comment","gameover-teacher"};
+        static readonly System.Collections.Generic.HashSet<string> DialogueStates=new System.Collections.Generic.HashSet<string>{"frog-first-fall","frog-first-command","frog-repeat-fall","frog-charged-result","chess-student-speech","sprint-lowtime","volley-lostpoint","football-lastkick","gameover-comment","gameover-teacher"};
         static bool dialoguePrepared;
         static float firstFallAt;
         static bool volleyServePrepared;
@@ -84,18 +84,7 @@ namespace KMA.EditorTools
             }
             if(state=="chess-student-speech")
             {
-                var chess=ReadyChess();return chess!=null && chess.Machine.Phase==ChessFinalPhase.PlayerTurn && !host.IsIdle;
-            }
-            if(state=="chess-second-mistake")
-            {
-                var chess=ReadyChess();if(chess==null || chess.Machine.Phase!=ChessFinalPhase.PlayerTurn)return false;
-                if(chess.Machine.Mistakes<2)
-                {
-                    if(!host.IsIdle)return false;
-                    ChessMove.TryParseUci(chess.Machine.Puzzle.nodes[0].moves[0].uci,out var correct);
-                    foreach(var move in MoveGenerator.LegalMoves(chess.Machine.Position))if(move.From!=correct.From || move.To!=correct.To){chess.RequestMove(move.From,move.To);break;}
-                }
-                return chess.Machine.Mistakes==2;
+                var chess=ReadyChess();return chess!=null && chess.Machine.Phase==ChessAttemptPhase.PlayerTurn && !host.IsIdle;
             }
             var game=Object.FindFirstObjectByType<MinigameBase>();
             if(game is FootballController football)football.BeginMatch(FootballDifficulty.Normal);
@@ -178,9 +167,9 @@ namespace KMA.EditorTools
             var controller = Object.FindFirstObjectByType<ChessFinalController>();
             var board = Object.FindFirstObjectByType<ChessBoardView>();
             if (controller == null || board == null || controller.Machine == null) return false;
-            if (controller.Machine.Phase == ChessFinalPhase.Intro) controller.BeginAttempt();
+            if (controller.Machine.Phase == ChessAttemptPhase.Intro) controller.BeginAttempt();
             if (!board.Interactable) return false;
-            ChessMove.TryParseUci(controller.Machine.Puzzle.nodes[0].moves[0].uci, out ChessMove move);
+            ChessMove move = OptimalMove(controller.Machine);
             board.ClickSquare(move.From);
             return board.SelectedSquare == move.From;
         }
@@ -189,14 +178,34 @@ namespace KMA.EditorTools
         {
             var controller = Object.FindFirstObjectByType<ChessFinalController>();
             if (controller == null || controller.Machine == null) return null;
-            if (controller.Machine.Phase == ChessFinalPhase.Intro) controller.BeginAttempt();
+            if (controller.Machine.Phase == ChessAttemptPhase.Intro) controller.BeginAttempt();
             return controller;
         }
 
-        static void PlayTreeMove(ChessFinalController controller)
+        /// The first optimal move of the live board, from the same builder the level-3 hint uses.
+        static ChessMove OptimalMove(ChessAttemptMachine machine) => ChessHintBuilder.Build(
+            new ChessSearchEngine(SearchBudget.Default()),
+            new HintRequest { Id = 0, Fen = machine.Position.ToFen(), MovesLeft = machine.MaxMoves - machine.MovesUsed, Level = 3 }).Move;
+
+        /// A legal, non-mating move that loses quality, so the captures show a real suboptimal move.
+        static ChessMove SuboptimalMove(ChessAttemptMachine machine)
         {
-            ChessFinalStateMachine machine = controller.Machine;
-            ChessMove.TryParseUci(machine.Puzzle.nodes[machine.Node].moves[0].uci, out ChessMove move);
+            var engine = new ChessSearchEngine(SearchBudget.Default());
+            int movesLeft = machine.MaxMoves - machine.MovesUsed;
+            ChessMove fallback = default;
+            foreach (ChessMove move in MoveGenerator.LegalMoves(machine.Position))
+            {
+                ChessPosition after = machine.Position.Apply(move);
+                if (MoveGenerator.IsCheckmate(after) || MoveGenerator.LegalMoves(after).Count == 0) continue;
+                fallback = move;
+                if (ChessAttemptGrader.Evaluate(engine, machine.Position, move, movesLeft).Q < .999) return move;
+            }
+            return fallback;
+        }
+
+        static void PlayOptimalMove(ChessFinalController controller)
+        {
+            ChessMove move = OptimalMove(controller.Machine);
             controller.RequestMove(move.From, move.To);
         }
 
@@ -224,33 +233,28 @@ namespace KMA.EditorTools
         {
             var controller = ReadyChess();
             if (controller == null) return false;
-            ChessFinalStateMachine machine = controller.Machine;
-            if (machine.Phase == ChessFinalPhase.PlayerTurn && machine.Mistakes == 0)
+            ChessAttemptMachine machine = controller.Machine;
+            if (machine.Phase == ChessAttemptPhase.PlayerTurn && machine.MovesUsed == 0)
             {
-                ChessMove.TryParseUci(machine.Puzzle.nodes[0].moves[0].uci, out ChessMove right);
-                foreach (ChessMove move in MoveGenerator.LegalMoves(machine.Position))
-                    if (move.From != right.From || move.To != right.To)
-                    {
-                        controller.RequestMove(move.From, move.To);
-                        break;
-                    }
+                ChessMove move = SuboptimalMove(machine);
+                controller.RequestMove(move.From, move.To);
             }
-            return machine.Mistakes == 1;
+            return machine.MovesUsed == 1 && machine.Phase != ChessAttemptPhase.Analyzing;
         }
 
         static bool ChessBoss()
         {
             var controller = ReadyChess();
             if (controller == null) return false;
-            if (controller.Machine.Phase == ChessFinalPhase.PlayerTurn && controller.Machine.PlayerMovesMade == 0)
-                PlayTreeMove(controller);
-            return controller.Machine.Phase == ChessFinalPhase.BossTurn;
+            if (controller.Machine.Phase == ChessAttemptPhase.PlayerTurn && controller.Machine.MovesUsed == 0)
+                PlayOptimalMove(controller);
+            return controller.Machine.Phase == ChessAttemptPhase.BossTurn;
         }
 
         static bool ChessHint()
         {
             var controller = ReadyChess();
-            if (controller == null || controller.Machine.Phase != ChessFinalPhase.PlayerTurn) return false;
+            if (controller == null || controller.Machine.Phase != ChessAttemptPhase.PlayerTurn) return false;
             if (controller.Machine.HintLevel < 2) controller.RevealHint();
             return controller.Machine.HintLevel == 2;
         }
@@ -268,17 +272,17 @@ namespace KMA.EditorTools
         {
             var controller = ReadyChess();
             if (controller == null) return false;
-            if (controller.Machine.Phase == ChessFinalPhase.PlayerTurn) PlayTreeMove(controller);
-            return controller.Machine.Phase == ChessFinalPhase.Completed && ShowChessResult(controller, true);
+            if (controller.Machine.Phase == ChessAttemptPhase.PlayerTurn) PlayOptimalMove(controller);
+            return controller.Machine.Phase == ChessAttemptPhase.Completed && ShowChessResult(controller, true);
         }
 
         static bool ChessTimeout()
         {
             var controller = ReadyChess();
             if (controller == null) return false;
-            ChessFinalStateMachine machine = controller.Machine;
-            if (machine.Phase == ChessFinalPhase.PlayerTurn && machine.Clock.Elapsed < 89f) machine.Clock.Tick(89.9f);
-            return machine.Phase == ChessFinalPhase.Failed && ShowChessResult(controller, false);
+            ChessAttemptMachine machine = controller.Machine;
+            if (machine.Phase == ChessAttemptPhase.PlayerTurn) machine.Tick(machine.Clock.Limit);
+            return machine.Phase == ChessAttemptPhase.Failed && ShowChessResult(controller, false);
         }
 
         // Game time lags wall time in a background Editor, so the beats are reached on the timeline clock.

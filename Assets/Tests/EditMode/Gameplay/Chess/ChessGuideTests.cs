@@ -1,3 +1,4 @@
+using System.Linq;
 using KMA.Gameplay.Chess;
 using NUnit.Framework;
 
@@ -6,20 +7,43 @@ namespace KMA.Tests.Gameplay.Chess
     public sealed class ChessGuideTests
     {
         [Test]
-        public void PagesCarryThePuzzleNumbers()
+        public void GoalPageCarriesMovesAndTime()
         {
-            var pages = ChessGuide.Build(2, 90f, 2);
+            var pages = ChessGuide.Build(2, 3, 90);
             Assert.That(pages.Count, Is.EqualTo(3));
-            Assert.That(pages[0].Instruction, Is.EqualTo(
-                "Chiếu hết trong 2 nước. Có 90 giây suy nghĩ. Trượt bài này không bị trừ lượt thi và không phải Bật cóc."));
-            Assert.That(pages[1].Instruction, Is.EqualTo(
+            Assert.That(pages[0].Instruction, Does.Contain("tối đa 3 nước"));
+            Assert.That(pages[0].Instruction, Does.Contain("trong 2 nước"));
+            Assert.That(pages[0].Instruction, Does.Contain("90 giây"));
+            Assert.That(pages[0].Instruction, Does.Contain("không bị trừ lượt thi"));
+        }
+
+        [Test]
+        public void TimeIsOnlyMentionedWhenKnown()
+        {
+            Assert.That(ChessGuide.Build(2, 3, 0)[0].Instruction, Does.Not.Contain("giây"));
+            Assert.That(ChessGuide.Build(2, 3, 0)[0].Instruction, Does.Contain("Thời gian suy nghĩ được tính theo độ khó"));
+        }
+
+        [Test]
+        public void ControlsPageIsUnchanged() =>
+            Assert.That(ChessGuide.Build(2, 3, 90)[1].Instruction, Is.EqualTo(
                 "Chạm quân của bạn, sau đó chạm ô muốn đi. Nếu tốt được phong cấp, chọn quân thay thế. " +
                 "Nút GỢI Ý có 3 mức: ý tưởng, quân cần xem và nước đi cụ thể."));
-            Assert.That(pages[2].Instruction, Is.EqualTo(
-                "Nước không hợp lệ không tính lỗi. Nước hợp lệ nhưng sai lời giải tính 1 lỗi, bàn cờ giữ nguyên. " +
-                "Được sửa sai 2 lần; sai lần thứ 3 hoặc hết giờ là chưa đạt. Đồng hồ chỉ chạy trong lượt của bạn. " +
-                "Đi sai, dùng gợi ý và dùng nhiều thời gian sẽ làm giảm điểm."));
+
+        [Test]
+        public void RulesDescribeRealMovesAndScoring()
+        {
+            string rules = ChessGuide.Build(2, 3, 90)[2].Instruction;
+            Assert.That(rules, Does.Contain("không thể đi lại"));
+            Assert.That(rules, Does.Contain("70%"));
+            Assert.That(rules, Does.Contain("30%"));
+            Assert.That(rules, Does.Contain("hạng tối đa ở A"));
         }
+
+        [Test]
+        public void NoPageMentionsTheOldMistakeRule() =>
+            Assert.That(ChessGuide.Build(3, 5, 150).Select(p => p.Instruction),
+                Has.None.Contain("sửa sai").Or.None.Contain("lần sửa"));
 
         [TestCase(60f, "một phút")]
         [TestCase(90f, "một phút rưỡi")]

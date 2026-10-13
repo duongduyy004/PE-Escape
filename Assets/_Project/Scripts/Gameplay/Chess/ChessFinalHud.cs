@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace KMA.Gameplay.Chess
@@ -8,48 +9,70 @@ namespace KMA.Gameplay.Chess
     {
         [SerializeField] TMP_Text objective;
         [SerializeField] TMP_Text clock;
-        [SerializeField] TMP_Text mistakes;
+        [FormerlySerializedAs("mistakes")] [SerializeField] TMP_Text moves;
         [SerializeField] TMP_Text turn;
         [SerializeField] TMP_Text toast;
         [SerializeField] GameObject introCard;
+        [SerializeField] TMP_Text introLabel;
+        [SerializeField] GameObject analysisErrorCard;
         [SerializeField] Button startButton;
         [SerializeField] Button hintButton;
+        [SerializeField] Button retryAnalysis;
+        [SerializeField] Button restartPuzzle;
         float toastUntil;
 
         public Button StartButton => startButton;
         public Button HintButton => hintButton;
+        public Button RetryAnalysisButton => retryAnalysis;
+        public Button RestartPuzzleButton => restartPuzzle;
         public string ClockText => clock.text;
-        public string MistakesText => mistakes.text;
+        public string MovesText => moves.text;
         public string TurnText => turn.text;
+        public bool AnalysisErrorVisible => analysisErrorCard != null && analysisErrorCard.activeSelf;
 
-        public void Configure(TMP_Text objectiveLabel, TMP_Text clockLabel, TMP_Text mistakesLabel, TMP_Text turnLabel,
-            TMP_Text toastLabel, GameObject intro, Button start, Button hint)
+        public void Configure(TMP_Text objectiveLabel, TMP_Text clockLabel, TMP_Text movesLabel, TMP_Text turnLabel,
+            TMP_Text toastLabel, GameObject intro, Button start, Button hint, TMP_Text introText,
+            GameObject analysisError, Button retry, Button restart)
         {
             objective = objectiveLabel;
             clock = clockLabel;
-            mistakes = mistakesLabel;
+            moves = movesLabel;
             turn = turnLabel;
             toast = toastLabel;
             introCard = intro;
             startButton = start;
             hintButton = hint;
+            introLabel = introText;
+            analysisErrorCard = analysisError;
+            retryAnalysis = retry;
+            restartPuzzle = restart;
         }
 
         public void ShowIntro(bool visible) => introCard.SetActive(visible);
-        public void SetObjective(int moves) => objective.text = VietText.Fix($"Chiếu hết trong {moves} nước");
+        public void SetObjective(int optimalMoves) => objective.text = VietText.Fix($"Chiếu hết, tối ưu {optimalMoves} nước");
         public void SetClock(float remaining) => clock.text = FormatClock(remaining);
-        public void SetMistakes(int made, int max) => mistakes.text = VietText.Fix($"Sai: {made}/{max}");
+        public void SetMoves(int used, int max) => moves.text = VietText.Fix($"Nước: {used}/{max}");
+        public void SetIntro(string text) => introLabel.text = VietText.Fix(text);
         public void SetTurnText(string text) => turn.text = VietText.Fix(text);
         public void SetHintAvailable(bool available) => hintButton.interactable = available;
+        public void ShowAnalysisError(bool visible) => analysisErrorCard.SetActive(visible);
 
-        public void SetTurn(ChessFinalPhase phase) => SetTurnText(phase switch
+        public void SetGenerating(bool generating)
         {
-            ChessFinalPhase.PlayerTurn => "Lượt của bạn",
-            ChessFinalPhase.Validating => "Lượt của bạn",
-            ChessFinalPhase.BossTurn => "Lượt giảng viên",
-            ChessFinalPhase.Completed => "Hoàn thành",
-            ChessFinalPhase.Paused => "Tạm dừng",
-            ChessFinalPhase.Failed => turn.text,
+            if (!generating) return;
+            SetTurnText("Đang tạo thế cờ…");
+            introCard.SetActive(false);
+        }
+
+        public void SetTurn(ChessAttemptPhase phase) => SetTurnText(phase switch
+        {
+            ChessAttemptPhase.PlayerTurn => "Lượt của bạn",
+            ChessAttemptPhase.Analyzing => "Đang phân tích…",
+            ChessAttemptPhase.BossTurn => "Lượt giảng viên",
+            ChessAttemptPhase.Completed => "Hoàn thành",
+            ChessAttemptPhase.Paused => "Tạm dừng",
+            ChessAttemptPhase.AnalysisError => "Chưa phân tích được",
+            ChessAttemptPhase.Failed => turn.text,
             _ => "Đọc đề, sau đó bấm Bắt đầu"
         });
 

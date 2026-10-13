@@ -70,7 +70,7 @@ namespace KMA.Tests.Presentation
     else if(game is SprintController sprint){int taps=0;sprint.CadenceTapped+=_=>taps++;Down(Object.FindFirstObjectByType<ScreenTapArea>());yield return null;Assert.That(taps,Is.EqualTo(1),$"scene={scene}; learning={sprint.IsLearnChallenge}; phase={sprint.Phase}; scale={Time.timeScale}; hostIdle={Host().IsIdle}; elapsed={sprint.Snapshot.Elapsed}");}
     else if(game is ChessFinalController chess)
     {
-     var board=Object.FindFirstObjectByType<ChessBoardView>();ChessMove.TryParseUci(chess.Machine.Puzzle.nodes[0].moves[0].uci,out var move);
+     var board=Object.FindFirstObjectByType<ChessBoardView>();var move=ChessHintBuilder.Build(new ChessSearchEngine(SearchBudget.Default()),new HintRequest{Id=0,Fen=chess.Machine.Position.ToFen(),MovesLeft=chess.Machine.MaxMoves-chess.Machine.MovesUsed,Level=3}).Move;
      var cell=(RectTransform)board.transform.Find(Square.Name(move.From));var pointer=Pointer(cell);var hits=new List<RaycastResult>();EventSystem.current.RaycastAll(pointer,hits);
      var target=ExecuteEvents.GetEventHandler<IPointerClickHandler>(hits[0].gameObject);Assert.That(target,Is.EqualTo(cell.gameObject));ExecuteEvents.Execute(target,pointer,ExecuteEvents.pointerClickHandler);Assert.That(board.SelectedSquare,Is.EqualTo(move.From));
     }

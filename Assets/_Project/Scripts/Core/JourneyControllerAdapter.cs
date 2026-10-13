@@ -10,8 +10,10 @@ namespace KMA.Gameplay.Core
         ChallengeDefinition definition;
         ChallengeAttemptContext context;
 
+        public ChallengeAttemptContext Context => context;
         public SubjectId Subject => definition == null ? default : definition.Subject;
         public event Action<ChallengeAttemptResult> ChallengeCompleted;
+        public event Action Configured;
 
         void Awake()
         {
@@ -28,6 +30,7 @@ namespace KMA.Gameplay.Core
         {
             definition = challenge ?? throw new ArgumentNullException(nameof(challenge));
             context = attempt ?? throw new ArgumentNullException(nameof(attempt));
+            Configured?.Invoke();
         }
 
         void OnCompleted(MinigameResult result)
