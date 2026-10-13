@@ -61,11 +61,13 @@ namespace KMA.Tests.Gameplay.Running
 
             Assert.That(afterLeft.Distance, Is.GreaterThan(before.Distance));
             Assert.That(controller.ExpectedSide, Is.EqualTo(KMA.Gameplay.Side.Right));
-            var speedBeforeWrongTap = controller.Snapshot.Speed;
 
             router.FeedSprintTapForTest(KMA.Input.Side.Left, 2d);
             Assert.That(controller.ExpectedSide, Is.EqualTo(KMA.Gameplay.Side.Right));
-            Assert.That(controller.Snapshot.Speed, Is.EqualTo(speedBeforeWrongTap + 7.2f));
+            Assert.That(controller.IsFalling, Is.True, "an off-beat tap trips the runner");
+            Assert.That(controller.Snapshot.Speed, Is.Zero);
+            controller.Simulate(KMA.Gameplay.SprintRules.FallSeconds + .05f);
+            Assert.That(controller.IsFalling, Is.False);
 
             var speedBeforeRightTap = controller.Snapshot.Speed;
             router.FeedSprintTapForTest(KMA.Input.Side.Right, 3d);
@@ -120,8 +122,9 @@ namespace KMA.Tests.Gameplay.Running
 
             router.FeedSprintTapForTest(KMA.Input.Side.Right, 1d);
 
-            Assert.That(controller.Snapshot.Speed, Is.EqualTo(7.2f).Within(.001f),
-                "a wrong-side tap still feeds the rules at the reduced impulse");
+            Assert.That(controller.Snapshot.Speed, Is.Zero);
+            Assert.That(controller.IsFalling, Is.True,
+                "a wrong-side tap trips the runner");
             Assert.That(controller.ExpectedSide, Is.EqualTo(KMA.Gameplay.Side.Left),
                 "a wrong-side tap must not advance the alternation");
             Assert.That(completions, Is.Zero, "a wrong-side tap must never end the race");

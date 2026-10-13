@@ -82,5 +82,20 @@ namespace KMA.Tests.Presentation
             Assert.That(SprintTrackLayout.LaneCenterY(SprintTrackLayout.LaneCount - 1),
                 Is.LessThan(controlTopY));
         }
+
+        [Test]
+        public void OneMetreOfRaceIsOneWorldUnitFromTheStart()
+        {
+            Assert.That(SprintTrackLayout.WorldX(0f), Is.EqualTo(SprintTrackLayout.TrackStartX).Within(.0001f));
+            Assert.That(SprintTrackLayout.WorldX(10f) - SprintTrackLayout.WorldX(0f), Is.EqualTo(10f).Within(.0001f));
+        }
+
+        [Test]
+        public void FinishLineSitsAtTheRaceDistanceInTheWorld() =>
+            Assert.That(SprintTrackLayout.FinishWorldX(150f), Is.EqualTo(140.4f).Within(.0001f));
+
+        [Test]
+        public void FinishLineSpansThePaintedLanes() =>
+            Assert.That(SprintTrackLayout.FinishTopY, Is.GreaterThan(SprintTrackLayout.FinishBottomY));
     }
 }

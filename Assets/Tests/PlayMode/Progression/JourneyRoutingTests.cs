@@ -275,6 +275,54 @@ namespace KMA.Tests.Gameplay.Progression
             Assert.That(router.HasPendingJourneyMapContinuation, Is.False);
         }
 
+        [Test]
+        public void JourneyWinBackToMapKeepsTheNextCheckpointWithoutStartingIt()
+        {
+            var routes = new List<SceneRouteTransition>();
+            ReconfigureRouter(routes);
+            panel = JourneyRoutingFixture.CreateResultPanel();
+            JourneyRoutingFixture.PassActive(router, panel, "sprint_learn");
+            Assert.That(panel.BackAvailable, Is.True);
+            panel.Back();
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
+            Assert.That(router.Session.Journey.CheckpointChallengeId, Is.EqualTo("sprint_practice"));
+            Assert.That(router.HasPendingJourneyMapContinuation, Is.False);
+            Assert.That(router.CompleteJourneyMapDialogue(router.Session), Is.False);
+            Assert.That(router.Session.Journey.ActiveAttempt, Is.Null);
+        }
+
+        [Test]
+        public void LearnFailureBackToMapStartsNothing()
+        {
+            var routes = new List<SceneRouteTransition>();
+            ReconfigureRouter(routes);
+            panel = JourneyRoutingFixture.CreateResultPanel();
+            JourneyRoutingFixture.FailActive(router, panel, "sprint_learn");
+            Assert.That(panel.BackAvailable, Is.True);
+            panel.Back();
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
+            Assert.That(router.Session.Journey.CheckpointChallengeId, Is.EqualTo("sprint_learn"));
+            Assert.That(router.HasPendingJourneyMapContinuation, Is.False);
+            Assert.That(router.Session.Journey.ActiveAttempt, Is.Null);
+            Assert.That(router.Session.PendingFrogJump, Is.Null);
+            Assert.That(router.Session.Lives, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void RejectedBackToMapLeavesTheResultUsable()
+        {
+            panel = JourneyRoutingFixture.CreateResultPanel();
+            JourneyRoutingFixture.PassActive(router, panel, "sprint_learn");
+            router.ConfigureRouteAcceptanceForTests((_, _) => false);
+            panel.Back();
+            Assert.That(panel.HasContinued, Is.False, "A rejected route must leave the result usable.");
+            Assert.That(router.Session.Journey.ActiveAttempt, Is.Null);
+            var routes = new List<SceneRouteTransition>();
+            ReconfigureRouter(routes);
+            panel.Continue();
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
+        }
+
         void ReconfigureRouter(List<SceneRouteTransition> routes)
         {
             router.ConfigureRouteAcceptanceForTests((transition, complete) =>

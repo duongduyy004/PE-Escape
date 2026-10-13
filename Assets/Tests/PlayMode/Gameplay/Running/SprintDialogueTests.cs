@@ -39,14 +39,14 @@ namespace KMA.Tests.Gameplay.Running
   }
   [Test] public void FiveSecondWarningFiresOnce()
   {
-   Setup("sprint_exam");game.Simulate(10.1f);adapter.GetType().GetMethod("Update",F).Invoke(adapter,null);
+   Setup("sprint_exam");game.Simulate(35.1f);adapter.GetType().GetMethod("Update",F).Invoke(adapter,null);
    Assert.That(view.Seen.Count,Is.EqualTo(1));host.Clear();adapter.GetType().GetMethod("Update",F).Invoke(adapter,null);Assert.That(host.IsIdle,Is.True);
   }
   [Test] public void LearnDoneRequiresFinalPass()
   {
    Setup("sprint_learn");for(int i=0;i<12;i++){if(i%2==0)game.OnLeftTap();else game.OnRightTap();}
    Assert.That(host.PreferredResultEventId,Is.Null,"A streak alone must not finish the timed lesson.");
-   for(int i=0;i<450;i++)game.Simulate(.1f);
+   for(int i=0;i<510;i++)game.Simulate(.1f);
    Assert.That(host.PreferredResultEventId,Is.EqualTo("sp.learn.done"));Assert.That(view.Seen.Count,Is.GreaterThanOrEqualTo(1));
   }
  }

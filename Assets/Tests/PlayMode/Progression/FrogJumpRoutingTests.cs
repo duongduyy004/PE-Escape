@@ -165,6 +165,56 @@ namespace KMA.Tests.Gameplay.Progression
             Assert.That(router.Session.Journey.ActiveAttempt.ChallengeId, Is.EqualTo("sprint_learn"));
         }
 
+        [TestCase(true, 5)]
+        [TestCase(false, 4)]
+        public void FrogResultBackReturnsToTheMapWithoutRetrying(bool reachedFinish, int lives)
+        {
+            JourneyRoutingFixture.CompleteThrough(router.Session, "sprint_practice");
+            JourneyRoutingFixture.FailActive(router, panel, "sprint_exam");
+            panel.Continue();
+            router.CompleteFrogJumpForTests(reachedFinish);
+
+            Assert.That(router.Session.Lives, Is.EqualTo(lives));
+            Assert.That(panel.BackAvailable, Is.True);
+            panel.Back();
+            panel.Continue();
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
+            Assert.That(routes.FindAll(route => route.Route == SessionRoute.Map), Has.Count.EqualTo(1));
+            Assert.That(router.HasPendingJourneyMapContinuation, Is.False);
+            Assert.That(router.CompleteJourneyMapDialogue(router.Session), Is.False);
+            Assert.That(router.Session.Journey.ActiveAttempt, Is.Null);
+            Assert.That(router.Session.PendingFrogJump, Is.Null);
+            Assert.That(router.Session.Journey.CheckpointChallengeId, Is.EqualTo("sprint_exam"));
+            Assert.That(router.Session.Lives, Is.EqualTo(lives));
+        }
+
+        [Test]
+        public void FrogResultBackSavesThePendingResultBeforeLeaving()
+        {
+            bool allowSave = true;
+            router.ConfigureJourneyPersistence((out string error) =>
+            {
+                error = allowSave ? null : "Save unavailable";
+                return allowSave;
+            });
+            JourneyRoutingFixture.CompleteThrough(router.Session, "sprint_practice");
+            JourneyRoutingFixture.FailActive(router, panel, "sprint_exam");
+            panel.Continue();
+            allowSave = false;
+            router.CompleteFrogJumpForTests(true);
+            int before = routes.Count;
+
+            panel.Back();
+            Assert.That(routes.Count, Is.EqualTo(before), "An unsaved frog result must not leave its scene.");
+            Assert.That(panel.transform.Find("Error").GetComponent<TMP_Text>().text, Does.Contain("Save unavailable"));
+            Assert.That(panel.BackAvailable, Is.True);
+
+            allowSave = true;
+            panel.Back();
+            Assert.That(routes[routes.Count - 1].Route, Is.EqualTo(SessionRoute.Map));
+            Assert.That(router.HasPendingJourneyMapContinuation, Is.False);
+        }
+
         [Test]
         public void ResumeWithAPendingFrogJumpRoutesToItsScene()
         {

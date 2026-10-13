@@ -28,7 +28,8 @@ namespace KMA.Gameplay
 
             float openingRatio = authored.SustainedSpeed > 0f ? authored.OpeningSpeed / authored.SustainedSpeed : 1f;
             float sustained = minSpeed + (maxSpeed - minSpeed) * (float)random.NextDouble();
-            return new RivalPaceProfile(authored.Name, sustained * openingRatio, sustained, RollSchedule(random));
+            return new RivalPaceProfile(authored.Name, sustained * openingRatio, sustained, RollSchedule(random),
+                RivalMotionTraits.Roll(random));
         }
 
         public static PaceSegment[] RollSchedule(Random random)

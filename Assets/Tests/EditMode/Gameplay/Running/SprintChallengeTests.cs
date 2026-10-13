@@ -31,12 +31,12 @@ namespace KMA.Tests.Gameplay.Running
             ChallengeDefinition practice = catalog.Get("sprint_practice");
             ChallengeDefinition exam = catalog.Get("sprint_exam");
             Assert.That(learn.Kind, Is.EqualTo(ChallengeKind.Learn));
-            Assert.That(learn.TimeLimit, Is.EqualTo(45f));
+            Assert.That(learn.TimeLimit, Is.EqualTo(50f));
             Assert.That(learn.TargetCount, Is.EqualTo(12));
             Assert.That(practice.Distance, Is.EqualTo(150f));
-            Assert.That(practice.TimeLimit, Is.EqualTo(20f));
+            Assert.That(practice.TimeLimit, Is.EqualTo(45f));
             Assert.That(exam.Distance, Is.EqualTo(150f));
-            Assert.That(exam.TimeLimit, Is.EqualTo(15f));
+            Assert.That(exam.TimeLimit, Is.EqualTo(40f));
         }
 
         [Test]
@@ -53,7 +53,7 @@ namespace KMA.Tests.Gameplay.Running
             Assert.That(challenge.Race.CorrectStreak, Is.Zero);
             Assert.That(challenge.BestStreak, Is.EqualTo(12), "A later mistake must not erase the lesson's best streak.");
 
-            challenge.Tick(44.99f);
+            challenge.Tick(49.99f);
             Assert.That(challenge.IsComplete, Is.False);
             challenge.Tick(1f);
             Assert.That(challenge.IsComplete, Is.True);
@@ -61,8 +61,52 @@ namespace KMA.Tests.Gameplay.Running
                 "learn-1", "sprint_learn", ChallengeAttemptMode.Journey, ChallengeDifficulty.Normal));
             Assert.That(result.Pass, Is.True);
             Assert.That(result.Metrics.CompletedTargets, Is.EqualTo(12));
-            Assert.That(result.Metrics.Elapsed, Is.EqualTo(45f).Within(.001f));
+            Assert.That(result.Metrics.Elapsed, Is.EqualTo(50f).Within(.001f));
             Assert.That(result.ExamResult, Is.Null);
+        }
+
+        static SprintChallengeRules LearnWithRivals()
+        {
+            var authored = new[]
+            {
+                new RivalPaceProfile("A", 8.5f, 5.7f), new RivalPaceProfile("B", 5.8f, 5.7f),
+                new RivalPaceProfile("C", 6f, 7.1f)
+            };
+            return new SprintChallengeRules(ChallengeCatalog.LoadDefault().Get("sprint_learn"),
+                SprintBalanceParameters.Default,
+                RivalPaceRandomizer.RollField(authored, 8.5f, 10f, new System.Random(3)));
+        }
+
+        [Test]
+        public void LearnRivalsRaceToTheSameFinishLineAsPracticeAndRunThroughIt()
+        {
+            SprintChallengeRules challenge = LearnWithRivals();
+            Assert.That(challenge.Race.GoalDistance, Is.EqualTo(150f));
+            for (int i = 0; i < 60 * 50; i++) challenge.Tick(1f / 60f);
+            challenge.Tick(1f); // closes any float drift left under the 50 s limit
+
+            Assert.That(challenge.IsComplete, Is.True);
+            for (int r = 0; r < challenge.Race.RivalCount; r++)
+            {
+                Assert.That(challenge.Race.HasRivalFinished(r), Is.True, $"rival {r} finished");
+                Assert.That(challenge.Race.GetRivalPosition(r) - 150f,
+                    Is.InRange(RivalMotionTraits.MinStopDistance - .05f, RivalMotionTraits.MaxStopDistance + .05f),
+                    $"rival {r} pulled up past the line");
+            }
+        }
+
+        [Test]
+        public void LearnStillPassesOnTheStreakWhenEveryRivalBeatsThePlayer()
+        {
+            SprintChallengeRules challenge = LearnWithRivals();
+            for (int tap = 0; tap < 12; tap++) challenge.Tap(tap % 2 == 0 ? Side.Left : Side.Right);
+            for (int i = 0; i < 60 * 50; i++) challenge.Tick(1f / 60f);
+            challenge.Tick(1f); // closes any float drift left under the 50 s limit
+
+            ChallengeAttemptResult result = challenge.BuildResult(new ChallengeAttemptContext(
+                "learn-last", "sprint_learn", ChallengeAttemptMode.Journey, ChallengeDifficulty.Normal));
+            Assert.That(result.Metrics.Placement, Is.EqualTo(challenge.Race.RivalCount + 1), "last place");
+            Assert.That(result.Pass, Is.True, "Learn is judged by the streak, not by placement.");
         }
 
         [Test]
@@ -72,7 +116,7 @@ namespace KMA.Tests.Gameplay.Running
                 SprintBalanceParameters.Default, Array.Empty<RivalPaceProfile>());
             challenge.Tick(90f);
             Assert.That(challenge.IsComplete, Is.True);
-            Assert.That(challenge.Race.Elapsed, Is.EqualTo(45f).Within(.001f));
+            Assert.That(challenge.Race.Elapsed, Is.EqualTo(50f).Within(.001f));
             ChallengeAttemptResult result = challenge.BuildResult(new ChallengeAttemptContext(
                 "idle-learn", "sprint_learn", ChallengeAttemptMode.Journey, ChallengeDifficulty.Normal));
             Assert.That(result.Pass, Is.False, "Waiting out the timer must not unlock Practice.");
@@ -86,7 +130,7 @@ namespace KMA.Tests.Gameplay.Running
             var exam = RunAtCadence("sprint_exam", 6f);
             Assert.That(exam.Pass, Is.True);
             Assert.That(exam.Metrics.Distance, Is.GreaterThanOrEqualTo(150f));
-            Assert.That(exam.Metrics.Elapsed, Is.LessThanOrEqualTo(15f));
+            Assert.That(exam.Metrics.Elapsed, Is.LessThanOrEqualTo(40f));
             Assert.That(exam.ExamResult, Is.Not.Null);
             Assert.That(practice.Pass, Is.True);
             Assert.That(practice.ExamResult, Is.Not.Null);

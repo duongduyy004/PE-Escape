@@ -575,7 +575,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6b5e4d32f7a4899b2c3d4e5f6071829, type: 3}
   m_Name:
   m_EditorClassIdentifier:
-  controller: {fileID: 200002}
   coveragePixels: {x: 2560, y: 1080}
   layers:
   - first: {fileID: 720001}
@@ -588,7 +587,7 @@ MonoBehaviour:
     loopWidth: 25.6
   - first: {fileID: 720005}
     second: {fileID: 720006}
-    scrollMultiplier: 0
+    scrollMultiplier: 1
     loopWidth: 25.6
 --- !u!4 &720001
 Transform:

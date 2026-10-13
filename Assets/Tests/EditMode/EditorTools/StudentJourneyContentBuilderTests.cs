@@ -23,8 +23,8 @@ namespace KMA.Tests.EditorTools
                 for (int i = 0; i < 2; i++)
                 {
                     StudentJourneyContentBuilder.BuildChallenges();
-                    Assert.That(catalog.Get("sprint_practice").TimeLimit, Is.EqualTo(20f));
-                    Assert.That(catalog.Get("sprint_exam").TimeLimit, Is.EqualTo(15f));
+                    Assert.That(catalog.Get("sprint_practice").TimeLimit, Is.EqualTo(45f));
+                    Assert.That(catalog.Get("sprint_exam").TimeLimit, Is.EqualTo(40f));
                     Assert.That(catalog.Get("sprint_exam").Distance, Is.EqualTo(150f));
                     Assert.That(catalog.Get("volleyball_practice").TimeLimit, Is.Zero);
                     Assert.That(catalog.Get("volleyball_exam").TimeLimit, Is.Zero);

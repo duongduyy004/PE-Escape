@@ -8,10 +8,11 @@ namespace KMA.Gameplay
         [SerializeField] SprintController controller;
         [SerializeField] Animator animator;
         [SerializeField] Transform raceRoot;
-        [SerializeField] float trackStartX = -9.6f;
-        // Hysteresis so the runner does not flicker between running and resting around one speed.
-        const float RestBelowSpeed = 10f;
-        const float RunAboveSpeed = 25f;
+        // Hysteresis, in m/s, so the runner does not flicker between running and resting around one speed.
+        const float RestBelowSpeed = .8f;
+        const float RunAboveSpeed = 2f;
+        // In Resolve the runner poses only once their run-out has brought them to a stop.
+        const float MovingAboveSpeed = .05f;
 
         RunnerBreathing breathing;
         bool resting;
@@ -28,13 +29,20 @@ namespace KMA.Gameplay
         void Update()
         {
             if (controller == null || animator == null) return;
-            RefreshPosition(controller.Snapshot.Distance);
+            RefreshPosition(controller.PlayerPosition);
             UpdateResting();
+            bool falling = controller.Phase == MinigamePhase.Play && controller.IsFalling;
+            // The result can open while the body is still pulling up: keep striding until it stops.
             string state = controller.Phase == MinigamePhase.Resolve
-                ? (controller.LastResult != null && controller.LastResult.Pass ? "Celebrate" : "Fail")
+                ? (controller.PlayerMetersPerSecond > MovingAboveSpeed ? "Run"
+                    : controller.LastResult != null && controller.LastResult.Pass ? "Celebrate" : "Fail")
+                : falling ? "Stumble"
                 : controller.Phase != MinigamePhase.Play || resting ? "Idle"
-                : !controller.IsLearnChallenge && controller.Snapshot.Distance >= SprintRules.RaceDistance * .7f
+                : !controller.IsPlayerFinished &&
+                  controller.Snapshot.Distance >= controller.TargetDistance * .7f
                     ? "Burst" : "Run";
+            animator.speed = state == "Run" || state == "Burst"
+                ? RunnerStride.Playback(controller.PlayerMetersPerSecond) : 1f;
             if (state == lastState) return;
             animator.Play(state, 0, 0f);
             lastState = state;
@@ -49,23 +57,19 @@ namespace KMA.Gameplay
                 resting = true;
             else
             {
-                float speed = controller.Snapshot.Speed;
-                resting = resting ? speed < RunAboveSpeed : speed < RestBelowSpeed;
+                float speed = controller.PlayerMetersPerSecond;
+                resting = !controller.IsFalling && (resting ? speed < RunAboveSpeed : speed < RestBelowSpeed);
             }
 
             if (breathing != null) breathing.SetResting(resting);
         }
 
-        void RefreshPosition(float distance)
+        void RefreshPosition(float position)
         {
             if (raceRoot == null) return;
-            var position = raceRoot.localPosition;
-            // Learn is a cadence drill. Hold the runner in the middle of the track so repeated
-            // taps never look like the timed race has reached its finish.
-            float shownDistance = controller != null && controller.IsLearnChallenge
-                ? Mathf.Min(distance, SprintRules.RaceDistance * .66f) : distance;
-            position.x = trackStartX + SprintTrackLayout.TrackLength * Mathf.Clamp01(shownDistance / SprintRules.RaceDistance);
-            raceRoot.localPosition = position;
+            Vector3 world = raceRoot.position;
+            world.x = SprintTrackLayout.WorldX(position);
+            raceRoot.position = world;
         }
     }
 }

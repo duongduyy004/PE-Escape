@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace KMA.Gameplay
 {
+    [DefaultExecutionOrder(110)]
     public sealed class SprintParallax : MonoBehaviour
     {
         [Serializable]
@@ -10,7 +11,7 @@ namespace KMA.Gameplay
         {
             [SerializeField] Transform first;
             [SerializeField] Transform second;
-            [SerializeField, Min(0f)] float scrollMultiplier = 1f;
+            [Tooltip("World-follow factor: 1 = fixed to the track, 0 = fixed to the camera."), SerializeField, Min(0f)] float scrollMultiplier = 1f;
             [SerializeField, Min(.01f)] float loopWidth = 25.6f;
 
             Vector3 firstOrigin;
@@ -77,7 +78,6 @@ namespace KMA.Gameplay
             }
         }
 
-        [SerializeField] SprintController controller;
         [SerializeField] Vector2 coveragePixels = new Vector2(2560f, 1080f);
         [SerializeField] Layer[] layers = Array.Empty<Layer>();
 
@@ -97,22 +97,30 @@ namespace KMA.Gameplay
             return layers[index].TryGetTilePositions(out first, out second);
         }
 
+        SprintCameraFollow cameraFollow;
+        Vector3 rootOrigin;
+
         void Awake()
         {
-            if (controller == null) controller = UnityEngine.Object.FindFirstObjectByType<SprintController>();
+            rootOrigin = transform.position;
             if (layers == null) return;
             for (var i = 0; i < layers.Length; i++) layers[i]?.CacheOrigins();
         }
 
-        void Update()
+        // After the camera has moved this frame (it runs at execution order 100).
+        void LateUpdate()
         {
-            if (controller != null) RefreshForTest(controller.Snapshot.Distance);
+            if (cameraFollow == null && Camera.main != null) cameraFollow = Camera.main.GetComponent<SprintCameraFollow>();
+            if (cameraFollow != null) RefreshForTest(cameraFollow.Travel);
         }
 
-        public void RefreshForTest(float playerDistance)
+        /// The root rides with the camera; each layer then slides back by its world-follow factor, so a
+        /// factor of 1 (the track) stays nailed to the world and lower factors drift past more slowly.
+        public void RefreshForTest(float cameraTravel)
         {
+            transform.position = new Vector3(rootOrigin.x + cameraTravel, rootOrigin.y, rootOrigin.z);
             if (layers == null) return;
-            for (var i = 0; i < layers.Length; i++) layers[i]?.Scroll(playerDistance);
+            for (var i = 0; i < layers.Length; i++) layers[i]?.Scroll(cameraTravel);
         }
     }
 }

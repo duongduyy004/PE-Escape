@@ -36,6 +36,33 @@ namespace KMA.Tests.Gameplay.Running
             yield return null;
         }
 
+        [Test]
+        public void RunnersKeepPullingUpAfterTheResultOpens()
+        {
+            var controller = CreateSprintController();
+            try
+            {
+                controller.AdvanceToDistance(SprintRules.RaceDistance - 1f, new[] { new RivalPaceProfile("Fast", 500f, 500f) });
+                for (int i = 0; i < 4; i++) { controller.OnLeftTap(); controller.OnRightTap(); }
+                for (int i = 0; i < 300 && controller.Phase != MinigamePhase.Resolve; i++) controller.Simulate(.01f);
+                Assert.That(controller.Phase, Is.EqualTo(MinigamePhase.Resolve));
+
+                float player = controller.PlayerPosition;
+                float rival = controller.GetRivalPosition(0);
+                Assert.That(player, Is.LessThan(SprintRules.RaceDistance + 4.05f));
+                for (int i = 0; i < 300; i++) controller.Simulate(.01f);
+
+                Assert.That(controller.PlayerPosition, Is.GreaterThan(player), "the player pulls up, not freezes");
+                Assert.That(controller.PlayerPosition - SprintRules.RaceDistance, Is.InRange(3.8f, 4.05f));
+                Assert.That(controller.GetRivalPosition(0), Is.GreaterThanOrEqualTo(rival));
+                Assert.That(controller.PlayerMetersPerSecond, Is.Zero);
+                Assert.That(controller.IsPlayerFinished, Is.True);
+            }
+            finally
+            {
+                DestroyController(controller);
+            }
+        }
 
         [UnityTest]
         public IEnumerator ReachingTheFinish_EmitsOnePassResultAndIgnoresPostResolveTaps()
@@ -131,6 +158,9 @@ namespace KMA.Tests.Gameplay.Running
             yield return null;
 
             var parallax = SceneObjects<SprintParallax>(SceneManager.GetActiveScene()).Single();
+            // The follow camera has already framed the start for this screen's aspect; measure from
+            // the camera's authored position instead.
+            parallax.RefreshForTest(0f);
             Assert.That(parallax.TryGetLayerTilePositions(0, out var initialFirst, out var initialSecond), Is.True);
             Assert.That(initialFirst.x, Is.EqualTo(0f).Within(.001f));
             Assert.That(initialSecond.x, Is.EqualTo(25.6f).Within(.001f));
@@ -215,7 +245,7 @@ namespace KMA.Tests.Gameplay.Running
         }
 
         [Test]
-        public void RivalVisualBurstAtSeventyPercent_IsCosmeticAndDoesNotChangeRulesDistances()
+        public void RivalVisualBurstNearTheFinish_IsCosmeticAndDoesNotChangeRulesDistances()
         {
             var profile = ScriptableObject.CreateInstance<RivalPaceProfileAsset>();
             profile.profileName = "Test";
@@ -229,7 +259,10 @@ namespace KMA.Tests.Gameplay.Running
             var before = rules.RivalDistances;
             var rankBefore = rules.Rank;
             var resultBefore = rules.BuildResult();
-            runner.RefreshForTest(before[0], SprintRules.RaceDistance * .7f, MinigamePhase.Play, null);
+            runner.RefreshForTest(before[0], 7f, false, SprintRules.RaceDistance, MinigamePhase.Play, null);
+            Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Run));
+            runner.RefreshForTest(SprintRules.RaceDistance * (RivalRunnerAI.RivalBurstFromProgress + .02f), 7f, false,
+                SprintRules.RaceDistance, MinigamePhase.Play, null);
 
             Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Burst));
             Assert.That(rules.RivalDistances, Is.EqualTo(before));
@@ -242,12 +275,24 @@ namespace KMA.Tests.Gameplay.Running
         }
 
         [Test]
-        public void Rival_StopsRunningOnceAcrossTheLine()
+        public void Rival_StandsAtItsOwnWorldPosition()
         {
             var runner = new GameObject("Rival").AddComponent<RivalRunnerAI>();
+            runner.RefreshForTest(70f, 9f, false, SprintRules.RaceDistance, MinigamePhase.Play, null);
+            Assert.That(runner.transform.position.x, Is.EqualTo(SprintTrackLayout.WorldX(70f)).Within(.001f));
+            Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Run));
+            Object.DestroyImmediate(runner.gameObject);
+        }
 
-            runner.RefreshForTest(SprintRules.RaceDistance, SprintRules.RaceDistance * .5f, MinigamePhase.Play, null);
-
+        [Test]
+        public void Rival_WaitsForTheGunThenPullsUpAndStandsPastTheLine()
+        {
+            var runner = new GameObject("Rival").AddComponent<RivalRunnerAI>();
+            runner.RefreshForTest(0f, 0f, false, SprintRules.RaceDistance, MinigamePhase.Play, null);
+            Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Idle), "still reacting to the gun");
+            runner.RefreshForTest(SprintRules.RaceDistance + 1f, 6f, true, SprintRules.RaceDistance, MinigamePhase.Play, null);
+            Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Run), "pulling up past the line");
+            runner.RefreshForTest(SprintRules.RaceDistance + 4f, 0f, true, SprintRules.RaceDistance, MinigamePhase.Play, null);
             Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Idle));
             Object.DestroyImmediate(runner.gameObject);
         }

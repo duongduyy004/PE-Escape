@@ -585,7 +585,7 @@ namespace KMA.Tests.Presentation
         }
 
         [UnityTest]
-        public IEnumerator SprintFinishLineRevealsExactlyAtSeventyMetersWithoutBlockingInput()
+        public IEnumerator SprintFinishLineStandsAtItsWorldPositionWithoutBlockingInput()
         {
             yield return LoadSprint();
 
@@ -594,6 +594,7 @@ namespace KMA.Tests.Presentation
             var finish = SceneObjects<SprintFinishLinePresenter>(scene)[0];
             Transform finishLine = finish.FinishRoot != null ? finish.FinishRoot.transform : null;
             Assert.That(finishLine, Is.Not.Null);
+            Assert.That(finish.StartRoot, Is.Not.Null);
 
             // World-space sprite on the track: never a UI graphic, so it cannot block taps.
             Assert.That(finishLine.GetComponent<SpriteRenderer>(), Is.Not.Null);
@@ -601,22 +602,38 @@ namespace KMA.Tests.Presentation
             Assert.That(finishLine.position.y, Is.EqualTo(SprintTrackLayout.FinishBottomY).Within(.0001f));
 
             controller.ConfigureForTest();
-            controller.AdvanceToDistance(SprintRules.RaceDistance * .699f);
-            finish.RefreshForTest();
-            Assert.That(finish.IsVisible, Is.False);
-            Assert.That(finishLine.gameObject.activeSelf, Is.False);
+            foreach (float distance in new[] { 0f, 75f, SprintRules.RaceDistance })
+            {
+                controller.AdvanceToDistance(distance);
+                finish.RefreshForTest();
+                Assert.That(finish.IsVisible, Is.True);
+                Assert.That(finishLine.gameObject.activeSelf, Is.True);
+                Assert.That(finishLine.position.x,
+                    Is.EqualTo(SprintTrackLayout.FinishWorldX(controller.TargetDistance)).Within(.0001f),
+                    $"the line never moves (player at {distance} m)");
+            }
+            Assert.That(finish.StartRoot.transform.position.x,
+                Is.EqualTo(SprintTrackLayout.TrackStartX).Within(.0001f));
+        }
 
-            controller.AdvanceToDistance(SprintRules.RaceDistance * .7f);
-            finish.RefreshForTest();
-            Assert.That(finish.IsVisible, Is.True);
-            Assert.That(finishLine.gameObject.activeSelf, Is.True);
+        [UnityTest]
+        public IEnumerator SprintFinishLineIsShownInLearnAtTheRaceDistance()
+        {
+            yield return LoadSprint();
 
-            controller.AdvanceToDistance(SprintRules.RaceDistance);
+            var scene = SceneManager.GetActiveScene();
+            var controller = SceneObjects<SprintController>(scene)[0];
+            var finish = SceneObjects<SprintFinishLinePresenter>(scene)[0];
+            ChallengeDefinition learn = ChallengeCatalog.LoadDefault().Get("sprint_learn");
+            controller.ConfigureChallenge(learn, new ChallengeAttemptContext(
+                "learn-line", learn.Id, ChallengeAttemptMode.Journey, learn.Difficulty));
             finish.RefreshForTest();
+
+            Assert.That(controller.IsLearnChallenge, Is.True);
             Assert.That(finish.IsVisible, Is.True);
-            Assert.That(finishLine.gameObject.activeSelf, Is.True);
-            Assert.That(finishLine.position.x, Is.EqualTo(SprintTrackLayout.FinishX).Within(.0001f),
-                "At the finish distance the line rests where the runner stops.");
+            Assert.That(finish.FinishRoot.activeSelf, Is.True);
+            Assert.That(finish.FinishRoot.transform.position.x,
+                Is.EqualTo(SprintTrackLayout.FinishWorldX(SprintRules.RaceDistance)).Within(.0001f));
         }
 
         [UnityTest]
@@ -692,7 +709,7 @@ namespace KMA.Tests.Presentation
             Assert.That(rankChip.textBounds.size.x, Is.LessThanOrEqualTo(rankChip.rectTransform.rect.width + .5f),
                 "VỊ TRÍ 1 must fit inside its chip");
             Assert.That(chrome.Find("Scoreboard/Combo").GetComponent<TMP_Text>().text, Is.EqualTo("CHUỖI ×0"));
-            Assert.That(chrome.Find("ModeLabel/Label").GetComponent<TMP_Text>().text, Is.EqualTo("CHẠY NƯỚC RÚT · 150M"));
+            Assert.That(chrome.Find("ModeLabel"), Is.Null, "the Sprint HUD carries no mode label");
 
             KitBar rail = chrome.Find("ProgressRail").GetComponent<KitBar>();
             Assert.That(rail.Value, Is.EqualTo(0f).Within(.001f));
@@ -731,6 +748,31 @@ namespace KMA.Tests.Presentation
         }
 
         [UnityTest]
+        public IEnumerator SprintHud_LearnRailFollowsThePlayerAndFillsAtTheLine()
+        {
+            yield return LoadSprint();
+            var scene = SceneManager.GetActiveScene();
+            var controller = SceneObjects<SprintController>(scene)[0];
+            var hud = SceneObjects<SprintHud>(scene)[0];
+            ChallengeDefinition learn = ChallengeCatalog.LoadDefault().Get("sprint_learn");
+            controller.ConfigureChallenge(learn, new ChallengeAttemptContext(
+                "learn-rail", learn.Id, ChallengeAttemptMode.Journey, learn.Difficulty));
+            KitBar rail = GameObject.Find("SprintBroadcastChrome").transform.Find("ProgressRail").GetComponent<KitBar>();
+
+            controller.AdvanceToDistance(42f);
+            hud.Refresh();
+            Assert.That(controller.IsLearnChallenge, Is.True);
+            Assert.That(hud.PipProgress, Is.EqualTo(42f / SprintRules.RaceDistance).Within(.001f),
+                "the Learn rail tracks how far the player has run, not the clock");
+            Assert.That(rail.Value, Is.EqualTo(42f / SprintRules.RaceDistance).Within(.001f));
+
+            controller.AdvanceToDistance(SprintRules.RaceDistance);
+            hud.Refresh();
+            Assert.That(hud.PipProgress, Is.EqualTo(1f), "across the line the rail is full");
+            Assert.That(rail.Value, Is.EqualTo(1f).Within(.001f));
+        }
+
+        [UnityTest]
         public IEnumerator SprintChrome_RegistersEveryElementForRelayout()
         {
             yield return LoadSprint();
@@ -738,11 +780,40 @@ namespace KMA.Tests.Presentation
 
             var layout = SceneObjects<SprintChromeLayout>(scene)[0];
             Assert.That(layout, Is.Not.Null, "chrome must own a relayout component");
-            Assert.That(layout.ElementCount, Is.EqualTo(8),
-                "rail, scoreboard, mode chip, pause, countdown, instruction plate and both tap " +
+            Assert.That(layout.ElementCount, Is.EqualTo(7),
+                "rail, scoreboard, pause, countdown, instruction plate and both tap " +
                 "areas must all be registered as rects");
             Assert.That(layout.ActionCount, Is.EqualTo(1),
                 "the rail radius/pip-width re-derivation must be registered as an action");
+        }
+
+        [UnityTest]
+        public IEnumerator RivalFarAheadShowsAnEdgeChipWithTheGap()
+        {
+            yield return LoadSprint();
+            var scene = SceneManager.GetActiveScene();
+            var controller = SceneObjects<SprintController>(scene)[0];
+            var chips = SceneObjects<SprintOffscreenRivalChips>(scene)[0];
+            controller.ConfigureForTest();
+            controller.enabled = false;
+            controller.AdvanceToDistance(0f, new[]
+            {
+                new RivalPaceProfile("A", 100f, 100f), new RivalPaceProfile("B", 19.2f, 19.2f),
+                new RivalPaceProfile("C", 19.2f, 19.2f)
+            });
+            controller.Simulate(.5f);
+            chips.RefreshForTest();
+
+            Assert.That(chips.ChipCount, Is.EqualTo(3));
+            int lane1 = System.Array.FindIndex(SceneObjects<RivalRunnerAI>(scene)
+                .OrderBy(rival => rival.Lane).ToArray(), rival => rival.RivalIndex == 0);
+            Assert.That(chips.IsChipVisible(lane1), Is.True);
+            Assert.That(chips.ChipText(lane1), Does.Contain("+50.0 m"));
+            TMP_Text chipLabel = GameObject.Find("RivalChip" + lane1).GetComponentInChildren<TMP_Text>();
+            chipLabel.ForceMeshUpdate();
+            Assert.That(chipLabel.isTextTruncated, Is.False, "the whole lane and gap must fit in the chip");
+            Assert.That(Enumerable.Range(0, 3).Count(chips.IsChipVisible), Is.EqualTo(1),
+                "B and C stand at the view centre, so they get no chip");
         }
 
         static IEnumerator LoadSprint()

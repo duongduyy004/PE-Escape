@@ -96,6 +96,36 @@ namespace KMA.Tests.Gameplay.Running
             Assert.That(controller.Snapshot.Elapsed, Is.EqualTo(elapsed + 1f).Within(.001f));
         }
 
+        [Test]
+        public void RivalsKeepRacingWhileALearnTeacherLineHoldsThePlayer()
+        {
+            var profile = ScriptableObject.CreateInstance<RivalPaceProfileAsset>();
+            profile.profileName = "Steady";
+            profile.openingSpeed = 9f;
+            profile.sustainedSpeed = 9f;
+            var controller = controllerObject.AddComponent<SprintController>();
+            typeof(SprintController).GetField("rivalProfiles", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(controller, new[] { profile });
+            ChallengeDefinition definition = ChallengeCatalog.LoadDefault().Get("sprint_learn");
+            controller.ConfigureChallenge(definition, new ChallengeAttemptContext(
+                "rivals-run-on", definition.Id, ChallengeAttemptMode.Journey, ChallengeDifficulty.Normal));
+            controller.enabled = false;
+            controller.SetTutorialGate(false);
+            controller.Simulate(4f);
+            Assert.That(controller.Phase, Is.EqualTo(MinigamePhase.Play));
+            Assert.That(controller.RivalCount, Is.EqualTo(1));
+            float elapsed = controller.Snapshot.Elapsed;
+            float rivalBefore = controller.GetRivalPosition(0);
+
+            controller.SetLearnDialogueSuspended(true);
+            for (int i = 0; i < 60; i++) controller.Simulate(1f / 60f);
+
+            Assert.That(controller.Snapshot.Elapsed, Is.EqualTo(elapsed).Within(.001f), "the learner's clock is held");
+            Assert.That(controller.GetRivalPosition(0), Is.GreaterThan(rivalBefore + 5f),
+                "rivals keep racing instead of running on the spot");
+            Object.DestroyImmediate(profile);
+        }
+
         [UnityTest]
         public IEnumerator FinishingDuringDeadlineFramePassesAtTheExactLimit()
         {
@@ -107,7 +137,7 @@ namespace KMA.Tests.Gameplay.Running
             for (int frame = 0; frame < 301; frame++) controller.Simulate(.01f);
             var rules = (SprintRules)typeof(SprintController).GetField("rules",
                 BindingFlags.Instance | BindingFlags.NonPublic).GetValue(controller);
-            foreach (var value in new[] { ("elapsed", 14.99f), ("distance", 149.95f), ("speed", 100f) })
+            foreach (var value in new[] { ("elapsed", 39.99f), ("distance", 149.95f), ("speed", 100f) })
                 typeof(SprintRules).GetField(value.Item1, BindingFlags.Instance | BindingFlags.NonPublic)
                     .SetValue(rules, value.Item2);
             ChallengeAttemptResult received = null;
@@ -115,7 +145,8 @@ namespace KMA.Tests.Gameplay.Running
             controller.Simulate(.02f);
             Assert.That(received, Is.Not.Null);
             Assert.That(received.Pass, Is.True);
-            Assert.That(received.Metrics.Elapsed, Is.EqualTo(15f));
+            // The rules interpolate the exact crossing instant inside the frame, so it lands just under the deadline.
+            Assert.That(received.Metrics.Elapsed, Is.InRange(39.99f, 40f));
             yield return null;
         }
 

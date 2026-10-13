@@ -2,51 +2,43 @@ using UnityEngine;
 
 namespace KMA.Gameplay
 {
-    /// Moves the world-space finish line. It lives on the track with the runners, so the spot where it
-    /// rests is the spot where they finish on every screen aspect.
+    /// Holds the start and finish lines on the track at their world positions. They never move; the
+    /// camera brings them into view as the player runs. Every challenge, Learn included, has the finish line.
     public sealed class SprintFinishLinePresenter : MonoBehaviour
     {
         SprintController controller;
         GameObject finishRoot;
+        GameObject startRoot;
 
         public bool IsVisible { get; private set; }
         public GameObject FinishRoot => finishRoot;
+        public GameObject StartRoot => startRoot;
 
-        public void Configure(SprintController sprintController, GameObject finishLineRoot)
+        public void Configure(SprintController sprintController, GameObject finishLineRoot, GameObject startLineRoot)
         {
             controller = sprintController;
             finishRoot = finishLineRoot;
+            startRoot = startLineRoot;
             RefreshForTest();
         }
 
         public void RefreshForTest()
         {
-            // The reveal is authored on a 0-100 scale; map the real race distance onto it.
-            float distance = controller == null ? 0f
-                : controller.Snapshot.Distance * SprintUiLayout.FinishDistance / Mathf.Max(1f, controller.TargetDistance);
-            IsVisible = controller != null && SprintUiLayout.FinishVisible(distance);
-            if (finishRoot == null)
-                return;
-
-            finishRoot.SetActive(IsVisible);
-            if (!IsVisible)
-                return;
-
-            // The line enters from just past the right edge at the reveal distance and slides onto
-            // FinishX as the runner closes on it, rather than appearing on the track all at once.
-            Transform line = finishRoot.transform;
-            Vector3 position = line.position;
-            position.x = SprintTrackLayout.FinishLineX(SprintUiLayout.FinishReveal01(distance), EntryX());
-            line.position = position;
+            IsVisible = controller != null;
+            if (finishRoot != null)
+            {
+                finishRoot.SetActive(IsVisible);
+                Place(finishRoot, SprintTrackLayout.FinishWorldX(controller == null
+                    ? SprintRules.RaceDistance : controller.TargetDistance));
+            }
+            if (startRoot != null) Place(startRoot, SprintTrackLayout.TrackStartX);
         }
 
-        static float EntryX()
+        static void Place(GameObject line, float x)
         {
-            Camera cam = Camera.main;
-            float rightEdge = cam != null && cam.orthographic
-                ? cam.transform.position.x + cam.orthographicSize * cam.aspect
-                : SprintTrackLayout.FinishX;
-            return Mathf.Max(SprintTrackLayout.FinishX, rightEdge + SprintTrackLayout.FinishWidth);
+            Vector3 position = line.transform.position;
+            position.x = x;
+            line.transform.position = position;
         }
 
         void Update() => RefreshForTest();

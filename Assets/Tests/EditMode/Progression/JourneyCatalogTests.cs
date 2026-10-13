@@ -28,9 +28,9 @@ namespace KMA.Tests.Gameplay.Progression
             }));
             Assert.That(catalog.Get("sprint_learn").TargetCount, Is.EqualTo(12));
             Assert.That(catalog.Get("sprint_practice").Distance, Is.EqualTo(150f));
-            Assert.That(catalog.Get("sprint_practice").TimeLimit, Is.EqualTo(20f));
+            Assert.That(catalog.Get("sprint_practice").TimeLimit, Is.EqualTo(45f));
             Assert.That(catalog.Get("sprint_exam").Distance, Is.EqualTo(150f));
-            Assert.That(catalog.Get("sprint_exam").TimeLimit, Is.EqualTo(15f));
+            Assert.That(catalog.Get("sprint_exam").TimeLimit, Is.EqualTo(40f));
             Assert.That(catalog.Get("sprint_practice").TimeLimit,
                 Is.GreaterThan(catalog.Get("sprint_exam").TimeLimit));
             Assert.That(catalog.Get("volleyball_learn").TargetCount, Is.EqualTo(7));
@@ -44,7 +44,7 @@ namespace KMA.Tests.Gameplay.Progression
             Assert.That(catalog.Get("soccer_practice").Difficulty, Is.EqualTo(ChallengeDifficulty.Normal));
             Assert.That(catalog.Get("soccer_exam").TargetCount, Is.EqualTo(3));
             Assert.That(catalog.Get("soccer_exam").Difficulty, Is.EqualTo(ChallengeDifficulty.Normal));
-            Assert.That(catalog.Get("sprint_learn").TimeLimit, Is.EqualTo(45f));
+            Assert.That(catalog.Get("sprint_learn").TimeLimit, Is.EqualTo(50f));
             Assert.That(catalog.Get("volleyball_learn").TimeLimit, Is.Zero);
             Assert.That(catalog.Get("soccer_learn").TimeLimit, Is.Zero);
             Assert.That(catalog.Get("soccer_practice").TimeLimit, Is.Zero);

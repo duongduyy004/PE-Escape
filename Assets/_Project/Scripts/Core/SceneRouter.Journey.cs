@@ -257,7 +257,8 @@ namespace KMA.Gameplay.Core
                 return;
 
             if (displayedOutcome.HasValue && displayedOutcome.Value.FrogJumpRequired &&
-                (action == JourneyResultAction.Continue || action == JourneyResultAction.Retry))
+                (action == JourneyResultAction.Continue || action == JourneyResultAction.Retry ||
+                    action == JourneyResultAction.BackToMap))
                 action = JourneyResultAction.FrogJump;
 
             if (action == JourneyResultAction.Retry ||
@@ -275,6 +276,14 @@ namespace KMA.Gameplay.Core
             else if (action == JourneyResultAction.FrogJump)
             {
                 if (!StartFrogJump()) RestoreChallengeActions();
+            }
+            else if (action == JourneyResultAction.BackToMap)
+            {
+                // The result is already committed; the map opens without the journey continuation,
+                // so neither the next chapter nor a retry starts on its own.
+                if (!Route(SessionRoute.Map))
+                    challengePanel?.ShowChallenge(displayedChallenge, displayedResult, displayedOutcome,
+                        lastRouteError ?? "Không thể chuyển cảnh. Hãy thử lại.");
             }
             else
             {

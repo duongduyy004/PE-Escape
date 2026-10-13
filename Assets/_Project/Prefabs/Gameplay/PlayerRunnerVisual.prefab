@@ -72,7 +72,6 @@ MonoBehaviour:
   controller: {fileID: 0}
   animator: {fileID: 0}
   raceRoot: {fileID: 0}
-  trackStartX: -9.6
 --- !u!1 &4192593604452966122
 GameObject:
   m_ObjectHideFlags: 0

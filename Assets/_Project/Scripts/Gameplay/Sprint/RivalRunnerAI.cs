@@ -20,7 +20,6 @@ namespace KMA.Gameplay
         [SerializeField] int rivalIndex;
         [SerializeField] Transform visual;
         [SerializeField] Animator animator;
-        [SerializeField] float trackStartX;
 
         RivalPaceProfile profile;
 
@@ -29,7 +28,6 @@ namespace KMA.Gameplay
         public int Lane => lane;
         public int RivalIndex => rivalIndex;
         public RivalRunnerState State { get; private set; }
-        public float VisualProgress01 { get; private set; }
         public Animator Animator => animator;
         public SpriteRenderer Sprite => visual == null ? null : visual.GetComponent<SpriteRenderer>();
 
@@ -39,6 +37,8 @@ namespace KMA.Gameplay
         static readonly int CelebrateHash = Animator.StringToHash("Celebrate");
         static readonly int FailHash = Animator.StringToHash("Fail");
         static readonly int IdleHash = Animator.StringToHash("Idle");
+        // A rival kicks into its finishing burst once this much of the track is behind them.
+        public const float RivalBurstFromProgress = .8f;
         RunnerBreathing breathing;
         RivalRunnerState lastPlayedState;
         bool hasPlayedState;
@@ -54,12 +54,10 @@ namespace KMA.Gameplay
 
         void Update()
         {
-            if (controller == null || rivalIndex < 0)
+            if (controller == null || rivalIndex < 0 || rivalIndex >= controller.RivalCount)
                 return;
-
-            if (rivalIndex >= controller.RivalCount)
-                return;
-            Refresh(controller.GetRivalDistance(rivalIndex), controller.Snapshot.Distance, controller.Phase,
+            Refresh(controller.GetRivalPosition(rivalIndex), controller.GetRivalSpeed(rivalIndex),
+                controller.HasRivalFinished(rivalIndex), controller.RaceGoal, controller.Phase,
                 controller.LastResult, controller.IsRivalSurging(rivalIndex), controller.IsRivalSlowing(rivalIndex));
         }
 
@@ -74,45 +72,48 @@ namespace KMA.Gameplay
             if (animator == null) animator = GetComponentInChildren<Animator>();
         }
 
-        public void RefreshForTest(float rivalDistance, float playerDistance, MinigamePhase phase, MinigameResult result,
-            bool surging = false, bool slowing = false) =>
-            Refresh(rivalDistance, playerDistance, phase, result, surging, slowing);
+        public void RefreshForTest(float position, float speed, bool finished, float goal, MinigamePhase phase,
+            MinigameResult result, bool surging = false, bool slowing = false) =>
+            Refresh(position, speed, finished, goal, phase, result, surging, slowing);
 
-        void Refresh(float rivalDistance, float playerDistance, MinigamePhase phase, MinigameResult result,
-            bool surging, bool slowing = false)
+        void Refresh(float position, float speed, bool finished, float goal, MinigamePhase phase,
+            MinigameResult result, bool surging, bool slowing)
         {
-            bool learning = controller != null && controller.IsLearnChallenge;
-            float shownDistance = learning ? Mathf.Min(rivalDistance, SprintRules.RaceDistance * .66f) : rivalDistance;
-            VisualProgress01 = Mathf.Clamp01(shownDistance / SprintRules.RaceDistance);
+            // Place the visual in world space so the scaled lane root never stretches the distance.
             if (visual != null)
             {
-                // The rival root is scaled, which stretches a child's local offset. The player moves its
-                // own root instead, so divide the scale out or the rival would out-run the same distance.
-                float parentScaleX = visual.parent == null ? 1f : Mathf.Abs(visual.parent.lossyScale.x);
-                var position = visual.localPosition;
-                position.x = (trackStartX + SprintTrackLayout.TrackLength * VisualProgress01) / Mathf.Max(.0001f, parentScaleX);
-                visual.localPosition = position;
+                Vector3 world = visual.position;
+                world.x = SprintTrackLayout.WorldX(position);
+                visual.position = world;
             }
 
+            bool standing = speed <= .05f;
+            // The field still runs in and pulls up after the result opens: pose only once stopped.
             if (phase == MinigamePhase.Resolve)
-                State = result != null && result.Pass ? RivalRunnerState.Celebrate : RivalRunnerState.Fail;
-            else if (phase != MinigamePhase.Play || (!learning && VisualProgress01 >= 1f))
+                State = !standing ? RivalRunnerState.Run
+                    : result != null && result.Pass ? RivalRunnerState.Celebrate : RivalRunnerState.Fail;
+            else if (phase != MinigamePhase.Play || standing)
                 State = RivalRunnerState.Idle;
-            else if (surging || (!learning && playerDistance >= SprintRules.RaceDistance * .7f))
+            else if (!finished && (surging || position >= goal * RivalBurstFromProgress))
                 State = RivalRunnerState.Burst;
             else
                 State = RivalRunnerState.Run;
 
-            // Waiting on the grid, flagging mid-race or already across the line: catch a breath.
+            // Waiting on the grid, flagging mid-race or stood past the line: catch a breath.
             if (breathing != null)
                 breathing.SetResting(phase == MinigamePhase.Tutorial || phase == MinigamePhase.Countdown ||
-                    (phase == MinigamePhase.Play && (slowing || (!learning && rivalDistance >= SprintRules.RaceDistance))));
+                    (phase == MinigamePhase.Play && (slowing || (finished && standing))));
 
-            if (animator != null && (!hasPlayedState || lastPlayedState != State))
+            if (animator != null)
             {
-                animator.Play(StateHash(State), 0, 0f);
-                lastPlayedState = State;
-                hasPlayedState = true;
+                animator.speed = State == RivalRunnerState.Run || State == RivalRunnerState.Burst
+                    ? RunnerStride.Playback(speed) : 1f;
+                if (!hasPlayedState || lastPlayedState != State)
+                {
+                    animator.Play(StateHash(State), 0, 0f);
+                    lastPlayedState = State;
+                    hasPlayedState = true;
+                }
             }
         }
 

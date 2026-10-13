@@ -87,17 +87,25 @@ namespace KMA.Gameplay
             timer.alignment = TextAlignmentOptions.Center;
             timer.text = VietText.Fix($"{SprintRules.DefaultTimeLimit:0}s");
 
-            // Mode chip
-            ChipHandle mode = UiKit.Chip(root, "ModeLabel", $"CHẠY NƯỚC RÚT · {SprintRules.RaceDistance:0}M");
-            ApplyRect(mode.Background.rectTransform, safe, SprintUiLayout.ModeChipRect(safe));
-            chromeLayout.Register(mode.Background.rectTransform, SprintUiLayout.ModeChipRect);
-
             EnsurePause(root, safe, chromeLayout);
             EnsureStartPresentation(root, safe);
             EnsureControls(root, safe);
             EnsurePlayerIdentity(root);
-            EnsureFinishLine(root);
+            EnsureCameraFollow();
+            EnsureTrackLines(root);
+            EnsureRivalChips(root);
             EnsureResultPresentation();
+        }
+
+        /// The race camera rides with the player only; rivals come and go from the frame.
+        static void EnsureCameraFollow()
+        {
+            Camera camera = Camera.main;
+            Transform player = GameObject.Find("Player")?.transform;
+            if (camera == null || player == null)
+                return;
+            var follow = camera.GetComponent<SprintCameraFollow>() ?? camera.gameObject.AddComponent<SprintCameraFollow>();
+            follow.Bind(player);
         }
 
         public static void ConfigureChallenge(ChallengeDefinition definition)
@@ -105,28 +113,14 @@ namespace KMA.Gameplay
             if (definition == null) return;
             Transform chrome = GameObject.Find("SprintBroadcastChrome")?.transform;
             if (chrome == null) return;
-            TMP_Text mode = chrome.Find("ModeLabel/Label")?.GetComponent<TMP_Text>();
             TMP_Text instruction = chrome.Find("StartPresentation/InstructionPlate/InstructionLabel")
                 ?.GetComponent<TMP_Text>();
             bool learn = definition.Kind == ChallengeKind.Learn;
-            if (mode != null)
-            {
-                string text = learn ? $"SPRINT · HỌC {definition.TimeLimit:0}S · CHUỖI {definition.TargetCount}"
-                    : definition.Kind == ChallengeKind.Practice
-                        ? $"SPRINT · LUYỆN {definition.Distance:0}M / {definition.TimeLimit:0}S"
-                        : $"SPRINT · THI {definition.Distance:0}M / {definition.TimeLimit:0}S";
-                mode.text = VietText.Fix(text);
-            }
             if (instruction != null)
                 instruction.text = VietText.Fix(learn
                     ? $"TẬP LUÂN PHIÊN HAI CHÂN TRONG {definition.TimeLimit:0} GIÂY"
                     : $"CHẠY {definition.Distance:0} M TRONG {definition.TimeLimit:0} GIÂY");
-            var finishLine = chrome.GetComponent<SprintFinishLinePresenter>();
-            if (finishLine != null)
-            {
-                finishLine.enabled = !learn;
-                if (learn && finishLine.FinishRoot != null) finishLine.FinishRoot.SetActive(false);
-            }
+            chrome.GetComponent<SprintFinishLinePresenter>()?.RefreshForTest();
         }
 
         /// Positions a RectTransform from an absolute rect expressed in the safe area's own space.
@@ -149,36 +143,48 @@ namespace KMA.Gameplay
         static Rect SafeRect(RectTransform safeArea) =>
             new Rect(0f, 0f, safeArea.rect.width, safeArea.rect.height);
 
-        /// The finish line is drawn on the track in world space, beside the runners, so where it rests
-        /// is exactly where they finish whatever the screen aspect.
-        static void EnsureFinishLine(RectTransform root)
+        static void EnsureRivalChips(RectTransform root)
         {
-            const string name = "SprintFinishLine";
-            const int squareCount = 10;
-            const int sortingOrder = 5;   // over the track backdrop, under the runners (11+)
+            RivalRunnerAI[] runners = Object.FindObjectsByType<RivalRunnerAI>(FindObjectsSortMode.None);
+            System.Array.Sort(runners, (a, b) => a.Lane.CompareTo(b.Lane));
+            var chips = root.GetComponent<SprintOffscreenRivalChips>()
+                ?? root.gameObject.AddComponent<SprintOffscreenRivalChips>();
+            chips.Configure(Object.FindFirstObjectByType<SprintController>(), root, runners);
+        }
 
-            GameObject finish = GameObject.Find(name);
-            if (finish == null)
+        /// The start and finish lines are painted on the track in world space beside the runners;
+        /// the camera finds them as the race moves along the straight.
+        static void EnsureTrackLines(RectTransform root)
+        {
+            GameObject finish = EnsureLine("SprintFinishLine", 10, SprintTrackLayout.FinishWidth, checker: true);
+            GameObject start = EnsureLine("SprintStartLine", 1, .15f, checker: false);
+            var presenter = root.GetComponent<SprintFinishLinePresenter>()
+                ?? root.gameObject.AddComponent<SprintFinishLinePresenter>();
+            presenter.Configure(Object.FindFirstObjectByType<SprintController>(), finish, start);
+        }
+
+        static GameObject EnsureLine(string name, int squareCount, float width, bool checker)
+        {
+            const int sortingOrder = 5;   // over the track backdrop, under the runners (11+)
+            GameObject line = GameObject.Find(name);
+            if (line == null)
             {
-                finish = new GameObject(name);
+                line = new GameObject(name);
                 var texture = new Texture2D(1, squareCount) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
                 for (int i = 0; i < squareCount; i++)
-                    texture.SetPixel(0, i, i % 2 == 0 ? Color.black : Color.white);
+                    texture.SetPixel(0, i, checker && i % 2 == 0 ? Color.black : Color.white);
                 texture.Apply();
 
                 // One pixel per unit: the sprite is 1 x squareCount units, then scaled onto the lanes.
-                var renderer = finish.AddComponent<SpriteRenderer>();
+                var renderer = line.AddComponent<SpriteRenderer>();
                 renderer.sprite = Sprite.Create(texture, new Rect(0f, 0f, 1f, squareCount), new Vector2(.5f, 0f), 1f);
                 renderer.sortingOrder = sortingOrder;
             }
 
             float height = SprintTrackLayout.FinishTopY - SprintTrackLayout.FinishBottomY;
-            finish.transform.position = new Vector3(SprintTrackLayout.FinishX, SprintTrackLayout.FinishBottomY, 0f);
-            finish.transform.localScale = new Vector3(SprintTrackLayout.FinishWidth, height / squareCount, 1f);
-
-            var presenter = root.GetComponent<SprintFinishLinePresenter>()
-                ?? root.gameObject.AddComponent<SprintFinishLinePresenter>();
-            presenter.Configure(Object.FindFirstObjectByType<SprintController>(), finish);
+            line.transform.position = new Vector3(line.transform.position.x, SprintTrackLayout.FinishBottomY, 0f);
+            line.transform.localScale = new Vector3(width, height / squareCount, 1f);
+            return line;
         }
 
         static void EnsureResultPresentation()
@@ -438,11 +444,13 @@ namespace KMA.Gameplay
     /// ~0.2 units separate the player's head from the next lane's feet — an overhead plate lands
     /// on the lane 1 rival's body. The marker rides alongside the runner inside their own lane.
     ///
-    /// The track spans the whole viewport at 16:9, so a fixed side would push the marker off
-    /// screen at the starting line or at the tape; it takes whichever side has room instead.
+    /// The camera follows the player, so the marker normally rides ahead of them; it only swaps
+    /// sides if the runner is well right of the view centre.
     /// </summary>
     public sealed class SprintPlayerMarkerPlacement : MonoBehaviour
     {
+        // The marker swaps to the runner's left only once they sit well right of the view centre.
+        public const float FlipBeyond = 2f;
         public const float SideOffset = 1.05f;
         public const float MarkerHeight = .42f;
         public const float ChevronOffset = .52f;
@@ -468,7 +476,8 @@ namespace KMA.Gameplay
                 return;
 
             float runnerX = marker.parent == null ? 0f : marker.parent.position.x;
-            float offset = runnerX > 0f ? -SideOffset : SideOffset;
+            float viewX = Camera.main == null ? 0f : Camera.main.transform.position.x;
+            float offset = runnerX - viewX > FlipBeyond ? -SideOffset : SideOffset;
             marker.localPosition = new Vector3(offset, MarkerHeight, 0f);
 
             if (chevron == null)

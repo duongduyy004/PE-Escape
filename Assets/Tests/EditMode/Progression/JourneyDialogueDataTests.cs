@@ -53,8 +53,8 @@ namespace KMA.Tests.Gameplay.Progression
             foreach (var node in library.Nodes)
                 foreach (var line in node.Lines)
                     Assert.That(DialogueEmoji.FindCodes(line.Text), Is.Empty, node.Id);
-            Assert.That(library.Get("sprint_exam").Lines[0].Text, Does.Contain("15 giây"));
-            Assert.That(library.Get("sprint_exam").Lines[0].Sticker, Is.EqualTo("15 GIÂY"));
+            Assert.That(library.Get("sprint_exam").Lines[0].Text, Does.Contain("40 giây"));
+            Assert.That(library.Get("sprint_exam").Lines[0].Sticker, Is.EqualTo("40 GIÂY"));
         }
 
         [Test]

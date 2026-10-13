@@ -41,9 +41,9 @@ namespace KMA.Tests.Gameplay.Running
             float fastest = authored.Min(profile => FinishTime(AtSpeed(profile, MaxSpeed)));
             float slowest = authored.Max(profile => FinishTime(AtSpeed(profile, MinSpeed)));
 
-            // A rival may occasionally beat the 15 s exam deadline, but not by much.
-            Assert.That(fastest, Is.InRange(FastestFinish, 16f));
-            Assert.That(slowest, Is.InRange(16f, SlowestFinish));
+            // With a real start the field crosses 150 m in about 15–17 s (fastest) to 18–20 s (slowest).
+            Assert.That(fastest, Is.InRange(13.5f, 17f));
+            Assert.That(slowest, Is.InRange(17f, SlowestFinish));
         }
 
         [Test]
@@ -146,6 +146,32 @@ namespace KMA.Tests.Gameplay.Running
             Assert.That(surges, Is.GreaterThan(fades * 1.4f));
         }
 
+        [Test]
+        public void EveryRivalCanBeTheFastestAcrossSeeds()
+        {
+            RivalPaceProfile[] authored = LoadAuthoredProfiles();
+            var fastest = new int[authored.Length];
+            for (int seed = 0; seed < 300; seed++)
+            {
+                RivalPaceProfile[] field = RivalPaceRandomizer.RollField(authored, MinSpeed, MaxSpeed, new Random(seed));
+                int best = 0;
+                for (int i = 1; i < field.Length; i++)
+                    if (field[i].SustainedSpeed > field[best].SustainedSpeed) best = i;
+                fastest[best]++;
+            }
+            Assert.That(fastest, Has.All.GreaterThan(30), string.Join(",", fastest));
+        }
+
+        [Test]
+        public void OpeningSpeedDiffersBetweenSeeds()
+        {
+            RivalPaceProfile[] authored = LoadAuthoredProfiles();
+            var openings = Enumerable.Range(0, 20).Select(seed =>
+                RivalPaceRandomizer.RollField(authored, MinSpeed, MaxSpeed, new Random(seed))[0].OpeningSpeed)
+                .Distinct().Count();
+            Assert.That(openings, Is.GreaterThan(10));
+        }
+
         static RivalPaceProfile[] LoadAuthoredProfiles() => SprintRivalMappings.Required
             .Select(mapping => AssetDatabase.LoadAssetAtPath<RivalPaceProfileAsset>(mapping.ProfilePath))
             .Select(asset =>
@@ -161,9 +187,20 @@ namespace KMA.Tests.Gameplay.Running
         static float FinishTime(RivalPaceProfile profile)
         {
             var rules = new SprintRules(60f, new[] { profile });
-            while (rules.GetRivalDistance(0) < SprintRules.RaceDistance && rules.Elapsed < 60f)
+            while (!rules.HasRivalFinished(0) && rules.Elapsed < 60f)
                 rules.Tick(1f / 120f);
-            return rules.Elapsed;
+            return rules.GetRivalFinishTime(0);
+        }
+
+        [Test]
+        public void RolledRivalsCarryTheirOwnMotionTraits()
+        {
+            RivalPaceProfile[] field = RivalPaceRandomizer.RollField(LoadAuthoredProfiles(), MinSpeed, MaxSpeed,
+                new Random(7));
+            foreach (RivalPaceProfile rolled in field)
+                Assert.That(rolled.Traits.AccelerationTau, Is.InRange(RivalMotionTraits.MinTau, RivalMotionTraits.MaxTau));
+            Assert.That(field.Select(rolled => rolled.Traits.ReactionSeconds).Distinct().Count(), Is.EqualTo(field.Length),
+                "each rival reacts to the gun on their own");
         }
     }
 }

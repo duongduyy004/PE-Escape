@@ -37,9 +37,7 @@ namespace KMA.Gameplay
                 return;
 
             var snapshot = controller.Snapshot;
-            float progress = controller.IsLearnChallenge
-                ? controller.LearnProgress01
-                : Mathf.Clamp01(snapshot.Distance / Mathf.Max(1f, controller.TargetDistance));
+            float progress = controller.Progress01;
 
             DistanceText = controller.IsLearnChallenge
                 ? $"HỌC · {FormatClock(controller.LearnTimeRemaining)}"

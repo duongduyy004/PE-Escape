@@ -162,6 +162,218 @@ namespace KMA.Tests.Presentation
             Assert.That(continueButton.GetComponentInChildren<TMP_Text>(true).text, Does.Contain(expectedAction));
         }
 
+        // VietText.Fix (NFC) is not visible to this assembly; labels are compared the same way.
+        static string Nfc(string value) => value.Normalize(System.Text.NormalizationForm.FormC);
+        static string Label(Button button) => button.GetComponentInChildren<TMP_Text>(true).text;
+
+        void ShowJourney(string id, bool pass, JourneyCommitOutcome? outcome, string saveError = null)
+        {
+            var context = new ChallengeAttemptContext("attempt-" + id, id, ChallengeAttemptMode.Journey,
+                ChallengeDifficulty.Normal);
+            ChallengeDefinition definition = ChallengeCatalog.LoadDefault().Get(id);
+            var result = new ChallengeAttemptResult(context, pass,
+                new ChallengeMetrics(elapsed: 40f, completedTargets: pass ? definition.TargetCount : 0),
+                ChallengeDefinition.IsScored(definition.Kind)
+                    ? new MinigameResult(pass, pass ? 8f : 0f, pass ? Rank.A : Rank.F) : null);
+            panel.ShowChallenge(context, result, outcome, saveError);
+        }
+
+        void AssertBackPaired(string primary)
+        {
+            Assert.That(continueButton.gameObject.activeSelf, Is.True);
+            Assert.That(retryButton.gameObject.activeSelf, Is.True, "QUAY VỀ takes the second slot");
+            Assert.That(panel.BackAvailable, Is.True);
+            Assert.That(panel.RetryAvailable, Is.False);
+            Assert.That(Label(retryButton), Is.EqualTo(Nfc("QUAY VỀ")));
+            Assert.That(panel.ContinueLabel, Is.EqualTo(Nfc(primary)));
+            Assert.That(((RectTransform)continueButton.transform).anchorMin.x, Is.EqualTo(.52f).Within(.001f));
+            Assert.That(UiKit.ButtonParts(continueButton).Fill.gameObject.activeSelf, Is.False, "the right button stays Primary");
+            Assert.That(UiKit.ButtonParts(retryButton).Fill.gameObject.activeSelf, Is.True, "QUAY VỀ is Secondary");
+        }
+
+        void AssertLone(string primary)
+        {
+            Assert.That(continueButton.gameObject.activeSelf, Is.True);
+            Assert.That(retryButton.gameObject.activeSelf, Is.False);
+            Assert.That(panel.BackAvailable, Is.False);
+            Assert.That(panel.ContinueLabel, Is.EqualTo(Nfc(primary)));
+        }
+
+        System.Collections.Generic.List<JourneyResultAction> RecordJourneyActions()
+        {
+            var actions = new System.Collections.Generic.List<JourneyResultAction>();
+            panel.JourneyActionRequested += actions.Add;
+            return actions;
+        }
+
+        [Test]
+        public void ConfigureRetryTurnsTheSecondSlotBackIntoRetryAfterAJourneyCard()
+        {
+            ShowJourney("sprint_learn", true, new JourneyCommitOutcome(true, "sprint_practice", 5, false, false, false));
+            Assert.That(panel.BackAvailable, Is.True);
+
+            panel.ConfigureRetry(2);
+
+            Assert.That(panel.BackAvailable, Is.False, "the legacy flow's second slot is Retry, never Back");
+            Assert.That(panel.RetryAvailable, Is.True);
+        }
+
+        [Test]
+        public void JourneyChapterWinOffersBackToMapBesideContinue()
+        {
+            var outcome = new JourneyCommitOutcome(true, "sprint_practice", 5, false, false, false);
+            ShowJourney("sprint_learn", true, outcome);
+            AssertBackPaired("TIẾP TỤC");
+            var actions = RecordJourneyActions();
+            retryButton.onClick.Invoke();
+            retryButton.onClick.Invoke();
+            Assert.That(actions, Is.EqualTo(new[] { JourneyResultAction.BackToMap }));
+
+            ShowJourney("sprint_learn", true, outcome);
+            actions.Clear();
+            continueButton.onClick.Invoke();
+            Assert.That(actions, Is.EqualTo(new[] { JourneyResultAction.Continue }));
+        }
+
+        [Test]
+        public void JourneyExamWinAlsoOffersBackToMap()
+        {
+            ShowJourney("sprint_exam", true, new JourneyCommitOutcome(true, "volleyball_learn", 5, false, false, false));
+            AssertBackPaired("TIẾP TỤC");
+            var actions = RecordJourneyActions();
+            panel.Back();
+            Assert.That(actions, Is.EqualTo(new[] { JourneyResultAction.BackToMap }));
+        }
+
+        [Test]
+        public void JourneyLearnFailureOffersBackToMapBesideLearnAgain()
+        {
+            var outcome = new JourneyCommitOutcome(true, "sprint_learn", 5, false, false, false);
+            ShowJourney("sprint_learn", false, outcome);
+            AssertBackPaired("HỌC LẠI");
+            var actions = RecordJourneyActions();
+            panel.Back();
+            Assert.That(actions, Is.EqualTo(new[] { JourneyResultAction.BackToMap }));
+
+            ShowJourney("sprint_learn", false, outcome);
+            actions.Clear();
+            panel.Continue();
+            Assert.That(actions, Is.EqualTo(new[] { JourneyResultAction.Continue }), "HỌC LẠI keeps its retry action");
+        }
+
+        [TestCase("sprint_practice")]
+        [TestCase("sprint_exam")]
+        public void JourneyFailureThatOwesAFrogJumpOffersOnlyTheFrogJump(string id)
+        {
+            ShowJourney(id, false, new JourneyCommitOutcome(true, id, 5, true, true, false));
+            AssertLone("BẬT CÓC");
+            var actions = RecordJourneyActions();
+            panel.Back();
+            Assert.That(actions, Is.Empty, "the frog jump stays mandatory");
+            panel.Continue();
+            Assert.That(actions, Is.EqualTo(new[] { JourneyResultAction.FrogJump }));
+        }
+
+        [Test]
+        public void CourseCompletingFinalWinOffersOnlyContinue()
+        {
+            ShowJourney("chess_final", true, new JourneyCommitOutcome(true, null, 5, false, false, true, true));
+            AssertLone("TIẾP TỤC");
+        }
+
+        [Test]
+        public void UnsavedResultOffersOnlyTheSaveRetry()
+        {
+            ShowJourney("sprint_learn", true, null, "Save unavailable");
+            AssertLone("LƯU LẠI");
+            ShowJourney("sprint_learn", false, null, "Save unavailable");
+            AssertLone("LƯU LẠI");
+        }
+
+        [Test]
+        public void SavedWinReShownWithARouteErrorKeepsBackToMap()
+        {
+            ShowJourney("sprint_learn", true, new JourneyCommitOutcome(true, "sprint_practice", 5, false, false, false),
+                "Could not load scene");
+            AssertBackPaired("THỬ LẠI");
+            Assert.That(error.text, Does.Contain("Could not load scene"));
+            var actions = RecordJourneyActions();
+            panel.Back();
+            Assert.That(actions, Is.EqualTo(new[] { JourneyResultAction.BackToMap }));
+        }
+
+        [Test]
+        public void JourneyFinalFailureOffersBackToMapBesideItsRetry()
+        {
+            ShowJourney("chess_final", false, new JourneyCommitOutcome(true, "chess_final", 5, false, false, false, true));
+            AssertBackPaired("THI LẠI");
+            var actions = RecordJourneyActions();
+            panel.Back();
+            Assert.That(actions, Is.EqualTo(new[] { JourneyResultAction.BackToMap }));
+        }
+
+        [TestCase(false, "THI LẠI")]
+        [TestCase(true, "LUYỆN LẠI")]
+        public void FrogJumpResultWithLivesLeftOffersBackToMap(bool practice, string primary)
+        {
+            int backs = 0, continues = 0;
+            panel.FrogJumpBackRequested += () => backs++;
+            panel.FrogJumpContinueRequested += () => continues++;
+            panel.ShowFrogJump(new FrogJumpResultView(true, true, 5, null, practice));
+            AssertBackPaired(primary);
+            retryButton.onClick.Invoke();
+            retryButton.onClick.Invoke();
+            Assert.That(backs, Is.EqualTo(1));
+            Assert.That(continues, Is.Zero);
+
+            panel.ShowFrogJump(new FrogJumpResultView(false, true, 4, null, practice));
+            AssertBackPaired(primary);
+            continueButton.onClick.Invoke();
+            Assert.That(continues, Is.EqualTo(1));
+            Assert.That(backs, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void FrogJumpResultWithNoLivesLeftOffersOnlyTheMap()
+        {
+            int backs = 0;
+            panel.FrogJumpBackRequested += () => backs++;
+            panel.ShowFrogJump(new FrogJumpResultView(true, false, 0, null));
+            AssertLone("VỀ BẢN ĐỒ");
+            panel.Back();
+            Assert.That(backs, Is.Zero);
+        }
+
+        [Test]
+        public void ReviewExamFailureKeepsItsRetryInTheSecondSlot()
+        {
+            var context = new ChallengeAttemptContext("review", "sprint_exam", ChallengeAttemptMode.Review,
+                ChallengeDifficulty.Normal);
+            var result = new ChallengeAttemptResult(context, false, new ChallengeMetrics(),
+                new MinigameResult(false, 0f, Rank.F));
+            panel.ShowChallenge(context, result, new JourneyCommitOutcome(true, null, 5, false, false, false), null);
+            Assert.That(panel.RetryAvailable, Is.True);
+            Assert.That(panel.BackAvailable, Is.False);
+            Assert.That(retryButton.gameObject.activeSelf, Is.True);
+            Assert.That(Label(retryButton), Is.EqualTo(Nfc("THI LẠI")));
+            Assert.That(panel.ContinueLabel, Is.EqualTo(Nfc("TIẾP TỤC")));
+            var actions = RecordJourneyActions();
+            panel.Back();
+            Assert.That(actions, Is.Empty);
+            retryButton.onClick.Invoke();
+            Assert.That(actions, Is.EqualTo(new[] { JourneyResultAction.Retry }));
+        }
+
+        [Test]
+        public void ReviewWinOffersOnlyContinue()
+        {
+            var context = new ChallengeAttemptContext("review", "sprint_learn", ChallengeAttemptMode.Review,
+                ChallengeDifficulty.Normal);
+            var result = new ChallengeAttemptResult(context, true, new ChallengeMetrics(completedTargets: 3));
+            panel.ShowChallenge(context, result, new JourneyCommitOutcome(true, null, 5, false, false, false), null);
+            AssertLone("TIẾP TỤC");
+        }
+
         static TMP_Text Text(GameObject parent, string name)
         {
             var text = new GameObject(name, typeof(RectTransform)).AddComponent<TextMeshProUGUI>();

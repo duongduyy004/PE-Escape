@@ -25,12 +25,6 @@ namespace KMA.Tests.Presentation
         public void LaneCenter01_CentersFourEqualLanes(int lane, float expected) =>
             Assert.That(SprintUiLayout.LaneCenter01(lane, 4), Is.EqualTo(expected).Within(.0001f));
 
-        [TestCase(69.9f, false)]
-        [TestCase(70f, true)]
-        [TestCase(100f, true)]
-        public void FinishVisible_UsesApprovedThreshold(float distance, bool expected) =>
-            Assert.That(SprintUiLayout.FinishVisible(distance), Is.EqualTo(expected));
-
         [TestCaseSource(nameof(LandscapeSafeAreas))]
         public void ControlVisualIsSmallerThanTheTapAreaItSitsIn(Rect safe)
         {
@@ -75,48 +69,6 @@ namespace KMA.Tests.Presentation
             Assert.That(left.height, Is.EqualTo(safe.height * .26f).Within(.01f));
             Assert.That(left.width, Is.EqualTo(safe.height * .43f).Within(.01f));
             Assert.That(right.size, Is.EqualTo(left.size));
-        }
-
-        [TestCase(60f, 0f)]
-        [TestCase(70f, 0f)]
-        [TestCase(85f, .5f)]
-        [TestCase(100f, 1f)]
-        [TestCase(120f, 1f)]
-        public void FinishReveal01_RunsFromTheRevealDistanceToTheLine(float distance, float expected) =>
-            Assert.That(SprintUiLayout.FinishReveal01(distance), Is.EqualTo(expected).Within(.0001f));
-
-        [Test]
-        public void FinishLineStartsAtTheEntryPointSoItNeverPopsIn()
-        {
-            const float entryX = 12f;
-            Assert.That(SprintTrackLayout.FinishLineX(0f, entryX), Is.EqualTo(entryX).Within(.0001f),
-                "At the reveal distance the line must still be off-screen, not sitting on the track.");
-        }
-
-        [Test]
-        public void FinishLineSlidesInMonotonically()
-        {
-            const float entryX = 12f;
-            float previous = float.MaxValue;
-            for (float distance = 70f; distance <= 100f; distance += 2.5f)
-            {
-                float x = SprintTrackLayout.FinishLineX(SprintUiLayout.FinishReveal01(distance), entryX);
-                Assert.That(x, Is.LessThan(previous), $"The line must keep approaching at {distance} m.");
-                previous = x;
-            }
-        }
-
-        [Test]
-        public void FinishLineComesToRestWhereTheRunnerFinishes()
-        {
-            Assert.That(SprintTrackLayout.FinishLineX(1f, 12f), Is.EqualTo(SprintTrackLayout.FinishX).Within(.0001f));
-            Assert.That(SprintTrackLayout.TrackStartX + SprintTrackLayout.TrackLength,
-                Is.EqualTo(SprintTrackLayout.FinishX).Within(.0001f),
-                "A runner at full distance must stand on the line.");
-            // The narrowest supported view (16:10 at ortho 5.4) is 8.64 units either side of centre.
-            Assert.That(SprintTrackLayout.FinishX + SprintTrackLayout.FinishWidth * .5f, Is.LessThan(8.64f),
-                "The line must be on screen at 16:10.");
-            Assert.That(SprintTrackLayout.FinishTopY, Is.GreaterThan(SprintTrackLayout.FinishBottomY));
         }
 
         [TestCaseSource(nameof(LandscapeSafeAreas))]
@@ -187,8 +139,6 @@ namespace KMA.Tests.Presentation
                 Is.EqualTo(SprintUiLayout.ScoreboardRect(reference).size), "ScoreboardRect");
             Assert.That(SprintUiLayout.PauseRect(safe).size,
                 Is.EqualTo(SprintUiLayout.PauseRect(reference).size), "PauseRect");
-            Assert.That(SprintUiLayout.ModeChipRect(safe).size,
-                Is.EqualTo(SprintUiLayout.ModeChipRect(reference).size), "ModeChipRect");
             Assert.That(SprintUiLayout.CountdownRect(safe).size,
                 Is.EqualTo(SprintUiLayout.CountdownRect(reference).size), "CountdownRect");
             Assert.That(SprintUiLayout.InstructionRect(safe).size,
@@ -245,8 +195,9 @@ namespace KMA.Tests.Presentation
                 raceNames.Add(named.Name);
             Assert.That(raceNames, Does.Not.Contain("Countdown"));
             Assert.That(raceNames, Does.Not.Contain("Instruction"));
-            Assert.That(raceNames, Has.Count.EqualTo(6));
-            Assert.That(SprintUiLayout.StartStateRects(safe), Has.Length.EqualTo(8));
+            Assert.That(raceNames, Has.Count.EqualTo(5));
+            Assert.That(raceNames, Does.Not.Contain("ModeChip"), "the Sprint HUD carries no mode label");
+            Assert.That(SprintUiLayout.StartStateRects(safe), Has.Length.EqualTo(7));
         }
     }
 }

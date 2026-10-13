@@ -8,6 +8,8 @@ using UnityEngine.InputSystem;
 
 namespace KMA.Gameplay
 {
+    // Rules tick before the runner presenters place the bodies, so player and rivals share one frame.
+    [DefaultExecutionOrder(-10)]
     public sealed class SprintController : MinigameBase, IChallengeController, IMinigameGuideSource
     {
         public override bool UsesSharedTutorial => false;
@@ -56,8 +58,10 @@ namespace KMA.Gameplay
         public int CorrectStreak => rules == null ? 0 : rules.CorrectStreak;
         public int BestStreak => challengeRules == null ? CorrectStreak : challengeRules.BestStreak;
         public float LearnTimeRemaining => challengeRules == null ? 0f : challengeRules.LearnTimeRemaining;
-        public float LearnProgress01 => challengeRules == null ? 0f : challengeRules.LearnProgress01;
+        /// How far along the straight the player is, in every chapter; full once they cross the line.
+        public float Progress01 => rules == null ? 0f : Mathf.Clamp01(rules.Snapshot.Distance / Mathf.Max(1f, TargetDistance));
         public bool IsComboBoosting => rules != null && rules.IsComboBoosting;
+        public bool IsFalling => rules != null && rules.IsFalling;
         public float[] RivalDistances => rules == null ? System.Array.Empty<float>() : rules.RivalDistances;
         public SubjectId Subject => SubjectId.Sprint;
         public float TargetDistance => challengeDefinition != null && challengeDefinition.Distance > 0f
@@ -74,6 +78,15 @@ namespace KMA.Gameplay
         public IReadOnlyList<TutorialStep> BuildGuide() =>
             SprintGuide.Build(challengeDefinition?.Kind, TargetCount, TargetDistance, TargetTime, RivalCount);
         public float GetRivalDistance(int index) => rules == null ? 0f : rules.GetRivalDistance(index);
+        /// Where the player's body is on the straight, including the run-out past the line.
+        public float PlayerPosition => rules == null ? 0f : rules.Position;
+        public float PlayerMetersPerSecond => rules == null ? 0f : rules.MetersPerSecond;
+        public bool IsPlayerFinished => rules != null && rules.IsFinished;
+        /// The line everyone races to, Learn included.
+        public float RaceGoal => TargetDistance;
+        public float GetRivalPosition(int index) => rules == null ? 0f : rules.GetRivalPosition(index);
+        public float GetRivalSpeed(int index) => rules == null ? 0f : rules.GetRivalSpeed(index);
+        public bool HasRivalFinished(int index) => rules != null && rules.HasRivalFinished(index);
         public bool IsRivalSurging(int index) => rules != null && rules.IsRivalSurging(index);
         public bool IsRivalSlowing(int index) => rules != null && rules.IsRivalSlowing(index);
 
@@ -82,6 +95,12 @@ namespace KMA.Gameplay
             base.Awake();
             rules = CreateRulesFromAuthoredProfiles();
             ConfigureInputActions();
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+            if (Lifecycle.Phase == MinigamePhase.Resolve) rules?.TickAfterRace(Time.deltaTime);
         }
 
         public void ConfigureChallenge(ChallengeDefinition definition, ChallengeAttemptContext context)
@@ -96,7 +115,8 @@ namespace KMA.Gameplay
             challengeDefinition = definition;
             challengeContext = context;
             challengeRules = new SprintChallengeRules(definition, SprintBalanceConfig.LoadDefault().ToRuntime(),
-                CreateRuntimeProfiles());
+                CreateRuntimeProfiles(),
+                UnityEngine.Random.Range(RivalMotionTraits.MinStopDistance, RivalMotionTraits.MaxStopDistance));
             rules = challengeRules.Race;
             terminalResolved = false;
             rivalWaitElapsed = 0f;
@@ -211,7 +231,7 @@ namespace KMA.Gameplay
         }
 
         /// The Learn familiarity clock advances only while the learner can play; Sprint teacher lines
-        /// are shown on unscaled time, so suspend the lesson simulation until the line has finished.
+        /// are shown on unscaled time, so hold the learner until the line has finished. Rivals keep racing.
         public void SetLearnDialogueSuspended(bool suspended) => learnDialogueSuspended = suspended;
 
         public void ConfigureForTest()
@@ -229,9 +249,9 @@ namespace KMA.Gameplay
             challengeContext = null;
         }
 
-        public void AdvanceToDistance(float value)
+        public void AdvanceToDistance(float value, RivalPaceProfile[] rivals = null)
         {
-            rules = SprintRules.ForTest(value, rules == null ? 0f : rules.Elapsed, 1);
+            rules = SprintRules.ForTest(value, rules == null ? 0f : rules.Elapsed, 1, rivals);
         }
 
         public void Simulate(float dt)
@@ -239,6 +259,8 @@ namespace KMA.Gameplay
             Lifecycle.Tick(dt);
             if (Lifecycle.Phase == MinigamePhase.Play)
                 TickPlay(dt);
+            else if (Lifecycle.Phase == MinigamePhase.Resolve)
+                rules.TickAfterRace(dt);
         }
 
         public void OnLeftTap() => OnTap(Side.Left);
@@ -275,9 +297,7 @@ namespace KMA.Gameplay
         protected override MinigameHudState BuildHudState() => new MinigameHudState(
             phase: Phase.ToString(),
             timeRemaining: Mathf.Max(0f, rules == null ? 0f : TargetTime - rules.Elapsed),
-            progress01: challengeDefinition != null && challengeDefinition.Kind == ChallengeKind.Learn
-                ? (challengeRules == null ? 0f : challengeRules.LearnProgress01)
-                : Mathf.Clamp01((rules == null ? 0f : rules.Snapshot.Distance) / TargetDistance),
+            progress01: Progress01,
             stamina01: 0f,
             score: 0f,
             statusText: IsWaitingForRivals ? WaitForRivalsText : challengeDefinition == null ? "TAP LEFT / RIGHT"
@@ -285,7 +305,12 @@ namespace KMA.Gameplay
                     ? $"CHUỖI TỐT NHẤT {BestStreak}/{TargetCount}" : $"{TargetDistance:0} M · {TargetTime:0} S");
         protected override void TickPlay(float dt)
         {
-            if (IsLearnChallenge && learnDialogueSuspended) return;
+            if (IsLearnChallenge && learnDialogueSuspended)
+            {
+                // The teacher line holds the learner's clock and taps; the rest of the field races on.
+                rules.TickRivals(dt);
+                return;
+            }
             float before = rules.Snapshot.Distance;
             if (challengeRules != null) challengeRules.Tick(dt);
             else rules.Tick(dt);
@@ -347,12 +372,11 @@ namespace KMA.Gameplay
             if (!finished && !timedOut)
                 return;
 
-            if (!learn && finished && rules.RivalCount > 0 && !rules.AllRivalsReached(TargetDistance))
+            if (!learn && finished)
             {
-                // Lock the player's result and let the rivals run in before the result card opens.
                 rules.FinishRace();
                 rivalWaitElapsed = 0f;
-                return;
+                if (rules.RivalCount > 0 && !rules.AllRivalsReached(TargetDistance)) return;
             }
 
             Resolve();
