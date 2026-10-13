@@ -7,6 +7,7 @@ namespace KMA.Gameplay
     public sealed class FootballRules
     {
         public const float KickAnimationSeconds = .18f;
+        public const float ShotWindowSeconds = 3f;
         const float ShotFeedbackSeconds = .9f;
         const int DefaultMaxKicks = 5;
         readonly FootballTuning tuning;
@@ -14,6 +15,9 @@ namespace KMA.Gameplay
         readonly List<FootballOutcome> outcomes = new List<FootballOutcome>(DefaultMaxKicks);
         readonly IReadOnlyList<FootballOutcome> readonlyOutcomes;
         double chargeSeconds, flightAccumulator;
+        float shotWindowElapsed;
+        bool shotWindowActive;
+        bool autoOpenShotWindow;
 
         public FootballRules(FootballTuning tuning, FootballMatchOptions options = null)
         {
@@ -28,6 +32,10 @@ namespace KMA.Gameplay
         public float KeeperX => Flight?.KeeperX ?? 0f;
         public float FlightElapsed => Flight?.Time ?? 0f;
         public float StateElapsed { get; private set; }
+        public float ShotTimeRemaining => IsShotWindowOpen
+            ? Mathf.Max(0f, ShotWindowSeconds - shotWindowElapsed) : 0f;
+        public bool IsShotWindowOpen => shotWindowActive &&
+            (State == FootballState.Aiming || State == FootballState.Charging);
         public FootballShot? LastShot { get; private set; }
         public FootballOutcome? LastOutcome { get; private set; }
         public FootballFlightSimulation Flight { get; private set; }
@@ -39,22 +47,34 @@ namespace KMA.Gameplay
         public int RequiredGoals => options.RequiredGoals;
         public bool KeeperEnabled => options.KeeperEnabled;
 
-        public bool Start()
+        /// <summary>Starts the match. The controller can defer opening the first window until after its whistle.</summary>
+        public bool Start(bool openShotWindow = true)
         {
             if (State != FootballState.Start) return false;
+            autoOpenShotWindow = openShotWindow;
+            shotWindowActive = false;
+            shotWindowElapsed = ShotWindowSeconds;
             ChangeState(FootballState.Aiming);
+            if (openShotWindow) BeginShotWindow();
+            return true;
+        }
+        public bool BeginShotWindow()
+        {
+            if (State != FootballState.Aiming || shotWindowActive) return false;
+            shotWindowElapsed = 0f;
+            shotWindowActive = true;
             return true;
         }
         public bool SetAim(float direction)
         {
             if (!FootballTuning.IsFinite(direction) || Mathf.Abs(direction) > 1f) return false;
-            if (State != FootballState.Aiming) return false;
+            if (!IsShotWindowOpen || State != FootballState.Aiming) return false;
             AimX = direction;
             return true;
         }
         public bool BeginCharge()
         {
-            if (State != FootballState.Aiming) return false;
+            if (!IsShotWindowOpen || State != FootballState.Aiming) return false;
             Power = 0f;
             chargeSeconds = 0d;
             LastShot = null;
@@ -69,6 +89,7 @@ namespace KMA.Gameplay
             LastShot = FootballShotSolver.Create(AimX, Power);
             Flight = new FootballFlightSimulation(LastShot.Value, tuning, options.KeeperEnabled);
             flightAccumulator = 0d;
+            shotWindowActive = false;
             ChangeState(FootballState.Kicking);
             return true;
         }
@@ -92,13 +113,26 @@ namespace KMA.Gameplay
                 switch (State)
                 {
                     case FootballState.Start:
-                    case FootballState.Aiming:
                     case FootballState.MatchResult:
                         return;
+                    case FootballState.Aiming:
+                        if (!shotWindowActive) return;
+                        if (!ConsumeShotWindow(ref remaining)) return;
+                        break;
                     case FootballState.Charging:
-                        chargeSeconds = (chargeSeconds + remaining) % (tuning.PowerRiseSeconds * 2d);
+                        if (!shotWindowActive) return;
+                        double windowRemaining = ShotWindowSeconds - shotWindowElapsed;
+                        double chargeStep = Math.Min(remaining, Math.Max(0d, windowRemaining));
+                        chargeSeconds = (chargeSeconds + chargeStep) % (tuning.PowerRiseSeconds * 2d);
                         Power = (float)((1d - Math.Cos(chargeSeconds * Math.PI / tuning.PowerRiseSeconds)) * .5d);
                         StateElapsed = (float)chargeSeconds;
+                        shotWindowElapsed += (float)chargeStep;
+                        remaining -= chargeStep;
+                        if (shotWindowElapsed >= ShotWindowSeconds - 1e-6f)
+                        {
+                            ResolveTimeout();
+                            continue;
+                        }
                         return;
                     case FootballState.Kicking:
                         Consume(ref remaining, KickAnimationSeconds, FootballState.Flying);
@@ -137,6 +171,11 @@ namespace KMA.Gameplay
                             Flight = null;
                             LastShot = null;
                             LastOutcome = null;
+                            shotWindowActive = autoOpenShotWindow;
+                            shotWindowElapsed = autoOpenShotWindow ? 0f : ShotWindowSeconds;
+                            // Keep the next shot's three-second window out of the same large tick
+                            // that finished the previous feedback phase.
+                            return;
                         }
                         break;
                     default: return;
@@ -170,6 +209,34 @@ namespace KMA.Gameplay
             remaining -= step;
             if (StateElapsed >= duration) ChangeState(next);
         }
+        bool ConsumeShotWindow(ref double remaining)
+        {
+            double available = Math.Min(remaining, Math.Max(0d, ShotWindowSeconds - shotWindowElapsed));
+            shotWindowElapsed += (float)available;
+            remaining -= available;
+            if (shotWindowElapsed >= ShotWindowSeconds - 1e-6f)
+            {
+                ResolveTimeout();
+                return true;
+            }
+            return false;
+        }
+        void ResolveTimeout()
+        {
+            if (!IsShotWindowOpen) return;
+            Power = 0f;
+            chargeSeconds = 0d;
+            Flight = null;
+            LastShot = null;
+            LastOutcome = FootballOutcome.Timeout;
+            shotWindowActive = false;
+            outcomes.Add(LastOutcome.Value);
+            Kicks++;
+            ChangeState(IsMatchCompleteAfterKick() ? FootballState.MatchResult : FootballState.ShotResult);
+        }
+        bool IsMatchCompleteAfterKick() => options.MaxKicks.HasValue &&
+            ((options.StopAtRequiredGoals && Goals >= options.RequiredGoals) ||
+             Kicks >= options.MaxKicks.Value);
         void ChangeState(FootballState state) { State = state; StateElapsed = 0f; }
     }
 }

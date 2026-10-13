@@ -26,6 +26,7 @@ namespace KMA.Gameplay
         High,
         Short,
         Post,
-        Crossbar
+        Crossbar,
+        Timeout
     }
 }

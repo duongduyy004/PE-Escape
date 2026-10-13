@@ -90,11 +90,9 @@ namespace KMA.Gameplay
             ballShadow.transform.localScale = shadowScale * point.z;
             float keeperX = flying ? flight.KeeperX : 0f;
             goalkeeper.enabled = rules.KeeperEnabled;
-            // Keep the Ready silhouette and its simulated rotation up to the actual contact/outcome.
-            // Empty reach/dive art is already drawn on the ground, so the post-contact pose is upright
-            // in transform space and must not inherit the simulation's Ready-pose angle.
-            bool outcomeResolved = flight != null && flight.Outcome.HasValue;
-            float keeperAngle = flying && !outcomeResolved ? flight.KeeperAngle : 0f;
+            // Keep the simulated horizontal travel and tilt through the saved-ball landing hold so
+            // the keeper visibly reaches, leans, and falls away from the centre of the goal.
+            float keeperAngle = flying ? flight.KeeperAngle : 0f;
             goalkeeper.transform.position = KeeperWorldPosition(keeperX, keeperAngle);
             goalkeeper.transform.rotation = Quaternion.Euler(0f, 0f, -keeperAngle);
             float swing = rules.State == FootballState.Kicking ? Mathf.Sin(Mathf.Clamp01(rules.StateElapsed / .18f) * Mathf.PI) : 0f;

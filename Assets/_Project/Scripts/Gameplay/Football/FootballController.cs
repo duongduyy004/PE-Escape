@@ -32,6 +32,8 @@ namespace KMA.Gameplay
         bool matchRequested;
         bool rulesStarted;
         bool resultSubmitted;
+        int lastReportedKick = -1;
+        int lastStartedKick = -1;
         bool appPaused;
         bool hasFocus = true;
         FootballFlightSimulation kickedFlight, soundedOutcomeFlight;
@@ -39,6 +41,7 @@ namespace KMA.Gameplay
         ChallengeAttemptContext challengeContext;
 
         public FootballRules Rules => rules;
+        public float ShotTimeRemaining => rules?.ShotTimeRemaining ?? 0f;
         public string GuideKey => FootballGuide.Key;
         // Read from the live rules, because OptionsFor hardcodes the learn and exam numbers.
         public IReadOnlyList<TutorialStep> BuildGuide() => rules == null
@@ -48,6 +51,10 @@ namespace KMA.Gameplay
         public SubjectId Subject => SubjectId.Football;
         public event Action<ChallengeAttemptResult> ChallengeCompleted;
         public event Action<FootballState> StatePresented;
+        /// Raised when the whistle opens a new aiming/charging window.
+        public event Action<int> ShotWindowStarted;
+        /// Raised once for every completed shot, including timeout shots.
+        public event Action<FootballOutcome> ShotResolved;
         public ChallengeDefinition CurrentChallenge => challengeDefinition;
         FootballState? presentedState;
         void NotifyPresentedState()
@@ -81,6 +88,8 @@ namespace KMA.Gameplay
             matchRequested = true;
             rulesStarted = false;
             resultSubmitted = false;
+            lastReportedKick = -1;
+            lastStartedKick = -1;
             lastResult = null;
             hud.HideStart();
             SetTutorialGate(false); // Requests once; independent preparation holds remain closed.
@@ -102,6 +111,8 @@ namespace KMA.Gameplay
             matchRequested = false;
             rulesStarted = false;
             resultSubmitted = false;
+            lastReportedKick = -1;
+            lastStartedKick = -1;
             lastResult = null;
             hud.ConfigureChallenge(definition, false);
             hud.ShowStart(selectedDifficulty);
@@ -166,7 +177,9 @@ namespace KMA.Gameplay
 
             if (!rulesStarted)
             {
-                rulesStarted = rules.Start();
+                rulesStarted = rules.Start(openShotWindow: false);
+                if (rulesStarted)
+                    NotifyShotWindowStarted();
                 RefreshInputAvailability();
             }
             if (!rulesStarted)
@@ -175,6 +188,8 @@ namespace KMA.Gameplay
             FootballFlightSimulation previousFlight = rules.Flight;
             rules.Tick(deltaTime);
             NotifyPresentedState();
+            NotifyShotResolved();
+            NotifyShotWindowStarted();
             UpdateAudio(rules.Flight ?? previousFlight);
             RefreshInputAvailability();
             if (rules.State == FootballState.MatchResult)
@@ -254,6 +269,27 @@ namespace KMA.Gameplay
             }
             inputBridge.SetEnabled(rules.State == FootballState.Aiming,
                 rules.State == FootballState.Aiming || rules.State == FootballState.Charging);
+        }
+
+        void NotifyShotWindowStarted()
+        {
+            if (rules == null || rules.State != FootballState.Aiming || rules.IsShotWindowOpen ||
+                rules.Kicks <= lastStartedKick)
+                return;
+            lastStartedKick = rules.Kicks;
+            ShotWindowStarted?.Invoke(lastStartedKick);
+            rules.BeginShotWindow();
+        }
+
+        void NotifyShotResolved()
+        {
+            if (rules == null || rules.Kicks <= lastReportedKick)
+                return;
+            while (lastReportedKick < rules.Kicks - 1)
+            {
+                lastReportedKick++;
+                ShotResolved?.Invoke(rules.Outcomes[lastReportedKick]);
+            }
         }
 
         void OnApplicationPause(bool paused)
