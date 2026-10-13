@@ -32,7 +32,7 @@ namespace KMA.Tests.EditorTools
             Assert.That(intro.color.a, Is.EqualTo(1f).Within(1e-3f));
             string text = intro.GetComponentInChildren<TMP_Text>(true).text;
             Assert.That(text, Does.Not.Contain("Chiếu hết"));
-            Assert.That(text, Does.Contain("90 giây"));
+            Assert.That(text, Does.Contain("Đang tạo"), "the card is filled with the puzzle limits once the puzzle is ready");
         }
 
         [Test]

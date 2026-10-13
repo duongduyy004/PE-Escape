@@ -132,7 +132,7 @@ namespace KMA.Gameplay.Chess
             hud.SetTurn(machine.Phase);
             hud.SetHintAvailable(false);
             hud.ShowAnalysisError(false);
-            hud.SetIntro($"Chiếu hết trong tối đa {machine.MaxMoves} nước.\nThời gian suy nghĩ {ChessGuide.TimeWords(machine.Clock.Limit)}.");
+            hud.SetIntro($"Tối đa {machine.MaxMoves} nước.\nThời gian suy nghĩ {ChessGuide.TimeWords(machine.Clock.Limit)}.");
             hud.ShowIntro(true);
             board.Render(machine.Position, null);
             RefreshInput();
