@@ -263,17 +263,23 @@ namespace KMA.Tests.Presentation
         }
 
         [UnityTest]
-        public IEnumerator TrackLayerStaysFixedAsRunnersAdvance()
+        public IEnumerator TrackLayerIsNailedToTheWorldWhileTheSkyDrifts()
         {
             yield return SceneManager.LoadSceneAsync("MG_Sprint");
             var parallax = Object.FindFirstObjectByType<SprintParallax>();
-            Assert.That(parallax.TryGetLayerTilePositions(2, out var firstBefore, out var secondBefore), Is.True);
+            Assert.That(parallax.TryGetLayerTilePositions(2, out var trackBefore, out _), Is.True);
+            Assert.That(parallax.TryGetLayerTilePositions(0, out var skyBefore, out _), Is.True);
+            float rootBefore = parallax.transform.position.x;
 
             parallax.RefreshForTest(25f);
 
-            Assert.That(parallax.TryGetLayerTilePositions(2, out var firstAfter, out var secondAfter), Is.True);
-            Assert.That(firstAfter, Is.EqualTo(firstBefore).Within(.001f));
-            Assert.That(secondAfter, Is.EqualTo(secondBefore).Within(.001f));
+            Assert.That(parallax.transform.position.x, Is.EqualTo(rootBefore + 25f).Within(.001f));
+            Assert.That(parallax.TryGetLayerTilePositions(2, out var trackAfter, out _), Is.True);
+            Assert.That(rootBefore + 25f + trackAfter.x, Is.EqualTo(rootBefore + trackBefore.x).Within(.001f),
+                "the painted track must not move in the world, so runners and lines stay on it");
+            Assert.That(parallax.TryGetLayerTilePositions(0, out var skyAfter, out _), Is.True);
+            Assert.That(skyAfter.x - skyBefore.x, Is.EqualTo(-25f * .15f).Within(.001f),
+                "the sky drifts past at its own slower rate");
         }
     }
 }
