@@ -182,7 +182,7 @@ namespace KMA.Tests.Presentation
         }
 
         [UnityTest]
-        public IEnumerator PlayerMarkerStaysOnTheTrackAtBothEndsOfTheRace()
+        public IEnumerator PlayerMarkerStaysInViewAtBothEndsOfTheRace()
         {
             yield return SceneManager.LoadSceneAsync("MG_Sprint");
             var controller = Object.FindFirstObjectByType<SprintController>();
@@ -192,22 +192,40 @@ namespace KMA.Tests.Presentation
 
             var marker = GameObject.Find("Player").GetComponentInChildren<TMPro.TextMeshPro>(true).transform.parent;
             Assert.That(marker.name, Is.EqualTo("PlayerMarker"));
+            const float halfView = 9.6f;
 
-            // The track spans the full viewport at 16:9, so a marker pinned to one side would
-            // leave the screen at the starting line or at the tape.
-            const float trackEdge = 9.6f;
+            foreach (float distance in new[] { 0f, SprintRules.RaceDistance })
+            {
+                controller.AdvanceToDistance(distance);
+                yield return null;
+                yield return null;
+                float fromCentre = marker.position.x - Camera.main.transform.position.x;
+                Assert.That(fromCentre, Is.InRange(-halfView, halfView), $"marker off screen at {distance} m");
+            }
+        }
 
-            controller.AdvanceToDistance(0f);
-            yield return null;
-            yield return null;
-            Assert.That(marker.position.x, Is.GreaterThan(-trackEdge),
-                "at the starting line the marker must stay inside the track, not off the left edge");
+        [UnityTest]
+        public IEnumerator CameraHoldsAtTheStartThenFollowsOnlyThePlayer()
+        {
+            yield return SceneManager.LoadSceneAsync("MG_Sprint");
+            var controller = Object.FindFirstObjectByType<SprintController>();
+            controller.ConfigureForTest();
+            controller.enabled = false;
+            var camera = Camera.main;
+            Assert.That(camera.GetComponent<SprintCameraFollow>(), Is.Not.Null);
+            float startX = camera.GetComponent<SprintCameraFollow>().StartX;
 
-            controller.AdvanceToDistance(SprintRules.RaceDistance);
+            controller.AdvanceToDistance(5f, new[] { new RivalPaceProfile("Far", 9f, 9f) });
             yield return null;
             yield return null;
-            Assert.That(marker.position.x, Is.LessThan(trackEdge),
-                "at the finish the marker must stay inside the track, not off the right edge");
+            Assert.That(camera.transform.position.x, Is.EqualTo(startX).Within(.001f),
+                "the player is still left of centre, so the camera waits");
+
+            controller.AdvanceToDistance(60f, new[] { new RivalPaceProfile("Far", 9f, 9f) });
+            yield return null;
+            yield return null;
+            Assert.That(camera.transform.position.x, Is.EqualTo(SprintTrackLayout.WorldX(60f)).Within(.01f),
+                "the camera keeps the player centred, whatever the rivals do");
         }
 
         [UnityTest]

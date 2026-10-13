@@ -96,8 +96,20 @@ namespace KMA.Gameplay
             EnsureStartPresentation(root, safe);
             EnsureControls(root, safe);
             EnsurePlayerIdentity(root);
+            EnsureCameraFollow();
             EnsureFinishLine(root);
             EnsureResultPresentation();
+        }
+
+        /// The race camera rides with the player only; rivals come and go from the frame.
+        static void EnsureCameraFollow()
+        {
+            Camera camera = Camera.main;
+            Transform player = GameObject.Find("Player")?.transform;
+            if (camera == null || player == null)
+                return;
+            var follow = camera.GetComponent<SprintCameraFollow>() ?? camera.gameObject.AddComponent<SprintCameraFollow>();
+            follow.Bind(player);
         }
 
         public static void ConfigureChallenge(ChallengeDefinition definition)
@@ -438,11 +450,13 @@ namespace KMA.Gameplay
     /// ~0.2 units separate the player's head from the next lane's feet — an overhead plate lands
     /// on the lane 1 rival's body. The marker rides alongside the runner inside their own lane.
     ///
-    /// The track spans the whole viewport at 16:9, so a fixed side would push the marker off
-    /// screen at the starting line or at the tape; it takes whichever side has room instead.
+    /// The camera follows the player, so the marker normally rides ahead of them; it only swaps
+    /// sides if the runner is well right of the view centre.
     /// </summary>
     public sealed class SprintPlayerMarkerPlacement : MonoBehaviour
     {
+        // The marker swaps to the runner's left only once they sit well right of the view centre.
+        public const float FlipBeyond = 2f;
         public const float SideOffset = 1.05f;
         public const float MarkerHeight = .42f;
         public const float ChevronOffset = .52f;
@@ -468,7 +482,8 @@ namespace KMA.Gameplay
                 return;
 
             float runnerX = marker.parent == null ? 0f : marker.parent.position.x;
-            float offset = runnerX > 0f ? -SideOffset : SideOffset;
+            float viewX = Camera.main == null ? 0f : Camera.main.transform.position.x;
+            float offset = runnerX - viewX > FlipBeyond ? -SideOffset : SideOffset;
             marker.localPosition = new Vector3(offset, MarkerHeight, 0f);
 
             if (chevron == null)
