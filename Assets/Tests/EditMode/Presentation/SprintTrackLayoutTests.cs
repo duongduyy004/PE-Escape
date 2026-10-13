@@ -93,5 +93,9 @@ namespace KMA.Tests.Presentation
         [Test]
         public void FinishLineSitsAtTheRaceDistanceInTheWorld() =>
             Assert.That(SprintTrackLayout.FinishWorldX(150f), Is.EqualTo(140.4f).Within(.0001f));
+
+        [Test]
+        public void FinishLineSpansThePaintedLanes() =>
+            Assert.That(SprintTrackLayout.FinishTopY, Is.GreaterThan(SprintTrackLayout.FinishBottomY));
     }
 }

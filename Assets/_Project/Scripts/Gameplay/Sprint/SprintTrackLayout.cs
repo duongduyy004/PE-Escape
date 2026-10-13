@@ -29,8 +29,7 @@ namespace KMA.Gameplay
         public const float BackdropBottomY = -5.4f;
         public const float BackdropHeight = 15.4477f;
 
-        /// Runners start here and stop on the finish line, in world units. The line sits where a 16:10
-        /// view (the narrowest supported) still shows it; wider screens just show more track beyond it.
+        /// Runners line up here; see WorldX.
         public const float TrackStartX = -9.6f;
 
         /// The race runs along a real straight: one metre is one world unit from the start.
@@ -40,17 +39,11 @@ namespace KMA.Gameplay
 
         /// The finish line stands where a runner who has covered the whole race distance stands.
         public static float FinishWorldX(float raceDistance) => WorldX(raceDistance);
-        public const float FinishX = 6.5f;
-        public const float TrackLength = FinishX - TrackStartX;
         public const float FinishWidth = .5f;
 
         /// The checkerboard spans the painted lanes, from the top lane line to the bottom one.
         public static float FinishTopY => WorldYForRow(LaneLineRows[0]);
         public static float FinishBottomY => WorldYForRow(LaneLineRows[LaneLineRows.Length - 1]);
-
-        /// The line slides in from <paramref name="entryX"/> (just off the right edge) and rests on FinishX.
-        public static float FinishLineX(float reveal01, float entryX) =>
-            Mathf.Lerp(entryX, FinishX, Mathf.Clamp01(reveal01));
 
         public static float UnitsPerRow => BackdropHeight / TextureHeight;
 

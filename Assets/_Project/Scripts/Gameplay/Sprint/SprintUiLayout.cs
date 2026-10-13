@@ -7,8 +7,6 @@ namespace KMA.Gameplay
     /// physical size across landscape aspects; only the gaps between them stretch.
     public static class SprintUiLayout
     {
-        public const float FinishRevealDistance = 70f;
-        public const float FinishDistance = 100f;
 
         const float EdgeX = .02f;   // horizontal inset, fraction of width
         const float RailInsetX = .03f;
@@ -50,13 +48,6 @@ namespace KMA.Gameplay
                 throw new System.ArgumentOutOfRangeException(nameof(laneCount));
             return (Mathf.Clamp(laneIndex, 0, laneCount - 1) + .5f) / laneCount;
         }
-
-        public static bool FinishVisible(float distance) => distance >= FinishRevealDistance;
-
-        /// How far the finish line has travelled in from the right edge: 0 the moment it is
-        /// revealed, 1 when the runner reaches the line. See <see cref="SprintTrackLayout.FinishLineX"/>.
-        public static float FinishReveal01(float distance) =>
-            Mathf.Clamp01(Mathf.InverseLerp(FinishRevealDistance, FinishDistance, distance));
 
         // The one deliberate exception to height-only sizing: the rail spans the screen
         // because it maps 0-100 m onto the same left-right axis the runner moves along.

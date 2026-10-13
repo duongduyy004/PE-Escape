@@ -59,17 +59,6 @@ namespace KMA.Gameplay
         public float LearnProgress01 => challengeRules == null ? 0f : challengeRules.LearnProgress01;
         public bool IsComboBoosting => rules != null && rules.IsComboBoosting;
         public bool IsFalling => rules != null && rules.IsFalling;
-        /// Distance of whoever is furthest along, the player or a rival.
-        public float LeadDistance
-        {
-            get
-            {
-                if (rules == null) return 0f;
-                float lead = rules.Distance;
-                for (int i = 0; i < rules.RivalCount; i++) lead = Mathf.Max(lead, rules.GetRivalDistance(i));
-                return lead;
-            }
-        }
         public float[] RivalDistances => rules == null ? System.Array.Empty<float>() : rules.RivalDistances;
         public SubjectId Subject => SubjectId.Sprint;
         public float TargetDistance => challengeDefinition != null && challengeDefinition.Distance > 0f

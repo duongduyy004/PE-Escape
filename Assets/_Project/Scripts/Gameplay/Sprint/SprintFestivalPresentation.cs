@@ -97,7 +97,7 @@ namespace KMA.Gameplay
             EnsureControls(root, safe);
             EnsurePlayerIdentity(root);
             EnsureCameraFollow();
-            EnsureFinishLine(root);
+            EnsureTrackLines(root);
             EnsureResultPresentation();
         }
 
@@ -133,12 +133,7 @@ namespace KMA.Gameplay
                 instruction.text = VietText.Fix(learn
                     ? $"TẬP LUÂN PHIÊN HAI CHÂN TRONG {definition.TimeLimit:0} GIÂY"
                     : $"CHẠY {definition.Distance:0} M TRONG {definition.TimeLimit:0} GIÂY");
-            var finishLine = chrome.GetComponent<SprintFinishLinePresenter>();
-            if (finishLine != null)
-            {
-                finishLine.enabled = !learn;
-                if (learn && finishLine.FinishRoot != null) finishLine.FinishRoot.SetActive(false);
-            }
+            chrome.GetComponent<SprintFinishLinePresenter>()?.RefreshForTest();
         }
 
         /// Positions a RectTransform from an absolute rect expressed in the safe area's own space.
@@ -161,36 +156,39 @@ namespace KMA.Gameplay
         static Rect SafeRect(RectTransform safeArea) =>
             new Rect(0f, 0f, safeArea.rect.width, safeArea.rect.height);
 
-        /// The finish line is drawn on the track in world space, beside the runners, so where it rests
-        /// is exactly where they finish whatever the screen aspect.
-        static void EnsureFinishLine(RectTransform root)
+        /// The start and finish lines are painted on the track in world space beside the runners;
+        /// the camera finds them as the race moves along the straight.
+        static void EnsureTrackLines(RectTransform root)
         {
-            const string name = "SprintFinishLine";
-            const int squareCount = 10;
-            const int sortingOrder = 5;   // over the track backdrop, under the runners (11+)
+            GameObject finish = EnsureLine("SprintFinishLine", 10, SprintTrackLayout.FinishWidth, checker: true);
+            GameObject start = EnsureLine("SprintStartLine", 1, .15f, checker: false);
+            var presenter = root.GetComponent<SprintFinishLinePresenter>()
+                ?? root.gameObject.AddComponent<SprintFinishLinePresenter>();
+            presenter.Configure(Object.FindFirstObjectByType<SprintController>(), finish, start);
+        }
 
-            GameObject finish = GameObject.Find(name);
-            if (finish == null)
+        static GameObject EnsureLine(string name, int squareCount, float width, bool checker)
+        {
+            const int sortingOrder = 5;   // over the track backdrop, under the runners (11+)
+            GameObject line = GameObject.Find(name);
+            if (line == null)
             {
-                finish = new GameObject(name);
+                line = new GameObject(name);
                 var texture = new Texture2D(1, squareCount) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
                 for (int i = 0; i < squareCount; i++)
-                    texture.SetPixel(0, i, i % 2 == 0 ? Color.black : Color.white);
+                    texture.SetPixel(0, i, checker && i % 2 == 0 ? Color.black : Color.white);
                 texture.Apply();
 
                 // One pixel per unit: the sprite is 1 x squareCount units, then scaled onto the lanes.
-                var renderer = finish.AddComponent<SpriteRenderer>();
+                var renderer = line.AddComponent<SpriteRenderer>();
                 renderer.sprite = Sprite.Create(texture, new Rect(0f, 0f, 1f, squareCount), new Vector2(.5f, 0f), 1f);
                 renderer.sortingOrder = sortingOrder;
             }
 
             float height = SprintTrackLayout.FinishTopY - SprintTrackLayout.FinishBottomY;
-            finish.transform.position = new Vector3(SprintTrackLayout.FinishX, SprintTrackLayout.FinishBottomY, 0f);
-            finish.transform.localScale = new Vector3(SprintTrackLayout.FinishWidth, height / squareCount, 1f);
-
-            var presenter = root.GetComponent<SprintFinishLinePresenter>()
-                ?? root.gameObject.AddComponent<SprintFinishLinePresenter>();
-            presenter.Configure(Object.FindFirstObjectByType<SprintController>(), finish);
+            line.transform.position = new Vector3(line.transform.position.x, SprintTrackLayout.FinishBottomY, 0f);
+            line.transform.localScale = new Vector3(width, height / squareCount, 1f);
+            return line;
         }
 
         static void EnsureResultPresentation()

@@ -303,8 +303,6 @@ namespace KMA.Tests.Gameplay.Running
             Object.DestroyImmediate(runner.gameObject);
         }
 
-[Test]        public void LeadDistance_FollowsARivalWhoRunsAheadOfThePlayer()        {            var controllerObject = new GameObject("Sprint");            var controller = controllerObject.AddComponent<SprintController>();            controller.ConfigureForTest();            controller.AdvanceToDistance(20f, new[] { new RivalPaceProfile("Fast", 9f, 9f) });            for (int i = 0; i < 600; i++) controller.Simulate(.01f);            Assert.That(controller.LeadDistance, Is.GreaterThan(controller.Snapshot.Distance));            Assert.That(controller.LeadDistance, Is.EqualTo(controller.GetRivalDistance(0)));            Object.DestroyImmediate(controllerObject);        }
-
         [Test]
         public void CadenceCombo_TracksConsecutiveValidTapsAndResetsOnWrongSide()
         {

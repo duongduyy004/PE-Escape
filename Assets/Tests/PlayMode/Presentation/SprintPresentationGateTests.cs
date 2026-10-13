@@ -585,7 +585,7 @@ namespace KMA.Tests.Presentation
         }
 
         [UnityTest]
-        public IEnumerator SprintFinishLineRevealsExactlyAtSeventyMetersWithoutBlockingInput()
+        public IEnumerator SprintFinishLineStandsAtItsWorldPositionWithoutBlockingInput()
         {
             yield return LoadSprint();
 
@@ -594,6 +594,7 @@ namespace KMA.Tests.Presentation
             var finish = SceneObjects<SprintFinishLinePresenter>(scene)[0];
             Transform finishLine = finish.FinishRoot != null ? finish.FinishRoot.transform : null;
             Assert.That(finishLine, Is.Not.Null);
+            Assert.That(finish.StartRoot, Is.Not.Null);
 
             // World-space sprite on the track: never a UI graphic, so it cannot block taps.
             Assert.That(finishLine.GetComponent<SpriteRenderer>(), Is.Not.Null);
@@ -601,22 +602,18 @@ namespace KMA.Tests.Presentation
             Assert.That(finishLine.position.y, Is.EqualTo(SprintTrackLayout.FinishBottomY).Within(.0001f));
 
             controller.ConfigureForTest();
-            controller.AdvanceToDistance(SprintRules.RaceDistance * .699f);
-            finish.RefreshForTest();
-            Assert.That(finish.IsVisible, Is.False);
-            Assert.That(finishLine.gameObject.activeSelf, Is.False);
-
-            controller.AdvanceToDistance(SprintRules.RaceDistance * .7f);
-            finish.RefreshForTest();
-            Assert.That(finish.IsVisible, Is.True);
-            Assert.That(finishLine.gameObject.activeSelf, Is.True);
-
-            controller.AdvanceToDistance(SprintRules.RaceDistance);
-            finish.RefreshForTest();
-            Assert.That(finish.IsVisible, Is.True);
-            Assert.That(finishLine.gameObject.activeSelf, Is.True);
-            Assert.That(finishLine.position.x, Is.EqualTo(SprintTrackLayout.FinishX).Within(.0001f),
-                "At the finish distance the line rests where the runner stops.");
+            foreach (float distance in new[] { 0f, 75f, SprintRules.RaceDistance })
+            {
+                controller.AdvanceToDistance(distance);
+                finish.RefreshForTest();
+                Assert.That(finish.IsVisible, Is.True);
+                Assert.That(finishLine.gameObject.activeSelf, Is.True);
+                Assert.That(finishLine.position.x,
+                    Is.EqualTo(SprintTrackLayout.FinishWorldX(controller.TargetDistance)).Within(.0001f),
+                    $"the line never moves (player at {distance} m)");
+            }
+            Assert.That(finish.StartRoot.transform.position.x,
+                Is.EqualTo(SprintTrackLayout.TrackStartX).Within(.0001f));
         }
 
         [UnityTest]
