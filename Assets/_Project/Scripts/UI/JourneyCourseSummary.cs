@@ -12,18 +12,23 @@ namespace KMA.Gameplay.UI
         public SubjectId Subject { get; }
         public float Score { get; }
         public Rank Rank { get; }
-        public string RankLabel => RankLabels.For(Rank, Subject == SubjectId.Chess);
+        public string RankLabel { get; }
 
-        public JourneyScoreRow(SubjectId subject, float score, Rank rank)
+        public JourneyScoreRow(SubjectId subject, float score, Rank rank, string rankLabel = null)
         {
             Subject = subject;
             Score = score;
             Rank = rank;
+            RankLabel = rankLabel ?? rank.ToString();
         }
     }
 
     public sealed class JourneyCourseSummary : MonoBehaviour
     {
+        /// Only a chess best scored with the new scale reads A+; an older Rank.S was graded differently.
+        public static string RankText(SubjectId subject, Rank rank, int chessScoringVersion) =>
+            RankLabels.For(rank, subject == SubjectId.Chess && chessScoringVersion >= ChessResultSummary.CurrentScoringVersion);
+
         static readonly SubjectId[] CourseOrder =
             { SubjectId.Sprint, SubjectId.Volleyball, SubjectId.Football, SubjectId.Chess };
         static readonly string[] Labels = { "Chạy nước rút", "Bóng chuyền", "Bóng đá", "Bài kiểm tra cuối" };
@@ -54,6 +59,7 @@ namespace KMA.Gameplay.UI
             if (session == null) return;
             ConfigureLayout();
             scoreRows.Clear();
+            int chessVersion = session.Journey.ChessBest.scoringVersion;
             var scores = new List<string>();
             for (int index = 0; index < CourseOrder.Length; index++)
             {
@@ -61,8 +67,9 @@ namespace KMA.Gameplay.UI
                 MinigameResult best = record.BestResult;
                 float score = best == null ? record.BestScore : best.Score;
                 Rank rank = best == null ? record.BestRank : best.Rank;
-                scoreRows.Add(new JourneyScoreRow(CourseOrder[index], score, rank));
-                scores.Add($"{Labels[index]}: {score.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)} · {RankLabels.For(rank, CourseOrder[index] == SubjectId.Chess)}");
+                string rankText = RankText(CourseOrder[index], rank, chessVersion);
+                scoreRows.Add(new JourneyScoreRow(CourseOrder[index], score, rank, rankText));
+                scores.Add($"{Labels[index]}: {score.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)} · {rankText}");
             }
             SupplementaryRounds = session.Journey.SupplementaryRounds;
             if (summaryText != null)

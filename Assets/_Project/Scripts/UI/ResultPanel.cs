@@ -133,6 +133,24 @@ namespace KMA.Gameplay.UI
             failureTitle = failure ?? failureTitle;
         }
 
+        /// True when the detail text is fully visible in its label (not cut by the ellipsis or the label height).
+        public bool DetailFits
+        {
+            get
+            {
+                if (detailLabel == null) return true;
+                detailLabel.ForceMeshUpdate(true, true);
+                return !detailLabel.isTextTruncated && detailLabel.textBounds.size.y <= detailLabel.rectTransform.rect.height + .5f;
+            }
+        }
+
+        /// Shows the chess breakdown on a result that has no challenge card (the chess scene opened directly).
+        public void ShowChessDetail(string text)
+        {
+            FitDetailForChess();
+            SetDetail(text);
+        }
+
         bool detailFitted;
 
         // The chess breakdown is several lines long; the other subjects keep their one-line label untouched.
@@ -140,11 +158,15 @@ namespace KMA.Gameplay.UI
         {
             if (detailLabel == null || detailFitted) return;
             detailFitted = true;
+            // The breakdown is up to three lines: use the space the unused lives and error labels leave free.
+            RectTransform rect = detailLabel.rectTransform;
+            rect.anchorMin = new Vector2(rect.anchorMin.x, .19f);
+            rect.anchorMax = new Vector2(rect.anchorMax.x, .36f);
             float max = detailLabel.fontSize;
             detailLabel.textWrappingMode = TextWrappingModes.Normal;
             detailLabel.enableAutoSizing = true;
             detailLabel.fontSizeMax = max;
-            detailLabel.fontSizeMin = Mathf.Max(12f, max * .5f);
+            detailLabel.fontSizeMin = Mathf.Max(20f, max * .7f);
         }
 
         public void SetDetail(string text)
@@ -299,7 +321,7 @@ namespace KMA.Gameplay.UI
             {
                 rankLabel.text = result.ExamResult == null
                     ? VietText.Fix($"{result.Metrics.CompletedTargets} MỤC TIÊU")
-                    : VietText.Fix($"XẾP HẠNG {RankLabels.For(result.ExamResult.Rank, chessRanks || result.Metrics?.Chess != null)}");
+                    : VietText.Fix($"XẾP HẠNG {RankLabels.For(result.ExamResult.Rank, result.Metrics?.Chess != null)}");
                 rankLabel.gameObject.SetActive(result.ExamResult != null);
             }
             bool frogJump = outcome.HasValue && outcome.Value.FrogJumpRequired;

@@ -124,7 +124,7 @@ namespace KMA.Tests.Gameplay.Chess
             Assert.That(result.Pass, Is.True);
             Assert.That(result.Score, Is.GreaterThanOrEqualTo(8.9f));
             Assert.That(controller.Machine.Moves.All(m => m.Q > .999), Is.True);
-            Assert.That(controller.BuildMetrics(null, result).Detail, Does.StartWith("Nước:"));
+            Assert.That(controller.BuildMetrics(null, result).Detail, Does.StartWith("Chiếu hết · Nước:"));
         }
 
         IEnumerator PlayOptimalLineToTheResult()
@@ -252,6 +252,67 @@ namespace KMA.Tests.Gameplay.Chess
             }
             Debug.Log($"[MEASURE-FRAMES] Hard generation over {frames} frames: worst frame {worst * 1000f:0} ms, source {generated.Snapshot.source}");
             Assert.That(worst, Is.LessThan(.5f), "the main thread must not wait for the generator");
+        }
+
+        ResultPanel ShowSyntheticChallenge(bool pass, MinigameResult exam, ChallengeMetrics metrics)
+        {
+            var panel = UnityEngine.Object.FindFirstObjectByType<ResultPanel>(FindObjectsInactive.Include);
+            var context = new ChallengeAttemptContext("t", "chess_final", ChallengeAttemptMode.Journey, ChallengeDifficulty.Normal);
+            panel.ShowChallenge(context, new ChallengeAttemptResult(context, pass, metrics, exam),
+                new JourneyCommitOutcome(true, null, 0, false, false, pass, true), null);
+            return panel;
+        }
+
+        static ChessResultSummary Summary(string endReason, int moves)
+        {
+            var s = new ChessResultSummary
+            {
+                scoringVersion = ChessResultSummary.CurrentScoringVersion, movesUsed = moves, maxMoves = 5, optimalMoves = 3,
+                allowedSeconds = 150, usedSeconds = 99f, endReason = endReason, gradeLabel = endReason == "Mate" ? "A+" : "F",
+                hintUsed = true, moves = new ChessMoveEntry[moves]
+            };
+            for (int i = 0; i < moves; i++) s.moves[i] = new ChessMoveEntry { uci = "e2e" + (i + 3), q = i / 5f };
+            return s;
+        }
+
+        [UnityTest]
+        public IEnumerator AnOldChessResultShownInTheChessSceneIsNotRelabelledAPlus()
+        {
+            ResultPanel panel = ShowSyntheticChallenge(true, new MinigameResult(true, 9.5f, Rank.S),
+                new ChallengeMetrics(elapsed: 40f, completedTargets: 2));
+            yield return null;
+            Assert.That(panel.RankText, Does.Not.Contain("A+"), "it was not scored with the new scale");
+            Assert.That(panel.RankText, Does.Contain("S"));
+        }
+
+        [UnityTest]
+        public IEnumerator AFailureBreakdownWithManyMovesFitsTheDetailLabel()
+        {
+            ResultPanel panel = ShowSyntheticChallenge(false, new MinigameResult(false, 0f, Rank.F),
+                new ChallengeMetrics(elapsed: 99f, completedTargets: 5, chess: Summary("OutOfMoves", 5)));
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            Assert.That(panel.DetailText, Does.Contain("e2e3"), "the move list is shown");
+            Assert.That(panel.DetailFits, Is.True, "the breakdown must not be cut off");
+        }
+
+        [UnityTest]
+        public IEnumerator AWinBreakdownFitsTheDetailLabel()
+        {
+            ResultPanel panel = ShowSyntheticChallenge(true, new MinigameResult(true, 9.5f, Rank.S),
+                new ChallengeMetrics(elapsed: 99f, completedTargets: 3, chess: Summary("Mate", 3)));
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            Assert.That(panel.DetailFits, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator TheDirectSceneResultAlsoGetsTheBreakdown()
+        {
+            yield return PlayOptimalLineToTheResult();
+            var panel = UnityEngine.Object.FindFirstObjectByType<ResultPanel>(FindObjectsInactive.Include);
+            Assert.That(panel.DetailText, Does.Contain("Nước:"));
+            Assert.That(panel.DetailText, Does.Contain("Tối ưu:"));
         }
 
         [UnityTest]

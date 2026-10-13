@@ -72,6 +72,20 @@ namespace KMA.Tests.Gameplay.Progression
         }
 
         [Test]
+        public void TheBreakdownStaysShortEnoughForTheResultCard()
+        {
+            Assert.That(ChessResultText.Detail(Win()).Split('\n').Length, Is.LessThanOrEqualTo(2), "a win is two lines");
+            ChessResultSummary failed = Win();
+            failed.endReason = "OutOfMoves"; failed.gradeLabel = "F"; failed.score = 0f; failed.hintUsed = true;
+            failed.moves = new ChessMoveEntry[7];
+            for (int i = 0; i < failed.moves.Length; i++) failed.moves[i] = new ChessMoveEntry { uci = "a1a" + (i + 2), q = i / 10f };
+            string text = ChessResultText.Detail(failed);
+            Assert.That(text.Split('\n').Length, Is.LessThanOrEqualTo(3), "a failure is at most three lines: " + text);
+            Assert.That(text, Does.Contain("a1a2"));
+            Assert.That(text, Does.Contain("…"), "moves beyond the cap are marked");
+        }
+
+        [Test]
         public void NullSummaryYieldsEmptyText() => Assert.That(ChessResultText.Detail(null), Is.Empty);
 
         [TestCase(0f, "00:00")]

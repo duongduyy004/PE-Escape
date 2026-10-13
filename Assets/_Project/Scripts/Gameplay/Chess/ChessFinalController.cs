@@ -310,6 +310,9 @@ namespace KMA.Gameplay.Chess
                 cast.SetStudent("hurt");
                 cast.SetTeacher(timeUp ? "handsOnHips" : "angry");
             }
+            // Shown when the chess scene is opened directly; a Journey result card replaces it with the same text.
+            UnityEngine.Object.FindFirstObjectByType<ResultPanel>(FindObjectsInactive.Include)
+                ?.ShowChessDetail(ChessResultText.Detail(BuildSummary()));
             GetComponent<ChessDialogueAdapter>()?.FinishDialogue(solved);
             yield return new WaitForSeconds(resultDelaySeconds);
             if (mine != epoch) yield break;

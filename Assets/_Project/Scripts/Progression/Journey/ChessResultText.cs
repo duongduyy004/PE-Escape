@@ -7,16 +7,34 @@ namespace KMA.Gameplay
     {
         const int MaxMoveLines = 5;
 
+        /// At most three lines so it fits the result card: the outcome and numbers, the hint state, and (when the
+        /// attempt was not a mate) the quality of the moves that were played.
         public static string Detail(ChessResultSummary s)
         {
             if (s == null) return string.Empty;
             var text = new StringBuilder();
+            string reason = EndReasonText(s.endReason);
+            if (reason.Length > 0) text.Append(reason).Append(" · ");
             text.Append("Nước: ").Append(s.movesUsed).Append('/').Append(s.maxMoves)
                 .Append(" · Tối ưu: ").Append(s.optimalMoves)
                 .Append(" · ").Append(FormatClock(s.usedSeconds)).Append('/').Append(FormatClock(s.allowedSeconds));
-            text.Append('\n').Append(EndReasonText(s.endReason)).Append(" · ").Append(HintText(s));
-            string lines = MoveLines(s, MaxMoveLines);
-            if (lines.Length > 0 && s.endReason != "Mate") text.Append('\n').Append(lines);
+            text.Append('\n').Append(HintText(s));
+            string moves = MoveSummary(s, MaxMoveLines);
+            if (moves.Length > 0 && s.endReason != "Mate") text.Append('\n').Append(moves);
+            return text.ToString();
+        }
+
+        /// One line: "Nước đã đi: g1f1 50% · f1g1 0% · …".
+        static string MoveSummary(ChessResultSummary s, int max)
+        {
+            if (s?.moves == null || s.moves.Length == 0) return string.Empty;
+            var text = new StringBuilder("Nước đã đi: ");
+            for (int i = 0; i < s.moves.Length && i < max; i++)
+            {
+                if (i > 0) text.Append(" · ");
+                text.Append(s.moves[i].uci).Append(' ').Append(Percent(s.moves[i].q));
+            }
+            if (s.moves.Length > max) text.Append(" · …");
             return text.ToString();
         }
 

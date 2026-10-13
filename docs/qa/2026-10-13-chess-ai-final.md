@@ -8,8 +8,8 @@ Plans: `docs/superpowers/plans/2026-10-13-chess-ai-core.md` (search, generator, 
 
 | Suite | Command | Result |
 | --- | --- | --- |
-| EditMode | `tools/run-unity-tests.sh EditMode "" p3-final-edit` | `total=1289 passed=1280 failed=1 skipped=8` |
-| PlayMode | `tools/run-unity-tests.sh PlayMode "" p3-final-play` | `total=420 passed=419 failed=1 skipped=0` |
+| EditMode | `tools/run-unity-tests.sh EditMode "" p3-final-edit` | `total=1294 passed=1285 failed=1 skipped=8` |
+| PlayMode | `tools/run-unity-tests.sh PlayMode "" p3-final-play` | `total=424 passed=423 failed=1 skipped=0` |
 
 The two failures are **not related to chess** and predate this work (they also failed in this workspace's runs from 13:45–14:40 today, before any chess change):
 
@@ -45,7 +45,7 @@ A real defect found by the measurement and fixed here: a Hard hint searched each
 
 ## Not verified
 
-- **Interactive playthrough in the real scene and all result screenshots.** The background Editor used by the screenshot tool does not run game frames here (the clock stays at its start value and the `chess-*` QA states never apply), so no state capture was usable. Only one intro frame exists (`2026-10-13-chess-game-loop-intro.png`). Layout, text fit and clipping of the result panel (including the long move list on a failure), the analysis-error card, and the new celebration row are therefore checked by code and PlayMode assertions only, not by eye. The celebration row was shortened until `CelebrationSceneTests.SummaryTitleStaysInsideTheCard` (two widths) passed.
+- **Interactive playthrough in the real scene and all result screenshots.** The background Editor used by the screenshot tool does not run game frames here (the clock stays at its start value and the `chess-*` QA states never apply), so no state capture was usable. Only one intro frame exists (`2026-10-13-chess-game-loop-intro.png`). Layout, text fit and clipping of the result panel, the analysis-error card, and the new celebration row are therefore checked by code and PlayMode assertions only, not by eye. The result panel is checked at runtime on the real prefab: `ResultPanel.DetailFits` (text not truncated and not taller than its label) passes for a 5-move failure and a win. The final review found that the first version could not fit a failure breakdown; the label now takes the free space under the rank line, the breakdown is at most three lines, and chess results opened without a Journey card also show it. The celebration row was shortened until `CelebrationSceneTests.SummaryTitleStaysInsideTheCard` (two widths) passed.
 - **Each Journey difficulty on a real route.** Easy and Hard were reached only through scene tests with a synthetic context, not through a played Journey.
 - **Android:** device behaviour, performance of the worker on device, IL2CPP threading, memory in a long session. The Hard worst case of 1.75 s in the Editor suggests a device may return the retryable analysis error for some non-optimal moves.
 - The remaining items are listed in the final review of each plan; none is claimed fixed here.
