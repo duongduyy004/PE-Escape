@@ -31,3 +31,14 @@ Raw lines from the run:
 - Normal and Hard piece sets originally contained single-queen sets (3 pieces total), which violated the 4–6 piece rule (spec §3.1). They were replaced with two-extra-piece sets before this measurement; there is no earlier measurement to compare against.
 - Fallback pool (`Resources/Chess/fallback_pool.json`) was built offline with a 5,000,000-node / 600,000-per-candidate / 120 s budget: 12 puzzles per level, re-verified by `ChessFallbackLibraryTests` (engine re-analysis for all, independent brute-force check for Easy/Normal and two Hard).
 - Search is deterministic for a given seed and node budget; only wall-clock limits can change an outcome.
+
+## Runtime analysis (grader + opponent), Editor
+
+Method: `ChessGeneratorMeasurement.MeasureRuntimeAnalysis`, 5 generated puzzles per level; for every legal first move: `ChessAttemptGrader.Evaluate` with `movesLeft = M`, then `ChessOpponent.Choose` with `M - 1`; each request gets a fresh engine and a fresh default budget (2 s / 200,000 nodes), i.e. no cache sharing.
+
+| Level | Grade Unknown | Reply Unknown | Worst single request |
+| --- | ---: | ---: | ---: |
+| Normal (M=3) | 0/191 | 0/191 | 0.03 s |
+| Hard (M=5) | 0/174 | 0/174 | 1.83 s |
+
+Risk: the Hard worst case uses about 90% of the 2 s budget in the Editor. On Android the same request would probably return Unknown (retryable analysis error). Before Plan 3 calls this safe on device: reuse one engine (cache) across a game with `UseBudget`, add move ordering, and measure on Android. Not done here because the worker lifecycle belongs to Plan 2.

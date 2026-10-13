@@ -37,7 +37,12 @@ namespace KMA.Gameplay.Chess
                 ChessPosition after = position.Apply(move);
                 if (MoveGenerator.IsCheckmate(after)) return new DefenceChoice(SearchStatus.Complete, true, move);
                 MateSearch search = engine.MateDistance(after, attackerMovesLeft);
-                if (search.Unknown) return new DefenceChoice(SearchStatus.Unknown, false, default);
+                if (search.Unknown)
+                {
+                    // A reply already proven to escape the mate is as good as any, so play it rather than fail.
+                    if (!scored.Any(s => s.rank == int.MaxValue)) return new DefenceChoice(SearchStatus.Unknown, false, default);
+                    break;
+                }
                 int rank = search.Forced ? search.Distance : int.MaxValue; // escaping the mate is best
                 scored.Add((move, rank, Material(after, position.SideToMove)));
             }

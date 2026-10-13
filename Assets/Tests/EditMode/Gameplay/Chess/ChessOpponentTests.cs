@@ -65,6 +65,26 @@ namespace KMA.Tests.Gameplay.Chess
         }
 
         [Test]
+        public void ProvenEscapeSurvivesALaterReplyRunningOutOfBudget()
+        {
+            ChessPosition position = ChessPosition.FromFen(LoneRook);
+            var full = new SearchBudget(1_000_000, 60);
+            ChessOpponent.Choose(new ChessSearchEngine(full), position, 1, 1);
+
+            int complete = 0;
+            for (int nodes = 1; nodes < full.Nodes; nodes++)
+            {
+                DefenceChoice choice = ChessOpponent.Choose(
+                    new ChessSearchEngine(new SearchBudget(nodes, 60)), position, 1, 1);
+                if (choice.Status != SearchStatus.Complete) continue;
+                complete++;
+                Assert.That(NaiveMate.AttackerDistance(position.Apply(choice.Move), 1), Is.EqualTo(NaiveMate.None),
+                    $"budget {nodes}: partial choice must be a proven escape");
+            }
+            Assert.That(complete, Is.GreaterThan(0), "an escape proven before the budget ran out must be played");
+        }
+
+        [Test]
         public void TakesAMateAgainstTheAttackerWhenOneExists()
         {
             // Black (the defender) to play: Qh2# is available (king g3 guards h2) and must be preferred.
