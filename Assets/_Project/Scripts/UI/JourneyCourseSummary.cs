@@ -12,6 +12,7 @@ namespace KMA.Gameplay.UI
         public SubjectId Subject { get; }
         public float Score { get; }
         public Rank Rank { get; }
+        public string RankLabel => RankLabels.For(Rank, Subject == SubjectId.Chess);
 
         public JourneyScoreRow(SubjectId subject, float score, Rank rank)
         {
@@ -61,7 +62,7 @@ namespace KMA.Gameplay.UI
                 float score = best == null ? record.BestScore : best.Score;
                 Rank rank = best == null ? record.BestRank : best.Rank;
                 scoreRows.Add(new JourneyScoreRow(CourseOrder[index], score, rank));
-                scores.Add($"{Labels[index]}: {score.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)} · {rank}");
+                scores.Add($"{Labels[index]}: {score.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)} · {RankLabels.For(rank, CourseOrder[index] == SubjectId.Chess)}");
             }
             SupplementaryRounds = session.Journey.SupplementaryRounds;
             if (summaryText != null)
