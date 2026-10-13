@@ -84,6 +84,7 @@ namespace KMA.Gameplay.Volleyball
         public event Action<CourtSide, ActionDecision, int> TouchRegistered;
         public event Action Completed;
         public event Action PlayerBlocked;
+        public event Action<CourtSide> ServeStarting;
 
         public VolleyAthlete Player { get; }
         public VolleyAthlete Opponent { get; }
@@ -375,6 +376,7 @@ namespace KMA.Gameplay.Volleyball
             Player.PlaceAt(Server == CourtSide.Player ? PlayerServeSpot : PlayerReadySpot);
             Opponent.PlaceAt(Server == CourtSide.Opponent ? OpponentServeSpot : OpponentReadySpot);
             ResetOpponentState();
+            ServeStarting?.Invoke(Server);
         }
 
         void StartToss()

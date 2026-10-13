@@ -14,7 +14,8 @@ namespace KMA.Gameplay
         {
             Waiting, WhistleRaised, WhistleBlown,
             Count, Command, StrictLook, Taunt,
-            Cheer, CheerBothArms, Penalty, PenaltySide
+            Cheer, CheerBothArms, Penalty, PenaltySide,
+            ScoreHold, ScoreWrite
         }
 
         /// How long the blast pose is held before she points the athletes off.
@@ -61,6 +62,18 @@ namespace KMA.Gameplay
             new Beat(Pose.Waiting, 2.4f), new Beat(Pose.StrictLook, 2f), new Beat(Pose.Taunt, 1f),
             new Beat(Pose.Waiting, 1.8f), new Beat(Pose.Command, 1f), new Beat(Pose.StrictLook, 1.6f));
 
+        static readonly Routine Whistling = new Routine(1,
+            new Beat(Pose.WhistleBlown, BlastSeconds), new Beat(Pose.Command, .8f),
+            new Beat(Pose.StrictLook, 1.2f), new Beat(Pose.Waiting, 1.8f));
+
+        static readonly Routine WritingScore = new Routine(-1,
+            new Beat(Pose.ScoreHold, .35f), new Beat(Pose.ScoreWrite, 1.4f),
+            new Beat(Pose.Waiting, 0f));
+
+        static readonly Routine PointingThenWriting = new Routine(-1,
+            new Beat(Pose.Penalty, .7f), new Beat(Pose.ScoreWrite, 1.4f),
+            new Beat(Pose.Waiting, 0f));
+
         static readonly Routine Judging = new Routine(-1, new Beat(Pose.Waiting, 0f));
 
         static readonly Routine Cheering = new Routine(0,
@@ -81,6 +94,8 @@ namespace KMA.Gameplay
         [SerializeField] Sprite cheerBothArms;
         [SerializeField] Sprite penalty;
         [SerializeField] Sprite penaltySide;
+        [SerializeField] Sprite scoreHold;
+        [SerializeField] Sprite scoreWrite;
         [SerializeField] bool faceLeft;
         [SerializeField] float leaveAfterSeconds;
 
@@ -89,6 +104,7 @@ namespace KMA.Gameplay
         int beat;
         float beatRemaining;
         float leaveRemaining;
+        float lastWhistleSoundTime = -10f;
 
         public Pose Current { get; private set; }
         public bool FacesLeft => body != null && body.flipX;
@@ -119,6 +135,36 @@ namespace KMA.Gameplay
             penalty = penaltyPose;
             penaltySide = penaltySidePose;
             Apply(Current);
+        }
+
+        public void ConfigureScore(Sprite holdPose, Sprite writePose)
+        {
+            scoreHold = holdPose;
+            scoreWrite = writePose;
+            Apply(Current);
+        }
+
+        public void Whistle()
+        {
+            Show();
+            Play(Whistling);
+            if (Time.time - lastWhistleSoundTime > .3f)
+            {
+                lastWhistleSoundTime = Time.time;
+                GameAudio.Play(GameSound.Whistle);
+            }
+        }
+
+        public void WriteScore()
+        {
+            Show();
+            Play(WritingScore);
+        }
+
+        public void PointThenWrite()
+        {
+            Show();
+            Play(PointingThenWriting);
         }
 
         void OnEnable()
@@ -163,6 +209,7 @@ namespace KMA.Gameplay
                     break;
                 case MinigamePhase.Play:
                     leaveRemaining = leaveAfterSeconds;
+                    lastWhistleSoundTime = Time.time;
                     Play(Supervising);
                     break;
                 default:
@@ -232,6 +279,8 @@ namespace KMA.Gameplay
                 Pose.CheerBothArms => cheerBothArms,
                 Pose.Penalty => penalty,
                 Pose.PenaltySide => penaltySide,
+                Pose.ScoreHold => scoreHold != null ? scoreHold : cheer,
+                Pose.ScoreWrite => scoreWrite != null ? scoreWrite : cheer,
                 _ => waiting
             };
             body.sprite = sprite != null ? sprite : waiting;

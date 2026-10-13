@@ -87,6 +87,9 @@ namespace KMA.EditorTools
                 CharacterArt.Load(CharacterArt.Boss, "scoreWrite"),
                 CharacterArt.Load(CharacterArt.Boss, "penalty0"),
                 CharacterArt.Load(CharacterArt.Boss, "penalty1"));
+            lecturer.ConfigureScore(
+                CharacterArt.Load(CharacterArt.Boss, "scoreHold"),
+                CharacterArt.Load(CharacterArt.Boss, "scoreWrite"));
             body.flipX = placement.FaceLeft;
             EditorUtility.SetDirty(go);
             return lecturer;
@@ -110,13 +113,13 @@ namespace KMA.EditorTools
                 VolleyAthleteView.SortingOrderFor(ground.y));
         }
 
-        /// To the right of the kicker, a little further back, looking left at the kicker.
+        /// To the right, completely outside the penalty area arc, looking left at the kicker.
         static Placement FootballPlacement()
         {
             // The Football scene stretches every sprite to a display size; match the kicker's height.
             float kickerScale = FootballSceneConfigurator.KickerDisplayHeight * FootballPresentation.PixelToWorld /
                                 CharacterArt.Load(CharacterArt.Boss, "strictLook").bounds.size.y;
-            return new Placement(FootballPresentation.ScreenToWorld(720f, 560f), .9f * kickerScale, true, 22);
+            return new Placement(FootballPresentation.ScreenToWorld(880f, 545f), .9f * kickerScale, true, 22);
         }
 
         /// In front of the track at the finish line, looking left back down the track at the student.

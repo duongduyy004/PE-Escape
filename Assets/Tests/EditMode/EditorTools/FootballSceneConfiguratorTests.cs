@@ -68,6 +68,10 @@ namespace KMA.Tests.EditorTools
             Assert.That(controller.ValidateReferences(), Is.True);
             var overlay = UnityEngine.Object.FindFirstObjectByType<PhaseOverlay>(FindObjectsInactive.Include);
             Assert.That(new SerializedObject(overlay).FindProperty("minigameSource").objectReferenceValue, Is.SameAs(controller));
+            var lecturer = UnityEngine.Object.FindFirstObjectByType<StartLecturer>();
+            Assert.That(lecturer, Is.Not.Null, "StartLecturer must be present in Football scene");
+            var adapter = UnityEngine.Object.FindFirstObjectByType<FootballDialogueAdapter>();
+            Assert.That(adapter, Is.Not.Null, "FootballDialogueAdapter must be present in Football scene");
 
             var pause = UnityEngine.Object.FindFirstObjectByType<PausePanel>(FindObjectsInactive.Include);
             Assert.That(pause.transform.parent.name, Is.EqualTo("SafeAreaRoot"));

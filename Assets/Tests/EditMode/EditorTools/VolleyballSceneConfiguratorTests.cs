@@ -211,6 +211,27 @@ namespace KMA.Tests.EditorTools
             Assert.That(pause.GetComponent<Image>().sprite, Is.SameAs(assets.RoundRect20));
             Assert.That(Object.FindObjectsByType<Text>(FindObjectsInactive.Include, FindObjectsSortMode.None), Is.Empty);
         }
+
+        [Test]
+        public void JoystickVisualAndHitboxAreScaledUpAndTeacherIsWired()
+        {
+            VolleyballSceneConfigurator.BuildScene();
+            EditorSceneManager.OpenScene(VolleyballSceneConfigurator.ScenePath, OpenSceneMode.Single);
+
+            var joystick = Object.FindFirstObjectByType<VirtualJoystick>();
+            Assert.That(joystick, Is.Not.Null);
+
+            var area = GameObject.Find("JoystickArea").GetComponent<RectTransform>();
+            Assert.That(area.anchorMax.x, Is.GreaterThanOrEqualTo(0.40f), "hitbox width is expanded by ~20%");
+            Assert.That(area.anchorMax.y, Is.GreaterThanOrEqualTo(0.55f), "hitbox height is expanded by ~20%");
+
+            var stickBase = GameObject.Find("JoystickBase").GetComponent<RectTransform>();
+            Assert.That(stickBase.sizeDelta.x, Is.EqualTo(MinigameUiTheme.JoystickBase * VolleyballSceneConfigurator.JoystickScale).Within(1e-3f));
+            Assert.That(VolleyballSceneConfigurator.JoystickScale, Is.EqualTo(1.62f).Within(1e-3f), "visual scale increased ~20%");
+
+            var controller = Object.FindFirstObjectByType<VolleyballController>();
+            Assert.That(controller.Lecturer, Is.Not.Null, "StartLecturer is wired into VolleyballController");
+        }
         // World height, above the feet pivot, of the highest opaque pixel of an imported character pose.
         static float OpaqueTop(Sprite sprite)
         {

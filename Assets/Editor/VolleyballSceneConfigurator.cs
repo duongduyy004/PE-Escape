@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using KMA.Gameplay;
 using KMA.Gameplay.UI;
 using KMA.Gameplay.Volleyball;
 using KMA.UI.Kit;
@@ -83,7 +84,8 @@ namespace KMA.EditorTools
         const float HorizonWorldY = 4.97f;
         const int HudSortingOrder = 500;
         const float NetWidth = .5f;
-        public const float JoystickScale = 1.35f;
+        public const float JoystickScale = 1.62f;
+        public const float ButtonScale = 1.35f;
         static readonly Color GroundColor = new Color32(0xcf, 0xc8, 0xb8, 0xff); // schoolyard concrete
         static readonly Color CourtColor = new Color32(0x3f, 0x8f, 0xcf, 0xff);  // painted court
         static readonly Color LineColor = new Color32(0xff, 0xfb, 0xea, 0xff);
@@ -356,15 +358,15 @@ namespace KMA.EditorTools
             RectTransform controls = UiRect("VolleyballControls", parent, Vector2.zero, Vector2.one);
             controls.SetAsFirstSibling();
 
-            RectTransform area = UiRect("JoystickArea", controls, Vector2.zero, new Vector2(.38f, .52f));
+            RectTransform area = UiRect("JoystickArea", controls, Vector2.zero, new Vector2(.42f, .58f));
             area.gameObject.AddComponent<Image>().color = Color.clear;
             JoystickHandle stick = UiKit.Joystick(area);
-            // The volleyball stick is the main control on a phone: larger than the kit default.
+            // The volleyball stick is the main control on a phone: larger than the kit default (+20%).
             stick.Base.rectTransform.sizeDelta = Vector2.one * MinigameUiTheme.JoystickBase * JoystickScale;
             stick.Knob.rectTransform.sizeDelta = Vector2.one * MinigameUiTheme.JoystickKnob * JoystickScale;
             var joystick = area.gameObject.AddComponent<VirtualJoystick>();
             joystick.Configure(area, stick.Base.rectTransform, stick.Knob.rectTransform, 88f * JoystickScale,
-                new Vector2(-120f, -100f));
+                new Vector2(-150f, -125f));
 
             RectTransform buttonRect = UiRect("ActionButton", controls, Vector2.one, Vector2.one);
             buttonRect.anchorMin = buttonRect.anchorMax = buttonRect.pivot = new Vector2(1f, 0f);
@@ -375,7 +377,7 @@ namespace KMA.EditorTools
             actionHitImage.raycastTarget = true;
             actionHitImage.canvasRenderer.cullTransparentMesh = false;
             var button = buttonRect.gameObject.AddComponent<ActionButton>();
-            BuildRoundIconButton(buttonRect, false, MinigameUiTheme.RoundButton * JoystickScale);
+            BuildRoundIconButton(buttonRect, false, MinigameUiTheme.RoundButton * ButtonScale);
 
             // NHẢY sits just inside ĐÁNH and a little higher, its hit area clear of ĐÁNH's.
             RectTransform jumpRect = UiRect("JumpButton", controls, Vector2.one, Vector2.one);
@@ -388,7 +390,7 @@ namespace KMA.EditorTools
             jumpHitImage.raycastTarget = true;
             jumpHitImage.canvasRenderer.cullTransparentMesh = false;
             var jump = jumpRect.gameObject.AddComponent<JumpButton>();
-            BuildRoundIconButton(jumpRect, true, MinigameUiTheme.RoundButton * JoystickScale);
+            BuildRoundIconButton(jumpRect, true, MinigameUiTheme.RoundButton * ButtonScale);
 
             Vector2 centre = new Vector2(.5f, .5f);
             Image scoreboard = UiKit.Panel(controls, "VolleyballScoreboard");
@@ -436,13 +438,15 @@ namespace KMA.EditorTools
             }
 
             var controller = Object.FindFirstObjectByType<VolleyballController>();
+            var lecturer = Object.FindFirstObjectByType<StartLecturer>();
             controller.Input.Configure(joystick, button, jump);
-            controller.Configure(controller.PlayerView, controller.OpponentView, controller.BallView, controller.Input, hud);
+            controller.Configure(controller.PlayerView, controller.OpponentView, controller.BallView, controller.Input, hud, lecturer);
 
             DialoguePresentationAuthoring.BindResult(controller,Object.FindFirstObjectByType<GameplayDialogueHost>());
 
             foreach (Object dirty in new Object[] { joystick, button, jump, hud, controller, controller.Input, hudRoot })
                 EditorUtility.SetDirty(dirty);
+            if (lecturer) EditorUtility.SetDirty(lecturer);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
         }
