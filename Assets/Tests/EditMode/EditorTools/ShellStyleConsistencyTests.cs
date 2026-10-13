@@ -64,6 +64,16 @@ namespace KMA.Tests.EditorTools
         }
 
         [Test]
+        public void CelebrationCanvasesFollowTheShellStyle()
+        {
+            Scene scene = EditorSceneManager.OpenScene(KMA.EditorTools.CelebrationSceneConfigurator.ScenePath,
+                OpenSceneMode.Single);
+            var problems = scene.GetRootGameObjects().Where(go => go.GetComponent<Canvas>() != null)
+                .SelectMany(ShellStyleAudit.Audit).ToList();
+            Assert.That(problems, Is.Empty, string.Join("\n", problems));
+        }
+
+        [Test]
         public void BootstrapSplashFollowsTheSplashRules()
         {
             Scene scene = EditorSceneManager.OpenScene("Assets/_Project/Scenes/Bootstrap.unity", OpenSceneMode.Single);

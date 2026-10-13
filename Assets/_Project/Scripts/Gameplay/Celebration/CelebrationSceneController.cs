@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Linq;
 using KMA.Gameplay.Core;
+using KMA.UI.Kit;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -112,7 +113,8 @@ namespace KMA.Gameplay.Celebration
 
         void FillSummary()
         {
-            title.text = VietText.Fix("QUA MÔN");
+            // The title is a Shell title: a gold drop copy sits behind the face text, so both change together.
+            ShellKit.SetTitleText(title.transform.parent, "QUA MÔN");
             for (int i = 0; i < Summary.Subjects.Count && i < 3; i++)
             {
                 CelebrationRow row = Summary.Subjects[i];

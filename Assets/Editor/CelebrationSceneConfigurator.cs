@@ -48,7 +48,7 @@ namespace KMA.EditorTools
             CampusBackdropAuthoring.AddUi((RectTransform)canvasObject.transform, .14f, .34f, true);
             RectTransform parent = Rect(canvasObject.transform, "SafeAreaRoot", Vector2.zero, Vector2.one);
             parent.gameObject.AddComponent<SafeAreaFitter>();
-            Vector2 centre = new Vector2(.5f, .5f), bottom = new Vector2(.5f, 0f), top = new Vector2(.5f, 1f);
+            Vector2 centre = new Vector2(.5f, .5f), bottom = new Vector2(.5f, 0f);
 
             Image classmate = Avatar(parent, "Classmate", .33f, CharacterArt.Load(Classmate, "idle"));
             classmate.rectTransform.localScale = Vector3.one * .9f;
@@ -60,58 +60,57 @@ namespace KMA.EditorTools
             // Confetti falls in front of the cast and behind the speech bubble and the summary.
             var confetti = Rect(parent, "Confetti", Vector2.zero, Vector2.one).gameObject.AddComponent<UiConfetti>();
 
-            Image bubble = UiKit.Panel(parent, "SpeechBubble");
-            UiKit.Place(bubble.rectTransform, new Vector2(.78f, .45f), centre, Vector2.zero, new Vector2(320f, 150f));
-            TMP_Text bubbleText = UiKit.Label(bubble.transform, "Text", string.Empty, MinigameUiTheme.Caption,
-                MinigameUiTheme.TextPrimary);
-            UiKit.Stretch(bubbleText.rectTransform, new Vector2(18f, 14f), new Vector2(-18f, -14f));
+            ShellCardHandle bubble = ShellKit.Card(parent, "SpeechBubble");
+            UiKit.Place(bubble.Root, new Vector2(.78f, .45f), centre, Vector2.zero, new Vector2(360f, 170f));
+            TMP_Text bubbleText = ShellKit.Label(bubble.Root, "Text", string.Empty, MinigameUiTheme.Caption,
+                ShellTheme.BodyText, VietFontRole.Body);
+            UiKit.Stretch(bubbleText.rectTransform, new Vector2(22f, 18f), new Vector2(-22f, -18f));
             bubbleText.textWrappingMode = TextWrappingModes.Normal;
-            bubble.gameObject.SetActive(false);
+            bubble.Root.gameObject.SetActive(false);
 
-            ButtonHandle skip = UiKit.Button(parent, "SkipButton", "Bỏ qua", ButtonVariant.Secondary);
+            ShellButtonHandle skip = ShellKit.Button(parent, "SkipButton", "Bỏ qua", ShellButtonVariant.Secondary);
             UiKit.Place((RectTransform)skip.Button.transform, Vector2.one, Vector2.one, new Vector2(-24f, -24f),
-                new Vector2(220f, MinigameUiTheme.ButtonHeight));
+                new Vector2(220f, ShellTheme.ControlHeight));
 
-            Image summary = UiKit.Panel(parent, "Summary");
-            UiKit.Place(summary.rectTransform, centre, centre, Vector2.zero, new Vector2(1100f, 620f));
-            var summaryGroup = summary.gameObject.AddComponent<CanvasGroup>();
-            TMP_Text title = UiKit.Label(summary.transform, "Title", "QUA MÔN",
-                MinigameUiTheme.Display * .5f, MinigameUiTheme.Accent, outline: true);
-            title.rectTransform.anchorMin = new Vector2(.04f, 1f);
-            title.rectTransform.anchorMax = new Vector2(.96f, 1f);
-            title.rectTransform.pivot = new Vector2(.5f, 1f);
-            title.rectTransform.sizeDelta = new Vector2(0f, 100f);
-            title.rectTransform.anchoredPosition = new Vector2(0f, -24f);
-            title.enableAutoSizing = true;
-            title.fontSizeMin = 34f;
-            title.fontSizeMax = title.fontSize;
-            title.enableWordWrapping = false;
-            title.overflowMode = TextOverflowModes.Ellipsis;
+            ShellCardHandle summary = ShellKit.Card(parent, "Summary", decorated: true);
+            UiKit.Place(summary.Root, centre, centre, Vector2.zero, new Vector2(1100f, 620f));
+            var summaryGroup = summary.Root.gameObject.AddComponent<CanvasGroup>();
+            float titleSize = MinigameUiTheme.Display * .55f;
+            ShellTitleHandle titleHandle = ShellKit.Title(summary.Root, "Title", "QUA MÔN", titleSize);
+            RectTransform titleRoot = titleHandle.Root;
+            titleRoot.anchorMin = new Vector2(.04f, 1f);
+            titleRoot.anchorMax = new Vector2(.96f, 1f);
+            titleRoot.pivot = new Vector2(.5f, 1f);
+            titleRoot.sizeDelta = new Vector2(0f, 100f);
+            titleRoot.anchoredPosition = new Vector2(0f, -24f);
+            foreach (TMP_Text part in new[] { titleHandle.Text, titleHandle.Drop })
+            {
+                part.enableAutoSizing = true;
+                part.fontSizeMin = 34f;
+                part.fontSizeMax = titleSize;
+            }
             TMP_Text[] rows = Enumerable.Range(0, 4).Select(i =>
             {
-                TMP_Text row = UiKit.Label(summary.transform, "Row" + i, string.Empty, MinigameUiTheme.Body,
-                    MinigameUiTheme.TextPrimary, TextAlignmentOptions.Left);
+                TMP_Text row = ShellKit.Label(summary.Root, "Row" + i, string.Empty, MinigameUiTheme.Body,
+                    ShellTheme.Ink, VietFontRole.Body, TextAlignmentOptions.Left);
                 RectTransform rowRect = row.rectTransform;
                 rowRect.anchorMin = new Vector2(.05f, .5f);
                 rowRect.anchorMax = new Vector2(.95f, .5f);
                 rowRect.sizeDelta = new Vector2(0f, 64f);
-                rowRect.anchoredPosition = new Vector2(0f, 160f - 76f * i);
-                row.enableAutoSizing = true;
-                row.fontSizeMin = MinigameUiTheme.MinimumFontSize;
-                row.fontSizeMax = row.fontSize;
+                rowRect.anchoredPosition = new Vector2(0f, 148f - 74f * i);
                 row.textWrappingMode = TextWrappingModes.Normal;
                 row.overflowMode = TextOverflowModes.Ellipsis;
                 return row;
             }).ToArray();
-            TMP_Text footnote = UiKit.Label(summary.transform, "Footnote", string.Empty, MinigameUiTheme.Caption,
-                MinigameUiTheme.TextPrimary);
+            TMP_Text footnote = ShellKit.Label(summary.Root, "Footnote", string.Empty, MinigameUiTheme.Caption,
+                ShellTheme.BodyText, VietFontRole.Body);
             UiKit.Place(footnote.rectTransform, centre, centre, new Vector2(0f, -140f), new Vector2(980f, 44f));
-            ButtonHandle menu = UiKit.Button(summary.transform, "MenuButton", "Về menu", ButtonVariant.Primary);
-            UiKit.Place((RectTransform)menu.Button.transform, bottom, bottom, new Vector2(170f, 32f),
-                new Vector2(300f, MinigameUiTheme.ButtonHeight));
-            ButtonHandle replay = UiKit.Button(summary.transform, "ReplayButton", "Chơi lại", ButtonVariant.Secondary);
-            UiKit.Place((RectTransform)replay.Button.transform, bottom, bottom, new Vector2(-170f, 32f),
-                new Vector2(300f, MinigameUiTheme.ButtonHeight));
+            ShellButtonHandle menu = ShellKit.Button(summary.Root, "MenuButton", "Về menu", ShellButtonVariant.Primary);
+            UiKit.Place((RectTransform)menu.Button.transform, bottom, bottom, new Vector2(170f, 40f),
+                new Vector2(300f, ShellTheme.ControlHeight));
+            ShellButtonHandle replay = ShellKit.Button(summary.Root, "ReplayButton", "Chơi lại", ShellButtonVariant.Secondary);
+            UiKit.Place((RectTransform)replay.Button.transform, bottom, bottom, new Vector2(-170f, 40f),
+                new Vector2(300f, ShellTheme.ControlHeight));
 
             // Black cover that fades out at the start; it never takes raycasts, so Skip always works.
             Image fade = Rect(parent, "FadeIn", Vector2.zero, Vector2.one).gameObject.AddComponent<Image>();
@@ -121,8 +120,9 @@ namespace KMA.EditorTools
 
             var controller = canvasObject.AddComponent<CelebrationSceneController>();
             controller.Configure(student, classmate, teacher, Poses(CharacterArt.Hero, HeroPoses),
-                Poses(Classmate, ClassmatePoses), Poses(CharacterArt.Boss, TeacherPoses), bubble.gameObject, bubbleText,
-                confetti, summaryGroup, title, rows, footnote, skip.Button, menu.Button, replay.Button);
+                Poses(Classmate, ClassmatePoses), Poses(CharacterArt.Boss, TeacherPoses), bubble.Root.gameObject,
+                bubbleText, confetti, summaryGroup, titleHandle.Text, rows, footnote, skip.Button, menu.Button,
+                replay.Button);
             controller.SetFade(fade);
             EditorUtility.SetDirty(controller);
             EditorSceneManager.MarkSceneDirty(scene);

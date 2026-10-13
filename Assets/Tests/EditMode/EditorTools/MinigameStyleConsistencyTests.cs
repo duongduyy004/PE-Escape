@@ -53,15 +53,6 @@ namespace KMA.Tests.EditorTools
         }
 
         [Test]
-        public void CelebrationCanvasesFollowTheKit()
-        {
-            var scene = EditorSceneManager.OpenScene(CelebrationSceneConfigurator.ScenePath, OpenSceneMode.Single);
-            var problems = scene.GetRootGameObjects().Where(go => go.GetComponent<Canvas>() != null)
-                .SelectMany(MinigameStyleAudit.Audit).ToList();
-            Assert.That(problems, Is.Empty, string.Join("\n", problems));
-        }
-
-        [Test]
         public void VolleyballActionButtonsUseTheRoundKitShape()
         {
             var scene = EditorSceneManager.OpenScene(VolleyballSceneConfigurator.ScenePath, OpenSceneMode.Single);
