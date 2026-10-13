@@ -764,6 +764,9 @@ namespace KMA.Tests.Presentation
                 .OrderBy(rival => rival.Lane).ToArray(), rival => rival.RivalIndex == 0);
             Assert.That(chips.IsChipVisible(lane1), Is.True);
             Assert.That(chips.ChipText(lane1), Does.Contain("+50.0 m"));
+            TMP_Text chipLabel = GameObject.Find("RivalChip" + lane1).GetComponentInChildren<TMP_Text>();
+            chipLabel.ForceMeshUpdate();
+            Assert.That(chipLabel.isTextTruncated, Is.False, "the whole lane and gap must fit in the chip");
             Assert.That(Enumerable.Range(0, 3).Count(chips.IsChipVisible), Is.EqualTo(1),
                 "B and C stand at the view centre, so they get no chip");
         }

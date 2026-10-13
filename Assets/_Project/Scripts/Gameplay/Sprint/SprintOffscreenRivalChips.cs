@@ -13,7 +13,8 @@ namespace KMA.Gameplay
 
         /// A runner sprite is about a unit wide: only call a rival gone once they are fully past the edge.
         public const float OffscreenMargin = .6f;
-        const float ChipWidth = 220f, ChipHeight = 56f, EdgeInset = 16f;
+        // Wide enough for the longest text, e.g. "LÀN 4 −140.4 m", without the label truncating.
+        const float ChipWidth = 300f, ChipHeight = 56f, EdgeInset = 16f;
         // Chips sit just above the lane's feet line, level with the runner's body.
         const float LaneLift = .6f;
 
