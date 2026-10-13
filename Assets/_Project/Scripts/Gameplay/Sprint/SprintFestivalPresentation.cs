@@ -98,6 +98,7 @@ namespace KMA.Gameplay
             EnsurePlayerIdentity(root);
             EnsureCameraFollow();
             EnsureTrackLines(root);
+            EnsureRivalChips(root);
             EnsureResultPresentation();
         }
 
@@ -155,6 +156,15 @@ namespace KMA.Gameplay
 
         static Rect SafeRect(RectTransform safeArea) =>
             new Rect(0f, 0f, safeArea.rect.width, safeArea.rect.height);
+
+        static void EnsureRivalChips(RectTransform root)
+        {
+            RivalRunnerAI[] runners = Object.FindObjectsByType<RivalRunnerAI>(FindObjectsSortMode.None);
+            System.Array.Sort(runners, (a, b) => a.Lane.CompareTo(b.Lane));
+            var chips = root.GetComponent<SprintOffscreenRivalChips>()
+                ?? root.gameObject.AddComponent<SprintOffscreenRivalChips>();
+            chips.Configure(Object.FindFirstObjectByType<SprintController>(), root, runners);
+        }
 
         /// The start and finish lines are painted on the track in world space beside the runners;
         /// the camera finds them as the race moves along the straight.

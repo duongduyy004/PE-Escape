@@ -742,6 +742,32 @@ namespace KMA.Tests.Presentation
                 "the rail radius/pip-width re-derivation must be registered as an action");
         }
 
+        [UnityTest]
+        public IEnumerator RivalFarAheadShowsAnEdgeChipWithTheGap()
+        {
+            yield return LoadSprint();
+            var scene = SceneManager.GetActiveScene();
+            var controller = SceneObjects<SprintController>(scene)[0];
+            var chips = SceneObjects<SprintOffscreenRivalChips>(scene)[0];
+            controller.ConfigureForTest();
+            controller.enabled = false;
+            controller.AdvanceToDistance(0f, new[]
+            {
+                new RivalPaceProfile("A", 100f, 100f), new RivalPaceProfile("B", 19.2f, 19.2f),
+                new RivalPaceProfile("C", 19.2f, 19.2f)
+            });
+            controller.Simulate(.5f);
+            chips.RefreshForTest();
+
+            Assert.That(chips.ChipCount, Is.EqualTo(3));
+            int lane1 = System.Array.FindIndex(SceneObjects<RivalRunnerAI>(scene)
+                .OrderBy(rival => rival.Lane).ToArray(), rival => rival.RivalIndex == 0);
+            Assert.That(chips.IsChipVisible(lane1), Is.True);
+            Assert.That(chips.ChipText(lane1), Does.Contain("+50.0 m"));
+            Assert.That(Enumerable.Range(0, 3).Count(chips.IsChipVisible), Is.EqualTo(1),
+                "B and C stand at the view centre, so they get no chip");
+        }
+
         static IEnumerator LoadSprint()
         {
             yield return SceneManager.LoadSceneAsync(SceneName, LoadSceneMode.Single);
