@@ -80,9 +80,9 @@ namespace KMA.Gameplay.UI
             var shade = Rect(rect, "DisabledShade");
             Stretch(shade, Vector2.one * 3f, -Vector2.one * 3f);
             var shadeImage = shade.gameObject.AddComponent<Image>();
-            shadeImage.color = new Color(.84f, .83f, .8f, .6f);
+            shadeImage.color = MinigameUiTheme.WithAlpha(ShellTheme.DisabledFace, .6f);
             shadeImage.raycastTarget = false;
-            var label = UiKit.EnsureTmpLabel(rect, 22, Color.clear);
+            var label = UiKit.EnsureTmpLabel(rect, MinigameUiTheme.Caption, Color.clear);
             label.text = VietText.Fix(caption);
             label.color = Color.clear;
             label.raycastTarget = false;

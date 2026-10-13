@@ -226,62 +226,42 @@ namespace KMA.Gameplay.Shell
                 return;
             confirmationRoot = new GameObject("NewGameConfirmation", typeof(RectTransform), typeof(Image));
             confirmationRoot.transform.SetParent(mainMenu.transform, false);
-            RectTransform overlayRect = confirmationRoot.GetComponent<RectTransform>();
-            overlayRect.anchorMin = Vector2.zero;
-            overlayRect.anchorMax = Vector2.one;
-            overlayRect.offsetMin = Vector2.zero;
-            overlayRect.offsetMax = Vector2.zero;
-            confirmationRoot.GetComponent<Image>().color = new Color(0.015f, .06f, .1f, .82f);
+            UiKit.Stretch(confirmationRoot.GetComponent<RectTransform>());
+            confirmationRoot.GetComponent<Image>().color = UITheme.Shared.Scrim;
 
-            var card = new GameObject("ConfirmationCard", typeof(RectTransform), typeof(Image), typeof(Outline));
-            card.transform.SetParent(confirmationRoot.transform, false);
-            RectTransform cardRect = card.GetComponent<RectTransform>();
-            cardRect.anchorMin = cardRect.anchorMax = new Vector2(.5f, .5f);
-            cardRect.sizeDelta = new Vector2(620f, 380f);
-            card.GetComponent<Image>().color = new Color32(255, 249, 231, 255);
-            Outline outline = card.GetComponent<Outline>();
-            outline.effectColor = new Color32(3, 18, 33, 255);
-            outline.effectDistance = new Vector2(5f, -5f);
-            AddLabel(card.transform, "Title", "BẮT ĐẦU HÀNH TRÌNH MỚI?", new Vector2(0f, 98f), 34,
-                new Color32(8, 35, 61, 255));
-            AddLabel(card.transform, "Message", "Tiến độ hiện tại sẽ được thay thế.\nBạn có chắc muốn tiếp tục?",
-                new Vector2(0f, 25f), 22, new Color32(62, 79, 96, 255));
-            AddButton(card.transform, "XÁC NHẬN", new Vector2(-145f, -105f), mainMenu.ConfirmNewGame,
-                ButtonVariant.Danger);
-            AddButton(card.transform, "QUAY LẠI", new Vector2(145f, -105f), () =>
+            ShellCardHandle card = ShellKit.Card(confirmationRoot.transform, "ConfirmationCard");
+            card.Root.anchorMin = card.Root.anchorMax = new Vector2(.5f, .5f);
+            card.Root.sizeDelta = new Vector2(660f, 400f);
+            ShellTitleHandle title = ShellKit.Title(card.Root, "Title", "BẮT ĐẦU HÀNH TRÌNH MỚI?", MinigameUiTheme.BodyLarge);
+            Place(title.Root, new Vector2(0f, 110f), new Vector2(580f, 70f));
+            TMP_Text message = ShellKit.Label(card.Root, "Message",
+                "Tiến độ hiện tại sẽ được thay thế.\nBạn có chắc muốn tiếp tục?", MinigameUiTheme.Caption,
+                ShellTheme.BodyText, VietFontRole.Body);
+            message.textWrappingMode = TextWrappingModes.Normal;
+            Place(message.rectTransform, new Vector2(0f, 20f), new Vector2(580f, 100f));
+            AddButton(card.Root, "XÁC NHẬN", new Vector2(-145f, -115f), mainMenu.ConfirmNewGame, ShellButtonVariant.Danger);
+            AddButton(card.Root, "QUAY LẠI", new Vector2(145f, -115f), () =>
             {
                 mainMenu.CancelNewGame();
                 confirmationRoot.SetActive(false);
-            }, ButtonVariant.Secondary);
+            }, ShellButtonVariant.Secondary);
             confirmationRoot.SetActive(false);
         }
 
         static Button AddButton(Transform parent, string label, Vector2 position,
-            UnityEngine.Events.UnityAction action, ButtonVariant variant)
+            UnityEngine.Events.UnityAction action, ShellButtonVariant variant)
         {
-            ButtonHandle handle = UiKit.Button(parent, label + "Button", label, variant);
-            var rect = (RectTransform)handle.Button.transform;
-            rect.sizeDelta = new Vector2(250f, MinigameUiTheme.ButtonHeight);
-            rect.anchoredPosition = position;
+            ShellButtonHandle handle = ShellKit.Button(parent, label + "Button", label, variant);
+            Place((RectTransform)handle.Button.transform, position, new Vector2(260f, ShellTheme.ControlHeight));
             handle.Button.onClick.AddListener(action);
             return handle.Button;
         }
 
-        static TMP_Text AddLabel(Transform parent, string name, string value, Vector2 position,
-            int fontSize, Color color)
+        static void Place(RectTransform rect, Vector2 position, Vector2 size)
         {
-            var root = new GameObject(name, typeof(RectTransform));
-            root.transform.SetParent(parent, false);
-            RectTransform rect = root.GetComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(540f, 90f);
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
             rect.anchoredPosition = position;
-            TMP_Text text = root.AddComponent<TextMeshProUGUI>();
-            text.text = VietText.Fix(value);
-            text.alignment = TextAlignmentOptions.Center;
-            UiKit.StyleLabel(text, fontSize, color);
-            text.raycastTarget = false;
-            UiKit.FitLabel(text, fontSize + 10f);
-            return text;
+            rect.sizeDelta = size;
         }
 
         void SelectMapSubject(SubjectId subject)

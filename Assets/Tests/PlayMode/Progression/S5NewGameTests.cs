@@ -94,7 +94,7 @@ namespace KMA.Tests.Gameplay.Progression
         }
 
         [Test]
-        public void ConfirmDialogButtonsUseTheKitStyle()
+        public void ConfirmDialogButtonsUseTheShellStyle()
         {
             CreateShellMenu();
             Button confirm = Object.FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None)
@@ -103,8 +103,8 @@ namespace KMA.Tests.Gameplay.Progression
                 .Single(button => button.name == "QUAY LẠIButton");
             foreach (Button button in new[] { confirm, back })
             {
-                Assert.That(button.GetComponent<KMA.UI.Kit.KitPressFeedback>(), Is.Not.Null, button.name);
-                Assert.That(button.GetComponent<Image>().sprite, Is.Not.Null, button.name);
+                Assert.That(button.GetComponent<KMA.UI.Kit.ShellPressFeedback>(), Is.Not.Null, button.name);
+                Assert.That(button.transform.Find(KMA.UI.Kit.ShellKit.BodyName + "/" + KMA.UI.Kit.ShellKit.FaceName).GetComponent<Image>().sprite, Is.Not.Null, button.name);
             }
         }
 
