@@ -24,6 +24,7 @@ namespace KMA.EditorTools
     ///   map-lessons        Map with the Sprint stop tapped, so the HỌC/LUYỆN/THI popup is open
     ///   chess-select       MG_ChessFinal: start the attempt and select the piece of the optimal first move
     ///   chess-wrong        MG_ChessFinal: one suboptimal move played (Nước: 1/3)
+    ///   chess-analysis-error MG_ChessFinal: the analysis-error card after a forced Unknown result
     ///   chess-boss         MG_ChessFinal: first correct move played, boss turn
     ///   chess-hint         MG_ChessFinal: hint level 2 shown
     ///   chess-promotion    MG_ChessFinal: promotion picker opened directly (the demo puzzle has no promotion)
@@ -40,7 +41,7 @@ namespace KMA.EditorTools
         public static bool IsKnown(string state) => DialogueStates.Contains(state) || state == "" || state == "frog-fall" ||
             state == "frog-win-keep" || state == "frog-lose-zero" || state == "exam-fail-1" ||
             state == "exam-fail-2" || state == "map-lives-3" || state == "map-lives-0" || state == "chess-select" ||
-            state == "chess-wrong" || state == "chess-boss" || state == "chess-hint" ||
+            state == "chess-wrong" || state == "chess-analysis-error" || state == "chess-boss" || state == "chess-hint" ||
             state == "chess-promotion" || state == "chess-win" || state == "chess-timeout" ||
             state == "map-chess-locked" || state == "map-chess-open" || state == "map-complete" || state == "map-lessons" ||
             state == "celebration-cheer" || state == "celebration-teacher" || state == "celebration-skip";
@@ -140,6 +141,7 @@ namespace KMA.EditorTools
                 case "map-lessons": return OpenMapLessons();
                 case "chess-select": return CaptureSoonAfterApply = ChessSelect();
                 case "chess-wrong": return CaptureSoonAfterApply = ChessWrong();
+                case "chess-analysis-error": return CaptureSoonAfterApply = ChessAnalysisError();
                 case "chess-boss": return CaptureSoonAfterApply = ChessBoss();
                 case "chess-hint": return ChessHint();
                 case "chess-promotion": return ChessPromotion();
@@ -164,6 +166,7 @@ namespace KMA.EditorTools
 
         static bool ChessSelect()
         {
+            ReadyChess();
             var controller = Object.FindFirstObjectByType<ChessFinalController>();
             var board = Object.FindFirstObjectByType<ChessBoardView>();
             if (controller == null || board == null || controller.Machine == null) return false;
@@ -176,6 +179,8 @@ namespace KMA.EditorTools
 
         static ChessFinalController ReadyChess()
         {
+            var guide = MinigameGuideHost.Current?.Panel;
+            while (guide != null && guide.IsOpen) guide.PressPrimary();
             var controller = Object.FindFirstObjectByType<ChessFinalController>();
             if (controller == null || controller.Machine == null) return null;
             if (controller.Machine.Phase == ChessAttemptPhase.Intro) controller.BeginAttempt();
@@ -240,6 +245,25 @@ namespace KMA.EditorTools
                 controller.RequestMove(move.From, move.To);
             }
             return machine.MovesUsed == 1 && machine.Phase != ChessAttemptPhase.Analyzing;
+        }
+
+        static bool ChessAnalysisError()
+        {
+            var controller = ReadyChess();
+            if (controller == null) return false;
+            ChessAttemptMachine machine = controller.Machine;
+            if (machine.Phase == ChessAttemptPhase.PlayerTurn && machine.MovesUsed == 0)
+            {
+                ChessMove move = OptimalMove(machine);
+                controller.RequestMove(move.From, move.To);
+                // The worker result is applied on the next Update, so a failed analysis can be forced before it.
+                machine.CompleteAnalysis(new AnalysisResult
+                {
+                    Id = machine.PendingAnalysis.Id, Status = SearchStatus.Unknown,
+                    Quality = new MoveQuality(SearchStatus.Unknown, 0, 0, 0)
+                });
+            }
+            return machine.Phase == ChessAttemptPhase.AnalysisError;
         }
 
         static bool ChessBoss()
