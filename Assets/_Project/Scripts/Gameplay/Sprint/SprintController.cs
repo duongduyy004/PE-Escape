@@ -231,7 +231,7 @@ namespace KMA.Gameplay
         }
 
         /// The Learn familiarity clock advances only while the learner can play; Sprint teacher lines
-        /// are shown on unscaled time, so suspend the lesson simulation until the line has finished.
+        /// are shown on unscaled time, so hold the learner until the line has finished. Rivals keep racing.
         public void SetLearnDialogueSuspended(bool suspended) => learnDialogueSuspended = suspended;
 
         public void ConfigureForTest()
@@ -305,7 +305,12 @@ namespace KMA.Gameplay
                     ? $"CHUỖI TỐT NHẤT {BestStreak}/{TargetCount}" : $"{TargetDistance:0} M · {TargetTime:0} S");
         protected override void TickPlay(float dt)
         {
-            if (IsLearnChallenge && learnDialogueSuspended) return;
+            if (IsLearnChallenge && learnDialogueSuspended)
+            {
+                // The teacher line holds the learner's clock and taps; the rest of the field races on.
+                rules.TickRivals(dt);
+                return;
+            }
             float before = rules.Snapshot.Distance;
             if (challengeRules != null) challengeRules.Tick(dt);
             else rules.Tick(dt);

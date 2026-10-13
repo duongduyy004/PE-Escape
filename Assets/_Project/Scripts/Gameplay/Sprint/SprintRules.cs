@@ -244,20 +244,34 @@ namespace KMA.Gameplay
 
             if (before < goalDistance && distance >= goalDistance)
             {
-                finishTime = startElapsed + dt * (step > 0f ? (goalDistance - before) / step : 1f);
+                float crossing = dt * (step > 0f ? (goalDistance - before) / step : 1f);
+                finishTime = startElapsed + crossing;
                 elapsed = finishTime;
                 runOut = distance - goalDistance;
                 distance = goalDistance;
                 finished = true;
-                // Rivals who crossed earlier in this same tick still beat the player.
+                // Rivals who crossed earlier, in this tick or while the player was held, still beat
+                // the player: compare on the race clock, which never stops.
+                float finishClock = clock + crossing;
                 currentRank = 1;
                 for (int i = 0; i < rivals.Length; i++)
-                    if (rivals[i] != null && rivals[i].HasFinished && rivals[i].FinishTime < finishTime) currentRank++;
+                    if (rivals[i] != null && rivals[i].HasFinished && rivals[i].FinishTime < finishClock) currentRank++;
                 StartRunOut(speed * tuning.DistanceScale);
                 return;
             }
 
             UpdateRank();
+        }
+
+        /// Moves the field on while the player is held (a Learn teacher line pauses only the learner):
+        /// the player's position, speed and clock stay put.
+        public void TickRivals(float dt)
+        {
+            if (dt <= 0f || float.IsNaN(dt) || float.IsInfinity(dt)) return;
+            float clock = raceClock;
+            raceClock += dt;
+            if (finished) AdvanceRunOut(dt);
+            AdvanceRivals(clock, dt);
         }
 
         /// After the result is decided the runners still pull up and the field still runs in;

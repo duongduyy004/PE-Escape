@@ -96,6 +96,36 @@ namespace KMA.Tests.Gameplay.Running
             Assert.That(controller.Snapshot.Elapsed, Is.EqualTo(elapsed + 1f).Within(.001f));
         }
 
+        [Test]
+        public void RivalsKeepRacingWhileALearnTeacherLineHoldsThePlayer()
+        {
+            var profile = ScriptableObject.CreateInstance<RivalPaceProfileAsset>();
+            profile.profileName = "Steady";
+            profile.openingSpeed = 9f;
+            profile.sustainedSpeed = 9f;
+            var controller = controllerObject.AddComponent<SprintController>();
+            typeof(SprintController).GetField("rivalProfiles", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(controller, new[] { profile });
+            ChallengeDefinition definition = ChallengeCatalog.LoadDefault().Get("sprint_learn");
+            controller.ConfigureChallenge(definition, new ChallengeAttemptContext(
+                "rivals-run-on", definition.Id, ChallengeAttemptMode.Journey, ChallengeDifficulty.Normal));
+            controller.enabled = false;
+            controller.SetTutorialGate(false);
+            controller.Simulate(4f);
+            Assert.That(controller.Phase, Is.EqualTo(MinigamePhase.Play));
+            Assert.That(controller.RivalCount, Is.EqualTo(1));
+            float elapsed = controller.Snapshot.Elapsed;
+            float rivalBefore = controller.GetRivalPosition(0);
+
+            controller.SetLearnDialogueSuspended(true);
+            for (int i = 0; i < 60; i++) controller.Simulate(1f / 60f);
+
+            Assert.That(controller.Snapshot.Elapsed, Is.EqualTo(elapsed).Within(.001f), "the learner's clock is held");
+            Assert.That(controller.GetRivalPosition(0), Is.GreaterThan(rivalBefore + 5f),
+                "rivals keep racing instead of running on the spot");
+            Object.DestroyImmediate(profile);
+        }
+
         [UnityTest]
         public IEnumerator FinishingDuringDeadlineFramePassesAtTheExactLimit()
         {

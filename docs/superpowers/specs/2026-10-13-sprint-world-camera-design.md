@@ -87,6 +87,9 @@ derived from actual `v` against `vMax`.
 - Tap model unchanged.
 - On crossing the line: the result, elapsed time and rank lock; taps are ignored; speed is not zeroed —
   the player brakes with `a = −v²/(2d)`, `d` rolled in 3–5 m, and the camera keeps following.
+- Learn teacher lines (e.g. after a wrong tap) hold only the learner: their position, clock and taps
+  pause while the line shows, and the rivals keep racing. Crossing times are ranked on the race clock,
+  which never pauses.
 
 ### Finish timing & rank
 

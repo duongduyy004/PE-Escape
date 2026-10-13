@@ -306,6 +306,36 @@ namespace KMA.Tests.Gameplay.Running
         }
 
         [Test]
+        public void TickRivals_MovesTheFieldWhileThePlayerIsHeld()
+        {
+            var rules = SprintRules.ForTest(distance: 10f, elapsed: 5f, rank: 1,
+                rivalProfiles: new[] { new RivalPaceProfile("R", 9f, 9f) }, speed: Raw(8f));
+
+            rules.TickRivals(1f);
+
+            Assert.That(rules.GetRivalPosition(0), Is.EqualTo(9f).Within(.001f));
+            Assert.That(rules.Distance, Is.EqualTo(10f), "the held player does not move");
+            Assert.That(rules.Elapsed, Is.EqualTo(5f), "the held player's clock does not run");
+        }
+
+        [Test]
+        public void Rank_ComparesCrossingsOnTheRaceClockAfterThePlayerWasHeld()
+        {
+            // The rival crosses 100 m at race time 10 s. The player was held for 9.7 s, so on their
+            // own clock they cross after ~0.4 s, but on the race clock at ~10.1 s: behind the rival.
+            var rules = SprintRules.ForTest(distance: 60f, elapsed: 0f, rank: 1,
+                rivalProfiles: new[] { new RivalPaceProfile("R", 10f, 10f) }, speed: Raw(100f), goalDistance: 100f);
+
+            rules.TickRivals(9.7f);
+            rules.Tick(1f);
+
+            Assert.That(rules.IsFinished, Is.True);
+            Assert.That(rules.HasRivalFinished(0), Is.True);
+            Assert.That(rules.Elapsed, Is.LessThan(1f), "the player's own time excludes the hold");
+            Assert.That(rules.Rank, Is.EqualTo(2));
+        }
+
+        [Test]
         public void TickAfterRace_PullsUpAnUnfinishedPlayerWithoutChangingTheRace()
         {
             var rules = SprintRules.ForTest(distance: 20f, elapsed: 22f, rank: 1,
