@@ -31,10 +31,9 @@ namespace KMA.EditorTools
                 var presenter = Require<SplashScreenPresenter>(scene);
                 // Rebuild from the tokens: Build reuses an existing layout, which would keep stale sizes.
                 RemoveChild(presenter.transform, "SplashSafeArea");
-                RemoveChild(presenter.transform, "SplashNavyGradient");
                 var view = SplashPresentationView.Build(presenter.transform);
                 if (view == null) throw new InvalidOperationException("Bootstrap has no splash Canvas.");
-                KeepOnly(presenter.transform, "Illustration", "SplashNavyGradient", "SplashSafeArea");
+                KeepOnly(presenter.transform, "Illustration", "SplashSafeArea");
                 var properties = new SerializedObject(presenter);
                 properties.FindProperty("loadingBar").objectReferenceValue = view.LoadingBar;
                 properties.FindProperty("statusText").objectReferenceValue = view.Status;

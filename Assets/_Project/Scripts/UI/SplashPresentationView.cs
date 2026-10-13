@@ -20,7 +20,6 @@ namespace KMA.Gameplay.UI
         CanvasGroup brand;
         UITheme.SplashStyle style;
         float introElapsed;
-        Sprite gradient;
         RectTransform versionFooter;
 
         public static SplashPresentationView Build(Transform root)
@@ -65,7 +64,7 @@ namespace KMA.Gameplay.UI
                 art.gameObject.SetActive(true);
                 art.transform.SetAsFirstSibling();
                 art.color = Color.white;
-                art.raycastTarget = false;
+                art.raycastTarget = true; // the full-screen art blocks input to whatever sits behind the splash
                 art.preserveAspect = false;
                 var fitter = art.GetComponent<AspectRatioFitter>() ?? art.gameObject.AddComponent<AspectRatioFitter>();
                 fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
@@ -74,11 +73,6 @@ namespace KMA.Gameplay.UI
                 art.rectTransform.anchorMax = Vector2.one;
                 art.rectTransform.offsetMin = art.rectTransform.offsetMax = Vector2.zero;
             }
-            var overlay = Rect(root, "SplashNavyGradient");
-            Stretch(overlay);
-            var overlayImage = overlay.gameObject.AddComponent<Image>();
-            overlayImage.sprite = Gradient(style);
-            overlayImage.raycastTarget = true;
 
             var safe = Rect(root, "SplashSafeArea");
             Stretch(safe);
@@ -86,7 +80,6 @@ namespace KMA.Gameplay.UI
             Place(panel, Vector2.zero, style.contentSize);
             var view = panel.gameObject.AddComponent<SplashPresentationView>();
             view.style = style;
-            view.gradient = overlayImage.sprite;
             view.safeArea = safe;
             view.layout = panel;
             view.brand = panel.gameObject.AddComponent<CanvasGroup>();
@@ -105,6 +98,10 @@ namespace KMA.Gameplay.UI
             foreach (var text in new[] { top, title })
             {
                 text.fontStyle = FontStyles.Italic;
+                text.color = ShellTheme.Cream;
+                var drop = text.gameObject.AddComponent<Shadow>();
+                drop.effectColor = ShellTheme.Ink;
+                drop.effectDistance = ShellTheme.TitleDrop;
                 text.rectTransform.localRotation = Quaternion.Euler(0f, 0f, ShellTheme.TitleAngle);
             }
             view.kma = title.rectTransform;
@@ -122,17 +119,17 @@ namespace KMA.Gameplay.UI
             }
             var slogan = Label(panel, "Slogan", "Hành trình rèn luyện thể chất", style.sloganSize,
                 VietFontRole.Body, new Vector2(0f, style.sloganY), style.sloganBox);
-            var shadow = slogan.gameObject.AddComponent<Shadow>();
-            shadow.effectColor = UITheme.Shared.ShadowColor;
-            shadow.effectDistance = style.sloganShadow;
+            OnArt(slogan);
             view.Status = Label(panel, "LoadingStatus", "Đang chuẩn bị...", style.statusSize,
                 VietFontRole.Hud, new Vector2(-style.trackSize.x * .125f, style.statusY),
                 new Vector2(style.trackSize.x * .75f, style.statusHeight));
             view.Status.alignment = TextAlignmentOptions.Left;
+            OnArt(view.Status);
             view.Percent = Label(panel, "ProgressPercent", "0%", style.statusSize,
                 VietFontRole.Hud, new Vector2(style.trackSize.x * .375f, style.statusY),
                 new Vector2(style.trackSize.x * .25f, style.statusHeight));
             view.Percent.alignment = TextAlignmentOptions.Right;
+            OnArt(view.Percent);
             view.CreateTrack();
             view.versionFooter = Footer(safe, "VersionFooter", "v" + Application.version, true, style);
             view.Resize();
@@ -149,7 +146,7 @@ namespace KMA.Gameplay.UI
             var sprite = ShellArt.SlantSprite(false, width, height, style.trackBorder);
             var background = track.gameObject.AddComponent<Image>();
             background.sprite = sprite;
-            background.color = MinigameUiTheme.WithAlpha(ShellTheme.Ink, style.trackOpacity);
+            background.color = ShellTheme.White;
             background.raycastTarget = false;
             LoadingBar = track.gameObject.AddComponent<Slider>();
             LoadingBar.interactable = false;
@@ -175,7 +172,7 @@ namespace KMA.Gameplay.UI
             Stretch(rim);
             var border = rim.gameObject.AddComponent<Image>();
             border.sprite = ShellArt.SlantSprite(true, width, height, style.trackBorder);
-            border.color = UITheme.Shared.Card;
+            border.color = ShellTheme.Ink;
             border.raycastTarget = false;
         }
 
@@ -227,13 +224,6 @@ namespace KMA.Gameplay.UI
             if (versionFooter != null) versionFooter.sizeDelta = new Vector2(footerWidth, style.footerSize.y);
         }
 
-        void OnDestroy()
-        {
-            if (gradient == null) return;
-            Destroy(gradient.texture);
-            Destroy(gradient);
-        }
-
         static RectTransform Footer(RectTransform parent, string name, string value, bool right, UITheme.SplashStyle style)
         {
             var text = Label(parent, name, value, style.footerFontSize, VietFontRole.Body, Vector2.zero, style.footerSize);
@@ -247,8 +237,17 @@ namespace KMA.Gameplay.UI
             text.fontSizeMax = style.footerFontSize;
             text.fontSizeMin = style.footerFontSize;
             text.alignment = right ? TextAlignmentOptions.BottomRight : TextAlignmentOptions.BottomLeft;
-            text.color = MinigameUiTheme.WithAlpha(UITheme.Shared.Card, style.footerOpacity);
+            OnArt(text);
             return rect;
+        }
+
+        // The splash has no card: text sits on the stadium art in cream with a hard navy drop.
+        static void OnArt(TMP_Text text)
+        {
+            text.color = ShellTheme.Cream;
+            var drop = text.GetComponent<Shadow>() ?? text.gameObject.AddComponent<Shadow>();
+            drop.effectColor = ShellTheme.Ink;
+            drop.effectDistance = new Vector2(2f, -2f);
         }
 
         static TMP_Text Label(Transform parent, string name, string value, float size, VietFontRole role,
@@ -265,17 +264,6 @@ namespace KMA.Gameplay.UI
             text.raycastTarget = false;
             VietTypography.Apply(text, role);
             return text;
-        }
-
-        static Sprite Gradient(UITheme.SplashStyle style)
-        {
-            var texture = new Texture2D(1, 128, TextureFormat.RGBA32, false);
-            texture.wrapMode = TextureWrapMode.Clamp;
-            for (int y = 0; y < 128; y++)
-                texture.SetPixel(0, y, MinigameUiTheme.WithAlpha(ShellTheme.Ink,
-                    Mathf.Lerp(style.overlayBottomOpacity, style.overlayTopOpacity, y / 127f)));
-            texture.Apply();
-            return Sprite.Create(texture, new Rect(0f, 0f, 1f, 128f), Vector2.one * .5f, 100f, 0, SpriteMeshType.FullRect);
         }
 
         static RectTransform Rect(Transform parent, string name)

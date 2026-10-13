@@ -154,7 +154,7 @@ MonoBehaviour:
     titleTopY: 160
     titleKmaY: 10
     stripesY: -155
-    stripeSize: {x: 210, y: 3}
+    stripeSize: {x: 210, y: 6}
     stripeStep: {x: 18, y: -8}
     stripeShorten: 28
     sloganY: -215
@@ -165,15 +165,13 @@ MonoBehaviour:
     statusSize: 24
     statusHeight: 38
     trackY: -323
-    trackSize: {x: 460, y: 20}
-    trackBorder: 2
+    trackSize: {x: 460, y: 28}
+    trackBorder: 4
     trackOpacity: 0.65
-    overlayTopOpacity: 0.7
-    overlayBottomOpacity: 0.85
     footerInset: {x: 32, y: 24}
     footerSize: {x: 520, y: 40}
     footerFontSize: 24
-    footerOpacity: 0.55
+    footerOpacity: 0.8
     maxAnimationDelta: 0.05
     introDuration: 0.5
     introSlide: 24

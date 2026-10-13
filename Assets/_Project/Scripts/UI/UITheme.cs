@@ -200,7 +200,7 @@ namespace KMA.Gameplay.UI
             public float titleTopY = 160f;
             public float titleKmaY = 10f;
             public float stripesY = -155f;
-            public Vector2 stripeSize = new Vector2(210f, 3f);
+            public Vector2 stripeSize = new Vector2(210f, 6f);
             public Vector2 stripeStep = new Vector2(18f, -8f);
             public float stripeShorten = 28f;
             public float sloganY = -215f;
@@ -211,15 +211,13 @@ namespace KMA.Gameplay.UI
             public float statusSize = 24f;
             public float statusHeight = 38f;
             public float trackY = -323f;
-            public Vector2 trackSize = new Vector2(460f, 20f);
-            public float trackBorder = 2f;
+            public Vector2 trackSize = new Vector2(460f, 28f);
+            public float trackBorder = 4f;
             [Range(0f, 1f)] public float trackOpacity = .65f;
-            [Range(0f, 1f)] public float overlayTopOpacity = .70f;
-            [Range(0f, 1f)] public float overlayBottomOpacity = .85f;
             public Vector2 footerInset = new Vector2(32f, 24f);
             public Vector2 footerSize = new Vector2(520f, 40f);
             public float footerFontSize = 24f;
-            [Range(0f, 1f)] public float footerOpacity = .55f;
+            [Range(0f, 1f)] public float footerOpacity = .8f;
             [Min(.001f)] public float maxAnimationDelta = .05f;
             [Min(.01f)] public float introDuration = .5f;
             public float introSlide = 24f;
