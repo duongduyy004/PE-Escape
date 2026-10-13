@@ -4,6 +4,8 @@ namespace KMA.Gameplay.UI
 {
     public sealed class HomeMenuResponsive : MonoBehaviour
     {
+        const float MenuScale = 1.7f;
+        const float PanelWidth = 560f;
         RectTransform rect;
         RectTransform parent;
 
@@ -18,8 +20,8 @@ namespace KMA.Gameplay.UI
         // Canvas dimensions can settle after Awake, especially in the Game view.
         void LateUpdate() => Resize();
 
-        public static float ScaleFor(Vector2 viewport) => Mathf.Min(HomeMenuStyle.MenuScale,
-            viewport.y / 650f, viewport.x * .45f / HomeMenuStyle.PanelWidth);
+        public static float ScaleFor(Vector2 viewport) => Mathf.Min(MenuScale,
+            viewport.y / 650f, viewport.x * .45f / PanelWidth);
 
         void Resize()
         {

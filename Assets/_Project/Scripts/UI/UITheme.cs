@@ -61,12 +61,6 @@ namespace KMA.Gameplay.UI
         [SerializeField] private Color scrim = new Color(3f / 255f, 18f / 255f, 33f / 255f, .7f);
         [SerializeField] private Color shadowColor = new Color(0f, 0f, 0f, .35f);
         [Header("Screen palette variants")]
-        [SerializeField] private Color settingsBackdrop = new Color(.02f, .06f, .1f, .85f);
-        public Color SettingsBackdrop => settingsBackdrop;
-        [SerializeField] private Color settingsHint = new Color32(190, 219, 239, 255);
-        public Color SettingsHint => settingsHint;
-        [SerializeField] private Color settingsTrack = new Color32(48, 74, 99, 255);
-        public Color SettingsTrack => settingsTrack;
         [SerializeField] private Color mapBackgroundTint = new Color32(10, 48, 82, 255);
         public Color MapBackgroundTint => mapBackgroundTint;
         [SerializeField] private Color mapHint = new Color32(201, 226, 245, 255);
@@ -94,8 +88,6 @@ namespace KMA.Gameplay.UI
         [Header("Chapter lesson journey")]
         [SerializeField] private LessonJourneyStyle lessonJourney = new LessonJourneyStyle();
         public LessonJourneyStyle LessonJourney => lessonJourney;
-        [Header("Menu palette and geometry")]
-        [SerializeField] private MenuStyle menu = new MenuStyle();
         [Header("Shell screens (everything outside the minigames)")]
         [SerializeField] private ShellStyle shell = new ShellStyle();
         public ShellStyle Shell => shell;
@@ -112,7 +104,6 @@ namespace KMA.Gameplay.UI
         public Color ResultSuccess => resultSuccess;
         public Color Scrim => scrim;
         public Color ShadowColor => shadowColor;
-        public MenuStyle Menu => menu;
         public MotionStyle Motion => motion;
 
         [Serializable]
@@ -129,12 +120,11 @@ namespace KMA.Gameplay.UI
             public Vector2 courseAnchorMax = new Vector2(1f, .915f);
             public Vector2 summaryAnchorMin = new Vector2(.05f, .80f);
             public Vector2 summaryAnchorMax = new Vector2(.95f, .915f);
-            public float borderWidth = 3f;
             public float headingSize = 54f;
             public float stageSize = 54f;
-            public float bodySize = 42f;
-            public float captionSize = 39f;
-            public float objectiveSize = 39f;
+            public float bodySize = 40f;
+            public float captionSize = 40f;
+            public float objectiveSize = 40f;
             // Level-select layout, in panel fractions: stage nodes on a dotted road, details below.
             public float nodeRowBottom = .36f;
             public float nodeRowTop = .82f;
@@ -169,23 +159,6 @@ namespace KMA.Gameplay.UI
             public float roadOutlineWidth = 30f;
             public float roadFillWidth = 16f;
             public float roadDotSize = 12f;
-        }
-
-        [Serializable]
-        public sealed class MenuStyle
-        {
-            public Color navy = new Color32(11, 42, 74, 255);
-            public Color gold = new Color32(255, 201, 40, 255);
-            public Color goldLight = new Color32(255, 224, 102, 255);
-            public Color goldDark = new Color32(255, 180, 0, 255);
-            public Color disabledBorder = new Color(1f, 1f, 1f, .24f);
-            public Color disabledFill = new Color(.04f, .13f, .22f, .34f);
-            public Color disabledText = new Color(1f, 1f, 1f, .42f);
-            public Color red = new Color32(226, 85, 61, 255);
-            public Color grass = new Color32(107, 164, 58, 255);
-            [Range(-45f, 45f)] public float titleAngle = -8f;
-            [Range(0f, 40f)] public float buttonSlantAngle = 12.094757f;
-            [Range(.5f, 1f)] public float pressScale = .96f;
         }
 
         /// The look of every screen outside the minigames, taken from the menu key art:

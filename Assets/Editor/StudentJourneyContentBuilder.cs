@@ -301,7 +301,7 @@ namespace KMA.EditorTools
                     Line(Co, DialoguePose.Idle, "Đỡ bóng 3 lần, phát bóng 2 lần, rồi nhảy đánh trả 2 lần. Mỗi bên chạm tối đa ba lần."),
                     Line(TanThu, DialoguePose.Idle, "Dạ. Cô cho em vào vị trí đã ạ.")),
                 Node("volleyball_exam",
-                    Line(Co, DialoguePose.Idle, "Ghi đủ 10 điểm trước đối thủ . Không giới hạn thời gian, cứ chắc từng điểm.", "10 ĐIỂM"),
+                    Line(Co, DialoguePose.Idle, "Ghi đủ 10 điểm trước đối thủ. Không giới hạn thời gian, cứ chắc từng điểm.", "10 ĐIỂM"),
                     Line(Mai, DialoguePose.Idle, "Đừng nhìn bảng điểm suốt. Cứ theo bóng, xong lượt rồi tính."),
                     Line(TanThu, DialoguePose.Idle, "Ừ. Tớ chỉ sợ cuống rồi bấm sớm.")),
                 Node("volleyball_pass",

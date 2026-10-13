@@ -50,8 +50,8 @@ namespace KMA.Gameplay.UI
                     text.font = fonts.title;
                     text.fontSharedMaterial = fonts.titleMaterial;
                     text.color = Color.white;
-                    var top = new Color32(255, 224, 102, 255);
-                    var bottom = new Color32(255, 180, 0, 255);
+                    var top = (Color32)KMA.UI.Kit.ShellTheme.GoldLight;
+                    var bottom = (Color32)KMA.UI.Kit.ShellTheme.GoldDark;
                     text.colorGradient = new VertexGradient(top, top, bottom, bottom);
                     break;
                 case VietFontRole.ButtonPrimary:

@@ -13,11 +13,11 @@ namespace KMA.Tests.Presentation
             Assert.That(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/Btn_Brutal.prefab"), Is.Null);
 
         [Test]
-        public void HomeMenuDisabledColoursComeFromTheTheme()
+        public void ShellDisabledColoursComeFromTheTheme()
         {
-            UITheme.MenuStyle menu = UITheme.Shared.Menu;
-            Assert.That(menu.disabledBorder.a, Is.EqualTo(.24f).Within(.01f));
-            Assert.That(menu.disabledText.a, Is.EqualTo(.42f).Within(.01f));
+            UITheme.ShellStyle shell = UITheme.Shared.Shell;
+            Assert.That(shell.disabledFace.a, Is.EqualTo(1f).Within(.01f));
+            Assert.That(ShellTheme.DisabledText, Is.EqualTo(shell.disabledText));
         }
     }
 }

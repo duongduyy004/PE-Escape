@@ -117,7 +117,7 @@ namespace KMA.Tests.Presentation
             Assert.That(root, Is.Not.Null);
             Transform mapBack = root.Find("Content/Header/BackButton");
             Assert.That(mapBack, Is.Not.Null);
-            Assert.That(mapBack.GetComponent<KMA.UI.Kit.KitPressFeedback>(), Is.Not.Null);
+            Assert.That(mapBack.GetComponent<KMA.UI.Kit.ShellPressFeedback>(), Is.Not.Null);
             Assert.That(mapBack.GetComponentInChildren<TMP_Text>().text, Is.Not.Empty, "back arrow keeps its glyph");
             RectTransform header = root.Find("Content/Header").GetComponent<RectTransform>();
             Assert.That(header.rect.height, Is.InRange(76f, 92f));

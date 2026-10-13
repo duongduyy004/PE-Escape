@@ -89,7 +89,7 @@ namespace KMA.Gameplay.UI
             panel.SetAsLastSibling();
 
             if (panel.Find("CloseButton") != null) return;
-            ShellButtonHandle close = ShellKit.IconButton(panel, "CloseButton", "✕");
+            ShellButtonHandle close = ShellKit.IconButton(panel, "CloseButton", "×");
             Place((RectTransform)close.Button.transform, Vector2.one, Vector2.one * ShellTheme.IconButtonSize);
             ((RectTransform)close.Button.transform).anchoredPosition = new Vector2(-32f, -32f);
         }
@@ -225,7 +225,7 @@ namespace KMA.Gameplay.UI
                 FontStyles.Normal, VietFontRole.Body);
             status.enableAutoSizing = true;
             status.fontSizeMax = Style.captionSize;
-            status.fontSizeMin = Style.captionSize - 3f;
+            status.fontSizeMin = Mathf.Max(MinigameUiTheme.MinimumFontSize, Style.captionSize - 8f);
             Inset(status.rectTransform, Vector2.zero, new Vector2(.68f, .40f),
                 new Vector2(pad, 8f), Vector2.zero);
 

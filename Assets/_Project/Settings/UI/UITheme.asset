@@ -59,9 +59,6 @@ MonoBehaviour:
   resultSuccess: {r: 0.36862746, g: 0.87058824, b: 0.54901963, a: 1}
   scrim: {r: 0.011764706, g: 0.07058824, b: 0.12941176, a: 0.7}
   shadowColor: {r: 0, g: 0, b: 0, a: 0.35}
-  settingsBackdrop: {r: 0.02, g: 0.06, b: 0.1, a: 0.85}
-  settingsHint: {r: 0.74509805, g: 0.85882354, b: 0.9372549, a: 1}
-  settingsTrack: {r: 0.18823528, g: 0.2901961, b: 0.3882353, a: 1}
   mapBackgroundTint: {r: 0.039215688, g: 0.18823528, b: 0.32156864, a: 1}
   mapHint: {r: 0.7882353, g: 0.8862745, b: 0.9607843, a: 1}
   mapLivesSurface: {r: 0.050980393, g: 0.22352941, b: 0.36078432, a: 0.93333334}
@@ -85,12 +82,11 @@ MonoBehaviour:
     courseAnchorMax: {x: 1, y: 0.915}
     summaryAnchorMin: {x: 0.05, y: 0.8}
     summaryAnchorMax: {x: 0.95, y: 0.915}
-    borderWidth: 3
     headingSize: 54
     stageSize: 54
-    bodySize: 42
-    captionSize: 39
-    objectiveSize: 39
+    bodySize: 40
+    captionSize: 40
+    objectiveSize: 40
     nodeRowBottom: 0.36
     nodeRowTop: 0.82
     nodeHalfWidth: 0.12
@@ -127,19 +123,6 @@ MonoBehaviour:
     roadOutlineWidth: 30
     roadFillWidth: 16
     roadDotSize: 12
-  menu:
-    navy: {r: 0.043137256, g: 0.16470589, b: 0.2901961, a: 1}
-    gold: {r: 1, g: 0.7882353, b: 0.15686275, a: 1}
-    goldLight: {r: 1, g: 0.8784314, b: 0.4, a: 1}
-    goldDark: {r: 1, g: 0.7058824, b: 0, a: 1}
-    disabledBorder: {r: 1, g: 1, b: 1, a: 0.24}
-    disabledFill: {r: 0.04, g: 0.13, b: 0.22, a: 0.34}
-    disabledText: {r: 1, g: 1, b: 1, a: 0.42}
-    red: {r: 0.8862745, g: 0.33333334, b: 0.23921569, a: 1}
-    grass: {r: 0.41960785, g: 0.6431373, b: 0.22745098, a: 1}
-    titleAngle: -8
-    buttonSlantAngle: 12.094757
-    pressScale: 0.96
   shell:
     cream: {r: 0.9843137, g: 0.95686275, b: 0.89411765, a: 1}
     ink: {r: 0.043137256, g: 0.16470589, b: 0.2901961, a: 1}

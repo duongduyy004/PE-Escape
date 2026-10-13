@@ -48,6 +48,43 @@ namespace KMA.Tests.EditorTools
                 .Sum(t => UnityEditor.GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(t.gameObject)));
             Assert.That(missing, Is.Zero);
         }
+
+        static GameObject Find(Scene scene, string name) =>
+            scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<Transform>(true))
+                .First(t => t.name == name).gameObject;
+
+        [TestCase("Assets/_Project/Scenes/GameOver.unity", "GameOverLayout")]
+        [TestCase("Assets/_Project/Scenes/Map.unity", "S5MapPresentation")]
+        [TestCase("Assets/_Project/Scenes/Menu.unity", "HomeMenuLayout")]
+        public void AuthoredShellScreensFollowTheShellStyle(string scenePath, string rootName)
+        {
+            Scene scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+            var problems = ShellStyleAudit.Audit(Find(scene, rootName));
+            Assert.That(problems, Is.Empty, string.Join("\n", problems));
+        }
+
+        [Test]
+        public void BootstrapSplashFollowsTheSplashRules()
+        {
+            Scene scene = EditorSceneManager.OpenScene("Assets/_Project/Scenes/Bootstrap.unity", OpenSceneMode.Single);
+            var problems = ShellStyleAudit.Audit(Find(scene, "SplashLayout"), ShellAuditOptions.Splash);
+            Assert.That(problems, Is.Empty, string.Join("\n", problems));
+        }
+
+        [Test]
+        public void ShellScreensHaveNoTextBelowTheFloor()
+        {
+            foreach (string path in new[] { "GameOver", "Map", "Menu" })
+            {
+                Scene scene = EditorSceneManager.OpenScene($"Assets/_Project/Scenes/{path}.unity", OpenSceneMode.Single);
+                foreach (TMP_Text text in scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<TMP_Text>(true)))
+                {
+                    if (text.GetComponentInParent<GameplayDialogueView>(true) != null || text.color.a < .01f) continue;
+                    float smallest = text.enableAutoSizing ? text.fontSizeMin : text.fontSize;
+                    Assert.That(smallest, Is.GreaterThanOrEqualTo(MinigameUiTheme.MinimumFontSize), $"{path}: {text.name}");
+                }
+            }
+        }
     }
 }
 #endif

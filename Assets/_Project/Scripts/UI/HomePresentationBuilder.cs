@@ -76,7 +76,7 @@ namespace KMA.Gameplay.UI
             hit.raycastTarget = true;
             hit.canvasRenderer.cullTransparentMesh = false;
             var oldOutline = button.GetComponent<Outline>();
-            if (oldOutline != null) oldOutline.enabled = false;
+            if (oldOutline != null) UnityEngine.Object.DestroyImmediate(oldOutline);
             var shade = Rect(rect, "DisabledShade");
             Stretch(shade, Vector2.one * 3f, -Vector2.one * 3f);
             var shadeImage = shade.gameObject.AddComponent<Image>();
