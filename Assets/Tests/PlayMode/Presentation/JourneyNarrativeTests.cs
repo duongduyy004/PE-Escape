@@ -49,8 +49,8 @@ namespace KMA.Tests.Presentation
             allowSave = false;
             yield return null;
             Button skip = Find<Button>("BỎ QUA");
-            Assert.That(skip.GetComponent<KMA.UI.Kit.KitPressFeedback>(), Is.Not.Null);
-            Assert.That(skip.GetComponent<Image>().sprite, Is.Not.Null);
+            Assert.That(skip.GetComponent<KMA.UI.Kit.ShellPressFeedback>(), Is.Not.Null);
+            Assert.That(skip.transform.Find(KMA.UI.Kit.ShellKit.BodyName + "/" + KMA.UI.Kit.ShellKit.FaceName), Is.Not.Null);
             skip.onClick.Invoke();
             Assert.That(presenter.IsShowing, Is.True);
             Assert.That(savedKey, Is.EqualTo("opening"));
@@ -59,6 +59,19 @@ namespace KMA.Tests.Presentation
             skip.onClick.Invoke();
             Assert.That(presenter.IsShowing, Is.False);
             Assert.That(closed, Is.EqualTo(1));
+        }
+
+        [UnityTest]
+        public IEnumerator JourneyDialogueFollowsTheShellStyle()
+        {
+            Open("opening");
+            yield return null;
+            Transform overlay = Find<RectTransform>("JourneyDialogueOverlay");
+            Transform box = overlay.Find("DialogueBox");
+            Assert.That(box.Find(KMA.UI.Kit.ShellKit.FaceName).GetComponent<Image>().color, Is.EqualTo(KMA.UI.Kit.ShellTheme.Cream));
+            Assert.That(box.Find("Dialogue").GetComponent<TMP_Text>().color, Is.EqualTo(KMA.UI.Kit.ShellTheme.Ink));
+            var problems = KMA.UI.Kit.ShellStyleAudit.Audit(overlay.gameObject);
+            Assert.That(problems, Is.Empty, string.Join("\n", problems));
         }
 
         [UnityTest]

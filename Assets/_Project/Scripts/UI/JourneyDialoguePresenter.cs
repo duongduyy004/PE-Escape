@@ -19,8 +19,7 @@ namespace KMA.Gameplay.UI
         const float ActorHeight = 734f, ActorBottom = 260f, ActorX = 630f, ActorOffX = 1250f;
         const float SlideSeconds = .25f, HopSeconds = .3f, StickerSeconds = .25f;
         const float BoxHeight = 313f, BoxMargin = 67f, BoxBottom = 38f;
-        static readonly Color StickerRed = new Color32(0xE2, 0x55, 0x3D, 0xFF);
-        static readonly Color DotIdle = new Color(1f, 1f, 1f, .3f);
+        static Color DotIdle => MinigameUiTheme.WithAlpha(ShellTheme.Ink, .25f);
 
         readonly struct DialogueRequest
         {
@@ -45,7 +44,7 @@ namespace KMA.Gameplay.UI
         readonly ActorSlot left = new ActorSlot { HomeX = -ActorX, OffX = -ActorOffX };
         readonly ActorSlot right = new ActorSlot { HomeX = ActorX, OffX = ActorOffX };
         RectTransform overlay, nameTagRect, dotsRoot, stickerRect;
-        Image backgroundImage, nameTagImage;
+        Image backgroundImage;
         TMP_Text nameTag, body, errorText, hint, stickerText;
         IReadOnlyList<JourneyDialogueLine> activeLines;
         string activeSeenKey;
@@ -222,7 +221,6 @@ namespace KMA.Gameplay.UI
             ApplySlot(right);
 
             nameTag.text = VietText.Fix(speaker.DisplayName);
-            nameTagImage.color = speaker.TagColor;
             nameTagRect.anchorMin = nameTagRect.anchorMax = new Vector2(onRight ? 1f : 0f, 1f);
             nameTagRect.pivot = new Vector2(onRight ? 1f : 0f, .5f);
             nameTagRect.anchoredPosition = new Vector2(onRight ? -36f : 36f, 0f);
@@ -243,7 +241,7 @@ namespace KMA.Gameplay.UI
                 stickerRect.localScale = Vector3.zero;
             }
 
-            for (int i = 0; i < dots.Count; i++) dots[i].color = i <= lineIndex ? HomeMenuStyle.Gold : DotIdle;
+            for (int i = 0; i < dots.Count; i++) dots[i].color = i <= lineIndex ? ShellTheme.Gold : DotIdle;
             UpdateHint();
         }
 
@@ -402,6 +400,7 @@ namespace KMA.Gameplay.UI
             RectTransform backgroundRect = backgroundObject.GetComponent<RectTransform>();
             backgroundRect.anchorMin = backgroundRect.anchorMax = new Vector2(.5f, .5f);
             backgroundRect.sizeDelta = Vector2.zero;
+            backgroundObject.AddComponent<StyleExempt>();
             backgroundImage = backgroundObject.GetComponent<Image>();
             backgroundImage.raycastTarget = false;
             AspectRatioFitter backgroundFit = backgroundObject.GetComponent<AspectRatioFitter>();
@@ -410,7 +409,7 @@ namespace KMA.Gameplay.UI
 
             Image dimmer = UiKit.Rect(overlay, "BackgroundDimmer").gameObject.AddComponent<Image>();
             UiKit.Stretch(dimmer.rectTransform);
-            dimmer.color = MinigameUiTheme.WithAlpha(HomeMenuStyle.Navy, .36f);
+            dimmer.color = MinigameUiTheme.WithAlpha(ShellTheme.Ink, .36f);
             dimmer.raycastTarget = false;
 
             left.Image = MakeActor("LeftActor", false);
@@ -418,49 +417,36 @@ namespace KMA.Gameplay.UI
 
             stickerRect = UiKit.Rect(overlay, "Sticker");
             UiKit.Place(stickerRect, new Vector2(.5f, 0f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(340f, 84f));
-            Image stickerCard = stickerRect.gameObject.AddComponent<Image>();
-            UiKit.SetRadius(stickerCard, 18f);
-            stickerCard.color = Color.white;
-            stickerCard.raycastTarget = false;
-            Outline stickerOutline = stickerRect.gameObject.AddComponent<Outline>();
-            stickerOutline.effectColor = HomeMenuStyle.Navy;
-            stickerOutline.effectDistance = new Vector2(3f, -3f);
-            stickerText = MakeText(stickerRect, "Label", 40f, StickerRed, TextAlignmentOptions.Center);
+            ShellKit.StyleSurface(stickerRect, ShellTheme.ControlRadius, ShellTheme.ControlBorder, ShellTheme.ControlShadow, ShellTheme.White);
+            stickerText = MakeText(stickerRect, "Label", 40f, ShellTheme.TitleRed, TextAlignmentOptions.Center);
             UiKit.Stretch(stickerText.rectTransform);
             stickerText.fontStyle = FontStyles.Bold;
             stickerRect.gameObject.SetActive(false);
 
-            Image box = UiKit.Shape(overlay, "DialogueBox", 28f, MinigameUiTheme.WithAlpha(HomeMenuStyle.Navy, .93f));
-            RectTransform boxRect = box.rectTransform;
+            ShellCardHandle boxCard = ShellKit.Card(overlay, "DialogueBox");
+            RectTransform boxRect = boxCard.Root;
             boxRect.anchorMin = Vector2.zero;
             boxRect.anchorMax = new Vector2(1f, 0f);
             boxRect.pivot = new Vector2(.5f, 0f);
             boxRect.offsetMin = new Vector2(BoxMargin, BoxBottom);
             boxRect.offsetMax = new Vector2(-BoxMargin, BoxBottom + BoxHeight);
-            Outline boxOutline = box.gameObject.AddComponent<Outline>();
-            boxOutline.effectColor = HomeMenuStyle.Gold;
-            boxOutline.effectDistance = new Vector2(3f, -3f);
 
-            nameTagImage = UiKit.Shape(boxRect, "NameTag", 26f, HomeMenuStyle.Gold);
-            nameTagRect = nameTagImage.rectTransform;
-            nameTagRect.sizeDelta = new Vector2(320f, 56f);
-            Outline tagOutline = nameTagImage.gameObject.AddComponent<Outline>();
-            tagOutline.effectColor = Color.white;
-            tagOutline.effectDistance = new Vector2(2f, -2f);
-            nameTag = MakeText(nameTagRect, "Name", 28f, HomeMenuStyle.Navy, TextAlignmentOptions.Center);
-            UiKit.Stretch(nameTag.rectTransform);
-            nameTag.fontStyle = FontStyles.Bold;
+            ShellChipHandle tagChip = ShellKit.Chip(boxRect, "NameTag", string.Empty, ShellTheme.Gold);
+            nameTagRect = tagChip.Card.Root;
+            nameTagRect.sizeDelta = new Vector2(320f, 60f);
+            nameTag = tagChip.Label;
+            nameTag.name = "Name";
 
-            body = MakeText(boxRect, "Dialogue", 34f, HomeMenuStyle.White, TextAlignmentOptions.TopLeft);
+            body = MakeText(boxRect, "Dialogue", 34f, ShellTheme.Ink, TextAlignmentOptions.TopLeft);
             UiKit.Stretch(body.rectTransform, new Vector2(56f, 58f), new Vector2(-56f, -44f));
             body.spriteAsset = Resources.Load<TMP_SpriteAsset>(EmojiResource);
 
             // Bottom row (between the progress dots and the hint) so it never sits under the name tag,
             // which hangs on the top edge on either side.
-            errorText = MakeText(boxRect, "SaveError", 22f, HomeMenuStyle.GoldLight, TextAlignmentOptions.Left);
+            errorText = MakeText(boxRect, "SaveError", MinigameUiTheme.Caption, ShellTheme.TitleRed, TextAlignmentOptions.Left);
             UiKit.Place(errorText.rectTransform, Vector2.zero, Vector2.zero, new Vector2(260f, 12f), new Vector2(640f, 34f));
-            hint = MakeText(boxRect, "Hint", 22f, HomeMenuStyle.Gold, TextAlignmentOptions.Right);
-            UiKit.Place(hint.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-32f, 12f), new Vector2(360f, 34f));
+            hint = MakeText(boxRect, "Hint", MinigameUiTheme.Caption, ShellTheme.BodyText, TextAlignmentOptions.Right);
+            UiKit.Place(hint.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-32f, 12f), new Vector2(420f, 40f));
             dotsRoot = UiKit.Rect(boxRect, "ProgressDots");
             UiKit.Place(dotsRoot, Vector2.zero, Vector2.zero, new Vector2(40f, 20f), new Vector2(200f, 18f));
             HorizontalLayoutGroup dotLayout = dotsRoot.gameObject.AddComponent<HorizontalLayoutGroup>();
@@ -485,6 +471,7 @@ namespace KMA.Gameplay.UI
         Image MakeActor(string name, bool flipped)
         {
             RectTransform rect = UiKit.Rect(overlay, name);
+            rect.gameObject.AddComponent<StyleExempt>();
             UiKit.Place(rect, new Vector2(.5f, 0f), new Vector2(.5f, 0f), Vector2.zero,
                 new Vector2(ActorHeight * .8f, ActorHeight));
             if (flipped) rect.localScale = new Vector3(-1f, 1f, 1f);
@@ -497,9 +484,9 @@ namespace KMA.Gameplay.UI
 
         Button MakeSkip()
         {
-            ButtonHandle handle = UiKit.Button(overlay, "BỎ QUA", "BỎ QUA »", ButtonVariant.Secondary);
+            ShellButtonHandle handle = ShellKit.Button(overlay, "BỎ QUA", "BỎ QUA »", ShellButtonVariant.Secondary);
             UiKit.Place((RectTransform)handle.Button.transform, Vector2.one, Vector2.one, new Vector2(-58f, -43f),
-                new Vector2(240f, MinigameUiTheme.ButtonHeight));
+                new Vector2(240f, ShellTheme.ControlHeight));
             return handle.Button;
         }
 
