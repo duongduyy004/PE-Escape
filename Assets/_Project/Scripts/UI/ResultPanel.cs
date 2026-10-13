@@ -381,12 +381,11 @@ namespace KMA.Gameplay.UI
             retryAvailable = context.Mode != ChallengeAttemptMode.Journey && result.ExamResult != null &&
                 !result.Pass && outcome.HasValue &&
                 (final || outcome.Value.AttemptsRemaining > 0) && !frogJump;
-            // A committed journey win (except the course-completing final) or Learn failure may
-            // stop at the map; a failure that owes a frog jump may not.
+            // Once the journey result is saved (even if its route later failed) the player may stop
+            // at the map, except after the course-completing final or a failure that owes a frog jump.
             bool courseFinished = final && outcome.Value.CourseComplete;
-            backAvailable = context.Mode == ChallengeAttemptMode.Journey && saveError == null &&
-                outcome.HasValue && !frogJump &&
-                (result.Pass ? !courseFinished : definition?.Kind == ChallengeKind.Learn);
+            backAvailable = context.Mode == ChallengeAttemptMode.Journey && outcome.HasValue && !frogJump &&
+                !(result.Pass && courseFinished);
             if (retryButton != null)
             {
                 retryButton.gameObject.SetActive(retryAvailable || backAvailable);

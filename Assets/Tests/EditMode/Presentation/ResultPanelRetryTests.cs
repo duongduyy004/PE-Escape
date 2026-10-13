@@ -267,13 +267,34 @@ namespace KMA.Tests.Presentation
         }
 
         [Test]
-        public void SaveErrorsOfferOnlyTheSaveRetry()
+        public void UnsavedResultOffersOnlyTheSaveRetry()
         {
             ShowJourney("sprint_learn", true, null, "Save unavailable");
             AssertLone("LƯU LẠI");
+            ShowJourney("sprint_learn", false, null, "Save unavailable");
+            AssertLone("LƯU LẠI");
+        }
+
+        [Test]
+        public void SavedWinReShownWithARouteErrorKeepsBackToMap()
+        {
             ShowJourney("sprint_learn", true, new JourneyCommitOutcome(true, "sprint_practice", 5, false, false, false),
                 "Could not load scene");
-            AssertLone("THỬ LẠI");
+            AssertBackPaired("THỬ LẠI");
+            Assert.That(error.text, Does.Contain("Could not load scene"));
+            var actions = RecordJourneyActions();
+            panel.Back();
+            Assert.That(actions, Is.EqualTo(new[] { JourneyResultAction.BackToMap }));
+        }
+
+        [Test]
+        public void JourneyFinalFailureOffersBackToMapBesideItsRetry()
+        {
+            ShowJourney("chess_final", false, new JourneyCommitOutcome(true, "chess_final", 5, false, false, false, true));
+            AssertBackPaired("THI LẠI");
+            var actions = RecordJourneyActions();
+            panel.Back();
+            Assert.That(actions, Is.EqualTo(new[] { JourneyResultAction.BackToMap }));
         }
 
         [TestCase(false, "THI LẠI")]
