@@ -139,8 +139,6 @@ namespace KMA.Tests.Presentation
                 Is.EqualTo(SprintUiLayout.ScoreboardRect(reference).size), "ScoreboardRect");
             Assert.That(SprintUiLayout.PauseRect(safe).size,
                 Is.EqualTo(SprintUiLayout.PauseRect(reference).size), "PauseRect");
-            Assert.That(SprintUiLayout.ModeChipRect(safe).size,
-                Is.EqualTo(SprintUiLayout.ModeChipRect(reference).size), "ModeChipRect");
             Assert.That(SprintUiLayout.CountdownRect(safe).size,
                 Is.EqualTo(SprintUiLayout.CountdownRect(reference).size), "CountdownRect");
             Assert.That(SprintUiLayout.InstructionRect(safe).size,
@@ -197,8 +195,9 @@ namespace KMA.Tests.Presentation
                 raceNames.Add(named.Name);
             Assert.That(raceNames, Does.Not.Contain("Countdown"));
             Assert.That(raceNames, Does.Not.Contain("Instruction"));
-            Assert.That(raceNames, Has.Count.EqualTo(6));
-            Assert.That(SprintUiLayout.StartStateRects(safe), Has.Length.EqualTo(8));
+            Assert.That(raceNames, Has.Count.EqualTo(5));
+            Assert.That(raceNames, Does.Not.Contain("ModeChip"), "the Sprint HUD carries no mode label");
+            Assert.That(SprintUiLayout.StartStateRects(safe), Has.Length.EqualTo(7));
         }
     }
 }

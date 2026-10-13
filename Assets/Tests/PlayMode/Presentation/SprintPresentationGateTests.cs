@@ -709,7 +709,7 @@ namespace KMA.Tests.Presentation
             Assert.That(rankChip.textBounds.size.x, Is.LessThanOrEqualTo(rankChip.rectTransform.rect.width + .5f),
                 "VỊ TRÍ 1 must fit inside its chip");
             Assert.That(chrome.Find("Scoreboard/Combo").GetComponent<TMP_Text>().text, Is.EqualTo("CHUỖI ×0"));
-            Assert.That(chrome.Find("ModeLabel/Label").GetComponent<TMP_Text>().text, Is.EqualTo("CHẠY NƯỚC RÚT · 150M"));
+            Assert.That(chrome.Find("ModeLabel"), Is.Null, "the Sprint HUD carries no mode label");
 
             KitBar rail = chrome.Find("ProgressRail").GetComponent<KitBar>();
             Assert.That(rail.Value, Is.EqualTo(0f).Within(.001f));
@@ -755,8 +755,8 @@ namespace KMA.Tests.Presentation
 
             var layout = SceneObjects<SprintChromeLayout>(scene)[0];
             Assert.That(layout, Is.Not.Null, "chrome must own a relayout component");
-            Assert.That(layout.ElementCount, Is.EqualTo(8),
-                "rail, scoreboard, mode chip, pause, countdown, instruction plate and both tap " +
+            Assert.That(layout.ElementCount, Is.EqualTo(7),
+                "rail, scoreboard, pause, countdown, instruction plate and both tap " +
                 "areas must all be registered as rects");
             Assert.That(layout.ActionCount, Is.EqualTo(1),
                 "the rail radius/pip-width re-derivation must be registered as an action");

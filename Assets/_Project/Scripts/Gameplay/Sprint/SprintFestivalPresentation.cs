@@ -87,11 +87,6 @@ namespace KMA.Gameplay
             timer.alignment = TextAlignmentOptions.Center;
             timer.text = VietText.Fix($"{SprintRules.DefaultTimeLimit:0}s");
 
-            // Mode chip
-            ChipHandle mode = UiKit.Chip(root, "ModeLabel", $"CHẠY NƯỚC RÚT · {SprintRules.RaceDistance:0}M");
-            ApplyRect(mode.Background.rectTransform, safe, SprintUiLayout.ModeChipRect(safe));
-            chromeLayout.Register(mode.Background.rectTransform, SprintUiLayout.ModeChipRect);
-
             EnsurePause(root, safe, chromeLayout);
             EnsureStartPresentation(root, safe);
             EnsureControls(root, safe);
@@ -118,18 +113,9 @@ namespace KMA.Gameplay
             if (definition == null) return;
             Transform chrome = GameObject.Find("SprintBroadcastChrome")?.transform;
             if (chrome == null) return;
-            TMP_Text mode = chrome.Find("ModeLabel/Label")?.GetComponent<TMP_Text>();
             TMP_Text instruction = chrome.Find("StartPresentation/InstructionPlate/InstructionLabel")
                 ?.GetComponent<TMP_Text>();
             bool learn = definition.Kind == ChallengeKind.Learn;
-            if (mode != null)
-            {
-                string text = learn ? $"SPRINT · HỌC {definition.TimeLimit:0}S · CHUỖI {definition.TargetCount}"
-                    : definition.Kind == ChallengeKind.Practice
-                        ? $"SPRINT · LUYỆN {definition.Distance:0}M / {definition.TimeLimit:0}S"
-                        : $"SPRINT · THI {definition.Distance:0}M / {definition.TimeLimit:0}S";
-                mode.text = VietText.Fix(text);
-            }
             if (instruction != null)
                 instruction.text = VietText.Fix(learn
                     ? $"TẬP LUÂN PHIÊN HAI CHÂN TRONG {definition.TimeLimit:0} GIÂY"

@@ -15,9 +15,6 @@ namespace KMA.Gameplay
         const float ClusterTop = .94f;
         const float ScoreboardWidth = .50f;
         const float ScoreboardHeight = .15f;
-        const float ModeChipWidth = .36f;
-        const float ModeChipHeight = .05f;
-        const float ModeChipBottom = .895f;
         const float PauseSize = .089f;
         const float ControlWidth = .43f;
         const float ControlHeight = .26f;
@@ -63,12 +60,6 @@ namespace KMA.Gameplay
             safe.height * ScoreboardWidth,
             safe.height * ScoreboardHeight);
 
-        public static Rect ModeChipRect(Rect safe) => new Rect(
-            safe.center.x - safe.height * ModeChipWidth * .5f,
-            safe.yMin + safe.height * ModeChipBottom,
-            safe.height * ModeChipWidth,
-            safe.height * ModeChipHeight);
-
         public static Rect PauseRect(Rect safe) => new Rect(
             safe.xMax - safe.width * EdgeX - safe.height * PauseSize,
             safe.yMin + safe.height * ClusterTop - safe.height * PauseSize,
@@ -107,7 +98,6 @@ namespace KMA.Gameplay
         {
             new NamedRect("ProgressRail", ProgressRailRect(safe)),
             new NamedRect("Scoreboard", ScoreboardRect(safe)),
-            new NamedRect("ModeChip", ModeChipRect(safe)),
             new NamedRect("Pause", PauseRect(safe)),
             new NamedRect("LeftControl", ControlRect(safe, true)),
             new NamedRect("RightControl", ControlRect(safe, false))
