@@ -83,8 +83,8 @@ namespace KMA.Gameplay
         void Refresh(float rivalDistance, float playerDistance, MinigamePhase phase, MinigameResult result,
             bool surging, bool slowing = false)
         {
-            bool learning = controller != null && controller.IsLearnChallenge;
-            float shownDistance = learning ? Mathf.Min(rivalDistance, SprintRules.RaceDistance * .66f) : rivalDistance;
+            // Rivals run on their own clock in every challenge and stop only when they reach the line.
+            float shownDistance = rivalDistance;
             VisualProgress01 = Mathf.Clamp01(shownDistance / SprintRules.RaceDistance);
             if (visual != null)
             {
@@ -98,9 +98,9 @@ namespace KMA.Gameplay
 
             if (phase == MinigamePhase.Resolve)
                 State = result != null && result.Pass ? RivalRunnerState.Celebrate : RivalRunnerState.Fail;
-            else if (phase != MinigamePhase.Play || (!learning && VisualProgress01 >= 1f))
+            else if (phase != MinigamePhase.Play || VisualProgress01 >= 1f)
                 State = RivalRunnerState.Idle;
-            else if (surging || (!learning && rivalDistance >= SprintRules.RaceDistance * RivalBurstFromProgress))
+            else if (surging || (rivalDistance >= SprintRules.RaceDistance * RivalBurstFromProgress))
                 State = RivalRunnerState.Burst;
             else
                 State = RivalRunnerState.Run;
@@ -108,7 +108,7 @@ namespace KMA.Gameplay
             // Waiting on the grid, flagging mid-race or already across the line: catch a breath.
             if (breathing != null)
                 breathing.SetResting(phase == MinigamePhase.Tutorial || phase == MinigamePhase.Countdown ||
-                    (phase == MinigamePhase.Play && (slowing || (!learning && rivalDistance >= SprintRules.RaceDistance))));
+                    (phase == MinigamePhase.Play && (slowing || rivalDistance >= SprintRules.RaceDistance)));
 
             if (animator != null && (!hasPlayedState || lastPlayedState != State))
             {

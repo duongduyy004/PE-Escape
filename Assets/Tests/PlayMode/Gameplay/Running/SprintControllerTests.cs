@@ -243,6 +243,7 @@ namespace KMA.Tests.Gameplay.Running
             Object.DestroyImmediate(profile);
         }
 
+[Test]        public void Rival_KeepsRunningToTheLineWhateverThePlayerDoes()        {            var runner = new GameObject("Rival").AddComponent<RivalRunnerAI>();            runner.RefreshForTest(SprintRules.RaceDistance * .7f, 0f, MinigamePhase.Play, null);            Assert.That(runner.VisualProgress01, Is.EqualTo(.7f).Within(.001f), "no cap short of the line");            Assert.That(runner.State, Is.Not.EqualTo(RivalRunnerState.Idle));            Object.DestroyImmediate(runner.gameObject);        }
         [Test]
         public void Rival_StopsRunningOnceAcrossTheLine()
         {
