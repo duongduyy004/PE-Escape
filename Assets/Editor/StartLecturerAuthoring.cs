@@ -124,7 +124,7 @@ namespace KMA.EditorTools
 
         /// In front of the track at the finish line, looking left back down the track at the student.
         static Placement FrogJumpPlacement() =>
-            new Placement(new Vector3(FrogJumpSceneConfigurator.FinishX - 1f, FrogJumpSceneConfigurator.GroundY - .6f, 0f),
+            new Placement(new Vector3(FrogJumpSceneConfigurator.FinishX - 1f, FrogJumpSceneConfigurator.GroundY - FrogJumpSceneConfigurator.TrackHeight * .5f, 0f),
                 FrogJumpSceneConfigurator.HeroScale, true, 12);
     }
 }

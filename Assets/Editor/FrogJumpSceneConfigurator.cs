@@ -26,6 +26,7 @@ namespace KMA.EditorTools
         const int HudSortingOrder = 500;
         public const float StartX = -7f, FinishX = 7f, GroundY = -2f;
         public const float HeroScale = 2.07f;
+        public const float TrackHeight = 1.38f;
         const int Segments = 20;
 
         [MenuItem("KMA/Frog Jump/Build Scene")]
@@ -63,10 +64,10 @@ namespace KMA.EditorTools
         {
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             Sprite pixel = CampusBackdropAuthoring.Load("CampusPixel");
-            Quad("Track", pixel, new Color32(0xe0, 0x60, 0x4a, 0xff), new Vector3(0f, GroundY - .6f, 0f),
-                new Vector2(FinishX - StartX + 2f, 1.2f), -29);
-            Quad("StartLine", pixel, new Color32(0xff, 0xfb, 0xea, 0xff), new Vector3(StartX, GroundY - .6f, 0f), new Vector2(.12f, 1.2f), -28);
-            Quad("FinishLine", pixel, new Color32(0xff, 0xfb, 0xea, 0xff), new Vector3(FinishX, GroundY - .6f, 0f), new Vector2(.2f, 1.2f), -28);
+            Quad("Track", pixel, new Color32(0xe0, 0x60, 0x4a, 0xff), new Vector3(0f, GroundY - TrackHeight * .5f, 0f),
+                new Vector2(FinishX - StartX + 2f, TrackHeight), -29);
+            Quad("StartLine", pixel, new Color32(0xff, 0xfb, 0xea, 0xff), new Vector3(StartX, GroundY - TrackHeight * .5f, 0f), new Vector2(.12f, TrackHeight), -28);
+            Quad("FinishLine", pixel, new Color32(0xff, 0xfb, 0xea, 0xff), new Vector3(FinishX, GroundY - TrackHeight * .5f, 0f), new Vector2(.2f, TrackHeight), -28);
             Quad("FinishFlag", pixel, MinigameUiTheme.Accent, new Vector3(FinishX + .3f, GroundY + .9f, 0f), new Vector2(.6f, .4f), -27);
 
             Sprite squat = CharacterArt.Load(CharacterArt.Hero, "frogReadyRight");
