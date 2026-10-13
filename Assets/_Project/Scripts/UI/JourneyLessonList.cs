@@ -204,7 +204,7 @@ namespace KMA.Gameplay.UI
             node.Disc.color = state.Unlocked ? chapterColor : theme.MapLockedCard;
             node.Disc.rectTransform.localScale = Vector3.one *
                 (state.Checkpoint ? theme.LessonJourney.nodeCurrentScale : 1f);
-            node.Glyph.color = theme.Surface;
+            node.Glyph.color = ShellTheme.Ink;
             node.Glow.gameObject.SetActive(state.Checkpoint);
             node.Glow.color = MinigameUiTheme.WithAlpha(theme.Accent, theme.LessonJourney.glowAlpha.x);
             bool showBadge = (state.Complete && !state.Checkpoint) || !state.Unlocked;
@@ -215,7 +215,7 @@ namespace KMA.Gameplay.UI
             if (node.LockIcon.sprite == null)
                 node.LockIcon.sprite = MapPresentationBuilder.LockSprite();
             node.Title.text = VietText.Fix(StageName(state.Challenge.Kind));
-            node.Title.color = state.Unlocked ? theme.TextPrimary : theme.MapHint;
+            node.Title.color = state.Unlocked ? ShellTheme.Ink : theme.MapLockedText;
         }
 
         static string StageName(ChallengeKind kind) => kind switch
@@ -347,7 +347,7 @@ namespace KMA.Gameplay.UI
             if (playButton == null)
             {
                 playButton = transform.Find("DetailCard/PlayButton")?.GetComponent<Button>();
-                playLabel = playButton != null ? playButton.transform.Find("Label")?.GetComponent<TMP_Text>() : null;
+                playLabel = playButton != null ? playButton.GetComponentInChildren<TMP_Text>(true) : null;
             }
             if (closeButton == null)
             {

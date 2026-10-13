@@ -21,7 +21,8 @@ namespace KMA.Gameplay.UI
             Image surface = Shape(parent, "JourneyLessons", Theme.Surface);
             RectTransform panel = surface.rectTransform;
             Anchor(panel, Style.panelAnchorMin, Style.panelAnchorMax);
-            AddBorder(surface, Theme.MapLockedBorder);
+            surface.color = Color.clear;
+            ShellKit.StyleCard(panel);
 
             Image accent = Shape(panel, "ChapterAccent", Theme.LessonJourney.sprint);
             Anchor(accent.rectTransform, new Vector2(.025f, .982f), new Vector2(.975f, .989f));
@@ -31,7 +32,8 @@ namespace KMA.Gameplay.UI
             SubjectId[] subjects = { SubjectId.Sprint, SubjectId.Volleyball, SubjectId.Football, SubjectId.Chess };
             foreach (SubjectId subject in subjects)
             {
-                Image sport = Shape(emblem.transform, subject + "Glyph", Theme.Surface);
+                Image sport = Shape(emblem.transform, subject + "Glyph", ShellTheme.Ink);
+                sport.gameObject.AddComponent<StyleExempt>();
                 sport.sprite = MapPresentationBuilder.SportIconSprite(subject);
                 sport.type = Image.Type.Simple;
                 sport.preserveAspect = true;
@@ -39,17 +41,18 @@ namespace KMA.Gameplay.UI
                 sport.gameObject.SetActive(subject == SubjectId.Sprint);
             }
 
-            TMP_Text heading = Label(panel, "CourseTitle", Style.headingSize, Theme.TextPrimary, FontStyles.Bold,
+            TMP_Text heading = Label(panel, "CourseTitle", Style.headingSize, ShellTheme.Ink, FontStyles.Bold,
                 VietFontRole.Hud);
             Anchor(heading.rectTransform, new Vector2(.025f, .83f), new Vector2(.40f, .97f));
             heading.rectTransform.offsetMin = new Vector2(100f, 0f);
 
             Image star = Shape(panel, "ProgressStar", Theme.Accent);
+            star.gameObject.AddComponent<StyleExempt>();
             star.sprite = MapStopBuilder.StarSprite();
             star.type = Image.Type.Simple;
             star.preserveAspect = true;
             Place(star.rectTransform, new Vector2(.42f, .90f), new Vector2(51f, 51f), new Vector2(0f, .5f));
-            TMP_Text progress = Label(panel, "CourseProgress", Style.bodySize, Theme.MapHint);
+            TMP_Text progress = Label(panel, "CourseProgress", Style.bodySize, ShellTheme.BodyText);
             Anchor(progress.rectTransform, new Vector2(.42f, .83f), new Vector2(.88f, .97f));
             progress.rectTransform.offsetMin = new Vector2(66f, 0f);
 
@@ -72,7 +75,7 @@ namespace KMA.Gameplay.UI
             {
                 scrim = Rect(parent, "LessonScrim");
                 Image shade = scrim.gameObject.AddComponent<Image>();
-                shade.color = MinigameUiTheme.WithAlpha(HomeMenuStyle.Navy, .62f);
+                shade.color = MinigameUiTheme.WithAlpha(ShellTheme.Ink, .62f);
                 Button dismiss = scrim.gameObject.AddComponent<Button>();
                 dismiss.targetGraphic = shade;
                 dismiss.transition = Selectable.Transition.None;
@@ -86,25 +89,9 @@ namespace KMA.Gameplay.UI
             panel.SetAsLastSibling();
 
             if (panel.Find("CloseButton") != null) return;
-            Image close = Shape(panel, "CloseButton", HomeMenuStyle.Navy, true);
-            close.raycastTarget = true;
-            Place(close.rectTransform, Vector2.one, new Vector2(96f, 96f));
-            close.rectTransform.anchoredPosition = new Vector2(-32f, -32f);
-            Outline ring = close.gameObject.AddComponent<Outline>();
-            ring.effectColor = HomeMenuStyle.Gold;
-            ring.effectDistance = new Vector2(3f, -3f);
-            Button button = close.gameObject.AddComponent<Button>();
-            button.targetGraphic = close;
-            button.transition = Selectable.Transition.None;
-            close.gameObject.AddComponent<KitPressFeedback>().Configure(close, close.rectTransform);
-            foreach (float angle in new[] { 45f, -45f })
-            {
-                Image stroke = Shape(close.transform, "Stroke", HomeMenuStyle.White);
-                stroke.sprite = null;
-                stroke.type = Image.Type.Simple;
-                Place(stroke.rectTransform, Vector2.one * .5f, new Vector2(45f, 9f));
-                stroke.rectTransform.localRotation = Quaternion.Euler(0f, 0f, angle);
-            }
+            ShellButtonHandle close = ShellKit.IconButton(panel, "CloseButton", "✕");
+            Place((RectTransform)close.Button.transform, Vector2.one, Vector2.one * ShellTheme.IconButtonSize);
+            ((RectTransform)close.Button.transform).anchoredPosition = new Vector2(-32f, -32f);
         }
 
         /// Centres of the visible stage nodes along the road, as panel x fractions.
@@ -158,11 +145,9 @@ namespace KMA.Gameplay.UI
 
             var button = rect.gameObject.AddComponent<Button>();
             button.targetGraphic = disc;
-            ColorBlock colors = ColorBlock.defaultColorBlock;
-            colors.normalColor = colors.highlightedColor = colors.selectedColor = colors.disabledColor = Color.white;
-            colors.pressedColor = Color.Lerp(Color.white, Color.black, Theme.Motion.pressLighten);
-            colors.fadeDuration = Theme.Motion.buttonFade;
-            button.colors = colors;
+            button.transition = Selectable.Transition.None;
+            rect.gameObject.AddComponent<ShellPressFeedback>()
+                .Configure(disc.rectTransform, null, null, Color.white, Color.white);
 
             Image glow = Shape(disc.transform, "Glow", Theme.Accent, true);
             glow.sprite = UiKitAssets.Load().Ring;
@@ -172,7 +157,8 @@ namespace KMA.Gameplay.UI
             Anchor(selected.rectTransform, Vector2.one * -.07f, Vector2.one * 1.07f);
             selected.gameObject.SetActive(false);
 
-            Image glyph = Shape(disc.transform, "Glyph", Theme.Surface);
+            Image glyph = Shape(disc.transform, "Glyph", ShellTheme.Ink);
+            glyph.gameObject.AddComponent<StyleExempt>();
             glyph.sprite = Resources.Load<Sprite>("Icons/" + StageIcons[index]);
             glyph.type = Image.Type.Simple;
             glyph.preserveAspect = true;
@@ -183,22 +169,23 @@ namespace KMA.Gameplay.UI
             Place(badge.rectTransform, new Vector2(.86f, .86f), Vector2.one * Style.nodeBadgeSize);
             RectTransform completeMark = Rect(badge.transform, "CompletedMark");
             Anchor(completeMark, new Vector2(.18f, .18f), new Vector2(.82f, .82f));
-            Image shortStroke = Shape(completeMark, "ShortStroke", Theme.Surface);
+            Image shortStroke = Shape(completeMark, "ShortStroke", ShellTheme.Ink);
             shortStroke.sprite = null;
             Place(shortStroke.rectTransform, new Vector2(.32f, .42f), new Vector2(18f, 7.5f));
             shortStroke.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -45f);
-            Image longStroke = Shape(completeMark, "LongStroke", Theme.Surface);
+            Image longStroke = Shape(completeMark, "LongStroke", ShellTheme.Ink);
             longStroke.sprite = null;
             Place(longStroke.rectTransform, new Vector2(.62f, .54f), new Vector2(33f, 7.5f));
             longStroke.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
             Image lockIcon = Shape(badge.transform, "LockIcon", Theme.Surface);
+            lockIcon.gameObject.AddComponent<StyleExempt>();
             lockIcon.sprite = MapPresentationBuilder.LockSprite();
             lockIcon.type = Image.Type.Simple;
             lockIcon.preserveAspect = true;
             Anchor(lockIcon.rectTransform, Vector2.one * .2f, Vector2.one * .8f);
             badge.gameObject.SetActive(false);
 
-            TMP_Text title = Label(rect, "StageTitle", Style.bodySize, Theme.TextPrimary, FontStyles.Bold,
+            TMP_Text title = Label(rect, "StageTitle", Style.bodySize, ShellTheme.Ink, FontStyles.Bold,
                 VietFontRole.Hud);
             title.alignment = TextAlignmentOptions.Center;
             Inset(title.rectTransform, Vector2.zero, new Vector2(1f, 0f), Vector2.zero,
@@ -220,10 +207,11 @@ namespace KMA.Gameplay.UI
         {
             Image card = Shape(panel, "DetailCard", Theme.Card);
             Anchor(card.rectTransform, Style.detailAnchorMin, Style.detailAnchorMax);
-            AddBorder(card, Theme.MapLockedBorder);
+            card.color = Color.clear;
+            ShellKit.StyleTile(card.rectTransform);
             const float pad = 24f;
 
-            TMP_Text objective = Label(card.transform, "Objective", Style.objectiveSize, Theme.Surface,
+            TMP_Text objective = Label(card.transform, "Objective", Style.objectiveSize, ShellTheme.Ink,
                 FontStyles.Bold, VietFontRole.Body);
             objective.enableWordWrapping = true;
             objective.lineSpacing = 0f;
@@ -247,35 +235,8 @@ namespace KMA.Gameplay.UI
 
         static Button ActionButton(Transform parent, string name, string text)
         {
-            Image image = Shape(parent, name, Theme.Accent);
-            image.raycastTarget = true;
-            Button button = image.gameObject.AddComponent<Button>();
-            button.targetGraphic = image;
-            button.transition = Selectable.Transition.None;
-            AddBorder(image, Theme.Menu.goldDark);
-            TMP_Text label = Label(image.transform, "Label", Style.bodySize, Theme.Surface, FontStyles.Bold,
-                VietFontRole.Hud);
-            label.text = VietText.Fix(text);
-            label.alignment = TextAlignmentOptions.Center;
-            label.enableAutoSizing = true;
-            label.fontSizeMax = Style.bodySize;
-            label.fontSizeMin = Style.captionSize - 2f;
-            Anchor(label.rectTransform, new Vector2(.04f, 0f), new Vector2(.96f, 1f));
-            var feedback = image.gameObject.AddComponent<KitPressFeedback>();
-            feedback.Configure(image, image.rectTransform);
-            // Bound so a disabled button paints DisabledText on DisabledSurface, not navy on grey.
-            feedback.BindLabel(label);
-            return button;
-        }
-
-        static void AddBorder(Image image, Color color)
-        {
-            Outline border = image.gameObject.AddComponent<Outline>();
-            border.effectColor = color;
-            border.effectDistance = new Vector2(Style.borderWidth, -Style.borderWidth);
-            Shadow shadow = image.gameObject.AddComponent<Shadow>();
-            shadow.effectColor = Theme.ShadowColor;
-            shadow.effectDistance = Theme.ShadowOffset;
+            ShellButtonHandle handle = ShellKit.Button(parent, name, text, ShellButtonVariant.Primary);
+            return handle.Button;
         }
 
         static Image Shape(Transform parent, string name, Color color, bool circle = false)

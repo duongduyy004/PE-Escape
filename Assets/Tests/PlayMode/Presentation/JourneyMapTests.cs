@@ -126,9 +126,10 @@ namespace KMA.Tests.Presentation
             Transform continueButton = PlayButton(screen).transform;
             Assert.That(continueButton.gameObject.activeSelf, Is.True);
             Assert.That(continueButton.GetComponent<Button>().interactable, Is.False);
-            Assert.That(continueButton.GetComponent<Image>().color, Is.EqualTo(KMA.UI.Kit.MinigameUiTheme.DisabledSurface));
-            Assert.That(continueButton.Find("Label").GetComponent<TMP_Text>().color,
-                Is.EqualTo(KMA.UI.Kit.MinigameUiTheme.DisabledText));
+            Assert.That(continueButton.Find(KMA.UI.Kit.ShellKit.BodyName + "/" + KMA.UI.Kit.ShellKit.FaceName)
+                .GetComponent<Image>().color, Is.EqualTo(KMA.UI.Kit.ShellTheme.DisabledFace));
+            Assert.That(continueButton.GetComponentInChildren<TMP_Text>(true).color,
+                Is.EqualTo(KMA.UI.Kit.ShellTheme.DisabledText));
             CanvasGroup group = continueButton.GetComponent<CanvasGroup>();
             Assert.That(group == null || group.alpha == 1f, Is.True, "disabled buttons must not fade into the panel");
         }

@@ -267,15 +267,19 @@ namespace KMA.Tests.Presentation
                 MapPresentationBuilder.Build(screen, new GameSession());
 
                 Transform panel = root.transform.Find("S5MapPresentation/Content/JourneyLessons");
-                Color panelSurface = panel.GetComponent<Image>().color;
+                Color panelSurface = panel.Find(ShellKit.FaceName).GetComponent<Image>().color;
+                Assert.That(panelSurface, Is.EqualTo(ShellTheme.Cream));
                 Assert.That(ContrastRatio(panel.Find("Lesson1/StageTitle").GetComponent<TMP_Text>().color,
                     panelSurface), Is.GreaterThanOrEqualTo(4.5f), "Stage names must read on the popup surface.");
-                Color detail = panel.Find("DetailCard").GetComponent<Image>().color;
+                Color detail = panel.Find("DetailCard/" + ShellKit.FaceName).GetComponent<Image>().color;
                 Assert.That(ContrastRatio(panel.Find("DetailCard/Objective").GetComponent<TMP_Text>().color, detail),
                     Is.GreaterThanOrEqualTo(4.5f), "The objective must read on the detail card.");
-                Assert.That(ContrastRatio(panel.Find("DetailCard/PlayButton/Label").GetComponent<TMP_Text>().color,
-                    panel.Find("DetailCard/PlayButton").GetComponent<Image>().color), Is.GreaterThanOrEqualTo(4.5f),
-                    "The play label must read on its button.");
+                Transform play = panel.Find("DetailCard/PlayButton");
+                Assert.That(ContrastRatio(play.GetComponentInChildren<TMP_Text>(true).color,
+                    play.Find(ShellKit.BodyName + "/" + ShellKit.FaceName).GetComponent<Image>().color),
+                    Is.GreaterThanOrEqualTo(4.5f), "The play label must read on its button.");
+                var problems = ShellStyleAudit.Audit(panel.gameObject);
+                Assert.That(problems, Is.Empty, string.Join("\n", problems));
             }
             finally
             {
@@ -587,9 +591,9 @@ namespace KMA.Tests.Presentation
                 Transform panel = screen.LessonList.transform;
                 Transform locked = panel.Find("Lesson3");
                 Assert.That(ContrastRatio(locked.Find("StageTitle").GetComponent<TMP_Text>().color,
-                    panel.GetComponent<Image>().color), Is.GreaterThanOrEqualTo(4.5f));
+                    panel.Find(ShellKit.FaceName).GetComponent<Image>().color), Is.GreaterThanOrEqualTo(4.5f));
                 locked.GetComponent<Button>().onClick.Invoke();
-                Color detail = panel.Find("DetailCard").GetComponent<Image>().color;
+                Color detail = panel.Find("DetailCard/" + ShellKit.FaceName).GetComponent<Image>().color;
                 Assert.That(ContrastRatio(panel.Find("DetailCard/Status").GetComponent<TMP_Text>().color, detail),
                     Is.GreaterThanOrEqualTo(4.5f));
                 Assert.That(ContrastRatio(panel.Find("DetailCard/Objective").GetComponent<TMP_Text>().color, detail),
