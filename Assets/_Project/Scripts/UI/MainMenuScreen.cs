@@ -24,11 +24,6 @@ namespace KMA.Gameplay.UI
             Button button = ResolveContinueButton();
             if (button != null)
                 button.interactable = canContinue;
-            foreach (HomeMenuButton visual in GetComponentsInChildren<HomeMenuButton>(true))
-            {
-                visual.SetPrimary(visual.ButtonKind == (canContinue
-                    ? HomeMenuButton.Kind.Continue : HomeMenuButton.Kind.NewGame));
-            }
         }
 
         public void NewGame()

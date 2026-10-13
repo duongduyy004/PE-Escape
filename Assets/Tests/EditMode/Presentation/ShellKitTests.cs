@@ -192,5 +192,14 @@ namespace KMA.Tests.Presentation
             slider.Slider.value = .25f;
             Assert.That(slider.Fill.rectTransform.anchorMax.x, Is.EqualTo(.25f).Within(.001f));
         }
+
+        [Test]
+        public void SportBadgeIsExemptContentArtOnKitCircles()
+        {
+            RectTransform badge = ShellArt.CreateBadge((RectTransform)root.transform, "SportBadge");
+            Assert.That(badge.GetComponent<StyleExempt>(), Is.Not.Null);
+            Assert.That(badge.Find("WhiteRim").GetComponent<Image>().sprite, Is.SameAs(UiKitAssets.Load().Circle));
+            Assert.That(badge.Find("NavyFace").GetComponent<Image>().color, Is.EqualTo(ShellTheme.Ink));
+        }
     }
 }

@@ -221,7 +221,6 @@ namespace KMA.Gameplay.UI
                 var old = rect.Find(stale);
                 if (old != null) UnityEngine.Object.DestroyImmediate(old.gameObject);
             }
-            foreach (var old in button.GetComponents<HomeMenuButton>()) UnityEngine.Object.DestroyImmediate(old);
             foreach (var old in button.GetComponents<HomeKeyArtButton>()) UnityEngine.Object.DestroyImmediate(old);
             foreach (var old in button.GetComponents<Outline>()) UnityEngine.Object.DestroyImmediate(old);
 

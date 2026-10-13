@@ -270,8 +270,8 @@ namespace KMA.Gameplay.UI
 
             // The badge sits on the card's top edge, like a medal pinned to it.
             badgeY = CardHeight * .5f;
-            badge = HomePresentationBuilder.CreateBadge(card, "SportBadge");
-            Place(badge, new Vector2(0f, badgeY), Vector2.one * HomeMenuStyle.BadgeSize);
+            badge = ShellArt.CreateBadge(card, "SportBadge");
+            Place(badge, new Vector2(0f, badgeY), Vector2.one * ShellTheme.BadgeSize);
             badge.localScale = Vector3.one * BadgeScale;
             foreach (RectTransform part in badge)
                 part.anchorMin = part.anchorMax = Vector2.one * .5f;
@@ -304,7 +304,7 @@ namespace KMA.Gameplay.UI
             int width = Mathf.RoundToInt(BarSize.x);
             int height = Mathf.RoundToInt(BarSize.y);
             var background = track.gameObject.AddComponent<Image>();
-            background.sprite = HomePresentationBuilder.SlantSprite(false, width, height, 0f);
+            background.sprite = ShellArt.SlantSprite(false, width, height, 0f);
             background.color = navy;
             background.raycastTarget = false;
             loadingBar = track.gameObject.AddComponent<Slider>();
@@ -317,7 +317,7 @@ namespace KMA.Gameplay.UI
             var clip = Rect(track, "FillMask");
             Stretch(clip, Vector2.one * BarStroke);
             var groove = clip.gameObject.AddComponent<Image>();
-            groove.sprite = HomePresentationBuilder.SlantSprite(false, width - stroke * 2, height - stroke * 2, 0f);
+            groove.sprite = ShellArt.SlantSprite(false, width - stroke * 2, height - stroke * 2, 0f);
             groove.color = Color.Lerp(UITheme.Shared.TextPrimary, navy, .15f);
             groove.raycastTarget = false;
             clip.gameObject.AddComponent<Mask>().showMaskGraphic = true;

@@ -74,7 +74,7 @@ namespace KMA.Tests.Presentation
             Assert.That(rect.anchorMin, Is.EqualTo(new Vector2(.5f, .5f)));
             Assert.That(rect.anchoredPosition.x, Is.EqualTo(0f));
             Assert.That(retry.GetComponent<KitPressFeedback>(), Is.Not.Null);
-            Assert.That(retry.GetComponent<HomeMenuButton>(), Is.Null);
+            Assert.That(retry.GetComponents<MonoBehaviour>().Any(b => b != null && b.GetType().Name == "HomeMenuButton"), Is.False);
         }
 
         // The card matches the Home key art: cream panel, navy border, gold primary action.

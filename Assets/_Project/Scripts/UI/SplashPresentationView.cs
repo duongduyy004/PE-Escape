@@ -40,7 +40,7 @@ namespace KMA.Gameplay.UI
                 existing.titleKma = existing.kma?.GetComponent<TMP_Text>();
                 if (existing.titleTop != null) existing.titleTop.text = VietText.Fix("CHẠY TRỐN");
                 if (existing.titleKma != null) existing.titleKma.text = VietText.Fix("THỂ CHẤT");
-                HomePresentationBuilder.RestyleBadge(existing.transform.Find("SportBadge") as RectTransform);
+                ShellArt.RestyleBadge(existing.transform.Find("SportBadge") as RectTransform);
                 existing.Status = existing.transform.Find("LoadingStatus")?.GetComponent<TMP_Text>();
                 existing.Percent = existing.transform.Find("ProgressPercent")?.GetComponent<TMP_Text>();
                 existing.LoadingBar = existing.GetComponentInChildren<Slider>(true);
@@ -91,9 +91,9 @@ namespace KMA.Gameplay.UI
             view.layout = panel;
             view.brand = panel.gameObject.AddComponent<CanvasGroup>();
             view.brand.alpha = 0f;
-            var badge = HomePresentationBuilder.CreateBadge(panel, "SportBadge");
-            Place(badge, new Vector2(0f, style.badgeY), Vector2.one * HomeMenuStyle.BadgeSize);
-            badge.localScale = Vector3.one * (style.badgeSize / HomeMenuStyle.BadgeSize);
+            var badge = ShellArt.CreateBadge(panel, "SportBadge");
+            Place(badge, new Vector2(0f, style.badgeY), Vector2.one * ShellTheme.BadgeSize);
+            badge.localScale = Vector3.one * (style.badgeSize / ShellTheme.BadgeSize);
             // The menu positions its badge parts from the left edge of its panel.
             // Center those same parts here so the artwork and shine share one axis.
             foreach (RectTransform part in badge)
@@ -146,7 +146,7 @@ namespace KMA.Gameplay.UI
             Place(track, new Vector2(0f, style.trackY), style.trackSize);
             int width = Mathf.RoundToInt(style.trackSize.x);
             int height = Mathf.RoundToInt(style.trackSize.y);
-            var sprite = HomePresentationBuilder.SlantSprite(false, width, height, style.trackBorder);
+            var sprite = ShellArt.SlantSprite(false, width, height, style.trackBorder);
             var background = track.gameObject.AddComponent<Image>();
             background.sprite = sprite;
             background.color = MinigameUiTheme.WithAlpha(UITheme.Shared.Menu.navy, style.trackOpacity);
@@ -159,7 +159,7 @@ namespace KMA.Gameplay.UI
             var clip = Rect(track, "FillMask");
             Stretch(clip, Vector2.one * style.trackBorder);
             var maskImage = clip.gameObject.AddComponent<Image>();
-            maskImage.sprite = HomePresentationBuilder.SlantSprite(false,
+            maskImage.sprite = ShellArt.SlantSprite(false,
                 width - Mathf.RoundToInt(style.trackBorder * 2f), height - Mathf.RoundToInt(style.trackBorder * 2f), 0f);
             maskImage.raycastTarget = false;
             clip.gameObject.AddComponent<Mask>().showMaskGraphic = false;
@@ -174,7 +174,7 @@ namespace KMA.Gameplay.UI
             var rim = Rect(track, "WhiteRim");
             Stretch(rim);
             var border = rim.gameObject.AddComponent<Image>();
-            border.sprite = HomePresentationBuilder.SlantSprite(true, width, height, style.trackBorder);
+            border.sprite = ShellArt.SlantSprite(true, width, height, style.trackBorder);
             border.color = UITheme.Shared.Card;
             border.raycastTarget = false;
         }
