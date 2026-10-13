@@ -58,7 +58,8 @@ namespace KMA.Gameplay
         public int CorrectStreak => rules == null ? 0 : rules.CorrectStreak;
         public int BestStreak => challengeRules == null ? CorrectStreak : challengeRules.BestStreak;
         public float LearnTimeRemaining => challengeRules == null ? 0f : challengeRules.LearnTimeRemaining;
-        public float LearnProgress01 => challengeRules == null ? 0f : challengeRules.LearnProgress01;
+        /// How far along the straight the player is, in every chapter; full once they cross the line.
+        public float Progress01 => rules == null ? 0f : Mathf.Clamp01(rules.Snapshot.Distance / Mathf.Max(1f, TargetDistance));
         public bool IsComboBoosting => rules != null && rules.IsComboBoosting;
         public bool IsFalling => rules != null && rules.IsFalling;
         public float[] RivalDistances => rules == null ? System.Array.Empty<float>() : rules.RivalDistances;
@@ -296,9 +297,7 @@ namespace KMA.Gameplay
         protected override MinigameHudState BuildHudState() => new MinigameHudState(
             phase: Phase.ToString(),
             timeRemaining: Mathf.Max(0f, rules == null ? 0f : TargetTime - rules.Elapsed),
-            progress01: challengeDefinition != null && challengeDefinition.Kind == ChallengeKind.Learn
-                ? (challengeRules == null ? 0f : challengeRules.LearnProgress01)
-                : Mathf.Clamp01((rules == null ? 0f : rules.Snapshot.Distance) / TargetDistance),
+            progress01: Progress01,
             stamina01: 0f,
             score: 0f,
             statusText: IsWaitingForRivals ? WaitForRivalsText : challengeDefinition == null ? "TAP LEFT / RIGHT"

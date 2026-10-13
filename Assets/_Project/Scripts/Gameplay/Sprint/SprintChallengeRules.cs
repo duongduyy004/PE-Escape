@@ -23,8 +23,6 @@ namespace KMA.Gameplay
         public int BestStreak => bestStreak;
         public float LearnTimeRemaining => definition.Kind == ChallengeKind.Learn
             ? Mathf.Max(0f, definition.TimeLimit - Race.Elapsed) : 0f;
-        public float LearnProgress01 => definition.Kind == ChallengeKind.Learn && definition.TimeLimit > 0f
-            ? Mathf.Clamp01(Race.Elapsed / definition.TimeLimit) : 0f;
         public bool IsComplete => definition.Kind == ChallengeKind.Learn
             ? definition.TimeLimit > 0f && Race.Elapsed >= definition.TimeLimit
             : Race.Distance >= definition.Distance || Race.Elapsed >= definition.TimeLimit;

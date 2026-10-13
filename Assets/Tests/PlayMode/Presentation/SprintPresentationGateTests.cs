@@ -748,6 +748,31 @@ namespace KMA.Tests.Presentation
         }
 
         [UnityTest]
+        public IEnumerator SprintHud_LearnRailFollowsThePlayerAndFillsAtTheLine()
+        {
+            yield return LoadSprint();
+            var scene = SceneManager.GetActiveScene();
+            var controller = SceneObjects<SprintController>(scene)[0];
+            var hud = SceneObjects<SprintHud>(scene)[0];
+            ChallengeDefinition learn = ChallengeCatalog.LoadDefault().Get("sprint_learn");
+            controller.ConfigureChallenge(learn, new ChallengeAttemptContext(
+                "learn-rail", learn.Id, ChallengeAttemptMode.Journey, learn.Difficulty));
+            KitBar rail = GameObject.Find("SprintBroadcastChrome").transform.Find("ProgressRail").GetComponent<KitBar>();
+
+            controller.AdvanceToDistance(42f);
+            hud.Refresh();
+            Assert.That(controller.IsLearnChallenge, Is.True);
+            Assert.That(hud.PipProgress, Is.EqualTo(42f / SprintRules.RaceDistance).Within(.001f),
+                "the Learn rail tracks how far the player has run, not the clock");
+            Assert.That(rail.Value, Is.EqualTo(42f / SprintRules.RaceDistance).Within(.001f));
+
+            controller.AdvanceToDistance(SprintRules.RaceDistance);
+            hud.Refresh();
+            Assert.That(hud.PipProgress, Is.EqualTo(1f), "across the line the rail is full");
+            Assert.That(rail.Value, Is.EqualTo(1f).Within(.001f));
+        }
+
+        [UnityTest]
         public IEnumerator SprintChrome_RegistersEveryElementForRelayout()
         {
             yield return LoadSprint();
