@@ -22,7 +22,7 @@ namespace KMA.EditorTools
     {
         public const string ScenePath = "Assets/_Project/Scenes/MG_ChessFinal.unity";
         const string HudRootName = "S2_HUD_Minigame";
-        const float BoardSize = 740f;
+        const float BoardSize = 780f;
         // Side column centres and avatar box, tuned on 1920x1080 captures: the teacher column clears the
         // pause button, and the 3:4 avatar box matches the 192x256 poses so caps and ponytails stay whole.
         const float StudentX = .1f, TeacherX = .9f;
@@ -87,9 +87,8 @@ namespace KMA.EditorTools
                 MinigameUiTheme.TextPrimary);
             UiKit.Place(title.rectTransform, top, top, new Vector2(0f, -18f), new Vector2(900f, 70f));
             ChipHandle objective = UiKit.Chip(parent, "Objective", "Chiếu hết");
-            UiKit.Place(objective.Background.rectTransform, top, top, new Vector2(-150f, -96f), new Vector2(480f, 64f));
+            UiKit.Place(objective.Background.rectTransform, top, top, new Vector2(0f, -96f), new Vector2(480f, 64f));
             ChipHandle clock = UiKit.Chip(parent, "Clock", "01:30");
-            UiKit.Place(clock.Background.rectTransform, top, top, new Vector2(230f, -96f), new Vector2(200f, 64f));
 
             Image frame = UiKit.Panel(parent, "BoardFrame");
             UiKit.Place(frame.rectTransform, centre, centre, new Vector2(0f, -30f), Vector2.one * (BoardSize + 64f));
@@ -111,9 +110,9 @@ namespace KMA.EditorTools
 
             TMP_Text turn = UiKit.Label(parent, "Turn", "Đọc đề rồi bấm Bắt đầu", MinigameUiTheme.Body,
                 MinigameUiTheme.TextPrimary);
-            UiKit.Place(turn.rectTransform, bottom, bottom, new Vector2(-170f, 28f), new Vector2(520f, 60f));
+            UiKit.Place(turn.rectTransform, bottom, bottom, new Vector2(0f, 28f), new Vector2(760f, 60f));
             ButtonHandle hint = UiKit.Button(parent, "HintButton", "Gợi ý", ButtonVariant.Secondary);
-            UiKit.Place((RectTransform)hint.Button.transform, bottom, bottom, new Vector2(220f, 14f),
+            UiKit.Place((RectTransform)hint.Button.transform, new Vector2(TeacherX, .55f), centre, Vector2.zero,
                 new Vector2(220f, MinigameUiTheme.ButtonHeight));
             TMP_Text toast = UiKit.Label(parent, "Toast", string.Empty, MinigameUiTheme.Body,
                 MinigameUiTheme.Accent, outline: true);
@@ -129,6 +128,7 @@ namespace KMA.EditorTools
             NameTag(parent, "TeacherName", "Giảng viên thể chất", TeacherX);
             ChipHandle moves = UiKit.Chip(parent, "Moves", "Nước: 0/3");
             UiKit.Place(moves.Background.rectTransform, new Vector2(StudentX, .78f), centre, Vector2.zero, new Vector2(240f, 60f));
+            UiKit.Place(clock.Background.rectTransform, new Vector2(StudentX, .70f), centre, Vector2.zero, new Vector2(200f, 60f));
             Image bubble = UiKit.Panel(parent, "SpeechBubble");
             UiKit.Place(bubble.rectTransform, new Vector2(TeacherX, .72f), centre, Vector2.zero, new Vector2(320f, 190f));
             TMP_Text bubbleText = UiKit.Label(bubble.transform, "Text", string.Empty, MinigameUiTheme.Caption,
