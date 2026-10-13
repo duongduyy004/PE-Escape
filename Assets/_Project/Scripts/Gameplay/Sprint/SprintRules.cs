@@ -46,12 +46,22 @@ namespace KMA.Gameplay
         public const float FallSeconds = .9f;
         // After getting up the runner cannot trip again at once, so a fumbling player is not locked down.
         public const float FallCooldownSeconds = 1.2f;
+        // How far past the line the player runs before standing still, unless the controller rolls one.
+        public const float DefaultRunOutDistance = 4f;
 
         readonly float timeLimit;
         readonly float goalDistance;
         readonly Side[] authoredSequence;
         readonly RivalPaceProfile[] rivalProfiles;
-        readonly float[] rivalDistances;
+        readonly RivalMotion[] rivals;
+        readonly float runOutDistance;
+        // Race time for the whole field; it keeps running after the player's own clock stops on the line.
+        float raceClock;
+        float finishTime = -1f;
+        // The player's few metres past the line, and how fast they are still covering them.
+        float runOut;
+        float runOutSpeed;
+        float runOutBrake;
         readonly SprintBalanceParameters? balance;
         int sequenceIndex;
         int valid;
@@ -65,12 +75,11 @@ namespace KMA.Gameplay
         float distance;
         float speed;
         float elapsed;
-        float rivalClock;
         bool finished;
 
         public SprintRules(float timeLimit = DefaultTimeLimit, RivalPaceProfile[] rivalProfiles = null,
             Side[] authoredSequence = null, SprintBalanceParameters? balance = null,
-            float goalDistance = RaceDistance)
+            float goalDistance = RaceDistance, float runOutDistance = DefaultRunOutDistance)
         {
             this.timeLimit = timeLimit;
             this.balance = balance;
@@ -80,18 +89,24 @@ namespace KMA.Gameplay
                 throw new System.ArgumentException("Sprint authored sequence must contain at least one side.", nameof(authoredSequence));
 
             this.rivalProfiles = rivalProfiles == null ? Array.Empty<RivalPaceProfile>() : (RivalPaceProfile[])rivalProfiles.Clone();
-            rivalDistances = new float[this.rivalProfiles.Length];
+            this.runOutDistance = runOutDistance;
+            rivals = new RivalMotion[this.rivalProfiles.Length];
+            for (int i = 0; i < rivals.Length; i++)
+                rivals[i] = this.rivalProfiles[i] == null ? null : new RivalMotion(this.rivalProfiles[i]);
         }
 
         public static SprintRules Default() => new SprintRules(DefaultTimeLimit);
 
         public static SprintRules ForTest(float distance, float elapsed, int rank,
-            RivalPaceProfile[] rivalProfiles = null, Side[] authoredSequence = null)
+            RivalPaceProfile[] rivalProfiles = null, Side[] authoredSequence = null, float speed = 0f,
+            float goalDistance = RaceDistance)
         {
             _ = rank;
-            var value = new SprintRules(DefaultTimeLimit, rivalProfiles, authoredSequence);
+            var value = new SprintRules(DefaultTimeLimit, rivalProfiles, authoredSequence, goalDistance: goalDistance);
             value.distance = distance;
             value.elapsed = elapsed;
+            value.raceClock = elapsed;
+            value.speed = speed;
             value.UpdateRank();
             return value;
         }
@@ -101,7 +116,6 @@ namespace KMA.Gameplay
         public float Elapsed => elapsed;
         /// The player crossed the line: their numbers and rank are frozen while rivals keep running.
         public bool IsFinished => finished;
-        float RivalTime => finished ? rivalClock : elapsed;
         public float TimeLimit => timeLimit;
         public int CorrectStreak => correctStreak;
         /// The runner tripped on a wrong or off-beat tap and is stopped until they get up.
@@ -113,15 +127,33 @@ namespace KMA.Gameplay
         public Side ExpectedSide => authoredSequence[sequenceIndex];
         public Side[] AuthoredSequence => (Side[])authoredSequence.Clone();
         public RivalPaceProfile[] RivalProfiles => (RivalPaceProfile[])rivalProfiles.Clone();
-        public float[] RivalDistances => (float[])rivalDistances.Clone();
-        public int RivalCount => rivalDistances.Length;
-        public float GetRivalDistance(int index) => index < 0 || index >= rivalDistances.Length ? 0f : rivalDistances[index];
-        public bool IsRivalSurging(int index) =>
-            index >= 0 && index < rivalProfiles.Length && rivalProfiles[index] != null &&
-            rivalProfiles[index].IsSurgingAt(RivalTime);
-        public bool IsRivalSlowing(int index) =>
-            index >= 0 && index < rivalProfiles.Length && rivalProfiles[index] != null &&
-            rivalProfiles[index].IsSlowingAt(RivalTime);
+        /// Learn has no finish line: rivals run beside the player instead of racing to one.
+        public bool IsEndless => float.IsPositiveInfinity(goalDistance);
+        public float GoalDistance => goalDistance;
+        /// Where the player actually is, including the metres they run on past the line.
+        public float Position => distance + runOut;
+        public float MetersPerSecond => finished ? runOutSpeed : speed * Tuning.DistanceScale;
+        /// Race time at which the player crossed the line; -1 until they do.
+        public float FinishTime => finishTime;
+        public float[] RivalDistances
+        {
+            get
+            {
+                var values = new float[rivals.Length];
+                for (int i = 0; i < values.Length; i++) values[i] = GetRivalDistance(i);
+                return values;
+            }
+        }
+        public int RivalCount => rivals.Length;
+        RivalMotion RivalAt(int index) => index < 0 || index >= rivals.Length ? null : rivals[index];
+        /// Race distance covered, stopping on the line; see <see cref="GetRivalPosition"/> for the body.
+        public float GetRivalDistance(int index) => RivalAt(index) == null ? 0f : Mathf.Min(RivalAt(index).Position, goalDistance);
+        public float GetRivalPosition(int index) => RivalAt(index)?.Position ?? 0f;
+        public float GetRivalSpeed(int index) => RivalAt(index)?.Velocity ?? 0f;
+        public bool HasRivalFinished(int index) => RivalAt(index) != null && RivalAt(index).HasFinished;
+        public float GetRivalFinishTime(int index) => RivalAt(index)?.FinishTime ?? -1f;
+        public bool IsRivalSurging(int index) => !IsEndless && RivalAt(index) != null && RivalAt(index).IsSurgingAt(raceClock);
+        public bool IsRivalSlowing(int index) => !IsEndless && RivalAt(index) != null && RivalAt(index).IsSlowingAt(raceClock);
         public SprintSnapshot Snapshot => new SprintSnapshot(distance, speed, elapsed);
 
         // Races without an authored balance asset use the default tuning.
@@ -140,16 +172,14 @@ namespace KMA.Gameplay
         {
             if (finished) return;
             finished = true;
-            rivalClock = elapsed;
-            speed = 0f;
+            finishTime = elapsed;
+            StartRunOut(speed * Tuning.DistanceScale);
         }
 
         public bool AllRivalsReached(float goalDistance)
         {
-            for (int i = 0; i < rivalDistances.Length; i++)
-            {
-                if (rivalProfiles[i] != null && rivalDistances[i] < goalDistance) return false;
-            }
+            for (int i = 0; i < rivals.Length; i++)
+                if (rivals[i] != null && rivals[i].Position < goalDistance) return false;
             return true;
         }
 
@@ -195,32 +225,80 @@ namespace KMA.Gameplay
         public void Tick(float dt)
         {
             if (dt <= 0f || float.IsNaN(dt) || float.IsInfinity(dt)) return;
+            float clock = raceClock;
+            raceClock += dt;
             if (finished)
             {
-                rivalClock += dt;
-                for (int i = 0; i < rivalProfiles.Length; i++)
-                {
-                    if (rivalProfiles[i] != null) AdvanceRival(i, rivalClock, dt);
-                }
+                AdvanceRunOut(dt);
+                AdvanceRivals(clock, dt);
                 return;
             }
+
+            float startElapsed = elapsed;
             elapsed += dt;
             SprintBalanceParameters tuning = Tuning;
             if (IsFalling || IsIdle) speed = 0f;
             else speed = Mathf.Max(0f, speed - tuning.DragPerSecond * dt);
-            distance += speed * dt * tuning.DistanceScale;
+            float before = distance;
+            float step = speed * dt * tuning.DistanceScale;
+            distance += step;
+            AdvanceRivals(clock, dt);
 
-            for (int i = 0; i < rivalProfiles.Length; i++)
+            if (!IsEndless && before < goalDistance && distance >= goalDistance)
             {
-                if (rivalProfiles[i] != null) AdvanceRival(i, elapsed, dt);
+                finishTime = startElapsed + dt * (step > 0f ? (goalDistance - before) / step : 1f);
+                elapsed = finishTime;
+                runOut = distance - goalDistance;
+                distance = goalDistance;
+                finished = true;
+                // Rivals who crossed earlier in this same tick still beat the player.
+                currentRank = 1;
+                for (int i = 0; i < rivals.Length; i++)
+                    if (rivals[i] != null && rivals[i].HasFinished && rivals[i].FinishTime < finishTime) currentRank++;
+                StartRunOut(speed * tuning.DistanceScale);
+                return;
             }
 
             UpdateRank();
         }
 
-        // A rival who has crossed the line stops there instead of running on past it.
-        void AdvanceRival(int index, float time, float dt) =>
-            rivalDistances[index] = Mathf.Min(goalDistance, rivalDistances[index] + rivalProfiles[index].SpeedAt(time) * dt);
+        /// After the result is decided the runners still pull up and the field still runs in;
+        /// the race numbers do not change.
+        public void TickAfterRace(float dt)
+        {
+            if (dt <= 0f || float.IsNaN(dt) || float.IsInfinity(dt)) return;
+            float clock = raceClock;
+            raceClock += dt;
+            if (finished) AdvanceRunOut(dt);
+            else speed = 0f;
+            AdvanceRivals(clock, dt);
+        }
+
+        void AdvanceRivals(float clock, float dt)
+        {
+            for (int i = 0; i < rivals.Length; i++)
+            {
+                if (rivals[i] == null) continue;
+                if (IsEndless) rivals[i].StepTethered(clock, dt, Position, MetersPerSecond);
+                else rivals[i].StepRace(clock, dt, goalDistance);
+            }
+        }
+
+        void StartRunOut(float metersPerSecond)
+        {
+            speed = 0f;
+            runOutSpeed = metersPerSecond;
+            float room = runOutDistance - runOut;
+            runOutBrake = room > .01f ? metersPerSecond * metersPerSecond / (2f * room) : 0f;
+            if (room <= .01f) runOutSpeed = 0f;
+        }
+
+        void AdvanceRunOut(float dt)
+        {
+            if (runOutSpeed <= 0f) return;
+            runOutSpeed = Mathf.Max(0f, runOutSpeed - runOutBrake * dt);
+            runOut += runOutSpeed * dt;
+        }
 
         public MinigameResult BuildResult() => BuildResult(RaceDistance, timeLimit);
 
@@ -229,8 +307,8 @@ namespace KMA.Gameplay
             bool pass = distance >= Mathf.Max(0f, goalDistance) && elapsed <= deadline;
             float accuracy = total == 0 ? 0f : 2f * valid / total;
             // 1st place earns the full bonus and last place none.
-            int rivals = rivalDistances.Length;
-            float placement = rivals == 0 ? 1f : Mathf.Clamp01((float)(rivals + 1 - currentRank) / rivals);
+            int rivalTotal = rivals.Length;
+            float placement = rivalTotal == 0 ? 1f : Mathf.Clamp01((float)(rivalTotal + 1 - currentRank) / rivalTotal);
             float mastery = deadline <= 0f ? 0f : Mathf.Clamp01((deadline - elapsed) / 3f);
             return ScoreUtil.Build(pass, accuracy, placement, mastery);
         }
@@ -241,11 +319,8 @@ namespace KMA.Gameplay
         void UpdateRank()
         {
             currentRank = 1;
-            for (int i = 0; i < rivalDistances.Length; i++)
-            {
-                if (rivalDistances[i] > distance || rivalDistances[i] >= goalDistance)
-                    currentRank++;
-            }
+            for (int i = 0; i < rivals.Length; i++)
+                if (rivals[i] != null && (rivals[i].HasFinished || rivals[i].Position > distance)) currentRank++;
         }
     }
 }

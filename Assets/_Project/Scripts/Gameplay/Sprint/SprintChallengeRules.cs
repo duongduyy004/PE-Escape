@@ -9,14 +9,16 @@ namespace KMA.Gameplay
         int bestStreak;
 
         public SprintChallengeRules(ChallengeDefinition definition, SprintBalanceParameters balance,
-            RivalPaceProfile[] rivals)
+            RivalPaceProfile[] rivals, float runOutDistance = SprintRules.DefaultRunOutDistance)
         {
             this.definition = definition ?? throw new ArgumentNullException(nameof(definition));
             if (definition.Subject != SubjectId.Sprint)
                 throw new ArgumentException("Sprint challenge rules require a Sprint definition.", nameof(definition));
-            Race = new SprintRules(definition.TimeLimit, rivals,
-                new[] { Side.Left, Side.Right }, balance,
-                definition.Distance > 0f ? definition.Distance : SprintRules.RaceDistance);
+            // Learn is a cadence drill on an endless straight; races run to the authored distance.
+            float goal = definition.Kind == ChallengeKind.Learn ? float.PositiveInfinity
+                : definition.Distance > 0f ? definition.Distance : SprintRules.RaceDistance;
+            Race = new SprintRules(definition.TimeLimit, rivals, new[] { Side.Left, Side.Right }, balance, goal,
+                runOutDistance);
         }
 
         public SprintRules Race { get; }

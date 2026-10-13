@@ -41,9 +41,9 @@ namespace KMA.Tests.Gameplay.Running
             float fastest = authored.Min(profile => FinishTime(AtSpeed(profile, MaxSpeed)));
             float slowest = authored.Max(profile => FinishTime(AtSpeed(profile, MinSpeed)));
 
-            // A rival may occasionally beat the 15 s exam deadline, but not by much.
-            Assert.That(fastest, Is.InRange(FastestFinish, 16f));
-            Assert.That(slowest, Is.InRange(16f, SlowestFinish));
+            // With a real start the field crosses 150 m in about 15–17 s (fastest) to 18–20 s (slowest).
+            Assert.That(fastest, Is.InRange(13.5f, 17f));
+            Assert.That(slowest, Is.InRange(17f, SlowestFinish));
         }
 
         [Test]
@@ -187,9 +187,9 @@ namespace KMA.Tests.Gameplay.Running
         static float FinishTime(RivalPaceProfile profile)
         {
             var rules = new SprintRules(60f, new[] { profile });
-            while (rules.GetRivalDistance(0) < SprintRules.RaceDistance && rules.Elapsed < 60f)
+            while (!rules.HasRivalFinished(0) && rules.Elapsed < 60f)
                 rules.Tick(1f / 120f);
-            return rules.Elapsed;
+            return rules.GetRivalFinishTime(0);
         }
 
         [Test]

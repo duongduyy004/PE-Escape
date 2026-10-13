@@ -1,3 +1,4 @@
+using UnityEngine;
 using KMA.Gameplay;
 using NUnit.Framework;
 
@@ -253,32 +254,95 @@ namespace KMA.Tests.Gameplay.Running
             Assert.That(rules.BuildResult().Pass, Is.False);
         }
 
-        [Test]
-        public void Rival_StopsAtTheFinishLineInsteadOfRunningOn()
-        {
-            var rules = new SprintRules(rivalProfiles: new[] { new RivalPaceProfile("Fast", 100f, 100f) },
-                goalDistance: 50f);
+        const float Dt = 1f / 120f;
+        // Raw tap speed is metres per second divided by DistanceScale.
+        static float Raw(float metersPerSecond) => metersPerSecond / SprintBalanceParameters.Default.DistanceScale;
 
-            rules.Tick(.4f);
-            Assert.That(rules.GetRivalDistance(0), Is.EqualTo(40f).Within(.001f));
-            rules.Tick(.4f);
-            Assert.That(rules.GetRivalDistance(0), Is.EqualTo(50f));
-            rules.Tick(5f);
-            Assert.That(rules.GetRivalDistance(0), Is.EqualTo(50f));
+        [Test]
+        public void Rival_RunsThroughTheLineAndPullsUpWithinItsStopDistance()
+        {
+            var rules = new SprintRules(rivalProfiles: new[] { new RivalPaceProfile("Steady", 9f, 9f) },
+                goalDistance: 50f);
+            for (int i = 0; i < 120 * 10; i++) rules.Tick(Dt);
+
+            Assert.That(rules.HasRivalFinished(0), Is.True);
+            Assert.That(rules.GetRivalDistance(0), Is.EqualTo(50f), "race distance stops on the line");
+            Assert.That(rules.GetRivalPosition(0) - 50f, Is.InRange(3.8f, 4.05f), "but the body runs on ~4 m");
+            Assert.That(rules.GetRivalSpeed(0), Is.Zero);
             Assert.That(rules.AllRivalsReached(50f), Is.True);
         }
 
         [Test]
-        public void Rival_StaysAtTheLineWhileThePlayerRunsIn()
+        public void Player_CrossingFinishesTheRaceAtTheInterpolatedTimeAndRunsOn()
         {
-            var rules = new SprintRules(rivalProfiles: new[] { new RivalPaceProfile("Fast", 100f, 100f) },
-                goalDistance: 50f);
-            rules.Tick(1f);
-            rules.FinishRace();
+            var rules = SprintRules.ForTest(distance: 49f, elapsed: 10f, rank: 1, speed: Raw(10f), goalDistance: 50f);
+            rules.Tick(.2f);
 
-            rules.Tick(3f);
+            Assert.That(rules.IsFinished, Is.True);
+            Assert.That(rules.Distance, Is.EqualTo(50f));
+            Assert.That(rules.Elapsed, Is.EqualTo(10.1f).Within(.005f));
+            Assert.That(rules.BuildResult(50f, 60f).Pass, Is.True);
 
-            Assert.That(rules.GetRivalDistance(0), Is.EqualTo(50f));
+            for (int i = 0; i < 120 * 3; i++) rules.Tick(Dt);
+            Assert.That(rules.Position - 50f, Is.InRange(3.8f, 4.05f));
+            Assert.That(rules.MetersPerSecond, Is.Zero);
+            Assert.That(rules.Elapsed, Is.EqualTo(10.1f).Within(.005f), "the clock stopped on the line");
+        }
+
+        [TestCase(60f, 210f, 1)]   // player crosses at ~0.40 s, rival at ~0.48 s
+        [TestCase(60f, 400f, 2)]   // player crosses at ~0.40 s, rival at 0.25 s
+        public void Rank_UsesInterpolatedCrossingTimes_WhenBothCrossInOneTick(float playerStart, float rivalSpeed,
+            int expectedRank)
+        {
+            // The rival starts from 0 and covers 100 m at rivalSpeed; the player runs 100 m/s from playerStart.
+            var rules = SprintRules.ForTest(distance: playerStart, elapsed: 0f, rank: 1,
+                rivalProfiles: new[] { new RivalPaceProfile("R", rivalSpeed, rivalSpeed) },
+                speed: Raw(100f), goalDistance: 100f);
+            rules.Tick(.5f);
+
+            Assert.That(rules.IsFinished, Is.True);
+            Assert.That(rules.HasRivalFinished(0), Is.True);
+            Assert.That(rules.Rank, Is.EqualTo(expectedRank));
+        }
+
+        [Test]
+        public void Endless_RivalsStayBesideARunningPlayerAndNeverFinish()
+        {
+            var authored = new[]
+            {
+                new RivalPaceProfile("A", 8.5f, 5.7f), new RivalPaceProfile("B", 5.8f, 5.7f),
+                new RivalPaceProfile("C", 6f, 7.1f)
+            };
+            var rules = new SprintRules(60f, RivalPaceRandomizer.RollField(authored, 8.5f, 10f, new System.Random(3)),
+                null, SprintBalanceParameters.Default, float.PositiveInfinity);
+            Side next = Side.Left;
+            for (int i = 0; i < 60 * 50; i++)
+            {
+                if (i % 10 == 0) { rules.Tap(next); next = next == Side.Left ? Side.Right : Side.Left; }
+                rules.Tick(1f / 60f);
+                if (i < 60 * 5) continue;
+                for (int r = 0; r < rules.RivalCount; r++)
+                    Assert.That(Mathf.Abs(rules.GetRivalPosition(r) - rules.Position), Is.LessThan(6f),
+                        $"rival {r} at {i / 60f:0.0}s");
+            }
+            Assert.That(rules.IsEndless, Is.True);
+            Assert.That(rules.IsFinished, Is.False);
+            for (int r = 0; r < rules.RivalCount; r++) Assert.That(rules.HasRivalFinished(r), Is.False);
+        }
+
+        [Test]
+        public void TickAfterRace_StopsAnUnfinishedPlayerButRivalsRunOn()
+        {
+            var rules = SprintRules.ForTest(distance: 20f, elapsed: 22f, rank: 1,
+                rivalProfiles: new[] { new RivalPaceProfile("R", 9f, 9f) }, speed: Raw(8f));
+            float before = rules.GetRivalPosition(0);
+
+            rules.TickAfterRace(1f);
+            rules.TickAfterRace(0f);
+
+            Assert.That(rules.MetersPerSecond, Is.Zero);
+            Assert.That(rules.Position, Is.EqualTo(20f));
+            Assert.That(rules.GetRivalPosition(0), Is.EqualTo(before + 9f).Within(.001f));
         }
     }
 }
