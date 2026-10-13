@@ -32,6 +32,14 @@ namespace KMA.Gameplay
         /// Runners start here and stop on the finish line, in world units. The line sits where a 16:10
         /// view (the narrowest supported) still shows it; wider screens just show more track beyond it.
         public const float TrackStartX = -9.6f;
+
+        /// The race runs along a real straight: one metre is one world unit from the start.
+        public const float UnitsPerMeter = 1f;
+
+        public static float WorldX(float meters) => TrackStartX + meters * UnitsPerMeter;
+
+        /// The finish line stands where a runner who has covered the whole race distance stands.
+        public static float FinishWorldX(float raceDistance) => WorldX(raceDistance);
         public const float FinishX = 6.5f;
         public const float TrackLength = FinishX - TrackStartX;
         public const float FinishWidth = .5f;
