@@ -95,8 +95,8 @@ namespace KMA.Tests.Presentation
             Assert.That(settings.CurrentSettings.sfxVol, Is.EqualTo(.5f));
             Assert.That(settings.CurrentSettings.vibration, Is.False);
             Button settingsBack = settings.GetComponentsInChildren<Button>().Single(button => button.name == "BackButton");
-            Assert.That(settingsBack.GetComponent<KMA.UI.Kit.KitPressFeedback>(), Is.Not.Null);
-            Assert.That(settingsBack.GetComponent<Image>().sprite, Is.Not.Null);
+            Assert.That(settingsBack.GetComponent<KMA.UI.Kit.ShellPressFeedback>(), Is.Not.Null);
+            Assert.That(((Image)settingsBack.targetGraphic).sprite, Is.Not.Null);
             Assert.That(settingsBack.GetComponentInChildren<TMP_Text>().text, Is.Not.Empty, "back keeps its caption");
             settingsBack.onClick.Invoke();
             Assert.That(menu.IsVisible, Is.True);
