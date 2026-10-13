@@ -191,5 +191,16 @@ namespace KMA.Tests.Gameplay.Running
                 rules.Tick(1f / 120f);
             return rules.Elapsed;
         }
+
+        [Test]
+        public void RolledRivalsCarryTheirOwnMotionTraits()
+        {
+            RivalPaceProfile[] field = RivalPaceRandomizer.RollField(LoadAuthoredProfiles(), MinSpeed, MaxSpeed,
+                new Random(7));
+            foreach (RivalPaceProfile rolled in field)
+                Assert.That(rolled.Traits.AccelerationTau, Is.InRange(RivalMotionTraits.MinTau, RivalMotionTraits.MaxTau));
+            Assert.That(field.Select(rolled => rolled.Traits.ReactionSeconds).Distinct().Count(), Is.EqualTo(field.Length),
+                "each rival reacts to the gun on their own");
+        }
     }
 }
