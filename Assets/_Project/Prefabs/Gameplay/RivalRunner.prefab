@@ -52,7 +52,6 @@ MonoBehaviour:
   rivalIndex: 0
   visual: {fileID: 5418375931076905737}
   animator: {fileID: 5660485343904146882}
-  trackStartX: 0
 --- !u!95 &5660485343904146882
 Animator:
   serializedVersion: 7

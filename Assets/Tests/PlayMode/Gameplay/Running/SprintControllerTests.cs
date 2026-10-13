@@ -256,9 +256,10 @@ namespace KMA.Tests.Gameplay.Running
             var before = rules.RivalDistances;
             var rankBefore = rules.Rank;
             var resultBefore = rules.BuildResult();
-            runner.RefreshForTest(before[0], 0f, MinigamePhase.Play, null);
-            Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Run), "a rival far from the line and the player far behind just runs");
-            runner.RefreshForTest(SprintRules.RaceDistance * (RivalRunnerAI.RivalBurstFromProgress + .02f), 0f, MinigamePhase.Play, null);
+            runner.RefreshForTest(before[0], 7f, false, SprintRules.RaceDistance, MinigamePhase.Play, null);
+            Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Run));
+            runner.RefreshForTest(SprintRules.RaceDistance * (RivalRunnerAI.RivalBurstFromProgress + .02f), 7f, false,
+                SprintRules.RaceDistance, MinigamePhase.Play, null);
 
             Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Burst));
             Assert.That(rules.RivalDistances, Is.EqualTo(before));
@@ -270,18 +271,39 @@ namespace KMA.Tests.Gameplay.Running
             Object.DestroyImmediate(profile);
         }
 
-[Test]        public void Rival_KeepsRunningToTheLineWhateverThePlayerDoes()        {            var runner = new GameObject("Rival").AddComponent<RivalRunnerAI>();            runner.RefreshForTest(SprintRules.RaceDistance * .7f, 0f, MinigamePhase.Play, null);            Assert.That(runner.VisualProgress01, Is.EqualTo(.7f).Within(.001f), "no cap short of the line");            Assert.That(runner.State, Is.Not.EqualTo(RivalRunnerState.Idle));            Object.DestroyImmediate(runner.gameObject);        }
-[Test]        public void LeadDistance_FollowsARivalWhoRunsAheadOfThePlayer()        {            var controllerObject = new GameObject("Sprint");            var controller = controllerObject.AddComponent<SprintController>();            controller.ConfigureForTest();            controller.AdvanceToDistance(20f, new[] { new RivalPaceProfile("Fast", 9f, 9f) });            for (int i = 0; i < 600; i++) controller.Simulate(.01f);            Assert.That(controller.LeadDistance, Is.GreaterThan(controller.Snapshot.Distance));            Assert.That(controller.LeadDistance, Is.EqualTo(controller.GetRivalDistance(0)));            Object.DestroyImmediate(controllerObject);        }
         [Test]
-        public void Rival_StopsRunningOnceAcrossTheLine()
+        public void Rival_StandsAtItsOwnWorldPosition()
         {
             var runner = new GameObject("Rival").AddComponent<RivalRunnerAI>();
+            runner.RefreshForTest(70f, 9f, false, SprintRules.RaceDistance, MinigamePhase.Play, null);
+            Assert.That(runner.transform.position.x, Is.EqualTo(SprintTrackLayout.WorldX(70f)).Within(.001f));
+            Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Run));
+            Object.DestroyImmediate(runner.gameObject);
+        }
 
-            runner.RefreshForTest(SprintRules.RaceDistance, SprintRules.RaceDistance * .5f, MinigamePhase.Play, null);
-
+        [Test]
+        public void Rival_WaitsForTheGunThenPullsUpAndStandsPastTheLine()
+        {
+            var runner = new GameObject("Rival").AddComponent<RivalRunnerAI>();
+            runner.RefreshForTest(0f, 0f, false, SprintRules.RaceDistance, MinigamePhase.Play, null);
+            Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Idle), "still reacting to the gun");
+            runner.RefreshForTest(SprintRules.RaceDistance + 1f, 6f, true, SprintRules.RaceDistance, MinigamePhase.Play, null);
+            Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Run), "pulling up past the line");
+            runner.RefreshForTest(SprintRules.RaceDistance + 4f, 0f, true, SprintRules.RaceDistance, MinigamePhase.Play, null);
             Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Idle));
             Object.DestroyImmediate(runner.gameObject);
         }
+
+        [Test]
+        public void Rival_NeverBurstsInLearn()
+        {
+            var runner = new GameObject("Rival").AddComponent<RivalRunnerAI>();
+            runner.RefreshForTest(400f, 9f, false, float.PositiveInfinity, MinigamePhase.Play, null);
+            Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Run));
+            Object.DestroyImmediate(runner.gameObject);
+        }
+
+[Test]        public void LeadDistance_FollowsARivalWhoRunsAheadOfThePlayer()        {            var controllerObject = new GameObject("Sprint");            var controller = controllerObject.AddComponent<SprintController>();            controller.ConfigureForTest();            controller.AdvanceToDistance(20f, new[] { new RivalPaceProfile("Fast", 9f, 9f) });            for (int i = 0; i < 600; i++) controller.Simulate(.01f);            Assert.That(controller.LeadDistance, Is.GreaterThan(controller.Snapshot.Distance));            Assert.That(controller.LeadDistance, Is.EqualTo(controller.GetRivalDistance(0)));            Object.DestroyImmediate(controllerObject);        }
 
         [Test]
         public void CadenceCombo_TracksConsecutiveValidTapsAndResetsOnWrongSide()

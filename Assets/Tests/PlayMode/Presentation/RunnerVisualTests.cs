@@ -211,7 +211,7 @@ namespace KMA.Tests.Presentation
         }
 
         [UnityTest]
-        public IEnumerator PlayerMapsItsOwnRaceDistanceAcrossTheTrack()
+        public IEnumerator PlayerStandsAtItsWorldPositionOnTheStraight()
         {
             yield return SceneManager.LoadSceneAsync("MG_Sprint");
             var controller = Object.FindFirstObjectByType<SprintController>();
@@ -222,8 +222,9 @@ namespace KMA.Tests.Presentation
             controller.AdvanceToDistance(SprintRules.RaceDistance / 2f);
             yield return null;
 
-            Assert.That(player.transform.position.x, Is.EqualTo(SprintTrackLayout.TrackStartX + SprintTrackLayout.TrackLength * .5f).Within(.001f),
-                "At half race distance the player must be halfway across the authored track.");
+            Assert.That(player.transform.position.x,
+                Is.EqualTo(SprintTrackLayout.WorldX(SprintRules.RaceDistance / 2f)).Within(.001f),
+                "One race metre is one world unit from the start.");
             Assert.That(player.transform.position.y,
                 Is.EqualTo(SprintTrackLayout.LaneCenterYForAuthoredLane(2)).Within(.001f),
                 "Race progress must not move the player out of lane 2.");
