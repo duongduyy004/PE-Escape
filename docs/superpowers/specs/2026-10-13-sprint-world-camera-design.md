@@ -78,9 +78,10 @@ rival finishes 150 m in ≈ 15–17 s and the slowest in ≈ 18–20 s.
 rolls the new parameters alongside the existing band and schedule. `IsSurging` / `IsSlowing` are
 derived from actual `v` against `vMax`.
 
-**Learn tether:** in Learn each rival has a slot offset rolled in ±2–5 m around the player.
-`vTarget = playerSpeed + k × (playerX + slot − x)` plus the rival's own pace variation, so rivals edge
-ahead and drop back but stay within about 6 m of the player. No finish, no run-out.
+**Learn tether:** in Learn each rival has a slot offset rolled in ±1.5–3.5 m around the player.
+`vTarget = playerSpeed × pace + 1.5 × (playerX + slot − x)`, where `pace` keeps 35 % of the rival's own
+surge/fade, so rivals edge ahead and drop back but stay within about 6 m of the player (simulated worst
+case 5.7 m). No finish, no run-out.
 
 ### Player
 
