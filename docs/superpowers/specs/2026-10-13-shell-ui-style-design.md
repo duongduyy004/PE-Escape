@@ -62,7 +62,7 @@ Thay thế mục 4 “Button — hai họ” của `2026-10-06-campus-ui-unifica
 | `titleRed` | `#C62828` | Chỉ tiêu đề cảnh báo (vd “HẾT LƯỢT”) |
 | `accentRed` | = `UITheme.primary` `#FF595E` | Ô vuông trang trí, nút Danger |
 | `bodyText` | `#33475E` | Chữ phụ trên nền kem |
-| `disabledFace` / `disabledText` | `#E6E1D6` / `#8A94A3` | Disabled Shell: rõ là khóa, chữ vẫn đọc được |
+| `disabledFace` / `disabledText` | `#E6E1D6` / `#7F8998` | Disabled Shell: rõ là khóa, chữ vẫn đọc được |
 | `cardBorder` / `controlBorder` | 6 / 4 | |
 | `cardShadow` / `controlShadow` | `(8,-8)` / `(5,-5)` | Bóng `ink` đặc |
 | `cardRadius` / `controlRadius` | 20 / 12 | |
