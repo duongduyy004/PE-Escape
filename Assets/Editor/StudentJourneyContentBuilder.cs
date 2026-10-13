@@ -87,7 +87,7 @@ namespace KMA.EditorTools
                     "Sút đủ 5 lượt và ghi ít nhất 3 bàn. Có thủ môn."),
                 new ChallengeSpec("chess_final", SubjectId.Chess, ChallengeKind.Final,
                     0f, 90f, 2, false, ChallengeDifficulty.Normal, false,
-                    "Chiếu hết trong 2 nước. Có 90 giây suy nghĩ và 2 lần sửa sai.")
+                    "Chiếu hết trong số nước cho phép, trong thời gian của thế cờ.")
             };
 
             var definitions = new ChallengeDefinition[specs.Length];
@@ -318,9 +318,9 @@ namespace KMA.EditorTools
                     Line(Co, DialoguePose.Cheer, "Đạt phần bóng đá. Còn bài kiểm tra cuối với tôi. Chưa đến lúc cất đồ.", "ĐẠT"),
                     Line(Mai, DialoguePose.Idle, "Còn một bài nữa. Ngồi xuống cho đỡ run chân đã.")),
                 Node("chess_intro",
-                    Line(Co, DialoguePose.Idle, "Bài cuối là một thế cờ. Chiếu hết trong hai nước. Lần này dùng đầu, không dùng chân.", "BÀI CUỐI"),
+                    Line(Co, DialoguePose.Idle, "Bài cuối là một thế cờ. Chiếu hết trong số nước cho phép. Lần này dùng đầu, không dùng chân.", "BÀI CUỐI"),
                     Line(TanThu, DialoguePose.Idle, "Dạ, cờ vua ạ? Em chưa chơi nhiều..."),
-                    Line(Co, DialoguePose.Idle, "Cậu có 90 giây suy nghĩ và hai lần sửa sai. Lần thứ ba sai là trượt. Đọc đề cho kỹ.", "90 GIÂY")),
+                    Line(Co, DialoguePose.Idle, "Mỗi thế cờ có giới hạn số nước và thời gian riêng. Đọc đề cho kỹ rồi hãy đi.", "THẾ CỜ MỚI")),
                 Node("supplementary",
                     Line(Co, DialoguePose.Idle, "Phần đã đạt tôi giữ nguyên. Phần chưa đạt thì ôn lại. Lần sau tôi vẫn chấm theo yêu cầu cũ."),
                     Line(Mai, DialoguePose.Idle, "Cậu hay vướng chỗ nào thì tập lại chỗ đó. Làm y như lần trước lại trượt thôi.")),

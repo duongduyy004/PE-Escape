@@ -22,7 +22,7 @@
 | Sprint | `MG_Sprint` | Có thể chơi |
 | Volleyball | `MG_Volleyball` | Có thể chơi |
 | Football | `MG_Football` | Penalty: thanh hướng, lực sút và trọng lực |
-| Bài kiểm tra cuối (cờ vua) | `MG_ChessFinal` | Trạm thứ 4 trên bản đồ: chiếu hết trong 2 nước, 90 giây, sửa sai 2 lần; không trừ lượt, không bật cóc. Thắng lần đầu mở `Celebration` |
+| Bài kiểm tra cuối (cờ vua) | `MG_ChessFinal` | Trạm thứ 4 trên bản đồ: chiếu hết thế cờ do AI sinh theo độ khó (Dễ 1/2, Vừa 2/3, Khó 3/5 nước tối ưu/tối đa), thời gian tính theo từng thế cờ, chấm F–A+; không trừ lượt, không bật cóc. Thắng lần đầu mở `Celebration` |
 
 Mỗi môn có luật và điều kiện hoàn thành riêng. Kết quả dùng cùng thang điểm và vòng đời chung: `Tutorial → Countdown → Play → Resolve`.
 

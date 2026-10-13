@@ -109,9 +109,9 @@ Nguồn: `Assets/Editor/StudentJourneyContentBuilder.cs`, hàm `BuildDialogues()
 
 | ID biên tập | Nhân vật | Lời thoại mới | Sticker |
 |---|---|---|---|
-| `chess_intro.01` | Giảng viên thể chất | Bài cuối là một thế cờ. Chiếu hết trong hai nước. Lần này dùng đầu, không dùng chân. | BÀI CUỐI |
+| `chess_intro.01` | Giảng viên thể chất | Bài cuối là một thế cờ. Chiếu hết trong số nước cho phép. Lần này dùng đầu, không dùng chân. | BÀI CUỐI |
 | `chess_intro.02` | SV năm 1 | Dạ, cờ vua ạ? Em chưa chơi nhiều... | — |
-| `chess_intro.03` | Giảng viên thể chất | Cậu có 90 giây suy nghĩ và hai lần sửa sai. Lần thứ ba sai là trượt. Đọc đề cho kỹ. | 90 GIÂY |
+| `chess_intro.03` | Giảng viên thể chất | Mỗi thế cờ có giới hạn số nước và thời gian riêng. Đọc đề cho kỹ rồi hãy đi. | THẾ CỜ MỚI |
 
 ### `supplementary` — Nội dung dự phòng, chưa kích hoạt
 
@@ -150,7 +150,7 @@ Nguồn: `StudentJourneyContentBuilder.BuildChallenges()` và các challenge ass
 | `soccer_learn` | Ghi 3 bàn vào khung thành không có thủ môn. Không giới hạn lượt sút. |
 | `soccer_practice` | Ghi ít nhất 2 bàn trong tối đa 6 lượt sút. Có thủ môn. |
 | `soccer_exam` | Sút đủ 5 lượt và ghi ít nhất 3 bàn. Có thủ môn. |
-| `chess_final` | Chiếu hết trong 2 nước. Có 90 giây suy nghĩ và 2 lần sửa sai. |
+| `chess_final` | Chiếu hết trong số nước cho phép, trong thời gian của thế cờ. |
 
 Bóng chuyền làm quen đếm các lần đỡ theo `VolleyballChallengeRules`; không thêm điều kiện “ba lần liên tiếp” hoặc “đủ ba chạm trong một pha bóng”. `Normal` là độ khó nội bộ của thủ môn, không cần đưa vào câu hướng dẫn.
 
@@ -167,7 +167,7 @@ Bóng chuyền làm quen đếm các lần đỡ theo `VolleyballChallengeRules`
 | `soccer_learn` | Ghi 3 bàn. Không có thủ môn và không giới hạn lượt sút. |
 | `soccer_practice` | Ghi ít nhất 2 bàn trong tối đa 6 lượt sút. Có thủ môn. |
 | `soccer_exam` | Ghi ít nhất 3 bàn sau 5 lượt sút. Có thủ môn. |
-| `chess_final` | Chiếu hết trong 2 nước. Có 90 giây suy nghĩ. Trượt bài này không bị trừ lượt thi và không phải Bật cóc. |
+| `chess_final` | Chiếu hết trong tối đa M nước; có cách chiếu hết trong N nước. Thời gian suy nghĩ của thế cờ hiện trên đồng hồ. Trượt bài này không bị trừ lượt thi và không phải Bật cóc. |
 
 Với chạy, câu “Có {rivalCount} sinh viên chạy cùng.” chỉ xuất hiện khi `rivalCount > 0`, kể cả nếu cấu hình bài luyện thay đổi. Bóng chuyền thi không có giới hạn giờ trong cấu hình hiện tại; không thêm mốc 120 giây vào bài thi.
 
@@ -209,16 +209,16 @@ Nguồn: `Assets/_Project/Scripts/Gameplay/Chess/ChessGuide.cs`.
 |---|---|
 | MỤC TIÊU | Dùng câu cho `chess_final` tại mục 3.2. |
 | ĐIỀU KHIỂN | Chạm quân của bạn, sau đó chạm ô muốn đi. Nếu tốt được phong cấp, chọn quân thay thế. Nút GỢI Ý có 3 mức: ý tưởng, quân cần xem và nước đi cụ thể. |
-| LUẬT | Nước không hợp lệ không tính lỗi. Nước hợp lệ nhưng sai lời giải tính 1 lỗi, bàn cờ giữ nguyên. Được sửa sai 2 lần; sai lần thứ 3 hoặc hết giờ là chưa đạt. Đồng hồ chỉ chạy trong lượt của bạn. Đi sai, dùng gợi ý và dùng nhiều thời gian sẽ làm giảm điểm. |
+| LUẬT | Mọi nước đi hợp lệ đều được tính và không thể đi lại. Nước không hợp lệ không tính nước. Đồng hồ chỉ chạy khi đến lượt bạn nghĩ. Hết giờ, hết nước, bị chiếu hết hoặc hòa là chưa đạt. Điểm gồm chất lượng từng nước (70%) và số nước đã dùng (30%); dùng gợi ý chỉ rõ nước đi giới hạn hạng tối đa ở A. |
 
 **Thẻ trước khi bắt đầu:**
 
 ```text
-Thời gian suy nghĩ: 90 giây.
-Được sửa sai 2 lần; sai lần thứ 3 là chưa đạt.
+Tối đa M nước.
+Thời gian suy nghĩ {thời gian của thế cờ}.
 ```
 
-Nút: **Bắt đầu**. Không đổi số lần sửa thành “chỉ được sai một lần” khi sửa lời thoại.
+Nút: **Bắt đầu**. Thẻ chỉ hiện sau khi thế cờ đã sinh xong (trước đó hiện “Đang tạo thế cờ…”).
 
 ### 3.7. Trang NẾU CHƯA ĐẠT — dùng cho bài luyện và bài thi vận động
 

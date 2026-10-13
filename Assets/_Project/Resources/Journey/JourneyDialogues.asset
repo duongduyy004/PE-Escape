@@ -159,7 +159,8 @@ MonoBehaviour:
     lines:
     - characterId: co_the_chat
       pose: 0
-      text: "Ghi đủ 10 điểm trước đối thủ. Không giới hạn thời gian, cứ chắc từng điểm."
+      text: "Ghi \u0111\u1EE7 10 \u0111i\u1EC3m tr\u01B0\u1EDBc \u0111\u1ED1i th\u1EE7.
+        Kh\xF4ng gi\u1EDBi h\u1EA1n th\u1EDDi gian, c\u1EE9 ch\u1EAFc t\u1EEBng \u0111i\u1EC3m."
       sticker: "10 \u0110I\u1EC2M"
     - characterId: mai_toang
       pose: 0
@@ -227,8 +228,8 @@ MonoBehaviour:
     - characterId: co_the_chat
       pose: 0
       text: "B\xE0i cu\u1ED1i l\xE0 m\u1ED9t th\u1EBF c\u1EDD. Chi\u1EBFu h\u1EBFt
-        trong hai n\u01B0\u1EDBc. L\u1EA7n n\xE0y d\xF9ng \u0111\u1EA7u, kh\xF4ng
-        d\xF9ng ch\xE2n."
+        trong s\u1ED1 n\u01B0\u1EDBc cho ph\xE9p. L\u1EA7n n\xE0y d\xF9ng \u0111\u1EA7u,
+        kh\xF4ng d\xF9ng ch\xE2n."
       sticker: "B\xC0I CU\u1ED0I"
     - characterId: tan_thu
       pose: 0
@@ -236,10 +237,10 @@ MonoBehaviour:
       sticker:
     - characterId: co_the_chat
       pose: 0
-      text: "C\u1EADu c\xF3 90 gi\xE2y suy ngh\u0129 v\xE0 hai l\u1EA7n s\u1EEDa
-        sai. L\u1EA7n th\u1EE9 ba sai l\xE0 tr\u01B0\u1EE3t. \u0110\u1ECDc \u0111\u1EC1
-        cho k\u1EF9."
-      sticker: "90 GI\xC2Y"
+      text: "M\u1ED7i th\u1EBF c\u1EDD c\xF3 gi\u1EDBi h\u1EA1n s\u1ED1 n\u01B0\u1EDBc
+        v\xE0 th\u1EDDi gian ri\xEAng. \u0110\u1ECDc \u0111\u1EC1 cho k\u1EF9 r\u1ED3i
+        h\xE3y \u0111i."
+      sticker: "TH\u1EBE C\u1EDC M\u1EDAI"
   - id: supplementary
     lines:
     - characterId: co_the_chat
