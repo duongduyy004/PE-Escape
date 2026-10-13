@@ -7,6 +7,7 @@ namespace KMA.Gameplay
     {
         /// <summary>Screen-pixel height of the keeper's hip: the dive rotates about it and KeeperCapsules are measured from it.</summary>
         public const float KeeperHipY = 281f;
+        public const float KeeperMaxTravelX = 3.5f;
 
         readonly FootballShot shot;
         readonly FootballTuning tuning;
@@ -27,7 +28,7 @@ namespace KMA.Gameplay
         public Vector3 Velocity { get; private set; }
         public float Time { get; private set; }
         public float KeeperX { get; private set; }
-        public float KeeperAngle => Mathf.Clamp(KeeperX / 2.5f, -1f, 1f) * 45f;
+        public float KeeperAngle => Mathf.Clamp(KeeperX / KeeperMaxTravelX, -1f, 1f) * 55f;
         public int Bounces { get; private set; }
         public FootballOutcome? Outcome { get; private set; }
         public bool Done { get; private set; }
@@ -40,7 +41,9 @@ namespace KMA.Gameplay
             const float radius = FootballShotSolver.BallRadius;
             Time += dt;
             if (keeperEnabled && !Outcome.HasValue && Time > tuning.KeeperReactionSeconds)
-                KeeperX = Mathf.MoveTowards(KeeperX, Mathf.Clamp(shot.AimX * 4.3f, -2.5f, 2.5f), tuning.KeeperSpeed * dt);
+                KeeperX = Mathf.MoveTowards(KeeperX,
+                    Mathf.Clamp(shot.AimX * 4.3f, -KeeperMaxTravelX, KeeperMaxTravelX),
+                    tuning.KeeperSpeed * dt);
             Vector3 previous = Position, p = Position, v = Velocity;
             bool rolling = p.y <= radius + .000001f && v.y == 0f;
             p.x += v.x * dt;

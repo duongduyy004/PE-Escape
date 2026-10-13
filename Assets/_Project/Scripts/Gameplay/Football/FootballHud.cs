@@ -18,6 +18,7 @@ namespace KMA.Gameplay
         [SerializeField] GameObject overPowerWarning;
         [SerializeField] TMP_Text scoreLabel;
         [SerializeField] TMP_Text remainingLabel;
+        [SerializeField] TMP_Text shotTimerLabel;
         [SerializeField] Image[] kickMarkers = new Image[5];
         [SerializeField] GameObject startPanel;
         [SerializeField] GameObject startScrim;
@@ -33,11 +34,24 @@ namespace KMA.Gameplay
         public event Action<FootballDifficulty> StartRequested;
         public Slider DirectionSlider => directionSlider;
         public FootballHoldButton ShootButton => shootButton;
+        public TMP_Text ShotTimerLabel => shotTimerLabel;
+
+        void Awake()
+        {
+            // Keep the timer visible even in scenes authored before the timer field was added.
+            if (shotTimerLabel == null)
+            {
+                shotTimerLabel = UiKit.Label(transform, "ShotTimer", string.Empty, MinigameUiTheme.Title,
+                    MinigameUiTheme.TextPrimary, TextAlignmentOptions.Center, outline: true);
+                UiKit.Anchor(shotTimerLabel.rectTransform, new Vector2(.39f, .82f), new Vector2(.61f, .92f));
+                shotTimerLabel.gameObject.SetActive(false);
+            }
+        }
 
         public void Configure(Slider aim, FootballHoldButton shoot, KitBar power, GameObject warning, TMP_Text score,
             TMP_Text remaining, Image[] markers, GameObject start, Button startAction = null, Button easy = null,
             Button normal = null, Button hard = null, TMP_Text directionText = null, TMP_Text feedback = null,
-            GameObject scrim = null)
+            GameObject scrim = null, TMP_Text shotTimer = null)
         {
             directionSlider = aim;
             shootButton = shoot;
@@ -54,6 +68,8 @@ namespace KMA.Gameplay
             hardButton = hard;
             directionLabel = directionText;
             shotFeedback = feedback;
+            // Preserve the runtime fallback created in Awake when an older scene has no serialized field.
+            if (shotTimer) shotTimerLabel = shotTimer;
             BindButtons();
             UpdateDifficultyButtons();
         }
@@ -110,6 +126,17 @@ namespace KMA.Gameplay
             if (remainingLabel) remainingLabel.text = VietText.Fix(rules.MaximumKicks.HasValue
                 ? "CÒN " + Mathf.Max(0, rules.MaximumKicks.Value - rules.Kicks) + " LƯỢT"
                 : "LUYỆN TẬP KHÔNG GIỚI HẠN LƯỢT");
+            if (shotTimerLabel)
+            {
+                bool visible = rules.IsShotWindowOpen;
+                shotTimerLabel.gameObject.SetActive(visible);
+                if (visible)
+                {
+                    float seconds = rules.ShotTimeRemaining;
+                    shotTimerLabel.text = VietText.Fix("SÚT TRONG " + seconds.ToString("0.0") + " GIÂY");
+                    shotTimerLabel.color = seconds <= 1f ? MinigameUiTheme.Energy : MinigameUiTheme.TextPrimary;
+                }
+            }
             if (powerBar)
             {
                 powerBar.SetValue(rules.Power);
@@ -129,7 +156,7 @@ namespace KMA.Gameplay
             if (directionSlider) directionSlider.SetValueWithoutNotify(rules.AimX);
             if (directionLabel) directionLabel.text = VietText.Fix(Mathf.Abs(rules.AimX) < .02f ? "GIỮA" :
                 (rules.AimX < 0f ? "TRÁI " : "PHẢI ") + Mathf.RoundToInt(Mathf.Abs(rules.AimX) * 100f) + "%");
-            if (shotFeedback) shotFeedback.text = VietText.Fix(OutcomeText(rules.Flight?.Outcome));
+            if (shotFeedback) shotFeedback.text = VietText.Fix(OutcomeText(rules.Flight?.Outcome ?? rules.LastOutcome));
         }
 
         static string OutcomeText(FootballOutcome? outcome) => outcome switch
@@ -141,6 +168,7 @@ namespace KMA.Gameplay
             FootballOutcome.Wide => "CHỆCH KHUNG THÀNH",
             FootballOutcome.High => "BÓNG VƯỢT XÀ",
             FootballOutcome.Short => "BÓNG DỪNG TRƯỚC GOAL",
+            FootballOutcome.Timeout => "HẾT GIỜ",
             _ => string.Empty
         };
 

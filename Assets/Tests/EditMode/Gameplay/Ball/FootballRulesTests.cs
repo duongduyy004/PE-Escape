@@ -19,7 +19,7 @@ namespace KMA.Tests.Gameplay.Ball
         [Test]
         public void AimIsManualAndLockedOnlyWhileCharging()
         {
-            var rules = NewRules(); rules.Start(); rules.SetAim(-.6f); rules.Tick(60f);
+            var rules = NewRules(); rules.Start(); rules.SetAim(-.6f); rules.Tick(.5f);
             Assert.That(rules.AimX, Is.EqualTo(-.6f));
             rules.BeginCharge(); Assert.That(rules.SetAim(.9f), Is.False);
             rules.Tick(FootballTuning.For(FootballDifficulty.Normal).PowerRiseSeconds);
@@ -27,6 +27,33 @@ namespace KMA.Tests.Gameplay.Ball
             rules.CancelCharge(); Assert.That(rules.State, Is.EqualTo(FootballState.Aiming));
             Assert.That(rules.PreviewVisible, Is.False); Assert.That(rules.Power, Is.Zero);
             Assert.That(rules.Kicks, Is.Zero); Assert.That(rules.SetAim(.4f), Is.True);
+        }
+        [Test]
+        public void ShotWindowRunsAcrossAimingAndChargingAndTimesOut()
+        {
+            var rules = NewRules();
+            rules.Start();
+            rules.Tick(2.2f);
+            Assert.That(rules.State, Is.EqualTo(FootballState.Aiming));
+            Assert.That(rules.ShotTimeRemaining, Is.EqualTo(.8f).Within(.001f));
+            Assert.That(rules.BeginCharge(), Is.True);
+            rules.Tick(.8f);
+            Assert.That(rules.State, Is.EqualTo(FootballState.ShotResult));
+            Assert.That(rules.LastOutcome, Is.EqualTo(FootballOutcome.Timeout));
+            Assert.That(rules.Kicks, Is.EqualTo(1));
+        }
+        [Test]
+        public void ReleasingBeforeShotDeadlineProducesNormalShot()
+        {
+            var rules = NewRules();
+            rules.Start();
+            rules.Tick(1.5f);
+            rules.SetAim(-.75f);
+            rules.BeginCharge();
+            rules.Tick(.5f);
+            Assert.That(rules.ReleaseShot(), Is.True);
+            Assert.That(rules.State, Is.EqualTo(FootballState.Kicking));
+            Assert.That(rules.LastOutcome, Is.Null);
         }
         [Test]
         public void PredictionIsAvailableOnlyWhileHeld()
