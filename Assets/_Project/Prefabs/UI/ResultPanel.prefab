@@ -441,7 +441,7 @@ GameObject:
   - component: {fileID: 5637337679076831705}
   - component: {fileID: 4441460370377386041}
   - component: {fileID: 6682379413185311900}
-  - component: {fileID: 4302111635413630718}
+  - component: {fileID: 2912479369607015175}
   m_Layer: 0
   m_Name: Content
   m_TagString: Untagged
@@ -515,7 +515,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &4302111635413630718
+--- !u!114 &2912479369607015175
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -801,6 +801,9 @@ MonoBehaviour:
   errorLabel: {fileID: 1571531543292425858}
   actionButton: {fileID: 3033596982918392440}
   retryButton: {fileID: 7802712631662635845}
+  dialogueHost: {fileID: 0}
+  dialogueView: {fileID: 0}
+  frogBalance: {fileID: 0}
 --- !u!1 &2500083840019838551
 GameObject:
   m_ObjectHideFlags: 0
@@ -1933,7 +1936,7 @@ MonoBehaviour:
   m_fontSizeBase: 48
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 28.8
+  m_fontSizeMin: 28.800001
   m_fontSizeMax: 48
   m_fontStyle: 0
   m_HorizontalAlignment: 2

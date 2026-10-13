@@ -943,7 +943,7 @@ MonoBehaviour:
   m_fontSizeBase: 48
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 28.8
+  m_fontSizeMin: 28.800001
   m_fontSizeMax: 48
   m_fontStyle: 0
   m_HorizontalAlignment: 2
@@ -1954,7 +1954,7 @@ GameObject:
   - component: {fileID: 4675325227467972057}
   - component: {fileID: 6909399311207261542}
   - component: {fileID: 3735736704928320330}
-  - component: {fileID: 5078697516169087674}
+  - component: {fileID: 3003437526789905497}
   m_Layer: 0
   m_Name: TutorialRoot
   m_TagString: Untagged
@@ -2027,7 +2027,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &5078697516169087674
+--- !u!114 &3003437526789905497
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

@@ -959,7 +959,7 @@ MonoBehaviour:
   m_fontSizeBase: 48
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 28.8
+  m_fontSizeMin: 28.800001
   m_fontSizeMax: 48
   m_fontStyle: 0
   m_HorizontalAlignment: 4
