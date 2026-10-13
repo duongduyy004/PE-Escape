@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Linq;
 using KMA.Gameplay;
@@ -25,90 +26,155 @@ namespace KMA.Tests.Gameplay.Chess
     GameplayDialogueLibrary.LoadDefault().TryGet("ch.extra.begin",out var s);view.Show(s.Lines[0]);Assert.That(bubble.rectTransform.anchorMin.x,Is.EqualTo(0f));
     GameplayDialogueLibrary.LoadDefault().TryGet("chess.hint1",out var t);view.Show(t.Lines[0]);Assert.That(bubble.rectTransform.anchorMin.x,Is.EqualTo(1f));
     Assert.That(bubble.GetComponentsInChildren<Graphic>().All(g=>!g.raycastTarget),Is.True);
-   } finally {Object.DestroyImmediate(root);}
+   } finally {UnityEngine.Object.DestroyImmediate(root);}
+  }
+  [Test] public void ChessLinesNoLongerPromiseAFixedTimeOrMistakeAllowance()
+  {
+   var library=GameplayDialogueLibrary.LoadDefault();
+   foreach(string id in new[]{"chess.start","chess.failed","ch.extra.begin","ch.extra.firstcorrect"})
+   {
+    Assert.That(library.TryGet(id,out var e),Is.True,id);
+    foreach(var line in e.Lines){Assert.That(line.Text,Does.Not.Contain("90"),id);Assert.That(line.Text,Does.Not.Contain("sửa"),id);Assert.That(line.Text,Does.Not.Contain("tượng"),id);}
+   }
   }
   [UnityTest] public IEnumerator AllCalledPoseKeysExist()
   {
    yield return SceneManager.LoadSceneAsync("MG_ChessFinal");yield return null;
-   var cast=Object.FindFirstObjectByType<ChessCastView>();
+   var cast=UnityEngine.Object.FindFirstObjectByType<ChessCastView>();
    foreach(var key in new[]{"fear","think","happy","disappointed"})Assert.DoesNotThrow(()=>cast.SetStudent(key),key);
    foreach(var key in new[]{"command","angry","scoreWrite","handsOnHips"})Assert.DoesNotThrow(()=>cast.SetTeacher(key),key);
+  }
+  static IEnumerator WaitFor(Func<bool> condition,string what,float seconds=10f)
+  {
+   float until=Time.realtimeSinceStartup+seconds;
+   while(!condition() && Time.realtimeSinceStartup<until)yield return null;
+   Assert.That(condition(),Is.True,what);
   }
   IEnumerator LoadReady()
   {
    Time.timeScale=1;yield return SceneManager.LoadSceneAsync("MG_ChessFinal");yield return null;
-   var opening=Object.FindFirstObjectByType<GameplayOpeningFlow>();float until=Time.realtimeSinceStartup+6;
-   yield return new WaitUntil(()=>opening.IsComplete || Time.realtimeSinceStartup>until);Assert.That(opening.IsComplete,Is.True);
+   var game=UnityEngine.Object.FindFirstObjectByType<ChessFinalController>();
+   yield return WaitFor(()=>game.PuzzleReady,"the puzzle was not generated",20f);
+   var opening=UnityEngine.Object.FindFirstObjectByType<GameplayOpeningFlow>();
+   yield return WaitFor(()=>opening.IsComplete,"the opening did not finish",8f);
   }
-  [UnityTest] public IEnumerator OpeningOccursOnceBeforeBeginExtraOnlyForM2001()
+  static ChessMove Optimal(ChessAttemptMachine m)=>ChessHintBuilder.Build(new ChessSearchEngine(SearchBudget.Default()),
+   new HintRequest{Id=0,Fen=m.Position.ToFen(),MovesLeft=m.MaxMoves-m.MovesUsed,Level=3}).Move;
+  static ChessMove Suboptimal(ChessAttemptMachine m)
+  {
+   var engine=new ChessSearchEngine(SearchBudget.Default());int movesLeft=m.MaxMoves-m.MovesUsed;ChessMove fallback=default;
+   foreach(var move in MoveGenerator.LegalMoves(m.Position).Where(x=>x.Promotion==0))
+   {
+    var after=m.Position.Apply(move);if(MoveGenerator.IsCheckmate(after) || MoveGenerator.LegalMoves(after).Count==0)continue;
+    fallback=move;if(ChessAttemptGrader.Evaluate(engine,m.Position,move,movesLeft).Q<.999)return move;
+   }
+   return fallback;
+  }
+  [UnityTest] public IEnumerator OpeningOccursOnceBeforeTheBeginLine()
   {
    yield return SceneManager.LoadSceneAsync("MG_ChessFinal");yield return null;
-   var game=Object.FindFirstObjectByType<ChessFinalController>();var cast=Object.FindFirstObjectByType<ChessCastView>();
-   Assert.That(game.Machine.Clock.Elapsed,Is.Zero);game.BeginAttempt();Assert.That(game.Machine.Phase,Is.EqualTo(ChessFinalPhase.Intro));
-   var opening=Object.FindFirstObjectByType<GameplayOpeningFlow>();yield return new WaitUntil(()=>opening.IsComplete);
-   game.BeginAttempt();Assert.That(game.Machine.Puzzle.id,Is.EqualTo("m2_001"));Assert.That(cast.BubbleSpeaker,Is.EqualTo(DialogueSpeaker.Student));
-   Assert.That(cast.BubbleText,Does.Contain("tượng"));
+   var game=UnityEngine.Object.FindFirstObjectByType<ChessFinalController>();var cast=UnityEngine.Object.FindFirstObjectByType<ChessCastView>();
+   yield return WaitFor(()=>game.PuzzleReady,"the puzzle was not generated",20f);
+   var opening=UnityEngine.Object.FindFirstObjectByType<GameplayOpeningFlow>();
+   if(!opening.IsComplete){game.BeginAttempt();Assert.That(game.Machine.Phase,Is.EqualTo(ChessAttemptPhase.Intro),"Begin waits for the opening");}
+   Assert.That(game.Machine.Clock.Elapsed,Is.Zero);
+   yield return WaitFor(()=>opening.IsComplete,"the opening did not finish",8f);
+   game.BeginAttempt();Assert.That(game.Machine.Phase,Is.EqualTo(ChessAttemptPhase.PlayerTurn));
+   Assert.That(cast.BubbleSpeaker,Is.EqualTo(DialogueSpeaker.Student));Assert.That(cast.BubbleText,Does.Contain("cả hai quân"));
   }
-  [UnityTest] public IEnumerator IllegalAndDataErrorKeepPosesAndDoNotWhistle()
+  [UnityTest] public IEnumerator IllegalMoveKeepsPosesAndDoesNotWhistle()
   {
-   yield return LoadReady();var game=Object.FindFirstObjectByType<ChessFinalController>();var cast=Object.FindFirstObjectByType<ChessCastView>();game.BeginAttempt();
-   var host=Object.FindFirstObjectByType<GameplayDialogueHost>();host.Clear();cast.SetStudent("disappointed");cast.SetTeacher("command");
-   int whistles=0;System.Action<GameSound> sound=x=>{if(x==GameSound.Whistle)whistles++;};GameAudio.Requested+=sound;
-   var reply=game.Machine.Puzzle.nodes[0].moves[0].replies[0];string original=reply.uci;
+   yield return LoadReady();var game=UnityEngine.Object.FindFirstObjectByType<ChessFinalController>();var cast=UnityEngine.Object.FindFirstObjectByType<ChessCastView>();game.BeginAttempt();
+   var host=UnityEngine.Object.FindFirstObjectByType<GameplayDialogueHost>();host.Clear();cast.SetStudent("disappointed");cast.SetTeacher("command");
+   int whistles=0;Action<GameSound> sound=x=>{if(x==GameSound.Whistle)whistles++;};GameAudio.Requested+=sound;
    try {
-    game.Machine.Submit(new ChessMove(0,0));Assert.That(cast.StudentPose,Is.EqualTo("disappointed"));Assert.That(cast.TeacherPose,Is.EqualTo("command"));
-    reply.uci="bad";LogAssert.Expect(LogType.Error,new System.Text.RegularExpressions.Regex("Chess puzzle data error"));ChessMove.TryParseUci("e6h6",out var first);game.Machine.Submit(first);
-    Assert.That(game.Machine.Mistakes,Is.Zero);Assert.That(cast.StudentPose,Is.EqualTo("disappointed"));Assert.That(cast.TeacherPose,Is.EqualTo("command"));Assert.That(whistles,Is.Zero);
-   } finally {reply.uci=original;GameAudio.Requested-=sound;}
+    game.Machine.Submit(new ChessMove(0,0));
+    Assert.That(cast.StudentPose,Is.EqualTo("disappointed"));Assert.That(cast.TeacherPose,Is.EqualTo("command"));Assert.That(whistles,Is.Zero);Assert.That(game.Machine.MovesUsed,Is.Zero);
+   } finally {GameAudio.Requested-=sound;}
   }
-  [UnityTest] public IEnumerator SecondMistakeAllowsCorrection()
+  [UnityTest] public IEnumerator SuboptimalMoveStaysPlayableWithoutAMistakeSpeechOrWhistle()
   {
-   yield return LoadReady();var game=Object.FindFirstObjectByType<ChessFinalController>();var cast=Object.FindFirstObjectByType<ChessCastView>();game.BeginAttempt();
-   var wrong=MoveGenerator.LegalMoves(game.Machine.Position).First(m=>m.ToUci()!="e6h6" && !MoveGenerator.IsCheckmate(game.Machine.Position.Apply(m)));
-   game.Machine.Submit(wrong);game.Machine.Submit(wrong);yield return new WaitForSeconds(.7f);
-   Assert.That(game.Machine.CanMove,Is.True);Assert.That(cast.TeacherPose,Is.EqualTo("angry"));
-   ChessMove.TryParseUci("e6h6",out var first);game.RequestMove(first.From,first.To);
-   float until=Time.realtimeSinceStartup+3;yield return new WaitUntil(()=>game.Machine.CanMove || Time.realtimeSinceStartup>until);
-   Assert.That(game.Machine.PlayerMovesMade,Is.EqualTo(1));Assert.That(game.Machine.Mistakes,Is.EqualTo(2));Assert.That(game.Machine.CanMove,Is.True);
+   yield return LoadReady();var game=UnityEngine.Object.FindFirstObjectByType<ChessFinalController>();var cast=UnityEngine.Object.FindFirstObjectByType<ChessCastView>();game.BeginAttempt();
+   yield return null;yield return null; // the shared start whistle plays when the Play phase begins
+   int whistles=0;Action<GameSound> sound=x=>{if(x==GameSound.Whistle)whistles++;};GameAudio.Requested+=sound;
+   try {
+    var wrong=Suboptimal(game.Machine);game.RequestMove(wrong.From,wrong.To);
+    yield return WaitFor(()=>game.Machine.Phase==ChessAttemptPhase.PlayerTurn || game.Machine.Phase==ChessAttemptPhase.Failed,"the turn came back",8f);
+    Assert.That(game.Machine.MovesUsed,Is.EqualTo(1));Assert.That(whistles,Is.Zero);
+    Assert.That(cast.TeacherPose,Is.Not.EqualTo("whistle0"));Assert.That(cast.TeacherPose,Is.Not.EqualTo("whistle1"));
+   } finally {GameAudio.Requested-=sound;}
   }
-  [UnityTest] public IEnumerator ResolutionKeepsPointNineSecondsAndDropsReliefAfterResultOpens()
+  [UnityTest] public IEnumerator SolvingKeepsPointNineSecondsAndPlaysTheSolvedResult()
   {
-   yield return LoadReady();var game=Object.FindFirstObjectByType<ChessFinalController>();game.BeginAttempt();
-   ChessMove.TryParseUci("e6h6",out var first);game.RequestMove(first.From,first.To);
-   yield return new WaitUntil(()=>game.Machine.CanMove);int completed=0;game.Completed+=r=>completed++;
-   ChessMove.TryParseUci("h6g7",out var last);game.RequestMove(last.From,last.To);
-   yield return new WaitForSeconds(.7f);Assert.That(completed,Is.Zero);
-   yield return new WaitForSeconds(.35f);Assert.That(completed,Is.EqualTo(1));
-   var host=Object.FindFirstObjectByType<GameplayDialogueHost>();Assert.That(host.PreferredResultEventId,Is.EqualTo("chess.solved"));
+   yield return LoadReady();var game=UnityEngine.Object.FindFirstObjectByType<ChessFinalController>();game.BeginAttempt();
+   int completed=0;game.Completed+=r=>completed++;
+   for(int i=0;i<game.Machine.MaxMoves && game.Machine.Phase!=ChessAttemptPhase.Completed;i++)
+   {
+    yield return WaitFor(()=>game.Machine.Phase==ChessAttemptPhase.PlayerTurn || game.Machine.Phase==ChessAttemptPhase.Completed,"player turn",8f);
+    if(game.Machine.Phase==ChessAttemptPhase.Completed)break;
+    var move=Optimal(game.Machine);game.RequestMove(move.From,move.To);
+    yield return null;
+   }
+   yield return WaitFor(()=>game.Machine.Phase==ChessAttemptPhase.Completed,"mate was not reached",8f);
+   yield return new WaitForSeconds(.5f);Assert.That(completed,Is.Zero);
+   yield return new WaitForSeconds(.7f);Assert.That(completed,Is.EqualTo(1));
+   var host=UnityEngine.Object.FindFirstObjectByType<GameplayDialogueHost>();Assert.That(host.PreferredResultEventId,Is.EqualTo("chess.solved"));
+  }
+  [UnityTest] public IEnumerator RunningOutOfTimePlaysTheTimeoutResult()
+  {
+   yield return LoadReady();var game=UnityEngine.Object.FindFirstObjectByType<ChessFinalController>();game.BeginAttempt();
+   game.Machine.Tick(game.Machine.Clock.Limit);
+   yield return WaitFor(()=>game.Machine.Phase==ChessAttemptPhase.Failed,"the clock did not fail the attempt");
+   var host=UnityEngine.Object.FindFirstObjectByType<GameplayDialogueHost>();Assert.That(host.PreferredResultEventId,Is.EqualTo("chess.timeout"));
+  }
+  [UnityTest] public IEnumerator RunningOutOfMovesPlaysTheFailedResult()
+  {
+   yield return LoadReady();var game=UnityEngine.Object.FindFirstObjectByType<ChessFinalController>();game.BeginAttempt();
+   for(int i=0;i<game.Machine.MaxMoves && game.Machine.Phase!=ChessAttemptPhase.Failed;i++)
+   {
+    yield return WaitFor(()=>game.Machine.Phase==ChessAttemptPhase.PlayerTurn || game.Machine.Phase==ChessAttemptPhase.Failed || game.Machine.Phase==ChessAttemptPhase.Completed,"player turn",8f);
+    if(game.Machine.Phase!=ChessAttemptPhase.PlayerTurn)break;
+    var move=Suboptimal(game.Machine);game.RequestMove(move.From,move.To);yield return null;
+   }
+   yield return WaitFor(()=>game.Machine.Phase==ChessAttemptPhase.Failed,"the attempt did not run out of moves",10f);
+   var host=UnityEngine.Object.FindFirstObjectByType<GameplayDialogueHost>();
+   Assert.That(game.Machine.EndReason,Is.Not.EqualTo(ChessEndReason.TimeUp));Assert.That(host.PreferredResultEventId,Is.EqualTo("chess.failed"));
   }
   [UnityTest] public IEnumerator LatestHintPreemptsEarlierSpeechNearTimeout()
   {
-   yield return LoadReady();var game=Object.FindFirstObjectByType<ChessFinalController>();
-   var cast=Object.FindFirstObjectByType<ChessCastView>();game.BeginAttempt();game.Machine.Tick(80f);
+   yield return LoadReady();var game=UnityEngine.Object.FindFirstObjectByType<ChessFinalController>();
+   var cast=UnityEngine.Object.FindFirstObjectByType<ChessCastView>();game.BeginAttempt();game.Machine.Tick(game.Machine.Clock.Limit-20f);
    for(int level=1;level<=3;level++)
    {
-    game.RevealHint();Assert.That(game.Machine.HintLevel,Is.EqualTo(level));
-    Assert.That(cast.BubbleText,Is.EqualTo(PuzzleHints.For(game.Machine.Puzzle,game.Machine.Node,game.Machine.Position,level)));
+    game.RevealHint();
+    yield return WaitFor(()=>game.Machine.Phase==ChessAttemptPhase.PlayerTurn && game.Machine.HintLevel==level,"hint "+level,8f);
+    Assert.That(cast.BubbleText,Is.EqualTo(game.Machine.HintText));
    }
    Assert.That(game.Machine.CanMove,Is.True);
+  }
+  [UnityTest] public IEnumerator AHintIsNotReplayedAfterTheBoardChanges()
+  {
+   yield return LoadReady();var game=UnityEngine.Object.FindFirstObjectByType<ChessFinalController>();
+   var cast=UnityEngine.Object.FindFirstObjectByType<ChessCastView>();var host=UnityEngine.Object.FindFirstObjectByType<GameplayDialogueHost>();game.BeginAttempt();
+   game.RevealHint();game.RevealHint();
+   yield return WaitFor(()=>game.Machine.Phase==ChessAttemptPhase.PlayerTurn && game.Machine.HintLevel==1,"hint shown",8f);
+   string oldHint=game.Machine.HintText;Assert.That(oldHint,Is.Not.Null.And.Not.Empty);
+   var move=Optimal(game.Machine);game.RequestMove(move.From,move.To);
+   yield return WaitFor(()=>game.Machine.Phase!=ChessAttemptPhase.PlayerTurn,"move accepted");
+   yield return new WaitForSeconds(.3f);
+   Assert.That(cast.BubbleText,Is.Not.EqualTo(oldHint),"the old hint must not be replayed after the board changed");
+   Assert.That(game.Machine.HintLevel,Is.Zero);
   }
   [UnityTest] public IEnumerator MissingHostKeepsBeginAndHintsPlayable()
   {
    yield return SceneManager.LoadSceneAsync("MG_ChessFinal");yield return null;
-   var game=Object.FindFirstObjectByType<ChessFinalController>();
-   var opening=Object.FindFirstObjectByType<GameplayOpeningFlow>();opening.ResetAttempt();
+   var game=UnityEngine.Object.FindFirstObjectByType<ChessFinalController>();
+   yield return WaitFor(()=>game.PuzzleReady,"the puzzle was not generated",20f);
+   var opening=UnityEngine.Object.FindFirstObjectByType<GameplayOpeningFlow>();opening.ResetAttempt();
    var adapter=game.GetComponent<ChessDialogueAdapter>();
-   adapter.Configure(game,null,Object.FindFirstObjectByType<ChessCastView>());
+   adapter.Configure(game,null,UnityEngine.Object.FindFirstObjectByType<ChessCastView>());
    Assert.That(adapter.OpeningReady,Is.True);Assert.DoesNotThrow(()=>game.BeginAttempt());
    Assert.That(game.Machine.CanMove,Is.True);Assert.DoesNotThrow(()=>game.RevealHint());
-  }
-  [Test] public void HintsFollowQueenE6H6ThenH6G7()
-  {
-   var p=ChessPuzzleLibrary.ForDifficulty(ChallengeDifficulty.Normal);var position=ChessPosition.FromFen(p.startFen);
-   Assert.That(PuzzleHints.For(p,0,position,2),Is.EqualTo("Xem lại quân Hậu ở e6."));
-   Assert.That(PuzzleHints.For(p,0,position,3),Is.EqualTo("Đi Hậu từ e6 đến h6. Tôi đã chỉ rõ rồi."));
-   ChessMove.TryParseUci("e6h6",out var first);ChessMove.TryParseUci("h8g8",out var reply);position=position.Apply(first).Apply(reply);
-   Assert.That(PuzzleHints.For(p,1,position,2),Does.Contain("Hậu ở h6"));Assert.That(PuzzleHints.For(p,1,position,3),Does.Contain("h6 đến g7"));
   }
  }
 }

@@ -249,20 +249,20 @@ Nguồn: `ChessFinalController.cs`, `ChessFinalHud.cs`, `ChessFinalSceneConfigur
 
 | ID biên tập | Tình huống | Nội dung mới | Kênh |
 |---|---|---|---|
-| `chess.start` | Giới thiệu trên bàn cờ | Hai nước, 90 giây suy nghĩ. Tôi không chấm điểm cho việc ngồi nhìn. | Giảng viên, bong bóng |
-| `chess.mistake1` | Sai lần 1, còn 1 lần sửa | Sai rồi. Còn một lần sửa, nghĩ kỹ trước khi đi. | Giảng viên, bong bóng + còi |
-| `chess.mistake2` | Sai lần 2, vẫn được đi tiếp | Hai lần sai rồi. Sai thêm một lần là dừng bài. | Giảng viên, bong bóng + còi |
+| `chess.start` | Giới thiệu trên bàn cờ | Thế cờ này có giới hạn số nước và thời gian riêng. Tôi không chấm điểm cho việc ngồi nhìn. | Giảng viên, bong bóng |
+| `chess.mistake1` | Không còn phát: nước hợp lệ nhưng kém tối ưu là một nước thật, không bị coi là lỗi | Sai rồi. Còn một lần sửa, nghĩ kỹ trước khi đi. | Không còn phát |
+| `chess.mistake2` | Không còn phát (xem dòng trên) | Hai lần sai rồi. Sai thêm một lần là dừng bài. | Không còn phát |
 | `chess.illegal` | Nước không hợp lệ | Nước đi không hợp lệ. Chọn ô khác. | Thông báo hệ thống |
-| `chess.data_error` | Bộ chấm gặp lỗi dữ liệu | Không thể chấm nước đi này do lỗi dữ liệu. Bàn cờ giữ nguyên. | Thông báo hệ thống |
+| `chess.data_error` | Không còn dùng: lỗi phân tích hiện là thẻ “Chưa phân tích được nước đi này” với nút Thử lại và Chơi lại đề | Không thể chấm nước đi này do lỗi dữ liệu. Bàn cờ giữ nguyên. | Thẻ trên màn hình |
 | `chess.solved` | Giải đúng | Tạm được. Cậu đạt bài cuối. | Giảng viên, bong bóng |
 | `chess.timeout` | Hết giờ | Hết giờ. Ngồi lâu không làm nước đi đúng hơn. | Giảng viên, bong bóng |
-| `chess.failed` | Sai lần 3 | Quá hai lần sửa. Làm lại bài. | Giảng viên, bong bóng |
+| `chess.failed` | Hết số nước, bị chiếu hết hoặc hòa (hết giờ dùng `chess.timeout`) | Chưa chiếu hết được. Làm lại bài. | Giảng viên, bong bóng |
 
 `chess.start` đang xuất hiện từ lúc mở bàn cờ, trước khi bấm Bắt đầu; không coi nó là một event mới để phát thêm lần nữa. Lỗi dữ liệu không phải lỗi của sinh viên: không chèn câu mỉa mai hoặc mô tả sai thành “chưa học bài”.
 
 ### Gợi ý — lời giảng viên, giữ đúng lời giải
 
-Nguồn: `PuzzleHints.cs` và `Assets/_Project/Resources/Chess/Puzzles/m2_001.json`.
+Nguồn: `ChessHintBuilder.cs`: gợi ý tính từ bàn cờ hiện tại, mỗi bàn cờ mới đặt lại mức gợi ý.
 
 | ID biên tập | Mức | Nội dung mới |
 |---|---|---|
@@ -272,7 +272,7 @@ Nguồn: `PuzzleHints.cs` và `Assets/_Project/Resources/Chess/Puzzles/m2_001.js
 
 `{piece}`, `{from}`, `{to}` là ký hiệu biên tập; khi triển khai lấy từ nước đúng của node hiện tại trong `PuzzleHints.For()`, không dùng nguyên văn placeholder.
 
-Trong đề `m2_001`, nước đầu là hậu e6 → h6, vua đen h8 → g8, nước cuối là hậu h6 → g7. Gợi ý 2 và 3 phải đổi tọa độ theo node sau lượt giảng viên, không luôn nhắc e6 → h6.
+Nước nêu trong gợi ý 2 và 3 luôn là một nước tối ưu của bàn cờ đang chơi (đề sinh ngẫu nhiên, không còn đề cố định). Khi không còn đường chiếu hết bắt buộc, gợi ý nói đúng điều đó và nêu một nước chờ an toàn, không bịa đường chiếu hết.
 
 ### HUD và chi tiết kết quả cờ vua
 
@@ -288,7 +288,7 @@ Trong đề `m2_001`, nước đầu là hậu e6 → h6, vua đen h8 → g8, n�
 | Hoàn thành | Hoàn thành |
 | Tạm dừng | Tạm dừng |
 | Hết giờ | Hết giờ |
-| Sai quá giới hạn | Quá số lần sửa |
+| Hết số nước, bị chiếu hết hoặc hòa | Hết số nước / Bị chiếu hết / Hòa cờ |
 | Kết quả đạt | CHIẾU HẾT |
 | Kết quả trượt | CHƯA ĐẠT |
 | Chi tiết khi đạt | Thời gian {clock} · Sai: {made}/{max} |
@@ -438,12 +438,12 @@ Không phát câu ngã cho mọi lần mất điểm. `vb.exam.dive` chỉ dùng
 
 | ID tình huống | Điều kiện phát | SV năm 1 | Giảng viên thể chất |
 |---|---|---|---|
-| `ch.extra.begin` | Người chơi bấm Bắt đầu | Phải nhìn cả tượng nữa... | — |
-| `ch.extra.firstcorrect` | Nước đầu đúng, sau khi giảng viên đi xong | Đúng nước đầu rồi... còn nước cuối. | Mới một nước. Đừng mừng sớm. |
+| `ch.extra.begin` | Người chơi bấm Bắt đầu | Phải nhìn cả hai quân phối hợp... | — |
+| `ch.extra.firstcorrect` | Nước đầu đúng, sau khi giảng viên đi xong | Nước đầu hợp lý rồi... còn phải ép cho xong. | Mới một nước. Đừng mừng sớm. |
 | `ch.extra.lowtime` | Còn 15 giây suy nghĩ, lượt người chơi | Còn ít thời gian quá... | Cậu định để đồng hồ giải hộ à? |
 | `ch.extra.relief` | Giải đúng, sau `chess.solved` nếu còn chỗ hiển thị | Dạ... em qua thật rồi. | — |
 
-Không phát `ch.extra.begin` như lời giải cụ thể nếu đổi sang đề khác; câu hiện tại chỉ dành cho `m2_001`. Gợi ý ở mục 4 là nguồn duy nhất tự động đọc lời giải, không phát thêm gợi ý ngẫu nhiên khi đang suy nghĩ.
+Phát `ch.extra.begin` khi trên bàn có ít nhất hai quân tấn công của người chơi ngoài vua và tốt; không phụ thuộc mã đề. Gợi ý ở mục 4 là nguồn duy nhất tự động đọc lời giải, không phát thêm gợi ý ngẫu nhiên khi đang suy nghĩ.
 
 ### 7.5. Bật cóc — mọi lần đi vào hình phạt
 
@@ -503,7 +503,7 @@ Các đường dẫn sau tính từ gốc `projects/the-chat-KMA`. Tìm theo cla
 | Cờ vua: HUD | `Assets/_Project/Scripts/Gameplay/Chess/ChessFinalHud.cs` |
 | Cờ vua: thẻ intro, nhãn tên | `Assets/Editor/ChessFinalSceneConfigurator.cs` |
 | Gợi ý động | `Assets/_Project/Scripts/Gameplay/Chess/Core/PuzzleHints.cs` |
-| Ý tưởng gợi ý của đề | `Assets/_Project/Resources/Chess/Puzzles/m2_001.json` → `ideaHint` |
+| Ý tưởng gợi ý của thế cờ | `ChessHintBuilder.cs` (tính từ bàn cờ, không còn lưu trong đề) |
 | Bật cóc: modal | `Assets/_Project/Scripts/Gameplay/FrogJump/FrogJumpGuide.cs` |
 | Bật cóc: chữ nổi | `Assets/_Project/Scripts/Gameplay/FrogJump/FrogJumpController.cs` → `OnLanded` |
 | Cảnh báo thất bại chung | `Assets/_Project/Scripts/UI/MinigameGuidePages.cs` |

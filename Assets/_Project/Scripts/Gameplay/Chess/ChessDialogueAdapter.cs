@@ -8,48 +8,65 @@ namespace KMA.Gameplay.Chess
         [SerializeField] GameplayDialogueHost host;
         [SerializeField] GameplayOpeningFlow opening;
         [SerializeField] ChessCastView view;
-        ChessFinalStateMachine machine;
+        ChessAttemptMachine machine;
         bool warned, firstCorrect, relief;
-        public bool OpeningReady=>host==null || view==null || machine==null || opening==null || opening.IsComplete;
+        public bool OpeningReady=>host==null || view==null || opening==null || opening.IsComplete;
         public void Configure(ChessFinalController source,GameplayDialogueHost dialogue,ChessCastView cast)
         {
             Unsubscribe();controller=source;host=dialogue;view=cast;
             if(source==null || host==null || view==null)return;
-            machine=source.Machine;machine.MoveCommitted+=OnMove;
             view.BindDialogue(host);host.SetView(view);
             view.SetStudent("fear");
             opening?.Configure(source,host,"chess.start");
+            source.PuzzleReadyEvent+=Bind;
+            if(source.Machine!=null)Bind(source.Machine);
+        }
+        void Bind(ChessAttemptMachine next)
+        {
+            if(machine!=null){machine.MoveCommitted-=OnMove;machine.PhaseChanged-=OnPhase;}
+            machine=next;warned=firstCorrect=relief=false;
+            if(machine==null)return;
+            machine.MoveCommitted+=OnMove;machine.PhaseChanged+=OnPhase;
         }
         public void Began()
         {
             if(machine==null || host==null || view==null)return;
             host.Clear();view.SetTeacher("strictLook");view.SetStudent("think");
-            if(machine.Puzzle.id=="m2_001")host.Emit("ch.extra.begin",()=>machine.CanMove && machine.PlayerMovesMade==0,budgetSeconds:2.5f);
-        }
-        public void Mistake(int count)
-        {
-            if(machine==null || host==null || count>machine.MaxMistakes)return;
-            host.Clear();host.Emit(count==1?"chess.mistake1":"chess.mistake2");
+            if(HasSecondAttacker(machine.Position))host.Emit("ch.extra.begin",()=>machine.CanMove && machine.MovesUsed==0,budgetSeconds:2.5f);
         }
         public void Hint(string text)
         {
             if(machine==null || host==null || view==null)return;
-            view.SetStudent("think");int node=machine.Node, level=machine.HintLevel;
+            view.SetStudent("think");int revision=machine.Revision, level=machine.HintLevel;
             // An explicit hint replaces earlier speech, including another hint level.
             host.Clear();
-            host.EmitText("chess.hint"+level,text,8f,()=>machine!=null && machine.Node==node && machine.HintLevel==level && machine.CanMove);
+            host.EmitText("chess.hint"+level,text,8f,()=>machine!=null && machine.Revision==revision && machine.HintLevel==level && machine.CanMove);
         }
         public void FinishDialogue(bool solved)
         {
             if(machine==null || host==null || view==null)return;
-            string id=solved?"chess.solved":machine.FailReason==ChessFailReason.TimeUp?"chess.timeout":"chess.failed";
+            string id=solved?"chess.solved":machine.EndReason==ChessEndReason.TimeUp?"chess.timeout":"chess.failed";
             host.BeginResult(id);view.SetStudent(solved?"happy":"disappointed");host.Emit(id);
         }
+        /// Two or more white pieces besides the king and pawns, so "both must work together" is true.
+        static bool HasSecondAttacker(ChessPosition position)
+        {
+            int attackers=0;
+            for(int square=0;square<64;square++)
+            {
+                sbyte piece=position[square];
+                if(piece==0 || Piece.ColorOf(piece)!=PieceColor.White)continue;
+                int type=Piece.TypeOf(piece);
+                if(type!=Piece.King && type!=Piece.Pawn)attackers++;
+            }
+            return attackers>=2;
+        }
         void OnMove(ChessMove move,bool byPlayer){host.Clear();}
+        void OnPhase(ChessAttemptPhase phase){if(phase==ChessAttemptPhase.Intro)warned=firstCorrect=relief=false;}
         void Update()
         {
             if(machine==null)return;
-            if(machine.Phase==ChessFinalPhase.Intro)
+            if(machine.Phase==ChessAttemptPhase.Intro)
             {
                 var hud=controller.GetComponentInChildren<ChessFinalHud>();
                 if(hud==null)hud=FindFirstObjectByType<ChessFinalHud>();
@@ -57,18 +74,23 @@ namespace KMA.Gameplay.Chess
             }
             if(machine.CanMove)
             {
-                if(!firstCorrect && machine.Puzzle.id=="m2_001" && machine.PlayerMovesMade==1)
-                {firstCorrect=true;host.Emit("ch.extra.firstcorrect",()=>machine.CanMove && machine.PlayerMovesMade==1,budgetSeconds:3.7f);}
+                if(!firstCorrect && machine.MovesUsed==1 && machine.Moves.Count==1 && machine.Moves[0].Q>=0.999)
+                {firstCorrect=true;host.Emit("ch.extra.firstcorrect",()=>machine.CanMove && machine.MovesUsed==1,budgetSeconds:3.7f);}
                 if(!warned && machine.Clock.Remaining<=15 && machine.Clock.Remaining>0)
                 {warned=true;host.Emit("ch.extra.lowtime",()=>machine.CanMove,budgetSeconds:machine.Clock.Remaining);}
             }
-            if(machine.Phase==ChessFinalPhase.Completed && host.IsIdle && !relief)
+            if(machine.Phase==ChessAttemptPhase.Completed && host.IsIdle && !relief)
             {
                 relief=true;var panel=FindFirstObjectByType<ResultPanel>(FindObjectsInactive.Include);
                 if(panel==null || !panel.IsVisible)host.Emit("ch.extra.relief",()=>panel==null || !panel.IsVisible,budgetSeconds:2.5f);
             }
         }
-        void Unsubscribe(){if(machine!=null)machine.MoveCommitted-=OnMove;machine=null;}
+        void Unsubscribe()
+        {
+            if(controller!=null)controller.PuzzleReadyEvent-=Bind;
+            if(machine!=null){machine.MoveCommitted-=OnMove;machine.PhaseChanged-=OnPhase;}
+            machine=null;
+        }
         void OnDisable()=>Unsubscribe();
     }
 }
