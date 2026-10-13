@@ -122,10 +122,7 @@ namespace KMA.Gameplay.Celebration
                     ? $"  ·  {row.Score.ToString("0.0", Vietnamese)} điểm  ·  Hạng {row.Rank}" : string.Empty;
                 rows[i].text = VietText.Fix((row.Completed ? "Đạt  " : "Chưa đạt  ") + row.Title + score);
             }
-            rows[3].text = VietText.Fix(Summary.ChessRecorded
-                ? $"Đạt  {CelebrationSummary.ChessTitle}  ·  {CelebrationSummary.FormatClock(Summary.ChessThinkSeconds)}" +
-                  $"  ·  Sai: {Summary.ChessMistakes}  ·  {(Summary.ChessHintUsed ? "Có dùng gợi ý" : "Không dùng gợi ý")}"
-                : $"Đạt  {CelebrationSummary.ChessTitle}");
+            rows[3].text = VietText.Fix(Summary.ChessLine);
             footnote.text = VietText.Fix(Summary.IsSample ? "Dữ liệu mẫu"
                 : Summary.SupplementaryRounds > 0 ? $"Thi bổ sung: {Summary.SupplementaryRounds} đợt" : string.Empty);
         }

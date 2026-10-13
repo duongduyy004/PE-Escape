@@ -46,6 +46,21 @@ namespace KMA.Gameplay
         public int SupplementaryRounds { get; private set; }
         public bool IsSample { get; private set; }
 
+        /// The chess row of the recap. A record saved before the generated puzzles keeps its old wording and never
+        /// gets a grade it was not scored with.
+        public string ChessLine
+        {
+            get
+            {
+                if (!ChessRecorded) return $"Đạt  {ChessTitle}";
+                string hint = ChessHintUsed ? "Có dùng gợi ý" : "Không dùng gợi ý";
+                if (ChessScoringVersion >= 1 && !string.IsNullOrEmpty(ChessGradeLabel))
+                    return $"Đạt  {ChessTitle} · {ChessGradeLabel} · {ChessMovesUsed}/{ChessMaxMoves}" +
+                           $" · {FormatClock(ChessThinkSeconds)} · {hint}";
+                return $"Đạt  {ChessTitle}  ·  {FormatClock(ChessThinkSeconds)}  ·  Sai: {ChessMistakes}  ·  {hint}";
+            }
+        }
+
         public static CelebrationSummary From(GameSession session)
         {
             if (session == null) throw new ArgumentNullException(nameof(session));

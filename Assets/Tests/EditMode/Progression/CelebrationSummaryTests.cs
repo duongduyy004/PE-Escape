@@ -63,6 +63,36 @@ namespace KMA.Tests.Gameplay.Progression
         }
 
         [Test]
+        public void NewChessRecordLineShowsGradeMovesAndTime()
+        {
+            CelebrationSummary s = CelebrationSummary.Sample();
+            Assert.That(s.ChessLine, Does.Contain("Bài kiểm tra cuối"));
+            Assert.That(s.ChessLine, Does.Contain("A+"));
+            Assert.That(s.ChessLine, Does.Contain("2/3"));
+            Assert.That(s.ChessLine, Does.Not.Contain("Sai:"));
+        }
+
+        [Test]
+        public void LegacyChessRecordKeepsTheOldLineAndDoesNotInventAGrade()
+        {
+            var session = new GameSession();
+            JourneyTestData.CompleteThrough(session, "chess_final");
+            CelebrationSummary s = CelebrationSummary.From(session);
+            Assert.That(s.ChessScoringVersion, Is.EqualTo(0));
+            Assert.That(s.ChessLine, Does.Contain("01:30"));
+            Assert.That(s.ChessLine, Does.Contain("Sai: 0"));
+            Assert.That(s.ChessLine, Does.Contain("Không dùng gợi ý"));
+            Assert.That(s.ChessLine, Does.Not.Contain("A+"));
+        }
+
+        [Test]
+        public void UnrecordedChessShowsOnlyTheTitle()
+        {
+            CelebrationSummary s = CelebrationSummary.From(new GameSession());
+            Assert.That(s.ChessLine, Is.EqualTo("Đạt  " + CelebrationSummary.ChessTitle));
+        }
+
+        [Test]
         public void SampleIsMarkedAndClockFormatsMinutes()
         {
             Assert.That(CelebrationSummary.Sample().IsSample, Is.True);
