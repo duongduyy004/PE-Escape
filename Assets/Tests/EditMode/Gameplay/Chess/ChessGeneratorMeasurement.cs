@@ -28,6 +28,35 @@ namespace KMA.Tests.Gameplay.Chess
             Assert.Pass();
         }
 
+        /// The request the game sends for the first move of a fresh puzzle: grade it and pick the reply, default budget.
+        [TestCase(ChessLevel.Easy)]
+        [TestCase(ChessLevel.Normal)]
+        [TestCase(ChessLevel.Hard)]
+        public void MeasureFirstMoveAnalysis(ChessLevel level)
+        {
+            int unknown = 0, runs = 0;
+            double total = 0, worst = 0;
+            for (int seed = 1; seed <= Seeds; seed++)
+            {
+                ChessPuzzleSnapshot puzzle = ChessPuzzleGenerator.TryGenerate(level, seed, ChessGeneratorLimits.Default, null, null, out _);
+                if (puzzle == null) continue;
+                ChessMove optimal = ChessHintBuilder.Build(new ChessSearchEngine(SearchBudget.Default()),
+                    new HintRequest { Id = 0, Fen = puzzle.fen, MovesLeft = puzzle.maxMoves, Level = 3 }).Move;
+                var budget = SearchBudget.Default();
+                AnalysisResult result = ChessTurnAnalyzer.Analyze(new ChessSearchEngine(budget), new AnalysisRequest
+                {
+                    Id = 1, BeforeFen = puzzle.fen, Move = optimal, MovesLeftBefore = puzzle.maxMoves,
+                    NeedDefence = true, Seed = seed
+                });
+                runs++;
+                if (result.Status == SearchStatus.Unknown) unknown++;
+                total += budget.ElapsedSeconds;
+                if (budget.ElapsedSeconds > worst) worst = budget.ElapsedSeconds;
+            }
+            UnityEngine.Debug.Log($"[MEASURE-FIRST] {level}: unknown {unknown}/{runs}, mean {total / System.Math.Max(1, runs):0.000}s, worst {worst:0.000}s");
+            Assert.Pass();
+        }
+
         /// Runtime cost of grading every first move and answering it, one fresh default budget per request.
         [TestCase(ChessLevel.Normal)]
         [TestCase(ChessLevel.Hard)]

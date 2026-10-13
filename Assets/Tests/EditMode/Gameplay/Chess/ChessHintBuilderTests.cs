@@ -81,6 +81,23 @@ namespace KMA.Tests.Gameplay.Chess
             Assert.That(h.Text, Is.Null.Or.Empty);
         }
 
+        [Test, Timeout(300000)]
+        public void HardHintsFinishWithinTheDefaultBudgetAtFullMovesLeft()
+        {
+            for (int seed = 1; seed <= 12; seed++)
+            {
+                ChessPuzzleSnapshot puzzle = ChessPuzzleGenerator.TryGenerate(ChessLevel.Hard, seed, ChessGeneratorLimits.Default, null, null, out _);
+                Assert.That(puzzle, Is.Not.Null, "seed " + seed);
+                ChessHint hint = ChessHintBuilder.Build(new ChessSearchEngine(SearchBudget.Default()),
+                    new HintRequest { Id = 1, Fen = puzzle.fen, MovesLeft = puzzle.maxMoves, Level = 3 });
+                Assert.That(hint.Status, Is.EqualTo(SearchStatus.Complete), "seed " + seed + " " + puzzle.fen);
+                ChessPosition position = ChessPosition.FromFen(puzzle.fen);
+                Assert.That(MoveGenerator.LegalMoves(position).Contains(hint.Move), Is.True, "seed " + seed);
+                Assert.That(Engine().MoveDistance(position.Apply(hint.Move), puzzle.maxMoves).Distance, Is.EqualTo(puzzle.optimalMoves),
+                    "the hinted move must be an optimal one, seed " + seed);
+            }
+        }
+
         [TestCase(Piece.Pawn, "Tốt")]
         [TestCase(Piece.Knight, "Mã")]
         [TestCase(Piece.Bishop, "Tượng")]

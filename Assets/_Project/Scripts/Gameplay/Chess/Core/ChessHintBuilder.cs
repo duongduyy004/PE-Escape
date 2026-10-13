@@ -97,7 +97,8 @@ namespace KMA.Gameplay.Chess
             {
                 ChessPosition after = position.Apply(candidate);
                 if (MoveGenerator.IsCheckmate(after)) { if (distance == 1) { move = candidate; return true; } continue; }
-                MateSearch result = engine.MoveDistance(after, movesLeft);
+                // An optimal move mates in exactly `distance`, so searching deeper than that proves nothing and is costly.
+                MateSearch result = engine.MoveDistance(after, distance);
                 if (result.Unknown) return false;
                 if (result.Forced && result.Distance == distance) { move = candidate; return true; }
             }

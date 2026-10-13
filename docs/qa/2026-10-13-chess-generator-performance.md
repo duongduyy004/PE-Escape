@@ -42,3 +42,19 @@ Method: `ChessGeneratorMeasurement.MeasureRuntimeAnalysis`, 5 generated puzzles 
 | Hard (M=5) | 0/174 | 0/174 | 1.83 s |
 
 Risk: the Hard worst case uses about 90% of the 2 s budget in the Editor. On Android the same request would probably return Unknown (retryable analysis error). Before Plan 3 calls this safe on device: reuse one engine (cache) across a game with `UseBudget`, add move ordering, and measure on Android. Not done here because the worker lifecycle belongs to Plan 2.
+
+## Final numbers (Plan 3, Editor, after the hint-search fix)
+
+The full 30-seed measurement was repeated with the final build.
+
+| Level | Generated | Fallback | Mean / worst generation | First-move analysis Unknown | Mean / worst first-move analysis |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Easy | 30/30 | 0/30 | 0.00 s / 0.01 s | 0/30 | 0.000 s / 0.001 s |
+| Normal | 30/30 | 0/30 | 0.01 s / 0.04 s | 0/30 | 0.001 s / 0.004 s |
+| Hard | 30/30 | 0/30 | 0.16 s / 0.91 s | 0/30 | 0.027 s / 0.147 s |
+
+"First-move analysis" is the request the game sends after the optimal first move of a fresh puzzle (grade it and pick the reply). The all-moves runtime figures above were re-run too: Hard grade Unknown 0/174, reply Unknown 0/174, worst single request **1.75 s** (a non-optimal first move; the 2 s budget is nearly used). That remaining risk is unchanged: Android may return the retryable analysis error for such moves.
+
+A defect found by this measurement and fixed: `ChessHintBuilder` searched every candidate move down to the full allowed move count (5 on Hard) instead of the mate distance (3), so a Hard hint could run out of budget and return no move (`a1a1`). It now searches to the mate distance only. Test: `ChessHintBuilderTests.HardHintsFinishWithinTheDefaultBudgetAtFullMovesLeft` (12 Hard seeds; failed before the fix, passes after).
+
+UI responsiveness: `ChessFinalSceneTests.GeneratingAHardPuzzleDoesNotStallTheFrames` ran a Hard generation on the worker while sampling 500 frames in the Editor: worst frame 9 ms. `grep -rn "UnityEngine" Assets/_Project/Scripts/Gameplay/Chess/Core` returns nothing, and the worker/provider hand the pool thread only strings, ints and structs.

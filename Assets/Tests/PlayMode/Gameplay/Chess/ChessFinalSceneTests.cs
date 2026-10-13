@@ -235,6 +235,26 @@ namespace KMA.Tests.Gameplay.Chess
         }
 
         [UnityTest]
+        public IEnumerator GeneratingAHardPuzzleDoesNotStallTheFrames()
+        {
+            using var provider = new ChessPuzzleProvider();
+            provider.Begin(ChessLevel.Hard, 77, null);
+            float worst = 0f;
+            int frames = 0;
+            ChessPuzzleResult generated = null;
+            while (frames < 120 || generated == null)
+            {
+                yield return null;
+                worst = Mathf.Max(worst, Time.unscaledDeltaTime);
+                frames++;
+                if (generated == null) provider.TryTake(out generated);
+                Assert.That(frames, Is.LessThan(2000), "the puzzle never arrived");
+            }
+            Debug.Log($"[MEASURE-FRAMES] Hard generation over {frames} frames: worst frame {worst * 1000f:0} ms, source {generated.Snapshot.source}");
+            Assert.That(worst, Is.LessThan(.5f), "the main thread must not wait for the generator");
+        }
+
+        [UnityTest]
         public IEnumerator SuboptimalMoveIsPlayedNotUndone()
         {
             yield return Begin();
