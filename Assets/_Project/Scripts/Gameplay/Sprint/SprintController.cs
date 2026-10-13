@@ -8,6 +8,8 @@ using UnityEngine.InputSystem;
 
 namespace KMA.Gameplay
 {
+    // Rules tick before the runner presenters place the bodies, so player and rivals share one frame.
+    [DefaultExecutionOrder(-10)]
     public sealed class SprintController : MinigameBase, IChallengeController, IMinigameGuideSource
     {
         public override bool UsesSharedTutorial => false;

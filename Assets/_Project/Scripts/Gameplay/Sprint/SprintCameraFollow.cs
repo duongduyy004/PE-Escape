@@ -2,54 +2,65 @@ using UnityEngine;
 
 namespace KMA.Gameplay
 {
-    /// Tracks the player along the straight like a broadcast rail camera: it holds still while the
-    /// player runs in from the start, then keeps them centred. It never looks at the rivals.
+    /// Tracks the player along the straight like a broadcast rail camera: it opens with the start line
+    /// just inside the left edge, holds still while the player runs in to the centre, then keeps them
+    /// exactly centred. It never looks at the rivals.
     [DefaultExecutionOrder(100)]
     public sealed class SprintCameraFollow : MonoBehaviour
     {
-        public const float SmoothTime = .12f;
-        // A jump this large is a teleport (a scene reload or a test), not running: cut instead of panning.
-        public const float SnapDistance = 8f;
+        /// How far inside the left view edge the start line sits. Must stay below 3.2: the left view
+        /// edge is TrackStartX - StartMargin and the authored track tile begins at -12.8.
+        public const float StartMargin = 2f;
 
         [SerializeField] Transform target;
+        float authoredX;
         float startX;
-        float velocity;
         bool hasStart;
+        Camera view;
 
         public Transform Target => target;
         public float StartX => startX;
-        /// How far the camera has moved from where it started; the backdrop scrolls by this.
-        public float Travel => transform.position.x - startX;
+        /// How far the camera has moved from its authored position; the backdrop scrolls by this.
+        public float Travel => hasStart ? transform.position.x - authoredX : 0f;
+
+        public static float StartXFor(float halfWidth) => SprintTrackLayout.TrackStartX + halfWidth - StartMargin;
 
         public void Bind(Transform player)
         {
             target = player;
             if (!hasStart)
             {
-                startX = transform.position.x;
+                authoredX = transform.position.x;
                 hasStart = true;
             }
-            velocity = 0f;
+            // Frame the start straight away: no pan during the countdown.
+            startX = CurrentStartX();
+            Vector3 position = transform.position;
+            position.x = startX;
+            transform.position = position;
         }
 
         public static float TargetX(float startX, float playerX) => Mathf.Max(startX, playerX);
 
-        public static float Step(float currentX, ref float velocity, float targetX, float dt)
+        public static float Step(float currentX, float targetX, float dt)
         {
-            if (Mathf.Abs(targetX - currentX) > SnapDistance)
-            {
-                velocity = 0f;
-                return targetX;
-            }
             if (dt <= 0f) return currentX;
-            return Mathf.SmoothDamp(currentX, targetX, ref velocity, SmoothTime, Mathf.Infinity, dt);
+            return targetX;
+        }
+
+        float CurrentStartX()
+        {
+            if (view == null) view = GetComponent<Camera>();
+            return view == null ? authoredX : StartXFor(view.orthographicSize * view.aspect);
         }
 
         void LateUpdate()
         {
             if (target == null) return;
+            // Still holding at the start: follow aspect changes (editor resize, the first device frame).
+            if (target.position.x <= startX) startX = CurrentStartX();
             Vector3 position = transform.position;
-            position.x = Step(position.x, ref velocity, TargetX(startX, target.position.x), Time.deltaTime);
+            position.x = Step(position.x, TargetX(startX, target.position.x), Time.deltaTime);
             transform.position = position;
         }
     }

@@ -158,6 +158,9 @@ namespace KMA.Tests.Gameplay.Running
             yield return null;
 
             var parallax = SceneObjects<SprintParallax>(SceneManager.GetActiveScene()).Single();
+            // The follow camera has already framed the start for this screen's aspect; measure from
+            // the camera's authored position instead.
+            parallax.RefreshForTest(0f);
             Assert.That(parallax.TryGetLayerTilePositions(0, out var initialFirst, out var initialSecond), Is.True);
             Assert.That(initialFirst.x, Is.EqualTo(0f).Within(.001f));
             Assert.That(initialSecond.x, Is.EqualTo(25.6f).Within(.001f));

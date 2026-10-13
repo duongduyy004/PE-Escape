@@ -11,6 +11,8 @@ namespace KMA.Gameplay
         // Hysteresis, in m/s, so the runner does not flicker between running and resting around one speed.
         const float RestBelowSpeed = .8f;
         const float RunAboveSpeed = 2f;
+        // In Resolve the runner poses only once their run-out has brought them to a stop.
+        const float MovingAboveSpeed = .05f;
 
         RunnerBreathing breathing;
         bool resting;
@@ -30,8 +32,10 @@ namespace KMA.Gameplay
             RefreshPosition(controller.PlayerPosition);
             UpdateResting();
             bool falling = controller.Phase == MinigamePhase.Play && controller.IsFalling;
+            // The result can open while the body is still pulling up: keep striding until it stops.
             string state = controller.Phase == MinigamePhase.Resolve
-                ? (controller.LastResult != null && controller.LastResult.Pass ? "Celebrate" : "Fail")
+                ? (controller.PlayerMetersPerSecond > MovingAboveSpeed ? "Run"
+                    : controller.LastResult != null && controller.LastResult.Pass ? "Celebrate" : "Fail")
                 : falling ? "Stumble"
                 : controller.Phase != MinigamePhase.Play || resting ? "Idle"
                 : !controller.IsLearnChallenge && !controller.IsPlayerFinished &&

@@ -36,11 +36,16 @@ line slides in from the right edge. After this change:
   and the reveal helpers in `SprintUiLayout` (`FinishVisible`, `FinishReveal01`, `FinishRevealDistance`)
   are removed.
 - **`SprintCameraFollow`** (new MonoBehaviour on the main camera):
-  - `targetX = max(cameraStartX, playerWorldX)`, with `cameraStartX = 0` (the camera's authored X).
-    The camera is still while the player runs from -9.6 to the centre, then tracks them.
-  - Moves toward `targetX` with a critically damped spring (smooth time ≈ 0.12 s). No look-ahead, so the
-    player stays centred. Only reads the player's world X; never reads rivals.
-  - The maths lives in a static function `SprintCameraFollow.Step(currentX, velocity, targetX, dt)` for tests.
+  - `targetX = max(cameraStartX, playerWorldX)`, with
+    `cameraStartX = StartXFor(halfWidth) = StartX + halfWidth − StartMargin` (`StartMargin = 2`, kept
+    below 3.2 so the view never shows past the authored track tile at −12.8). The camera opens with the
+    start line `StartMargin` inside the left edge at any aspect, so the grid is fully on screen; it moves
+    there on bind (no pan during the countdown) and re-derives it from the live aspect while still holding.
+    It is still while the player runs in to the centre, then tracks them.
+  - Tracks the player exactly (no smoothing, no look-ahead), so the player stays centred; a paused frame
+    (`dt = 0`) holds. Only reads the player's world X; never reads rivals.
+  - The maths lives in static functions `SprintCameraFollow.Step(currentX, targetX, dt)`, `TargetX` and
+    `StartXFor` for tests. `Travel` (what the backdrop scrolls by) is measured from the camera's authored X.
   - Camera Y and orthographic size are untouched.
 - **`SprintParallax`** takes camera X as input instead of player distance. Each layer has a
   world-follow factor: track = 1 (locked to the world, so runners and the finish line sit on the painted
@@ -52,7 +57,7 @@ line slides in from the right edge. After this change:
 - **Runners**: `RunnerVisualPresenter` and `RivalRunnerAI` set `x = WorldX(distance)` (rivals still divide
   out their parent's scale). The Learn 66 % clamp is removed.
 - **`SprintOffscreenRivalChips`** (new, HUD): for each rival whose world X is outside the camera view,
-  show a chip at the left or right screen edge at that rival's lane row, with the rival's colour/name and
+  show a chip at the left or right screen edge at that rival's lane row, with the lane label (`LÀN n`) and
   signed gap to the player in metres (one decimal). Hidden when the rival is on screen and in Tutorial,
   Countdown and Resolve.
 
@@ -101,7 +106,10 @@ case 5.7 m). No finish, no run-out.
 
 - `animator.speed` scales with actual velocity (clamped) so the stride matches the ground scrolling past.
 - State selection from velocity and phase: Idle (stopped / pre-race / after the run-out),
-  Run, Burst (finishing stretch or surging), Stumble (player fall), Celebrate / Fail in Resolve.
+  Run, Burst (finishing stretch or surging), Stumble (player fall), Celebrate / Fail in Resolve once the
+  runner has stopped (a body still moving in Resolve keeps its Run stride). A player stopped short of the
+  line when the result opens (time out, Learn) pulls up over the run-out distance too; this moves only
+  the body, never Distance, Elapsed, Rank or the result.
 
 ## Files
 
@@ -126,7 +134,7 @@ case 5.7 m). No finish, no run-out.
   line; rank by interpolated finish time including two crossings in one tick; Learn rivals stay within
   6 m of a steadily running player; finish style changes speed only after 80 %.
 - **EditMode — presentation maths:** `WorldX` / `FinishWorldX`; camera step holds at `cameraStartX`
-  until the player passes it, then converges on the player without overshoot; parallax offsets per factor.
+  until the player passes it, then sits exactly on the player (holds when `dt = 0`); parallax offsets per factor.
 - **PlayMode:** update `SprintControllerTests`, `SprintRuntimeInputTests`, `SprintChallengeRuntimeTests`,
   `SprintPresentationGateTests` and any test assuming the `-9.6 → 6.5` mapping or the finish reveal.
 - **Visual:** screenshots via `testing-unity-ui-with-screenshots` at the start, mid-race with the camera

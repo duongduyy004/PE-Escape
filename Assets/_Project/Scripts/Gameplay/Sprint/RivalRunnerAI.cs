@@ -88,8 +88,10 @@ namespace KMA.Gameplay
             }
 
             bool standing = speed <= .05f;
+            // The field still runs in and pulls up after the result opens: pose only once stopped.
             if (phase == MinigamePhase.Resolve)
-                State = result != null && result.Pass ? RivalRunnerState.Celebrate : RivalRunnerState.Fail;
+                State = !standing ? RivalRunnerState.Run
+                    : result != null && result.Pass ? RivalRunnerState.Celebrate : RivalRunnerState.Fail;
             else if (phase != MinigamePhase.Play || standing)
                 State = RivalRunnerState.Idle;
             else if (!finished && (surging || position >= goal * RivalBurstFromProgress))

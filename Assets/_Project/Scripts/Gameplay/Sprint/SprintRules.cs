@@ -132,7 +132,7 @@ namespace KMA.Gameplay
         public float GoalDistance => goalDistance;
         /// Where the player actually is, including the metres they run on past the line.
         public float Position => distance + runOut;
-        public float MetersPerSecond => finished ? runOutSpeed : speed * Tuning.DistanceScale;
+        public float MetersPerSecond => finished || runOutSpeed > 0f ? runOutSpeed : speed * Tuning.DistanceScale;
         /// Race time at which the player crossed the line; -1 until they do.
         public float FinishTime => finishTime;
         public float[] RivalDistances
@@ -269,8 +269,10 @@ namespace KMA.Gameplay
             if (dt <= 0f || float.IsNaN(dt) || float.IsInfinity(dt)) return;
             float clock = raceClock;
             raceClock += dt;
-            if (finished) AdvanceRunOut(dt);
-            else speed = 0f;
+            // A player stopped short of the line (time out, Learn) still pulls up rather than freezing;
+            // the run-out only moves the body, never Distance, Elapsed or Rank.
+            if (!finished && runOutSpeed <= 0f && speed > 0f) StartRunOut(speed * Tuning.DistanceScale);
+            AdvanceRunOut(dt);
             AdvanceRivals(clock, dt);
         }
 

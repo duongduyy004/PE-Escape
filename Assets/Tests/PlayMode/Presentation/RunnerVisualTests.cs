@@ -212,10 +212,17 @@ namespace KMA.Tests.Presentation
             controller.ConfigureForTest();
             controller.enabled = false;
             var camera = Camera.main;
-            Assert.That(camera.GetComponent<SprintCameraFollow>(), Is.Not.Null);
-            float startX = camera.GetComponent<SprintCameraFollow>().StartX;
+            var follow = camera.GetComponent<SprintCameraFollow>();
+            Assert.That(follow, Is.Not.Null);
+            yield return null;
+            float startX = follow.StartX;
+            Assert.That(camera.transform.position.x - camera.orthographicSize * camera.aspect,
+                Is.EqualTo(SprintTrackLayout.TrackStartX - SprintCameraFollow.StartMargin).Within(.001f),
+                "the start line sits just inside the left edge, so the grid is fully on screen");
 
-            controller.AdvanceToDistance(5f, new[] { new RivalPaceProfile("Far", 9f, 9f) });
+            // One unit short of the hold point at this aspect: the player is still left of centre.
+            controller.AdvanceToDistance(startX - SprintTrackLayout.TrackStartX - 1f,
+                new[] { new RivalPaceProfile("Far", 9f, 9f) });
             yield return null;
             yield return null;
             Assert.That(camera.transform.position.x, Is.EqualTo(startX).Within(.001f),
@@ -224,8 +231,125 @@ namespace KMA.Tests.Presentation
             controller.AdvanceToDistance(60f, new[] { new RivalPaceProfile("Far", 9f, 9f) });
             yield return null;
             yield return null;
-            Assert.That(camera.transform.position.x, Is.EqualTo(SprintTrackLayout.WorldX(60f)).Within(.01f),
+            Assert.That(camera.transform.position.x, Is.EqualTo(SprintTrackLayout.WorldX(60f)).Within(.001f),
                 "the camera keeps the player centred, whatever the rivals do");
+
+            // Mid-run at speed the camera sits exactly on the player: no lag pushing them off centre.
+            for (int i = 0; i < 6; i++) { controller.OnLeftTap(); controller.OnRightTap(); }
+            var player = GameObject.Find("Player").transform;
+            float previous = player.position.x;
+            for (int frame = 0; frame < 10; frame++)
+            {
+                controller.Simulate(.05f);
+                // The coroutine resumes after Update but before LateUpdate: give the camera its frame.
+                yield return null;
+                yield return null;
+                Assert.That(camera.transform.position.x, Is.EqualTo(player.position.x).Within(1e-3f),
+                    $"frame {frame}: the player must stay centred while running");
+            }
+            Assert.That(player.position.x, Is.GreaterThan(previous + 1f), "the player really was running");
+        }
+
+        [UnityTest]
+        public IEnumerator TrackTilesCoverTheWholeViewAtEveryAspect()
+        {
+            float? authoredRootOffset = null;
+            foreach (float aspect in new[] { 4f / 3f, 16f / 9f, 20f / 9f, 21f / 9f })
+            {
+                yield return SceneManager.LoadSceneAsync("MG_Sprint");
+                var controller = Object.FindFirstObjectByType<SprintController>();
+                controller.ConfigureForTest();
+                controller.enabled = false;
+                var camera = Camera.main;
+                camera.aspect = aspect;
+                var follow = camera.GetComponent<SprintCameraFollow>();
+                var parallax = Object.FindFirstObjectByType<SprintParallax>();
+                yield return null;
+                yield return null;
+
+                float halfWidth = camera.orthographicSize * aspect;
+                Assert.That(camera.transform.position.x,
+                    Is.EqualTo(SprintCameraFollow.StartXFor(halfWidth)).Within(.001f), $"start at {aspect:0.00}");
+                AssertBackdropCovers(parallax, camera.transform.position.x, halfWidth, $"{aspect:0.00} at the start");
+                // The backdrop root rides with the camera at its authored offset, whatever the aspect:
+                // travel is measured from the authored camera X, not from the aspect-dependent start.
+                float rootOffset = parallax.transform.position.x - camera.transform.position.x;
+                if (authoredRootOffset == null) authoredRootOffset = rootOffset;
+                Assert.That(rootOffset, Is.EqualTo(authoredRootOffset.Value).Within(.001f),
+                    $"backdrop root off-centre at {aspect:0.00}");
+
+                // 200 units down the straight, as the parallax sees it after the camera has moved.
+                camera.transform.position += Vector3.right * 200f;
+                parallax.RefreshForTest(follow.Travel);
+                AssertBackdropCovers(parallax, camera.transform.position.x, halfWidth, $"{aspect:0.00} after 200 units");
+                Assert.That(parallax.transform.position.x - camera.transform.position.x,
+                    Is.EqualTo(authoredRootOffset.Value).Within(.001f), $"backdrop root drifted at {aspect:0.00}");
+                camera.ResetAspect();
+            }
+        }
+
+        /// Every backdrop layer (the factor-1 track above all) must span the whole view width.
+        static void AssertBackdropCovers(SprintParallax parallax, float cameraX, float halfWidth, string label)
+        {
+            var layers = parallax.GetComponentsInChildren<SpriteRenderer>()
+                .Where(renderer => renderer.sprite != null)
+                .GroupBy(renderer => renderer.sprite.name).ToArray();
+            Assert.That(layers.Select(layer => layer.Key), Does.Contain("SprintTrack"), label);
+            float left = cameraX - halfWidth, right = cameraX + halfWidth;
+            foreach (var layer in layers)
+            {
+                var tiles = layer.Select(renderer => renderer.bounds).OrderBy(bounds => bounds.min.x).ToArray();
+                string name = $"{label}, {layer.Key}";
+                Assert.That(tiles, Has.Length.EqualTo(2), name);
+                Assert.That(tiles[0].min.x, Is.LessThanOrEqualTo(left + 1e-3f), $"{name}: gap at the left edge");
+                Assert.That(tiles[0].max.x, Is.GreaterThanOrEqualTo(tiles[1].min.x - 1e-3f), $"{name}: gap between tiles");
+                Assert.That(tiles[1].max.x, Is.GreaterThanOrEqualTo(right - 1e-3f), $"{name}: gap at the right edge");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayerFinishingLastRunsOutTheStrideBeforeCelebrating()
+        {
+            yield return SceneManager.LoadSceneAsync("MG_Sprint");
+            var controller = Object.FindFirstObjectByType<SprintController>();
+            controller.ConfigureForTest();
+            controller.enabled = false;
+            controller.AdvanceToDistance(SprintRules.RaceDistance - 1f, new[] { new RivalPaceProfile("Fast", 500f, 500f) });
+            for (int i = 0; i < 4; i++) { controller.OnLeftTap(); controller.OnRightTap(); }
+            for (int i = 0; i < 300 && controller.Phase != MinigamePhase.Resolve; i++) controller.Simulate(.01f);
+            Assert.That(controller.Phase, Is.EqualTo(MinigamePhase.Resolve));
+            Assert.That(controller.LastResult.Pass, Is.True);
+            Assert.That(controller.PlayerMetersPerSecond, Is.GreaterThan(.05f), "still running out past the line");
+
+            var animator = GameObject.Find("Player").GetComponentInChildren<Animator>();
+            yield return null;
+            Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("Run"), Is.True,
+                "a body still sliding past the line keeps its stride");
+
+            for (int i = 0; i < 500; i++) controller.Simulate(.01f);
+            Assert.That(controller.PlayerMetersPerSecond, Is.Zero);
+            yield return null;
+            yield return null;
+            Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("Celebrate"), Is.True,
+                "the cheer comes once the runner has stopped");
+        }
+
+        [UnityTest]
+        public IEnumerator RivalStillMovingInResolveKeepsRunning()
+        {
+            yield return SceneManager.LoadSceneAsync("MG_Sprint");
+            var rival = Object.FindObjectsByType<RivalRunnerAI>(FindObjectsSortMode.None)[0];
+            rival.enabled = false;
+            var pass = new MinigameResult(true, 1f, Rank.C);
+
+            rival.RefreshForTest(140f, 6f, false, SprintRules.RaceDistance, MinigamePhase.Resolve, pass);
+            Assert.That(rival.State, Is.EqualTo(RivalRunnerState.Run), "the field races in after the result");
+            rival.RefreshForTest(153f, 0f, true, SprintRules.RaceDistance, MinigamePhase.Resolve, pass);
+            Assert.That(rival.State, Is.EqualTo(RivalRunnerState.Celebrate));
+            rival.RefreshForTest(153f, 0f, true, SprintRules.RaceDistance, MinigamePhase.Resolve,
+                new MinigameResult(false, 0f, Rank.F));
+            Assert.That(rival.State, Is.EqualTo(RivalRunnerState.Fail));
+            yield return null;
         }
 
         [UnityTest]

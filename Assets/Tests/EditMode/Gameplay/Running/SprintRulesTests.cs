@@ -331,18 +331,27 @@ namespace KMA.Tests.Gameplay.Running
         }
 
         [Test]
-        public void TickAfterRace_StopsAnUnfinishedPlayerButRivalsRunOn()
+        public void TickAfterRace_PullsUpAnUnfinishedPlayerWithoutChangingTheRace()
         {
             var rules = SprintRules.ForTest(distance: 20f, elapsed: 22f, rank: 1,
                 rivalProfiles: new[] { new RivalPaceProfile("R", 9f, 9f) }, speed: Raw(8f));
             float before = rules.GetRivalPosition(0);
+            int rank = rules.Rank;
 
-            rules.TickAfterRace(1f);
+            rules.TickAfterRace(1f / 60f);
+            Assert.That(rules.MetersPerSecond, Is.GreaterThan(7f).And.LessThan(8f), "slowing, not stopped dead");
+            Assert.That(rules.Position, Is.GreaterThan(20f));
+            for (int i = 1; i < 60; i++) rules.TickAfterRace(1f / 60f);
             rules.TickAfterRace(0f);
-
-            Assert.That(rules.MetersPerSecond, Is.Zero);
-            Assert.That(rules.Position, Is.EqualTo(20f));
             Assert.That(rules.GetRivalPosition(0), Is.EqualTo(before + 9f).Within(.001f));
+
+            for (int i = 0; i < 60 * 3; i++) rules.TickAfterRace(1f / 60f);
+            Assert.That(rules.MetersPerSecond, Is.Zero);
+            Assert.That(rules.Position - 20f, Is.InRange(3.8f, SprintRules.DefaultRunOutDistance + .05f));
+            Assert.That(rules.Distance, Is.EqualTo(20f), "the race distance does not change");
+            Assert.That(rules.Elapsed, Is.EqualTo(22f), "the race clock does not change");
+            Assert.That(rules.Rank, Is.EqualTo(rank));
+            Assert.That(rules.IsFinished, Is.False);
         }
     }
 }
