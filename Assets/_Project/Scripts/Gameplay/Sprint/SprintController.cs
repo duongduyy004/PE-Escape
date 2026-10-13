@@ -58,6 +58,7 @@ namespace KMA.Gameplay
         public float LearnTimeRemaining => challengeRules == null ? 0f : challengeRules.LearnTimeRemaining;
         public float LearnProgress01 => challengeRules == null ? 0f : challengeRules.LearnProgress01;
         public bool IsComboBoosting => rules != null && rules.IsComboBoosting;
+        public bool IsFalling => rules != null && rules.IsFalling;
         public float[] RivalDistances => rules == null ? System.Array.Empty<float>() : rules.RivalDistances;
         public SubjectId Subject => SubjectId.Sprint;
         public float TargetDistance => challengeDefinition != null && challengeDefinition.Distance > 0f

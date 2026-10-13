@@ -14,6 +14,7 @@ namespace KMA.Tests.Gameplay.Running
             rules.Tap(Side.Right);
             Assert.That(rules.ExpectedSide, Is.EqualTo(Side.Left));
             Assert.That(rules.ValidTapRatio, Is.EqualTo(0f));
+            rules.Tick(SprintRules.FallSeconds + .05f);
 
             rules.Tap(Side.Left);
             Assert.That(rules.ExpectedSide, Is.EqualTo(Side.Right));
@@ -25,15 +26,15 @@ namespace KMA.Tests.Gameplay.Running
         }
 
         [Test]
-        public void SameSideTap_GivesFortyPercentImpulse()
+        public void SameSideTap_CountsAsAMistake()
         {
             var rules = SprintRules.Default();
 
             rules.Tap(Side.Left);
-            float first = rules.Speed;
             rules.Tap(Side.Left);
 
-            Assert.That(rules.Speed - first, Is.EqualTo(7.2f).Within(.001f));
+            Assert.That(rules.IsFalling, Is.True);
+            Assert.That(rules.Speed, Is.Zero);
         }
 
         [Test]
@@ -55,6 +56,56 @@ namespace KMA.Tests.Gameplay.Running
             Assert.That(combo.Speed, Is.GreaterThan(tuning.SpeedCap));
             Assert.That(combo.Speed, Is.LessThanOrEqualTo(tuning.SpeedCap * (1f + tuning.ComboBoostMax)));
         }
+        [Test]
+
+        public void WrongTap_StopsTheRunnerAndTripsThem()
+        {
+            var rules = new SprintRules(60f, null, null, SprintBalanceParameters.Default);
+            rules.Tap(Side.Left);
+            rules.Tap(Side.Right);
+            Assert.That(rules.Speed, Is.GreaterThan(0f));
+
+            rules.Tap(Side.Right);
+
+            Assert.That(rules.Speed, Is.Zero);
+            Assert.That(rules.IsFalling, Is.True);
+            Assert.That(rules.CorrectStreak, Is.Zero);
+            rules.Tick(.3f);
+            rules.Tap(Side.Left);
+            Assert.That(rules.Speed, Is.Zero, "taps while on the ground do nothing");
+            float distance = rules.Distance;
+            rules.Tick(.3f);
+            Assert.That(rules.Distance, Is.EqualTo(distance), "a fallen runner does not slide forward");
+        }
+
+        [Test]
+        public void FallenRunnerRecoversAndRunsAgain()
+        {
+            var rules = new SprintRules(60f, null, null, SprintBalanceParameters.Default);
+            rules.Tap(Side.Right);
+            Assert.That(rules.IsFalling, Is.True);
+
+            rules.Tick(SprintRules.FallSeconds + .05f);
+
+            Assert.That(rules.IsFalling, Is.False);
+            rules.Tap(Side.Left);
+            Assert.That(rules.Speed, Is.GreaterThan(0f));
+        }
+
+        [Test]
+        public void FallHasACooldownSoAFumblingRunnerDoesNotTripNonStop()
+        {
+            var rules = new SprintRules(60f, null, null, SprintBalanceParameters.Default);
+            rules.Tap(Side.Right);
+            rules.Tick(SprintRules.FallSeconds + .05f);
+
+            rules.Tap(Side.Right);
+            Assert.That(rules.IsFalling, Is.False, "still inside the post-fall cooldown");
+
+            rules.Tick(SprintRules.FallCooldownSeconds + .1f);
+            rules.Tap(Side.Right);
+            Assert.That(rules.IsFalling, Is.True);
+        }
 
         [Test]
         public void WrongTap_EndsTheComboBoost()
@@ -69,7 +120,7 @@ namespace KMA.Tests.Gameplay.Running
         }
 
         [Test]
-        public void StoppingTaps_BrakesTheRunnerToAHaltWithinASecond()
+        public void StoppingTaps_LeavesTheRunnerStandingStill()
         {
             var rules = new SprintRules(60f, null, null, SprintBalanceParameters.Default);
             for (int tap = 0; tap < 12; tap++)
@@ -79,27 +130,29 @@ namespace KMA.Tests.Gameplay.Running
             }
             float top = rules.Speed;
 
-            rules.Tick(.2f);
+            rules.Tick(.1f);
             Assert.That(rules.Speed, Is.GreaterThan(top * .9f), "a short pause between taps keeps momentum");
-            for (int i = 0; i < 20; i++) rules.Tick(1f / 60f);
-            Assert.That(rules.Speed, Is.GreaterThan(0f), "the runner still slides instead of freezing");
-            for (int i = 0; i < 30; i++) rules.Tick(1f / 60f);
-            Assert.That(rules.Speed, Is.EqualTo(0f));
+            rules.Tick(.3f);
+            Assert.That(rules.Speed, Is.Zero, "no idle slide once the grace window has passed");
+            float distance = rules.Distance;
+            rules.Tick(2f);
+            Assert.That(rules.Distance, Is.EqualTo(distance));
         }
 
         [Test]
-        public void IdleBrake_DoesNotDependOnFrameRate()
+        public void IdleStop_DoesNotDependOnFrameRate()
         {
             var smooth = new SprintRules(60f, null, null, SprintBalanceParameters.Default);
             var hitch = new SprintRules(60f, null, null, SprintBalanceParameters.Default);
             smooth.Tap(Side.Left);
             hitch.Tap(Side.Left);
 
-            for (int i = 0; i < 27; i++) smooth.Tick(1f / 60f);
-            hitch.Tick(.45f);
+            for (int i = 0; i < 60; i++) smooth.Tick(1f / 60f);
+            hitch.Tick(1f);
 
-            Assert.That(hitch.Speed, Is.EqualTo(smooth.Speed).Within(.01f));
-            Assert.That(hitch.Speed, Is.GreaterThan(0f));
+            Assert.That(hitch.Speed, Is.Zero);
+            Assert.That(smooth.Speed, Is.Zero);
+            Assert.That(hitch.Distance, Is.EqualTo(smooth.Distance).Within(.5f));
         }
 
         [Test]

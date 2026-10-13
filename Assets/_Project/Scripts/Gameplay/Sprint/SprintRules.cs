@@ -42,6 +42,10 @@ namespace KMA.Gameplay
     {
         public const float RaceDistance = 150f;
         public const float DefaultTimeLimit = 22f;
+        // A wrong or off-beat tap trips the runner: they stop, lie stumbled, then get up.
+        public const float FallSeconds = .9f;
+        // After getting up the runner cannot trip again at once, so a fumbling player is not locked down.
+        public const float FallCooldownSeconds = 1.2f;
 
         readonly float timeLimit;
         readonly float goalDistance;
@@ -55,6 +59,8 @@ namespace KMA.Gameplay
         int correctStreak;
         int currentRank = 1;
         float lastTapElapsed;
+        float fallEndsAt = -1f;
+        float fallCooldownEndsAt = -1f;
         bool hasTapped;
         float distance;
         float speed;
@@ -98,6 +104,8 @@ namespace KMA.Gameplay
         float RivalTime => finished ? rivalClock : elapsed;
         public float TimeLimit => timeLimit;
         public int CorrectStreak => correctStreak;
+        /// The runner tripped on a wrong or off-beat tap and is stopped until they get up.
+        public bool IsFalling => !finished && elapsed < fallEndsAt;
         public float ComboBoost => ComboBoostFor(correctStreak, Tuning);
         public bool IsComboBoosting => ComboBoost > 0f;
         public float ValidTapRatio => total == 0 ? 0f : (float)valid / total;
@@ -150,6 +158,12 @@ namespace KMA.Gameplay
             if (finished) return;
             bool correct = side == ExpectedSide;
             total++;
+            // Taps while lying on the ground do nothing.
+            if (IsFalling)
+            {
+                if (!correct) correctStreak = 0;
+                return;
+            }
             if (correct)
             {
                 valid++;
@@ -160,6 +174,15 @@ namespace KMA.Gameplay
                 correctStreak = 0;
 
             SprintBalanceParameters tuning = Tuning;
+            if (!correct && elapsed >= fallCooldownEndsAt)
+            {
+                speed = 0f;
+                fallEndsAt = elapsed + FallSeconds;
+                fallCooldownEndsAt = fallEndsAt + FallCooldownSeconds;
+                lastTapElapsed = elapsed;
+                hasTapped = true;
+                return;
+            }
             float boost = 1f + ComboBoostFor(correctStreak, tuning);
             float impulse = (correct ? tuning.CorrectImpulse : tuning.CorrectImpulse * tuning.WrongImpulseFactor) * boost;
             float cap = tuning.SpeedCap * boost;
@@ -183,7 +206,8 @@ namespace KMA.Gameplay
             }
             elapsed += dt;
             SprintBalanceParameters tuning = Tuning;
-            speed = Mathf.Max(0f, speed - tuning.DragPerSecond * dt - IdleBrakeOver(elapsed - dt, elapsed));
+            if (IsFalling || IsIdle) speed = 0f;
+            else speed = Mathf.Max(0f, speed - tuning.DragPerSecond * dt);
             distance += speed * dt * tuning.DistanceScale;
 
             for (int i = 0; i < rivalProfiles.Length; i++)
@@ -211,29 +235,8 @@ namespace KMA.Gameplay
             return ScoreUtil.Build(pass, accuracy, placement, mastery);
         }
 
-        // Once the player stops tapping, a hard brake eases in so the runner settles almost at once
-        // while still sliding to a stop instead of freezing.
-        // Speed the brake removes between two race times. The brake is integrated over the step, so
-        // a long frame never brakes the part of it that still sat inside the grace window.
-        float IdleBrakeOver(float from, float to)
-        {
-            if (!hasTapped || speed <= 0f) return 0f;
-            SprintBalanceParameters tuning = Tuning;
-            float start = lastTapElapsed + tuning.IdleGraceSeconds;
-            return tuning.IdleBrakePerSecond *
-                (RampedSeconds(to - start, tuning.IdleBrakeRampSeconds) -
-                 RampedSeconds(from - start, tuning.IdleBrakeRampSeconds));
-        }
-
-        // Integral of a 0..1 ramp that rises over rampSeconds and then holds at 1.
-        static float RampedSeconds(float seconds, float rampSeconds)
-        {
-            if (seconds <= 0f) return 0f;
-            if (rampSeconds <= 0f) return seconds;
-            return seconds <= rampSeconds
-                ? seconds * seconds / (2f * rampSeconds)
-                : rampSeconds * .5f + seconds - rampSeconds;
-        }
+        // Once the grace window after the last tap has passed the runner stands still: no sliding.
+        bool IsIdle => hasTapped && elapsed - lastTapElapsed > Tuning.IdleGraceSeconds;
 
         void UpdateRank()
         {

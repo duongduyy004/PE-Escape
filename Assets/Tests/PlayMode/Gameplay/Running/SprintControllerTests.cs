@@ -215,7 +215,7 @@ namespace KMA.Tests.Gameplay.Running
         }
 
         [Test]
-        public void RivalVisualBurstAtSeventyPercent_IsCosmeticAndDoesNotChangeRulesDistances()
+        public void RivalVisualBurstNearTheFinish_IsCosmeticAndDoesNotChangeRulesDistances()
         {
             var profile = ScriptableObject.CreateInstance<RivalPaceProfileAsset>();
             profile.profileName = "Test";
@@ -229,7 +229,9 @@ namespace KMA.Tests.Gameplay.Running
             var before = rules.RivalDistances;
             var rankBefore = rules.Rank;
             var resultBefore = rules.BuildResult();
-            runner.RefreshForTest(before[0], SprintRules.RaceDistance * .7f, MinigamePhase.Play, null);
+            runner.RefreshForTest(before[0], 0f, MinigamePhase.Play, null);
+            Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Run), "a rival far from the line and the player far behind just runs");
+            runner.RefreshForTest(SprintRules.RaceDistance * (RivalRunnerAI.RivalBurstFromProgress + .02f), 0f, MinigamePhase.Play, null);
 
             Assert.That(runner.State, Is.EqualTo(RivalRunnerState.Burst));
             Assert.That(rules.RivalDistances, Is.EqualTo(before));

@@ -107,7 +107,7 @@ namespace KMA.Tests.Gameplay.Running
             for (int frame = 0; frame < 301; frame++) controller.Simulate(.01f);
             var rules = (SprintRules)typeof(SprintController).GetField("rules",
                 BindingFlags.Instance | BindingFlags.NonPublic).GetValue(controller);
-            foreach (var value in new[] { ("elapsed", 14.99f), ("distance", 149.95f), ("speed", 100f) })
+            foreach (var value in new[] { ("elapsed", 39.99f), ("distance", 149.95f), ("speed", 100f) })
                 typeof(SprintRules).GetField(value.Item1, BindingFlags.Instance | BindingFlags.NonPublic)
                     .SetValue(rules, value.Item2);
             ChallengeAttemptResult received = null;
@@ -115,7 +115,7 @@ namespace KMA.Tests.Gameplay.Running
             controller.Simulate(.02f);
             Assert.That(received, Is.Not.Null);
             Assert.That(received.Pass, Is.True);
-            Assert.That(received.Metrics.Elapsed, Is.EqualTo(15f));
+            Assert.That(received.Metrics.Elapsed, Is.EqualTo(40f));
             yield return null;
         }
 

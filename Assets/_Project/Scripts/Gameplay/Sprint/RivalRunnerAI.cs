@@ -39,6 +39,8 @@ namespace KMA.Gameplay
         static readonly int CelebrateHash = Animator.StringToHash("Celebrate");
         static readonly int FailHash = Animator.StringToHash("Fail");
         static readonly int IdleHash = Animator.StringToHash("Idle");
+        // A rival kicks into its finishing burst once this much of the track is behind them.
+        public const float RivalBurstFromProgress = .8f;
         RunnerBreathing breathing;
         RivalRunnerState lastPlayedState;
         bool hasPlayedState;
@@ -98,7 +100,7 @@ namespace KMA.Gameplay
                 State = result != null && result.Pass ? RivalRunnerState.Celebrate : RivalRunnerState.Fail;
             else if (phase != MinigamePhase.Play || (!learning && VisualProgress01 >= 1f))
                 State = RivalRunnerState.Idle;
-            else if (surging || (!learning && playerDistance >= SprintRules.RaceDistance * .7f))
+            else if (surging || (!learning && rivalDistance >= SprintRules.RaceDistance * RivalBurstFromProgress))
                 State = RivalRunnerState.Burst;
             else
                 State = RivalRunnerState.Run;

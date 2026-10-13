@@ -146,6 +146,32 @@ namespace KMA.Tests.Gameplay.Running
             Assert.That(surges, Is.GreaterThan(fades * 1.4f));
         }
 
+        [Test]
+        public void EveryRivalCanBeTheFastestAcrossSeeds()
+        {
+            RivalPaceProfile[] authored = LoadAuthoredProfiles();
+            var fastest = new int[authored.Length];
+            for (int seed = 0; seed < 300; seed++)
+            {
+                RivalPaceProfile[] field = RivalPaceRandomizer.RollField(authored, MinSpeed, MaxSpeed, new Random(seed));
+                int best = 0;
+                for (int i = 1; i < field.Length; i++)
+                    if (field[i].SustainedSpeed > field[best].SustainedSpeed) best = i;
+                fastest[best]++;
+            }
+            Assert.That(fastest, Has.All.GreaterThan(30), string.Join(",", fastest));
+        }
+
+        [Test]
+        public void OpeningSpeedDiffersBetweenSeeds()
+        {
+            RivalPaceProfile[] authored = LoadAuthoredProfiles();
+            var openings = Enumerable.Range(0, 20).Select(seed =>
+                RivalPaceRandomizer.RollField(authored, MinSpeed, MaxSpeed, new Random(seed))[0].OpeningSpeed)
+                .Distinct().Count();
+            Assert.That(openings, Is.GreaterThan(10));
+        }
+
         static RivalPaceProfile[] LoadAuthoredProfiles() => SprintRivalMappings.Required
             .Select(mapping => AssetDatabase.LoadAssetAtPath<RivalPaceProfileAsset>(mapping.ProfilePath))
             .Select(asset =>

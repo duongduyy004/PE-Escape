@@ -148,7 +148,7 @@ MonoBehaviour:
     MaximumPlays: 1
     Lines:
     - Speaker: 0
-      Text: "45 gi\xE2y, b\u1EA5m tr\xE1i ph\u1EA3i lu\xE2n phi\xEAn. T\u1EDB c\u1EA7n
+      Text: "50 gi\xE2y, b\u1EA5m tr\xE1i ph\u1EA3i lu\xE2n phi\xEAn. T\u1EDB c\u1EA7n
         gi\u1EEF \u0111\u01B0\u1EE3c chu\u1ED7i 12 nh\u1ECBp h\u1EE3p l\u1EC7."
       Poses:
       - {fileID: 21300000, guid: eb306838f1648ff4493c1114140c26f0, type: 3}
@@ -156,7 +156,7 @@ MonoBehaviour:
       DurationSeconds: 1.2
       Icon: {fileID: 0}
     - Speaker: 1
-      Text: "\u0110\u1EA1t chu\u1ED7i 12 nh\u1ECBp trong 45 gi\xE2y. Nh\u1EA7m th\xEC
+      Text: "\u0110\u1EA1t chu\u1ED7i 12 nh\u1ECBp trong 50 gi\xE2y. Nh\u1EA7m th\xEC
         l\xE0m l\u1EA1i chu\u1ED7i khi c\xF2n gi\u1EDD."
       Poses:
       - {fileID: 21300000, guid: 6f387be5ded38a944bbadf12f49241d8, type: 3}

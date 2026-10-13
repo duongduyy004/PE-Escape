@@ -101,7 +101,7 @@ MonoBehaviour:
     lines:
     - characterId: co_the_chat
       pose: 0
-      text: "45 gi\xE2y: b\u1EA5m tr\xE1i, ph\u1EA3i lu\xE2n phi\xEAn. \u0110\u1EA1t
+      text: "50 gi\xE2y: b\u1EA5m tr\xE1i, ph\u1EA3i lu\xE2n phi\xEAn. \u0110\u1EA1t
         chu\u1ED7i 12 nh\u1ECBp h\u1EE3p l\u1EC7 \xEDt nh\u1EA5t m\u1ED9t l\u1EA7n.
         Sai th\xEC l\xE0m l\u1EA1i chu\u1ED7i trong th\u1EDDi gian c\xF2n l\u1EA1i."
       sticker:
@@ -118,9 +118,9 @@ MonoBehaviour:
     lines:
     - characterId: co_the_chat
       pose: 0
-      text: "150 m\xE9t, t\u1ED1i \u0111a 15 gi\xE2y. T\xF4i b\u1EA5m gi\u1EDD, kh\xF4ng
+      text: "150 m\xE9t, t\u1ED1i \u0111a 40 gi\xE2y. T\xF4i b\u1EA5m gi\u1EDD, kh\xF4ng
         nghe gi\u1EA3i th\xEDch."
-      sticker: "15 GI\xC2Y"
+      sticker: "40 GI\xC2Y"
     - characterId: tan_thu
       pose: 0
       text: "D\u1EA1. Mong l\xE0 em gi\u1EEF \u0111\u01B0\u1EE3c nh\u1ECBp nh\u01B0

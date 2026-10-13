@@ -30,8 +30,10 @@ namespace KMA.Gameplay
             if (controller == null || animator == null) return;
             RefreshPosition(controller.Snapshot.Distance);
             UpdateResting();
+            bool falling = controller.Phase == MinigamePhase.Play && controller.IsFalling;
             string state = controller.Phase == MinigamePhase.Resolve
                 ? (controller.LastResult != null && controller.LastResult.Pass ? "Celebrate" : "Fail")
+                : falling ? "Stumble"
                 : controller.Phase != MinigamePhase.Play || resting ? "Idle"
                 : !controller.IsLearnChallenge && controller.Snapshot.Distance >= SprintRules.RaceDistance * .7f
                     ? "Burst" : "Run";
@@ -50,7 +52,7 @@ namespace KMA.Gameplay
             else
             {
                 float speed = controller.Snapshot.Speed;
-                resting = resting ? speed < RunAboveSpeed : speed < RestBelowSpeed;
+                resting = !controller.IsFalling && (resting ? speed < RunAboveSpeed : speed < RestBelowSpeed);
             }
 
             if (breathing != null) breathing.SetResting(resting);

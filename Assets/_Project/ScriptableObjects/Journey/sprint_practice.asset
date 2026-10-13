@@ -16,10 +16,10 @@ MonoBehaviour:
   subject: 0
   kind: 1
   distance: 150
-  timeLimit: 20
+  timeLimit: 45
   targetCount: 0
   attemptLimit: 0
   keeperEnabled: 0
   difficulty: 1
   timingHelp: 1
-  objective: "Ch\u1EA1y 150 m trong t\u1ED1i \u0111a 20 gi\xE2y."
+  objective: "Ch\u1EA1y 150 m trong t\u1ED1i \u0111a 45 gi\xE2y."
