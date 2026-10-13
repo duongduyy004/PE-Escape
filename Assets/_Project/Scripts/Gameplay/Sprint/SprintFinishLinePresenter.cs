@@ -21,9 +21,10 @@ namespace KMA.Gameplay
 
         public void RefreshForTest()
         {
+            // Driven by the leading runner, so a rival who runs ahead stops on a line that is already drawn.
             // The reveal is authored on a 0-100 scale; map the real race distance onto it.
             float distance = controller == null ? 0f
-                : controller.Snapshot.Distance * SprintUiLayout.FinishDistance / Mathf.Max(1f, controller.TargetDistance);
+                : controller.LeadDistance * SprintUiLayout.FinishDistance / Mathf.Max(1f, controller.TargetDistance);
             IsVisible = controller != null && SprintUiLayout.FinishVisible(distance);
             if (finishRoot == null)
                 return;

@@ -244,6 +244,7 @@ namespace KMA.Tests.Gameplay.Running
         }
 
 [Test]        public void Rival_KeepsRunningToTheLineWhateverThePlayerDoes()        {            var runner = new GameObject("Rival").AddComponent<RivalRunnerAI>();            runner.RefreshForTest(SprintRules.RaceDistance * .7f, 0f, MinigamePhase.Play, null);            Assert.That(runner.VisualProgress01, Is.EqualTo(.7f).Within(.001f), "no cap short of the line");            Assert.That(runner.State, Is.Not.EqualTo(RivalRunnerState.Idle));            Object.DestroyImmediate(runner.gameObject);        }
+[Test]        public void LeadDistance_FollowsARivalWhoRunsAheadOfThePlayer()        {            var controllerObject = new GameObject("Sprint");            var controller = controllerObject.AddComponent<SprintController>();            controller.ConfigureForTest();            controller.AdvanceToDistance(20f, new[] { new RivalPaceProfile("Fast", 9f, 9f) });            for (int i = 0; i < 600; i++) controller.Simulate(.01f);            Assert.That(controller.LeadDistance, Is.GreaterThan(controller.Snapshot.Distance));            Assert.That(controller.LeadDistance, Is.EqualTo(controller.GetRivalDistance(0)));            Object.DestroyImmediate(controllerObject);        }
         [Test]
         public void Rival_StopsRunningOnceAcrossTheLine()
         {
