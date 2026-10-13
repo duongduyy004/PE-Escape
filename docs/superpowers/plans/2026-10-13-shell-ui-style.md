@@ -28,6 +28,7 @@ Executors follow the plan where it differs from the spec:
 8. **Volleyball ĐÁNH/NHẢY** keep their icon glyphs (an existing test pins "controls use icons without face labels"): they get the Kit round-button shape (`UiKit.RoundIconButton`, a label-less `RoundButton`) with the glyphs drawn on its face.
 9. **Shell button labels use `VietFontRole.Hud`** (Barlow, plain material). The `ButtonPrimary/Secondary` materials carry an outline meant for the dark Kit buttons.
 10. **Danger buttons use `ink` text on `accentRed`** (contrast ≈ 5:1); cream on `#FF595E` is ≈ 3:1.
+11. **Spec 6.3 `StyleFamilyBoundaryTests` was not written.** The Shell/Kit boundary is enforced indirectly by the palette and sprite audits (`ShellStyleAudit` for Shell scenes, `MinigameStyleAudit` for minigames).
 
 ## Global Constraints
 
