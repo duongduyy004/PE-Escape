@@ -28,6 +28,7 @@ namespace KMA.Gameplay
     {
         [SerializeField] string id;
         [SerializeField] string displayName;
+        // Retained only for asset compatibility; the NameTag chip is Shell gold for every speaker.
         [SerializeField] Color tagColor = Color.white;
         [SerializeField] bool isPlayer;
         [SerializeField] List<JourneyPoseSprite> poses = new List<JourneyPoseSprite>();

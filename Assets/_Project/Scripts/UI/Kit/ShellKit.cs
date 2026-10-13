@@ -7,7 +7,8 @@ namespace KMA.UI.Kit
 {
     /// Builds and restyles the shared widgets of every screen outside the minigames, in the menu key art
     /// style: a cream face in a navy border over a hard navy offset shadow. Owns look and press
-    /// feedback; callers own position and size. Every call is idempotent.
+    /// feedback; callers own position and size. The Style* restylers are idempotent; the factories
+    /// (Chip, Toggle, Slider, Title, Button) create new objects on every call.
     public static class ShellKit
     {
         public const string ShadowName = "ShellShadow";
@@ -109,7 +110,6 @@ namespace KMA.UI.Kit
             VietTypography.Apply(handle.Label, VietFontRole.Symbol);
             handle.Label.fontSize = MinigameUiTheme.Headline;
             UiKit.FitLabel(handle.Label, MinigameUiTheme.Headline);
-            handle.Label.color = LabelColor(ShellButtonVariant.Secondary);
             return handle;
         }
 
