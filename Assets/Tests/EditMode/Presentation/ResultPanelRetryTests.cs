@@ -204,6 +204,18 @@ namespace KMA.Tests.Presentation
         }
 
         [Test]
+        public void ConfigureRetryTurnsTheSecondSlotBackIntoRetryAfterAJourneyCard()
+        {
+            ShowJourney("sprint_learn", true, new JourneyCommitOutcome(true, "sprint_practice", 5, false, false, false));
+            Assert.That(panel.BackAvailable, Is.True);
+
+            panel.ConfigureRetry(2);
+
+            Assert.That(panel.BackAvailable, Is.False, "the legacy flow's second slot is Retry, never Back");
+            Assert.That(panel.RetryAvailable, Is.True);
+        }
+
+        [Test]
         public void JourneyChapterWinOffersBackToMapBesideContinue()
         {
             var outcome = new JourneyCommitOutcome(true, "sprint_practice", 5, false, false, false);

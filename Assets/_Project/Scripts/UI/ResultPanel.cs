@@ -187,6 +187,8 @@ namespace KMA.Gameplay.UI
             retryConfigured = true;
             remainingLives = Mathf.Max(0, livesAfterFailure);
             retryAvailable = remainingLives > 0;
+            // The legacy flow's second slot is always Retry; drop any Back left over from a journey card.
+            backAvailable = false;
             RefreshButtons();
         }
 
