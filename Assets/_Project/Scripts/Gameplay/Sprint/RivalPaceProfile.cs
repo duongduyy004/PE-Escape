@@ -16,6 +16,8 @@ namespace KMA.Gameplay
         public float SurgeAmplitude { get; }
         public float SurgePeriod { get; }
         public float SurgePhase { get; }
+        /// How this rival reacts, accelerates and pulls up. Hand-built profiles move instantly.
+        public RivalMotionTraits Traits { get; } = RivalMotionTraits.Instant;
 
         // Seconds a pace change takes to blend in, so a rival accelerates rather than teleports.
         const float PaceBlendSeconds = .4f;
@@ -41,6 +43,13 @@ namespace KMA.Gameplay
             if (segments == null || segments.Length == 0) return;
             paceSegments = (PaceSegment[])segments.Clone();
             foreach (PaceSegment segment in paceSegments) paceLength += segment.Seconds;
+        }
+
+        public RivalPaceProfile(string name, float openingSpeed, float sustainedSpeed, PaceSegment[] segments,
+            RivalMotionTraits traits)
+            : this(name, openingSpeed, sustainedSpeed, segments)
+        {
+            Traits = traits;
         }
 
         public int PaceSegmentCount => paceSegments == null ? 0 : paceSegments.Length;
