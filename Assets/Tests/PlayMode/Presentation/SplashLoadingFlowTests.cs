@@ -180,6 +180,17 @@ namespace KMA.Tests.Presentation
                 "A zero-second hold must still present the intro for its minimum frame count.");
         }
 
+        [Test]
+        public void SplashTextKeepsTheSplashFloor()
+        {
+            var root = Track(new GameObject("SplashLoadingFlowTests.Floor", typeof(RectTransform), typeof(Canvas)));
+            var art = Track(new GameObject("Illustration", typeof(RectTransform), typeof(Image)));
+            art.transform.SetParent(root.transform, false);
+            SplashPresentationView view = SplashPresentationView.Build(root.transform);
+            var problems = KMA.UI.Kit.ShellStyleAudit.Audit(view.gameObject, KMA.UI.Kit.ShellAuditOptions.Splash);
+            Assert.That(problems, Is.Empty, string.Join("\n", problems));
+        }
+
         [UnityTest]
         public IEnumerator SplashPresentation_FitsLandscapeRatiosAndRendersVietnameseGlyphs()
         {

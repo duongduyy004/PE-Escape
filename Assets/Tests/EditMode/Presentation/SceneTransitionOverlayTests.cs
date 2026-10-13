@@ -82,9 +82,10 @@ namespace KMA.Tests.Presentation
                 CanvasScaler scaler = panel.GetComponent<CanvasScaler>();
                 Assert.That(scaler.uiScaleMode, Is.EqualTo(CanvasScaler.ScaleMode.ScaleWithScreenSize));
                 Assert.That(scaler.referenceResolution, Is.EqualTo(new Vector2(1920f, 1080f)));
-                Assert.That(panel.Find("Backdrop").GetComponent<Image>().color, Is.EqualTo(HomeMenuStyle.Navy));
-                Assert.That(panel.Find("Card").GetComponent<Image>().color, Is.EqualTo(HomeMenuStyle.Navy));
-                Assert.That(panel.Find("Card/Fill").GetComponent<Image>().color, Is.EqualTo(UITheme.Shared.TextPrimary));
+                Assert.That(panel.Find("Backdrop").GetComponent<Image>().color, Is.EqualTo(KMA.UI.Kit.ShellTheme.Ink));
+                Assert.That(panel.Find("Card/" + KMA.UI.Kit.ShellKit.FaceName).GetComponent<Image>().color, Is.EqualTo(KMA.UI.Kit.ShellTheme.Cream));
+                var problems = KMA.UI.Kit.ShellStyleAudit.Audit(panel.Find("Card").gameObject);
+                Assert.That(problems, Is.Empty, string.Join("\n", problems));
                 Assert.That(panel.Find("Card/SportBadge"), Is.Not.Null);
                 Assert.That(panel.Find("Card/Title").GetComponent<TMP_Text>().text, Does.StartWith("ĐANG TẢI."));
 

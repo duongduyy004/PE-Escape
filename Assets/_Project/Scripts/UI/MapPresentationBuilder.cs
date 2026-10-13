@@ -11,7 +11,6 @@ namespace KMA.Gameplay.UI
     public static class MapPresentationBuilder
     {
         static Sprite heartSprite;
-        static Sprite roundedRectSprite;
         static Sprite lockSprite;
 
         readonly struct Entry
@@ -343,51 +342,6 @@ namespace KMA.Gameplay.UI
         // Material Symbols glyphs (Apache 2.0), imported from Resources/Icons; see Art/Icons/Source~.
         internal static Sprite SportIconSprite(SubjectId subject) =>
             Resources.Load<Sprite>("Icons/SportIcon_" + subject);
-
-        internal static void UseRoundedSurface(Image image)
-        {
-            float radius = UITheme.Shared.CornerRadius * (2f / 3f);
-            image.sprite = radius > 0f ? RoundedRectSprite() : null;
-            image.type = Image.Type.Sliced;
-            image.pixelsPerUnitMultiplier = radius > 0f ? 16f / radius : 1f;
-        }
-
-        static Sprite RoundedRectSprite()
-        {
-            if (roundedRectSprite != null)
-                return roundedRectSprite;
-
-            const int size = 64;
-            const int radius = 16;
-            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
-            {
-                name = "RuntimeRoundedRect",
-                filterMode = FilterMode.Bilinear,
-                wrapMode = TextureWrapMode.Clamp,
-                hideFlags = HideFlags.HideAndDontSave
-            };
-            var pixels = new Color32[size * size];
-            for (int y = 0; y < size; y++)
-            for (int x = 0; x < size; x++)
-            {
-                int nearestX = Mathf.Clamp(x, radius, size - radius - 1);
-                int nearestY = Mathf.Clamp(y, radius, size - radius - 1);
-                int dx = x - nearestX;
-                int dy = y - nearestY;
-                bool inside = dx * dx + dy * dy <= radius * radius;
-                pixels[y * size + x] = inside
-                    ? new Color32(255, 255, 255, 255)
-                    : new Color32(255, 255, 255, 0);
-            }
-            texture.SetPixels32(pixels);
-            texture.Apply(false, false);
-            roundedRectSprite = Sprite.Create(texture, new Rect(0, 0, size, size),
-                new Vector2(.5f, .5f), 100f, 0, SpriteMeshType.FullRect,
-                new Vector4(radius, radius, radius, radius));
-            roundedRectSprite.name = "RuntimeRoundedRect";
-            roundedRectSprite.hideFlags = HideFlags.HideAndDontSave;
-            return roundedRectSprite;
-        }
 
         internal static Sprite LockSprite()
         {

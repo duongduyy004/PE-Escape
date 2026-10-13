@@ -105,7 +105,7 @@ namespace KMA.Gameplay.UI
             foreach (var text in new[] { top, title })
             {
                 text.fontStyle = FontStyles.Italic;
-                text.rectTransform.localRotation = Quaternion.Euler(0f, 0f, UITheme.Shared.Menu.titleAngle);
+                text.rectTransform.localRotation = Quaternion.Euler(0f, 0f, ShellTheme.TitleAngle);
             }
             view.kma = title.rectTransform;
             view.titleTop = top;
@@ -115,9 +115,9 @@ namespace KMA.Gameplay.UI
                 var line = Rect(panel, "TrackLine" + i);
                 Place(line, new Vector2((i - 1) * style.stripeStep.x, style.stripesY + i * style.stripeStep.y),
                     new Vector2(style.stripeSize.x - i * style.stripeShorten, style.stripeSize.y));
-                line.localRotation = Quaternion.Euler(0f, 0f, UITheme.Shared.Menu.titleAngle);
+                line.localRotation = Quaternion.Euler(0f, 0f, ShellTheme.TitleAngle);
                 var image = line.gameObject.AddComponent<Image>();
-                image.color = UITheme.Shared.Menu.gold;
+                image.color = ShellTheme.Gold;
                 image.raycastTarget = false;
             }
             var slogan = Label(panel, "Slogan", "Hành trình rèn luyện thể chất", style.sloganSize,
@@ -149,7 +149,7 @@ namespace KMA.Gameplay.UI
             var sprite = ShellArt.SlantSprite(false, width, height, style.trackBorder);
             var background = track.gameObject.AddComponent<Image>();
             background.sprite = sprite;
-            background.color = MinigameUiTheme.WithAlpha(UITheme.Shared.Menu.navy, style.trackOpacity);
+            background.color = MinigameUiTheme.WithAlpha(ShellTheme.Ink, style.trackOpacity);
             background.raycastTarget = false;
             LoadingBar = track.gameObject.AddComponent<Slider>();
             LoadingBar.interactable = false;
@@ -167,7 +167,7 @@ namespace KMA.Gameplay.UI
             Stretch(fill);
             var image = fill.gameObject.AddComponent<Image>();
             image.sprite = maskImage.sprite;
-            image.color = UITheme.Shared.Menu.red;
+            image.color = ShellTheme.AccentRed;
             image.raycastTarget = false;
             // Slide the full slanted image under the mask: its leading edge keeps
             // the menu angle at every percentage and never crosses the white rim.
@@ -217,9 +217,10 @@ namespace KMA.Gameplay.UI
                 available.y / style.contentSize.y), 0f, 1f);
             layout.localScale = Vector3.one * scale;
             float titleScale = style.titleScale * HomeMenuResponsive.ScaleFor(safeArea.rect.size);
-            titleTop.fontSize = 48f * titleScale;
-            titleKma.fontSize = 48f * titleScale;
-            titleTop.fontSizeMax = titleKma.fontSizeMax = 48f * titleScale;
+            float titleSize = Mathf.Max(24f, 48f * titleScale);
+            titleTop.fontSize = titleSize;
+            titleKma.fontSize = titleSize;
+            titleTop.fontSizeMax = titleKma.fontSizeMax = titleSize;
             titleTop.fontSizeMin = Mathf.Min(titleTop.fontSizeMin, titleTop.fontSizeMax);
             titleKma.fontSizeMin = Mathf.Min(titleKma.fontSizeMin, titleKma.fontSizeMax);
             float footerWidth = Mathf.Max(0f, Mathf.Min(style.footerSize.x, safeArea.rect.width * .5f - style.footerInset.x * 2f));
@@ -244,7 +245,7 @@ namespace KMA.Gameplay.UI
             rect.sizeDelta = new Vector2(Mathf.Min(style.footerSize.x, ((RectTransform)parent.parent).rect.width * .5f - style.footerInset.x * 2f), style.footerSize.y);
             text.enableAutoSizing = true;
             text.fontSizeMax = style.footerFontSize;
-            text.fontSizeMin = style.footerFontSize * .6f;
+            text.fontSizeMin = style.footerFontSize;
             text.alignment = right ? TextAlignmentOptions.BottomRight : TextAlignmentOptions.BottomLeft;
             text.color = MinigameUiTheme.WithAlpha(UITheme.Shared.Card, style.footerOpacity);
             return rect;
@@ -271,7 +272,7 @@ namespace KMA.Gameplay.UI
             var texture = new Texture2D(1, 128, TextureFormat.RGBA32, false);
             texture.wrapMode = TextureWrapMode.Clamp;
             for (int y = 0; y < 128; y++)
-                texture.SetPixel(0, y, MinigameUiTheme.WithAlpha(UITheme.Shared.Menu.navy,
+                texture.SetPixel(0, y, MinigameUiTheme.WithAlpha(ShellTheme.Ink,
                     Mathf.Lerp(style.overlayBottomOpacity, style.overlayTopOpacity, y / 127f)));
             texture.Apply();
             return Sprite.Create(texture, new Rect(0f, 0f, 1f, 128f), Vector2.one * .5f, 100f, 0, SpriteMeshType.FullRect);

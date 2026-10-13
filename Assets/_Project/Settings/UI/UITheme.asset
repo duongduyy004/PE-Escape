@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ec003bed006fea6285856503fd24ee3, type: 3}
   m_Name: UITheme
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   dialogue:
     size: {x: 560, y: 196}
     anchor: {x: 1, y: 0.86}
@@ -51,8 +51,8 @@ MonoBehaviour:
   shadowOffset: {x: 0, y: -4}
   disabledSurface: {r: 0.2901961, g: 0.36078432, b: 0.43137255, a: 1}
   disabledText: {r: 0.74509805, g: 0.7882353, b: 0.83137256, a: 1}
-  volleyballControlSurface: {r: 0.025, g: 0.075, b: 0.14, a: 0.94}
   surface: {r: 0.031372547, g: 0.1372549, b: 0.23921569, a: 1}
+  volleyballControlSurface: {r: 0.025, g: 0.075, b: 0.14, a: 0.94}
   textPrimary: {r: 1, g: 0.9764706, b: 0.90588236, a: 1}
   textOutline: {r: 0.011764706, g: 0.07058824, b: 0.12941176, a: 1}
   player: {r: 0.22745098, g: 0.9019608, b: 1, a: 1}
@@ -140,6 +140,25 @@ MonoBehaviour:
     titleAngle: -8
     buttonSlantAngle: 12.094757
     pressScale: 0.96
+  shell:
+    cream: {r: 0.9843137, g: 0.95686275, b: 0.89411765, a: 1}
+    ink: {r: 0.043137256, g: 0.16470589, b: 0.2901961, a: 1}
+    gold: {r: 0.9764706, g: 0.78431374, b: 0.16862746, a: 1}
+    goldLight: {r: 1, g: 0.8784314, b: 0.4, a: 1}
+    goldDark: {r: 1, g: 0.7058824, b: 0, a: 1}
+    titleRed: {r: 0.7764706, g: 0.15686275, b: 0.15686275, a: 1}
+    bodyText: {r: 0.2, g: 0.2784314, b: 0.36862746, a: 1}
+    disabledFace: {r: 0.9019608, g: 0.88235295, b: 0.8392157, a: 1}
+    disabledText: {r: 0.49803922, g: 0.5372549, b: 0.59607846, a: 1}
+    cardBorder: 6
+    controlBorder: 4
+    cardRadius: 20
+    controlRadius: 12
+    cardShadow: {x: 8, y: -8}
+    controlShadow: {x: 5, y: -5}
+    titleDrop: {x: 3, y: -3}
+    titleAngle: -8
+    slantAngle: 12.094757
   splash:
     contentSize: {x: 720, y: 840}
     contentPadding: {x: 32, y: 96}
@@ -160,7 +179,7 @@ MonoBehaviour:
     sloganBox: {x: 600, y: 52}
     sloganShadow: {x: 1, y: -2}
     statusY: -285
-    statusSize: 22
+    statusSize: 24
     statusHeight: 38
     trackY: -323
     trackSize: {x: 460, y: 20}
@@ -170,7 +189,7 @@ MonoBehaviour:
     overlayBottomOpacity: 0.85
     footerInset: {x: 32, y: 24}
     footerSize: {x: 520, y: 40}
-    footerFontSize: 20
+    footerFontSize: 24
     footerOpacity: 0.55
     maxAnimationDelta: 0.05
     introDuration: 0.5

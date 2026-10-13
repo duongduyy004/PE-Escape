@@ -13,8 +13,6 @@ namespace KMA.Gameplay.UI
     {
         const float CardWidth = 640f;
         const float CardHeight = 300f;
-        const float CardStroke = 4f;
-        static readonly Vector2 CardShadow = new Vector2(6f, -6f);
         const float BadgeScale = 1f;
         const float BadgeBob = 6f;
         const float BadgeBobSpeed = 4f;
@@ -233,7 +231,7 @@ namespace KMA.Gameplay.UI
             scaler.matchWidthOrHeight = .5f;
             panel.AddComponent<GraphicRaycaster>();
             canvasGroup = panel.AddComponent<CanvasGroup>();
-            Color navy = HomeMenuStyle.Navy;
+            Color navy = ShellTheme.Ink;
 
             var backdrop = Rect(panel.transform, "Backdrop");
             Stretch(backdrop, Vector2.zero);
@@ -246,27 +244,15 @@ namespace KMA.Gameplay.UI
             {
                 var line = Rect(panel.transform, "TrackLine" + i);
                 Place(line, new Vector2((i - 1) * 60f, -40f + i * 34f), new Vector2(1240f - i * 160f, 12f));
-                line.localRotation = Quaternion.Euler(0f, 0f, UITheme.Shared.Menu.titleAngle);
+                line.localRotation = Quaternion.Euler(0f, 0f, ShellTheme.TitleAngle);
                 var image = line.gameObject.AddComponent<Image>();
-                image.color = MinigameUiTheme.WithAlpha(HomeMenuStyle.Gold, .55f);
+                image.color = MinigameUiTheme.WithAlpha(ShellTheme.Gold, .55f);
                 image.raycastTarget = false;
             }
 
             var card = Rect(panel.transform, "Card");
             Place(card, Vector2.zero, new Vector2(CardWidth, CardHeight));
-            var border = card.gameObject.AddComponent<Image>();
-            border.color = navy;
-            MapPresentationBuilder.UseRoundedSurface(border);
-            border.raycastTarget = false;
-            var shadow = card.gameObject.AddComponent<Shadow>();
-            shadow.effectColor = MinigameUiTheme.WithAlpha(Color.black, .45f);
-            shadow.effectDistance = CardShadow;
-            var face = Rect(card, "Fill");
-            Stretch(face, Vector2.one * CardStroke);
-            var faceImage = face.gameObject.AddComponent<Image>();
-            faceImage.color = UITheme.Shared.TextPrimary;
-            MapPresentationBuilder.UseRoundedSurface(faceImage);
-            faceImage.raycastTarget = false;
+            ShellKit.StyleCard(card);
 
             // The badge sits on the card's top edge, like a medal pinned to it.
             badgeY = CardHeight * .5f;
@@ -277,7 +263,7 @@ namespace KMA.Gameplay.UI
                 part.anchorMin = part.anchorMax = Vector2.one * .5f;
 
             titleShadow = Label(card, "TitleShadow", string.Empty, TitleSize, VietFontRole.BodyBold,
-                new Vector2(3f, 7f), new Vector2(CardWidth - 40f, 80f), HomeMenuStyle.Gold);
+                new Vector2(3f, 7f), new Vector2(CardWidth - 40f, 80f), ShellTheme.Gold);
             title = Label(card, "Title", string.Empty, TitleSize, VietFontRole.BodyBold,
                 new Vector2(0f, 10f), new Vector2(CardWidth - 40f, 80f), navy);
             titleShadow.fontStyle = title.fontStyle = FontStyles.Italic;
@@ -304,6 +290,7 @@ namespace KMA.Gameplay.UI
             int width = Mathf.RoundToInt(BarSize.x);
             int height = Mathf.RoundToInt(BarSize.y);
             var background = track.gameObject.AddComponent<Image>();
+            track.gameObject.AddComponent<StyleExempt>();
             background.sprite = ShellArt.SlantSprite(false, width, height, 0f);
             background.color = navy;
             background.raycastTarget = false;
@@ -318,14 +305,14 @@ namespace KMA.Gameplay.UI
             Stretch(clip, Vector2.one * BarStroke);
             var groove = clip.gameObject.AddComponent<Image>();
             groove.sprite = ShellArt.SlantSprite(false, width - stroke * 2, height - stroke * 2, 0f);
-            groove.color = Color.Lerp(UITheme.Shared.TextPrimary, navy, .15f);
+            groove.color = ShellTheme.Cream;
             groove.raycastTarget = false;
             clip.gameObject.AddComponent<Mask>().showMaskGraphic = true;
             fill = Rect(clip, "Fill");
             Stretch(fill, Vector2.zero);
             var fillImage = fill.gameObject.AddComponent<Image>();
             fillImage.sprite = groove.sprite;
-            fillImage.color = HomeMenuStyle.Red;
+            fillImage.color = ShellTheme.AccentRed;
             fillImage.raycastTarget = false;
         }
 

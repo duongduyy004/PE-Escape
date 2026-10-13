@@ -235,7 +235,7 @@ namespace KMA.Gameplay.UI
             public Vector2 sloganBox = new Vector2(600f, 52f);
             public Vector2 sloganShadow = new Vector2(1f, -2f);
             public float statusY = -285f;
-            public float statusSize = 22f;
+            public float statusSize = 24f;
             public float statusHeight = 38f;
             public float trackY = -323f;
             public Vector2 trackSize = new Vector2(460f, 20f);
@@ -245,7 +245,7 @@ namespace KMA.Gameplay.UI
             [Range(0f, 1f)] public float overlayBottomOpacity = .85f;
             public Vector2 footerInset = new Vector2(32f, 24f);
             public Vector2 footerSize = new Vector2(520f, 40f);
-            public float footerFontSize = 20f;
+            public float footerFontSize = 24f;
             [Range(0f, 1f)] public float footerOpacity = .55f;
             [Min(.001f)] public float maxAnimationDelta = .05f;
             [Min(.01f)] public float introDuration = .5f;
