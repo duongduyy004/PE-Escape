@@ -44,7 +44,7 @@ namespace KMA.EditorTools
             Author("GameOver", scene =>
             {
                 var screen = Require<GameOverScreen>(scene);
-                GameOverPresentationBuilder.Build(screen, null);
+                GameOverPresentationBuilder.Rebuild(screen, null);
                 KeepOnly(screen.transform, "GameOverVeil", "GameOverLayout", "DialogueCard");
             });
             AssetDatabase.SaveAssets();

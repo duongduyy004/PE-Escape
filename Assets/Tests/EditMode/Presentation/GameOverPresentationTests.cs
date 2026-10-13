@@ -37,15 +37,15 @@ namespace KMA.Tests.Presentation
                 var saved=scene.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<GameOverScreen>(true)).Single();
                 Assert.That(saved.transform.Find("DialogueCard"),Is.Not.Null,"authoring cleanup must retain the persistent bubble");
                 GameOverPresentationBuilder.Build(saved,null);
-                Assert.That(saved.transform.Find("GameOverLayout/TitleMain").GetComponent<TMP_Text>().text,Is.EqualTo("CHƯA QUA HỌC PHẦN"));
+                Assert.That(saved.transform.Find("GameOverLayout/TitleMain/Text").GetComponent<TMP_Text>().text,Is.EqualTo("CHƯA QUA HỌC PHẦN"));
             } finally {UnityEditor.SceneManagement.EditorSceneManager.CloseScene(scene,true);}
         }
         [Test]
         public void EditedHeadingsKeepTheExistingActions()
         {
             GameOverPresentationBuilder.Build(screen,new GameSession());
-            Assert.That(root.transform.Find("GameOverLayout/TitleMain").GetComponent<TMP_Text>().text,Is.EqualTo("CHƯA QUA HỌC PHẦN"));
-            Assert.That(root.transform.Find("GameOverLayout/TitleTop").GetComponent<TMP_Text>().text,Is.EqualTo("HẾT LƯỢT THI"));
+            Assert.That(root.transform.Find("GameOverLayout/TitleMain/Text").GetComponent<TMP_Text>().text,Is.EqualTo("CHƯA QUA HỌC PHẦN"));
+            Assert.That(root.transform.Find("GameOverLayout/TitleTop/Text").GetComponent<TMP_Text>().text,Is.EqualTo("HẾT LƯỢT THI"));
             Assert.That(root.GetComponentsInChildren<Button>(true).Length,Is.EqualTo(3));
         }
         [Test]
@@ -73,41 +73,46 @@ namespace KMA.Tests.Presentation
             var rect = (RectTransform)retry.transform;
             Assert.That(rect.anchorMin, Is.EqualTo(new Vector2(.5f, .5f)));
             Assert.That(rect.anchoredPosition.x, Is.EqualTo(0f));
-            Assert.That(retry.GetComponent<KitPressFeedback>(), Is.Not.Null);
-            Assert.That(retry.GetComponents<MonoBehaviour>().Any(b => b != null && b.GetType().Name == "HomeMenuButton"), Is.False);
+            Assert.That(retry.GetComponent<ShellPressFeedback>(), Is.Not.Null);
+            Assert.That(retry.GetComponent<KitPressFeedback>(), Is.Null);
         }
 
-        // The card matches the Home key art: cream panel, navy border, gold primary action.
+        // The card matches the Home key art through ShellKit: cream face, navy border and drop, gold primary action.
         [Test]
-        public void LayoutUsesTheMenuCardStyle()
+        public void LayoutUsesTheShellCard()
         {
             GameOverPresentationBuilder.Build(screen, new GameSession());
 
             var panel = root.transform.Find("GameOverLayout/MenuPanel");
-            Assert.That(panel.GetComponent<Image>().color, Is.EqualTo(HomeMenuStyle.Navy));
-            Assert.That(panel.Find("Face").GetComponent<Image>().color, Is.EqualTo(GameOverPresentationBuilder.Cream));
-            var title = root.transform.Find("GameOverLayout/TitleMain").GetComponent<TMP_Text>();
-            Assert.That(title.color, Is.EqualTo(GameOverPresentationBuilder.TitleRed));
+            Assert.That(panel.Find(ShellKit.BorderName).GetComponent<Image>().color, Is.EqualTo(ShellTheme.Ink));
+            Assert.That(panel.Find(ShellKit.FaceName).GetComponent<Image>().color, Is.EqualTo(ShellTheme.Cream));
+            Assert.That(((RectTransform)panel.Find(ShellKit.ShadowName)).offsetMin, Is.EqualTo(ShellTheme.CardShadow));
+            Assert.That(panel.Cast<Transform>().Count(t => t.name.StartsWith(ShellKit.AccentPrefix)), Is.EqualTo(2));
+            var title = root.transform.Find("GameOverLayout/TitleMain/Text").GetComponent<TMP_Text>();
+            Assert.That(title.color, Is.EqualTo(ShellTheme.TitleRed));
             Assert.That(title.enableVertexGradient, Is.False, "a gold gradient would tint the headline");
-            Assert.That(root.transform.Find("GameOverLayout/TitleMainDrop"), Is.Null);
-            Color Face(string name) => root.transform.Find("GameOverLayout/" + name + "/Face").GetComponent<Image>().color;
-            Assert.That(Face("RETRYButton"), Is.EqualTo(GameOverPresentationBuilder.ButtonGold));
-            Assert.That(Face("NEW GAMEButton"), Is.EqualTo(GameOverPresentationBuilder.Cream));
-            Assert.That(Face("MAIN MENUButton"), Is.EqualTo(GameOverPresentationBuilder.Cream));
+            Color Face(string name) => root.transform.Find($"GameOverLayout/{name}/{ShellKit.BodyName}/{ShellKit.FaceName}")
+                .GetComponent<Image>().color;
+            Assert.That(Face("RETRYButton"), Is.EqualTo(ShellTheme.Gold));
+            Assert.That(Face("NEW GAMEButton"), Is.EqualTo(ShellTheme.Cream));
+            Assert.That(Face("MAIN MENUButton"), Is.EqualTo(ShellTheme.Cream));
+            var problems = ShellStyleAudit.Audit(root.transform.Find("GameOverLayout").gameObject);
+            Assert.That(problems, Is.Empty, string.Join("\n", problems));
         }
 
         [Test]
-        public void AnOlderDarkLayoutIsReplacedAndKeepsItsButtons()
+        public void AnOldCreamCardIsReplacedAndKeepsItsButtons()
         {
             var old = new GameObject("GameOverLayout", typeof(RectTransform)).transform;
             old.SetParent(root.transform, false);
+            new GameObject("MenuPanel", typeof(RectTransform), typeof(Image)).transform.SetParent(old, false);
             foreach (var button in root.GetComponentsInChildren<Button>(true).ToArray())
                 button.transform.SetParent(old, false);
 
             GameOverPresentationBuilder.Build(screen, new GameSession());
 
             Assert.That(root.transform.Cast<Transform>().Count(t => t.name == "GameOverLayout"), Is.EqualTo(1));
-            Assert.That(root.transform.Find("GameOverLayout/MenuPanel"), Is.Not.Null);
+            Assert.That(root.transform.Find($"GameOverLayout/MenuPanel/{ShellKit.FaceName}"), Is.Not.Null);
             Assert.That(root.transform.Find("GameOverLayout").GetComponentsInChildren<Button>(true).Length, Is.EqualTo(3));
         }
 
@@ -146,7 +151,7 @@ namespace KMA.Tests.Presentation
             GameOverPresentationBuilder.Build(screen, new GameSession());
 
             var veil = screen.transform.Find("GameOverVeil");
-            Assert.That(veil.GetComponent<Image>().color, Is.EqualTo(HomeMenuStyle.Navy));
+            Assert.That(veil.GetComponent<Image>().color, Is.EqualTo(ShellTheme.Ink));
             var art = veil.Find("Illustration").GetComponent<Image>();
             Assert.That(art.sprite, Is.SameAs(sprite));
             var fitter = art.GetComponent<AspectRatioFitter>();

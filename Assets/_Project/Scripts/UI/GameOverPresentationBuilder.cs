@@ -15,18 +15,9 @@ namespace KMA.Gameplay.UI
         const string PanelName = "MenuPanel";
         static readonly Vector2 Center = new Vector2(.5f, .5f);
 
-        // Sampled from the painted menu panel (Art/UI/MenuKeyArtPanel.png).
-        public static readonly Color Cream = new Color32(0xfb, 0xf4, 0xe4, 0xff);
-        public static readonly Color ButtonGold = new Color32(0xf9, 0xc8, 0x2b, 0xff);
-        // Deeper than the accent red so the headline stays legible on cream.
-        public static readonly Color TitleRed = new Color32(0xc6, 0x28, 0x28, 0xff);
-        const float Border = 6f;
-        static readonly Vector2 DropOffset = new Vector2(8f, -8f);
         static readonly Vector2 PanelSize = new Vector2(800f, 820f);
         static readonly Vector2 PanelCenter = new Vector2(0f, 15f);
-        static readonly Vector2 ButtonSize = new Vector2(560f, 84f);
-        const float PanelRadius = 24f;
-        const float ButtonRadius = 14f;
+        static readonly Vector2 ButtonSize = new Vector2(560f, ShellTheme.ControlHeight);
 
         static string Subtitle => $"Bạn đã dùng hết {GameSession.MaxLives} lượt thi. Chọn một thao tác bên dưới để tiếp tục.";
 
@@ -52,9 +43,9 @@ namespace KMA.Gameplay.UI
             if (screen == null) return;
             screen.EnsureDialogue();
             var existing = screen.transform.Find(LayoutName);
-            if (existing != null && existing.Find(PanelName) == null)
+            if (existing != null && existing.Find(PanelName + "/" + ShellKit.FaceName) == null)
             {
-                // A layout from the older dark style: keep the scene's buttons, rebuild the rest.
+                // A layout from an older style: keep the scene's buttons, rebuild the rest.
                 DropLayout(screen);
                 existing = null;
             }
@@ -75,7 +66,7 @@ namespace KMA.Gameplay.UI
                 veil = Rect(screen.transform, "GameOverVeil");
                 Stretch(veil);
                 // Opaque: nothing from a previous scene's HUD may show through behind the result.
-                veil.gameObject.AddComponent<Image>().color = HomeMenuStyle.Navy;
+                veil.gameObject.AddComponent<Image>().color = ShellTheme.Ink;
             }
             veil.SetAsFirstSibling();
             ApplyBackground(screen, veil);
@@ -87,18 +78,16 @@ namespace KMA.Gameplay.UI
             layout.gameObject.AddComponent<CanvasGroup>();
             layout.gameObject.AddComponent<GameOverReveal>();
 
-            Card(layout, PanelName, PanelCenter, PanelSize, PanelRadius, Cream, true);
-            Accent(layout, "AccentTop", new Vector2(-350f, 390f));
-            Accent(layout, "AccentTitle", new Vector2(352f, 250f));
+            ShellCardHandle panel = ShellKit.Card(layout, PanelName, decorated: true);
+            At(panel.Root, PanelCenter, PanelSize);
 
-            var top = Title(layout, "TitleTop", "HẾT LƯỢT THI", 44f, HomeMenuStyle.Navy, new Vector2(0f, 375f), new Vector2(620f, 60f));
-            UiKit.FitLabel(top, 44f);
-            var main = Title(layout, "TitleMain", "CHƯA QUA HỌC PHẦN", 84f, TitleRed,
-                new Vector2(0f, 285f), new Vector2(700f, 110f));
-            UiKit.FitLabel(main, 84f);
+            ShellTitleHandle top = ShellKit.Title(layout, "TitleTop", "HẾT LƯỢT THI", MinigameUiTheme.Headline);
+            At(top.Root, new Vector2(0f, 375f), new Vector2(620f, 60f));
+            ShellTitleHandle main = ShellKit.Title(layout, "TitleMain", "CHƯA QUA HỌC PHẦN", 84f, warning: true);
+            At(main.Root, new Vector2(0f, 285f), new Vector2(700f, 110f));
 
-            var subtitle = UiKit.Label(layout, "Subtitle", Subtitle, 28f, HomeMenuStyle.Navy);
-            subtitle.fontStyle = FontStyles.Normal;
+            var subtitle = ShellKit.Label(layout, "Subtitle", Subtitle, MinigameUiTheme.Caption, ShellTheme.BodyText,
+                VietFontRole.Body);
             subtitle.textWrappingMode = TextWrappingModes.Normal;
             subtitle.overflowMode = TextOverflowModes.Ellipsis;
             At(subtitle.rectTransform, new Vector2(0f, 180f), new Vector2(660f, 90f));
@@ -107,17 +96,17 @@ namespace KMA.Gameplay.UI
             Stat(layout, "StatFailed", stats.FailedVisits.ToString(), "LẦN CHƯA ĐẠT", 0f);
             Stat(layout, "StatScore", stats.TotalScore.ToString(), "TỔNG ĐIỂM", 250f);
 
-            Action(screen, layout, "RETRYButton", "CHƠI LẠI", -105f, true);
-            Action(screen, layout, "NEW GAMEButton", "CHƠI MỚI", -210f, false);
-            Action(screen, layout, "MAIN MENUButton", "MENU CHÍNH", -315f, false);
+            Action(screen, layout, "RETRYButton", "CHƠI LẠI", -105f, ShellButtonVariant.Primary);
+            Action(screen, layout, "NEW GAMEButton", "CHƠI MỚI", -210f, ShellButtonVariant.Secondary);
+            Action(screen, layout, "MAIN MENUButton", "MENU CHÍNH", -315f, ShellButtonVariant.Secondary);
         }
 
         static void RefreshEditedContent(GameOverScreen screen)
         {
             var layout = (RectTransform)screen.transform.Find(LayoutName);
             layout.sizeDelta = new Vector2(UITheme.Shared.Dialogue.gameOverContentWidth, 1000f);
-            layout.Find("TitleTop").GetComponent<TMP_Text>().text = VietText.Fix("HẾT LƯỢT THI");
-            layout.Find("TitleMain").GetComponent<TMP_Text>().text = VietText.Fix("CHƯA QUA HỌC PHẦN");
+            ShellKit.SetTitleText(layout.Find("TitleTop"), "HẾT LƯỢT THI");
+            ShellKit.SetTitleText(layout.Find("TitleMain"), "CHƯA QUA HỌC PHẦN");
             layout.Find("Subtitle").GetComponent<TMP_Text>().text = VietText.Fix(Subtitle);
             layout.Find("StatFailed/Caption").GetComponent<TMP_Text>().text = VietText.Fix("LẦN CHƯA ĐẠT");
         }
@@ -149,64 +138,20 @@ namespace KMA.Gameplay.UI
             if (label != null) label.text = VietText.Fix(value);
         }
 
-        // A navy rounded border with a navy drop shadow, and a face inset by the border width.
-        static Image Card(RectTransform parent, string name, Vector2 position, Vector2 size, float radius,
-            Color faceColor, bool drop)
-        {
-            var border = UiKit.Shape(parent, name, radius, HomeMenuStyle.Navy);
-            At(border.rectTransform, position, size);
-            if (drop)
-            {
-                var shadow = border.gameObject.AddComponent<Shadow>();
-                shadow.effectColor = HomeMenuStyle.Navy;
-                shadow.effectDistance = DropOffset;
-            }
-            var face = UiKit.Shape(border.transform, "Face", Mathf.Max(0f, radius - Border), faceColor);
-            Stretch(face.rectTransform);
-            face.rectTransform.offsetMin = Vector2.one * Border;
-            face.rectTransform.offsetMax = -Vector2.one * Border;
-            return face;
-        }
-
-        static void Accent(RectTransform parent, string name, Vector2 position)
-        {
-            var square = UiKit.Shape(parent, name, 3f, HomeMenuStyle.Red);
-            At(square.rectTransform, position, new Vector2(30f, 30f));
-        }
-
-        static TMP_Text Title(RectTransform parent, string name, string text, float size, Color color, Vector2 position, Vector2 box)
-        {
-            var label = UiKit.Label(parent, name, text, size, color);
-            VietTypography.Apply(label, VietFontRole.Title);
-            // The Title role tints with a gold gradient, which muddies dark text on the cream card.
-            label.enableVertexGradient = false;
-            label.fontStyle = FontStyles.Bold | FontStyles.Italic;
-            label.color = color;
-            label.textWrappingMode = TextWrappingModes.NoWrap;
-            label.overflowMode = TextOverflowModes.Ellipsis;
-            At(label.rectTransform, position, box);
-            return label;
-        }
-
         static void Stat(RectTransform parent, string name, string value, string caption, float x)
         {
-            var card = Rect(parent, name);
-            At(card, new Vector2(x, 45f), new Vector2(240f, 130f));
-            Card(card, "Frame", Vector2.zero, card.sizeDelta, ButtonRadius, Color.white, false)
-                .transform.parent.SetAsFirstSibling();
-
-            var number = UiKit.Label(card, "Value", value, 54f, HomeMenuStyle.Navy);
+            ShellCardHandle card = ShellKit.Tile(parent, name);
+            At(card.Root, new Vector2(x, 45f), new Vector2(240f, 130f));
+            var number = ShellKit.Label(card.Root, "Value", value, MinigameUiTheme.Title, ShellTheme.Ink, VietFontRole.Hud);
             number.textWrappingMode = TextWrappingModes.NoWrap;
-            UiKit.FitLabel(number, 54f);
             Anchor(number.rectTransform, new Vector2(.05f, .42f), new Vector2(.95f, .95f));
-            var text = UiKit.Label(card, "Caption", caption, 26f, HomeMenuStyle.Red);
+            var text = ShellKit.Label(card.Root, "Caption", caption, MinigameUiTheme.Caption, ShellTheme.TitleRed, VietFontRole.Hud);
             text.textWrappingMode = TextWrappingModes.NoWrap;
-            UiKit.FitLabel(text, 26f);
             Anchor(text.rectTransform, new Vector2(.03f, .07f), new Vector2(.97f, .45f));
         }
 
         static void Action(GameOverScreen screen, RectTransform parent, string name, string caption,
-            float y, bool primary)
+            float y, ShellButtonVariant variant)
         {
             var button = screen.GetComponentsInChildren<Button>(true)
                 .FirstOrDefault(candidate => string.Equals(candidate.name, name, StringComparison.Ordinal));
@@ -216,43 +161,7 @@ namespace KMA.Gameplay.UI
             rect.localScale = Vector3.one;
             rect.localRotation = Quaternion.identity;
             At(rect, new Vector2(0f, y), ButtonSize);
-            foreach (var stale in new[] { "Fill", "Icon", "HoverArrow", "DisabledShade", "Face" })
-            {
-                var old = rect.Find(stale);
-                if (old != null) UnityEngine.Object.DestroyImmediate(old.gameObject);
-            }
-            foreach (var old in button.GetComponents<HomeKeyArtButton>()) UnityEngine.Object.DestroyImmediate(old);
-            foreach (var old in button.GetComponents<Outline>()) UnityEngine.Object.DestroyImmediate(old);
-
-            var border = button.GetComponent<Image>() ?? button.gameObject.AddComponent<Image>();
-            UiKit.SetRadius(border, ButtonRadius);
-            border.color = HomeMenuStyle.Navy;
-            border.raycastTarget = true;
-            var shadow = UiKit.GetOrAdd<Shadow>(button.gameObject);
-            shadow.effectColor = HomeMenuStyle.Navy;
-            shadow.effectDistance = new Vector2(5f, -5f);
-            var face = UiKit.Shape(rect, "Face", ButtonRadius - 4f, primary ? ButtonGold : Cream);
-            Stretch(face.rectTransform);
-            face.rectTransform.offsetMin = Vector2.one * 4f;
-            face.rectTransform.offsetMax = -Vector2.one * 4f;
-            face.transform.SetAsFirstSibling();
-
-            var label = UiKit.EnsureTmpLabel(rect, 34f, HomeMenuStyle.Navy);
-            label.text = VietText.Fix(caption);
-            label.fontStyle = FontStyles.Bold;
-            label.alignment = TextAlignmentOptions.Center;
-            label.textWrappingMode = TextWrappingModes.NoWrap;
-            UiKit.FitLabel(label, 34f);
-            Stretch(label.rectTransform);
-            label.rectTransform.offsetMin = new Vector2(16f, 4f);
-            label.rectTransform.offsetMax = new Vector2(-16f, -4f);
-            label.transform.SetAsLastSibling();
-
-            button.transition = Selectable.Transition.None;
-            button.targetGraphic = border;
-            var press = UiKit.GetOrAdd<KitPressFeedback>(button.gameObject);
-            press.Configure(face, rect);
-            press.BindLabel(label);
+            ShellKit.StyleButton(button, variant, caption);
         }
 
         static RectTransform Rect(Transform parent, string name)
