@@ -85,6 +85,180 @@ namespace KMA.UI.Kit
             return label;
         }
 
+        public static Color FaceColor(ShellButtonVariant variant) => variant switch
+        {
+            ShellButtonVariant.Primary => ShellTheme.Gold,
+            ShellButtonVariant.Danger => ShellTheme.AccentRed,
+            _ => ShellTheme.Cream,
+        };
+
+        public static Color LabelColor(ShellButtonVariant variant) => ShellTheme.Ink;
+
+        public static ShellButtonHandle Button(Transform parent, string name, string text, ShellButtonVariant variant)
+        {
+            RectTransform rect = UiKit.Rect(parent, name);
+            rect.sizeDelta = new Vector2(rect.sizeDelta.x, ShellTheme.ControlHeight);
+            var button = rect.gameObject.AddComponent<UnityEngine.UI.Button>();
+            return StyleButton(button, variant, text);
+        }
+
+        public static ShellButtonHandle IconButton(Transform parent, string name, string glyph)
+        {
+            ShellButtonHandle handle = Button(parent, name, glyph, ShellButtonVariant.Secondary);
+            ((RectTransform)handle.Button.transform).sizeDelta = Vector2.one * ShellTheme.IconButtonSize;
+            VietTypography.Apply(handle.Label, VietFontRole.Symbol);
+            handle.Label.fontSize = MinigameUiTheme.Headline;
+            UiKit.FitLabel(handle.Label, MinigameUiTheme.Headline);
+            handle.Label.color = LabelColor(ShellButtonVariant.Secondary);
+            return handle;
+        }
+
+        /// Restyles any uGUI Button, kit-, prefab- or scene-authored, as a Shell button. Idempotent; keeps listeners.
+        public static ShellButtonHandle StyleButton(UnityEngine.UI.Button button, ShellButtonVariant variant, string text = null)
+        {
+            var root = (RectTransform)button.transform;
+            RemoveLegacyButtonParts(root);
+
+            Image hit = UiKit.GetOrAdd<Image>(root.gameObject);
+            hit.sprite = null;
+            hit.color = Color.clear;
+            hit.raycastTarget = true;
+
+            Image shadow = Layer(root, ShadowName, 0, ShellTheme.ControlRadius, ShellTheme.Ink);
+            UiKit.Stretch(shadow.rectTransform, ShellTheme.ControlShadow, ShellTheme.ControlShadow);
+            Transform existingBody = root.Find(BodyName);
+            RectTransform body = existingBody != null ? (RectTransform)existingBody : UiKit.Rect(root, BodyName);
+            body.SetSiblingIndex(1);
+            UiKit.Stretch(body);
+            UiKit.GetOrAdd<LayoutElement>(body.gameObject).ignoreLayout = true;
+            Image border = Layer(body, BorderName, 0, ShellTheme.ControlRadius, ShellTheme.Ink);
+            UiKit.Stretch(border.rectTransform);
+            Image face = Layer(body, FaceName, 1, Mathf.Max(0f, ShellTheme.ControlRadius - ShellTheme.ControlBorder),
+                FaceColor(variant));
+            UiKit.Stretch(face.rectTransform, Vector2.one * ShellTheme.ControlBorder, -Vector2.one * ShellTheme.ControlBorder);
+
+            TMP_Text label = root.GetComponentInChildren<TMP_Text>(true);
+            if (label == null && (text != null || root.GetComponentInChildren<Text>(true) != null))
+                label = UiKit.EnsureTmpLabel(root, MinigameUiTheme.BodyLarge, LabelColor(variant));
+            if (label != null)
+            {
+                label.transform.SetParent(body, false);
+                label.transform.SetAsLastSibling();
+                UiKit.Stretch(label.rectTransform, new Vector2(MinigameUiTheme.SpaceSm, 0f), new Vector2(-MinigameUiTheme.SpaceSm, 0f));
+                if (text != null) label.text = VietText.Fix(text);
+                label.fontSize = MinigameUiTheme.BodyLarge;
+                label.alignment = TextAlignmentOptions.Center;
+                label.textWrappingMode = TextWrappingModes.NoWrap;
+                label.raycastTarget = false;
+                VietTypography.Apply(label, VietFontRole.Hud);
+                UiKit.FitLabel(label, MinigameUiTheme.BodyLarge);
+            }
+
+            button.transition = Selectable.Transition.None;
+            button.targetGraphic = face;
+            face.raycastTarget = true;
+            var feedback = UiKit.GetOrAdd<ShellPressFeedback>(root.gameObject);
+            feedback.Configure(body, face, label, FaceColor(variant), LabelColor(variant));
+            return new ShellButtonHandle(button, body, new ShellCardHandle(root, shadow, border, face), label, feedback);
+        }
+
+        public static ShellTitleHandle Title(Transform parent, string name, string text, float size, bool warning = false)
+        {
+            RectTransform root = UiKit.Rect(parent, name);
+            TMP_Text drop = TitleText(root, "Drop", text, size, ShellTheme.Gold);
+            UiKit.Stretch(drop.rectTransform, ShellTheme.TitleDrop, ShellTheme.TitleDrop);
+            TMP_Text face = TitleText(root, "Text", text, size, warning ? ShellTheme.TitleRed : ShellTheme.Ink);
+            UiKit.Stretch(face.rectTransform);
+            return new ShellTitleHandle(root, face, drop);
+        }
+
+        public static void SetTitleText(Transform titleRoot, string text)
+        {
+            foreach (string part in new[] { "Drop", "Text" })
+            {
+                TMP_Text label = titleRoot.Find(part)?.GetComponent<TMP_Text>();
+                if (label != null) label.text = VietText.Fix(text);
+            }
+        }
+
+        public static ShellToggleHandle Toggle(Transform parent, string name)
+        {
+            RectTransform root = UiKit.Rect(parent, name);
+            ShellCardHandle track = StyleSurface(root, ShellTheme.ControlRadius, ShellTheme.ControlBorder,
+                ShellTheme.ControlShadow, ShellTheme.Cream);
+            Image check = UiKit.Shape(track.Face.transform, "Checkmark",
+                Mathf.Max(0f, ShellTheme.ControlRadius - ShellTheme.ControlBorder), ShellTheme.Gold);
+            UiKit.Stretch(check.rectTransform);
+            TMP_Text value = Label(root, "Value", "BẬT", MinigameUiTheme.Body, ShellTheme.Ink, VietFontRole.Hud);
+            UiKit.Stretch(value.rectTransform);
+            track.Face.raycastTarget = true;
+            var toggle = root.gameObject.AddComponent<UnityEngine.UI.Toggle>();
+            toggle.targetGraphic = track.Face;
+            toggle.graphic = check;
+            toggle.transition = Selectable.Transition.None;
+            toggle.toggleTransition = UnityEngine.UI.Toggle.ToggleTransition.None;
+            return new ShellToggleHandle(toggle, track, check, value);
+        }
+
+        public static ShellSliderHandle Slider(Transform parent, string name)
+        {
+            RectTransform root = UiKit.Rect(parent, name);
+            Image hit = root.gameObject.AddComponent<Image>();
+            hit.color = Color.clear;
+            hit.raycastTarget = true;
+
+            RectTransform trackRect = UiKit.Rect(root, "Track");
+            UiKit.Anchor(trackRect, new Vector2(0f, .3f), new Vector2(1f, .7f));
+            ShellCardHandle track = StyleSurface(trackRect, ShellTheme.ControlRadius, ShellTheme.ControlBorder,
+                ShellTheme.ControlShadow, ShellTheme.Cream);
+            RectTransform fillArea = UiKit.Rect(track.Face.transform, "FillArea");
+            UiKit.Stretch(fillArea);
+            Image fill = UiKit.Shape(fillArea, "Fill", Mathf.Max(0f, ShellTheme.ControlRadius - ShellTheme.ControlBorder),
+                ShellTheme.Gold);
+            UiKit.Stretch(fill.rectTransform);
+
+            RectTransform area = UiKit.Rect(root, "HandleSlideArea");
+            area.anchorMin = new Vector2(0f, .5f);
+            area.anchorMax = new Vector2(1f, .5f);
+            area.sizeDelta = new Vector2(-MinigameUiTheme.SliderKnob, MinigameUiTheme.SliderKnob);
+            Image knob = UiKit.Disc(area, "Handle", false, ShellTheme.Ink);
+            knob.rectTransform.sizeDelta = Vector2.one * MinigameUiTheme.SliderKnob;
+            Image ring = UiKit.Disc(knob.transform, "Ring", true, ShellTheme.Gold);
+            UiKit.Stretch(ring.rectTransform);
+
+            var slider = root.gameObject.AddComponent<UnityEngine.UI.Slider>();
+            slider.fillRect = fill.rectTransform;
+            slider.handleRect = knob.rectTransform;
+            slider.targetGraphic = knob;
+            slider.transition = Selectable.Transition.None;
+            slider.direction = UnityEngine.UI.Slider.Direction.LeftToRight;
+            slider.minValue = 0f;
+            slider.maxValue = 1f;
+            return new ShellSliderHandle(slider, track, fill, knob);
+        }
+
+        static TMP_Text TitleText(RectTransform parent, string name, string text, float size, Color color)
+        {
+            TMP_Text label = Label(parent, name, text, size, color, VietFontRole.Title);
+            label.fontStyle = FontStyles.Italic;
+            label.textWrappingMode = TextWrappingModes.NoWrap;
+            label.overflowMode = TextOverflowModes.Ellipsis;
+            return label;
+        }
+
+        static void RemoveLegacyButtonParts(RectTransform root)
+        {
+            foreach (string stale in new[] { "Fill", "Face", "Icon", "HoverArrow", "DisabledShade", "Shadow", "Visual" })
+            {
+                Transform old = root.Find(stale);
+                if (old != null) { old.name = "Stale"; Destroy(old.gameObject); }
+            }
+            foreach (Shadow effect in root.GetComponents<Shadow>()) Destroy(effect);
+            foreach (KitPressFeedback old in root.GetComponents<KitPressFeedback>()) Destroy(old);
+            foreach (MonoBehaviour behaviour in root.GetComponents<MonoBehaviour>())
+                if (behaviour != null && behaviour.GetType().Name == "HomeKeyArtButton") Destroy(behaviour);
+        }
+
         static void Decorate(RectTransform root, bool decorated)
         {
             for (int i = root.childCount - 1; i >= 0; i--)
