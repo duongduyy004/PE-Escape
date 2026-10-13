@@ -119,7 +119,7 @@ namespace KMA.Gameplay.Celebration
             {
                 CelebrationRow row = Summary.Subjects[i];
                 string score = row.HasScore
-                    ? $"  ·  {row.Score.ToString("0.0", Vietnamese)} điểm  ·  Hạng {row.Rank}" : string.Empty;
+                    ? $"  ·  {row.Score.ToString("0.0", Vietnamese)} điểm  ·  Hạng {RankLabels.For(row.Rank)}" : string.Empty;
                 rows[i].text = VietText.Fix((row.Completed ? "Đạt  " : "Chưa đạt  ") + row.Title + score);
             }
             rows[3].text = VietText.Fix(Summary.ChessLine);

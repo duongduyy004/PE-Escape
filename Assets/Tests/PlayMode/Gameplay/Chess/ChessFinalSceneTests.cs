@@ -276,16 +276,6 @@ namespace KMA.Tests.Gameplay.Chess
         }
 
         [UnityTest]
-        public IEnumerator AnOldChessResultShownInTheChessSceneIsNotRelabelledAPlus()
-        {
-            ResultPanel panel = ShowSyntheticChallenge(true, new MinigameResult(true, 9.5f, Rank.S),
-                new ChallengeMetrics(elapsed: 40f, completedTargets: 2));
-            yield return null;
-            Assert.That(panel.RankText, Does.Not.Contain("A+"), "it was not scored with the new scale");
-            Assert.That(panel.RankText, Does.Contain("S"));
-        }
-
-        [UnityTest]
         public IEnumerator AFailureBreakdownWithManyMovesFitsTheDetailLabel()
         {
             ResultPanel panel = ShowSyntheticChallenge(false, new MinigameResult(false, 0f, Rank.F),

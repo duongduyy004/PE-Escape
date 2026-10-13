@@ -193,7 +193,7 @@ namespace KMA.Gameplay.UI
             if (detailLabel != null)
             {
                 detailLabel.text = VietText.Fix(selectable
-                    ? completed ? $"HẠNG {BestRank}  {Stars} SAO" : "SẴN SÀNG"
+                    ? completed ? $"HẠNG {RankLabels.For(BestRank)}  {Stars} SAO" : "SẴN SÀNG"
                     : unavailableLabel);
                 if (detailVisibilityRoot != null)
                     detailVisibilityRoot.SetActive(selectable && completed);

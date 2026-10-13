@@ -76,11 +76,7 @@ namespace KMA.Gameplay.Chess
             hud.RetryAnalysisButton.onClick.AddListener(() => machine?.RetryAnalysis());
             hud.RestartPuzzleButton.onClick.AddListener(RestartPuzzle);
             var panel = FindFirstObjectByType<ResultPanel>(FindObjectsInactive.Include);
-            if (panel != null)
-            {
-                panel.SetTitles("CHIẾU HẾT", "CHƯA ĐẠT");
-                panel.UseChessRanks(true);
-            }
+            if (panel != null) panel.SetTitles("CHIẾU HẾT", "CHƯA ĐẠT");
             hud.SetGenerating(true);
             hud.StartButton.interactable = false;
             hud.SetHintAvailable(false);

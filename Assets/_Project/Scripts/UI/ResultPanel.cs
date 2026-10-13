@@ -17,10 +17,6 @@ namespace KMA.Gameplay.UI
         IFrogJumpResultPanel
     {
         const int SortingOrder = 500;
-        bool chessRanks;
-
-        /// The chess exam stores its top grade as Rank.S and shows it as A+.
-        public void UseChessRanks(bool value) => chessRanks = value;
 
         /// Caption above the score number; the prefab styler bakes the same text.
         public const string ScoreCaptionText = "ĐIỂM";
@@ -238,7 +234,7 @@ namespace KMA.Gameplay.UI
             if (scoreLabel != null)
                 scoreLabel.text = VietText.Fix(finalScoreText);
             if (rankLabel != null)
-                rankLabel.text = VietText.Fix($"XẾP HẠNG {RankLabels.For(result.Rank, chessRanks)}");
+                rankLabel.text = VietText.Fix($"XẾP HẠNG {RankLabels.For(result.Rank)}");
             if (livesLabel != null)
             {
                 livesLabel.text = VietText.Fix($"LƯỢT THI: {remainingLives}/{GameSession.MaxLives}");
@@ -348,7 +344,7 @@ namespace KMA.Gameplay.UI
             {
                 rankLabel.text = result.ExamResult == null
                     ? VietText.Fix($"{result.Metrics.CompletedTargets} MỤC TIÊU")
-                    : VietText.Fix($"XẾP HẠNG {RankLabels.For(result.ExamResult.Rank, result.Metrics?.Chess != null)}");
+                    : VietText.Fix($"XẾP HẠNG {RankLabels.For(result.ExamResult.Rank)}");
                 rankLabel.gameObject.SetActive(result.ExamResult != null);
             }
             bool frogJump = outcome.HasValue && outcome.Value.FrogJumpRequired;
