@@ -321,17 +321,34 @@ namespace KMA.Gameplay.Chess
             _ => Rank.F
         };
 
-        public ChallengeMetrics BuildMetrics(ChallengeDefinition definition, MinigameResult result) =>
-            new ChallengeMetrics(elapsed: machine.Clock.Elapsed, completedTargets: machine.MovesUsed,
-                mistakes: machine.Moves.Count(m => m.Q < 1.0), hintUsed: machine.HintUsed,
-                detail: Detail(result != null && result.Pass));
-
-        string Detail(bool solved)
+        ChessResultSummary BuildSummary() => new ChessResultSummary
         {
-            if (!solved) return EndReasonText(machine.EndReason);
-            return $"Nước: {machine.MovesUsed}/{machine.MaxMoves} · Tối ưu: {machine.OptimalMoves} · " +
-                   $"Thời gian {ChessFinalHud.FormatClock(machine.Clock.Elapsed)}/{ChessFinalHud.FormatClock(machine.Clock.Limit)}" +
-                   (machine.HintUsed ? " · Có dùng gợi ý" : string.Empty);
+            scoringVersion = ChessResultSummary.CurrentScoringVersion,
+            movesUsed = machine.MovesUsed,
+            maxMoves = machine.MaxMoves,
+            optimalMoves = machine.OptimalMoves,
+            allowedSeconds = Mathf.RoundToInt(machine.Clock.Limit),
+            usedSeconds = machine.Clock.Elapsed,
+            hintUsed = machine.HintUsed,
+            explicitHintUsed = machine.ExplicitHintUsed,
+            hintCapped = machine.Result.HintCapped,
+            endReason = machine.EndReason.ToString(),
+            gradeLabel = ChessAttemptGrader.Label(machine.Result.Grade),
+            score = machine.Result.Score,
+            fen = machine.Snapshot.fen,
+            source = machine.Snapshot.source,
+            seed = machine.Snapshot.seed,
+            estimatorVersion = machine.Snapshot.estimatorVersion,
+            moves = machine.Moves.Select(m => new ChessMoveEntry
+                { uci = m.Uci, q = (float)m.Q, best = m.BestDistance, chosen = m.ChosenDistance }).ToArray()
+        };
+
+        public ChallengeMetrics BuildMetrics(ChallengeDefinition definition, MinigameResult result)
+        {
+            ChessResultSummary summary = BuildSummary();
+            return new ChallengeMetrics(elapsed: machine.Clock.Elapsed, completedTargets: machine.MovesUsed,
+                mistakes: machine.Moves.Count(m => m.Q < 0.999), hintUsed: machine.HintUsed,
+                detail: ChessResultText.Detail(summary), chess: summary);
         }
 
         static string EndReasonText(ChessEndReason reason) => reason switch

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Linq;
 using KMA.Gameplay;
 using KMA.Gameplay.Chess;
+using KMA.Gameplay.UI;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -124,6 +125,49 @@ namespace KMA.Tests.Gameplay.Chess
             Assert.That(result.Score, Is.GreaterThanOrEqualTo(8.9f));
             Assert.That(controller.Machine.Moves.All(m => m.Q > .999), Is.True);
             Assert.That(controller.BuildMetrics(null, result).Detail, Does.StartWith("Nước:"));
+        }
+
+        IEnumerator PlayOptimalLineToTheResult()
+        {
+            yield return Begin();
+            for (int i = 0; i < controller.Machine.MaxMoves && result == null; i++)
+            {
+                yield return WaitFor(() => controller.Machine.Phase == ChessAttemptPhase.PlayerTurn || result != null, "player turn");
+                if (result != null) break;
+                yield return Play(Optimal());
+            }
+            yield return WaitFor(() => result != null, "the result was not published");
+        }
+
+        /// The standalone scene has no SceneRouter, so show the card the router would show for the Final.
+        ResultPanel ShowChallengeCard(bool solved)
+        {
+            var panel = UnityEngine.Object.FindFirstObjectByType<ResultPanel>(FindObjectsInactive.Include);
+            ChallengeDefinition definition = new GameSession().Journey.Catalog.Get("chess_final");
+            var context = new ChallengeAttemptContext("t", "chess_final", ChallengeAttemptMode.Journey, ChallengeDifficulty.Normal);
+            var challenge = new ChallengeAttemptResult(context, solved, controller.BuildMetrics(definition, result), result);
+            panel.ShowChallenge(context, challenge, new JourneyCommitOutcome(true, null, 0, false, false, solved, true), null);
+            return panel;
+        }
+
+        [UnityTest]
+        public IEnumerator ResultDetailListsMovesAndTimeAfterAWin()
+        {
+            yield return PlayOptimalLineToTheResult();
+            ResultPanel panel = ShowChallengeCard(true);
+            Assert.That(panel.DetailText, Does.Contain("Nước:"));
+            Assert.That(panel.DetailText, Does.Contain("Tối ưu:"));
+            Assert.That(panel.DetailText, Does.Contain("Chiếu hết"));
+            Assert.That(result.Score, Is.GreaterThanOrEqualTo(8.9f), "the score label counts up, so the result is checked");
+        }
+
+        [UnityTest]
+        public IEnumerator ChessRankLabelShowsAPlus()
+        {
+            yield return PlayOptimalLineToTheResult();
+            Assert.That(result.Rank, Is.EqualTo(Rank.S), "A+ is stored as the top rank");
+            ResultPanel panel = ShowChallengeCard(true);
+            Assert.That(panel.RankText, Does.Contain("A+"));
         }
 
         [UnityTest]

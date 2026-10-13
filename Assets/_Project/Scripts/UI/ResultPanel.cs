@@ -100,6 +100,9 @@ namespace KMA.Gameplay.UI
         public bool IsVisible => contentRoot ? contentRoot.activeInHierarchy : gameObject.activeInHierarchy;
         public bool ContinueInteractable => actionButton && actionButton.interactable;
         public string StatusText => statusLabel ? statusLabel.text : null;
+        public string DetailText => detailLabel ? detailLabel.text : null;
+        public string RankText => rankLabel ? rankLabel.text : null;
+        public string ScoreText => scoreLabel ? scoreLabel.text : null;
         public bool SupportsRetry => retryButton && detailLabel && livesLabel;
         /// The main button's caption exactly as SetButtonLabel wrote it (VietText-normalized).
         public string ContinueLabel => actionButton != null
@@ -128,6 +131,20 @@ namespace KMA.Gameplay.UI
         {
             successTitle = success ?? successTitle;
             failureTitle = failure ?? failureTitle;
+        }
+
+        bool detailFitted;
+
+        // The chess breakdown is several lines long; the other subjects keep their one-line label untouched.
+        void FitDetailForChess()
+        {
+            if (detailLabel == null || detailFitted) return;
+            detailFitted = true;
+            float max = detailLabel.fontSize;
+            detailLabel.textWrappingMode = TextWrappingModes.Normal;
+            detailLabel.enableAutoSizing = true;
+            detailLabel.fontSizeMax = max;
+            detailLabel.fontSizeMin = Mathf.Max(12f, max * .5f);
         }
 
         public void SetDetail(string text)
@@ -288,7 +305,10 @@ namespace KMA.Gameplay.UI
             bool frogJump = outcome.HasValue && outcome.Value.FrogJumpRequired;
             bool final = outcome.HasValue && outcome.Value.FinalChallenge;
             string learnDetail = LearnProgressDetail(context, result);
+            if (final && result.Metrics.Chess != null) FitDetailForChess();
             SetDetail(saveError == null && !string.IsNullOrEmpty(learnDetail) ? learnDetail
+                : saveError == null && final && result.Metrics.Chess != null
+                ? ChessResultText.Detail(result.Metrics.Chess)
                 : saveError == null && final && !string.IsNullOrEmpty(result.Metrics.Detail)
                 ? result.Metrics.Detail
                 : saveError ?? (context.Mode == ChallengeAttemptMode.Journey
