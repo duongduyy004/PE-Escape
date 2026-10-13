@@ -205,7 +205,13 @@ namespace KMA.Gameplay
                 score = score,
                 thinkSeconds = Math.Max(0f, metrics.Elapsed),
                 mistakes = Math.Max(0, metrics.Mistakes),
-                hintUsed = metrics.HintUsed
+                hintUsed = metrics.HintUsed,
+                scoringVersion = metrics.Chess?.scoringVersion ?? 0,
+                movesUsed = metrics.Chess?.movesUsed ?? 0,
+                optimalMoves = metrics.Chess?.optimalMoves ?? 0,
+                maxMoves = metrics.Chess?.maxMoves ?? 0,
+                allowedSeconds = metrics.Chess?.allowedSeconds ?? 0,
+                gradeLabel = metrics.Chess?.gradeLabel
             };
         }
 
@@ -274,7 +280,13 @@ namespace KMA.Gameplay
                 score = Math.Max(0f, best.score),
                 thinkSeconds = Math.Max(0f, best.thinkSeconds),
                 mistakes = Math.Max(0, best.mistakes),
-                hintUsed = best.hintUsed
+                hintUsed = best.hintUsed,
+                scoringVersion = Math.Max(0, best.scoringVersion),
+                movesUsed = Math.Max(0, best.movesUsed),
+                optimalMoves = Math.Max(0, best.optimalMoves),
+                maxMoves = Math.Max(0, best.maxMoves),
+                allowedSeconds = Math.Max(0, best.allowedSeconds),
+                gradeLabel = best.gradeLabel
             };
             celebrationSeen = (data?.celebrationSeen ?? false) && CourseComplete;
         }

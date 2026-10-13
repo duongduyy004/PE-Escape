@@ -282,7 +282,7 @@ namespace KMA.Gameplay.UI
             {
                 rankLabel.text = result.ExamResult == null
                     ? VietText.Fix($"{result.Metrics.CompletedTargets} MỤC TIÊU")
-                    : VietText.Fix($"XẾP HẠNG {RankLabels.For(result.ExamResult.Rank, chessRanks)}");
+                    : VietText.Fix($"XẾP HẠNG {RankLabels.For(result.ExamResult.Rank, chessRanks || result.Metrics?.Chess != null)}");
                 rankLabel.gameObject.SetActive(result.ExamResult != null);
             }
             bool frogJump = outcome.HasValue && outcome.Value.FrogJumpRequired;

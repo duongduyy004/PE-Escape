@@ -28,10 +28,19 @@ namespace KMA.Gameplay
         public float thinkSeconds;
         public int mistakes;
         public bool hintUsed;
+        /// 0 marks a record written before the generated puzzles; its other new fields are not guessed.
+        public int scoringVersion;
+        public int movesUsed;
+        public int optimalMoves;
+        public int maxMoves;
+        public int allowedSeconds;
+        public string gradeLabel;
 
         public JourneyChessRecordData Copy() => new JourneyChessRecordData
         {
-            recorded = recorded, score = score, thinkSeconds = thinkSeconds, mistakes = mistakes, hintUsed = hintUsed
+            recorded = recorded, score = score, thinkSeconds = thinkSeconds, mistakes = mistakes, hintUsed = hintUsed,
+            scoringVersion = scoringVersion, movesUsed = movesUsed, optimalMoves = optimalMoves, maxMoves = maxMoves,
+            allowedSeconds = allowedSeconds, gradeLabel = gradeLabel
         };
     }
 
@@ -100,6 +109,7 @@ namespace KMA.Gameplay
         public int kicks;
         public int placement;
         public MinigameResult examResult;
+        public ChessResultSummary chess;
 
         public static JourneyResultData FromResult(ChallengeAttemptResult result)
         {
@@ -116,12 +126,14 @@ namespace KMA.Gameplay
                 completedTargets = metrics.CompletedTargets,
                 kicks = metrics.Kicks,
                 placement = metrics.Placement,
-                examResult = Copy(result.ExamResult)
+                examResult = Copy(result.ExamResult),
+                chess = Summary(metrics.Chess)
             };
         }
 
         public ChallengeAttemptResult ToResult() => new ChallengeAttemptResult(context?.ToContext(), pass,
-            new ChallengeMetrics(distance, elapsed, completedTargets, kicks, placement), Copy(examResult));
+            new ChallengeMetrics(distance, elapsed, completedTargets, kicks, placement, chess: Summary(chess)),
+            Copy(examResult));
 
         internal JourneyResultData Copy() => new JourneyResultData
         {
@@ -138,8 +150,13 @@ namespace KMA.Gameplay
             completedTargets = completedTargets,
             kicks = kicks,
             placement = placement,
-            examResult = Copy(examResult)
+            examResult = Copy(examResult),
+            chess = Summary(chess)
         };
+
+        // JsonUtility turns a missing object into an empty one, so only a versioned summary counts as one.
+        static ChessResultSummary Summary(ChessResultSummary summary) =>
+            summary != null && summary.scoringVersion > 0 ? summary.Copy() : null;
 
         static MinigameResult Copy(MinigameResult result) => result == null
             ? null

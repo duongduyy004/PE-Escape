@@ -36,10 +36,12 @@ namespace KMA.Gameplay
         public bool HintUsed { get; }
         /// Short Vietnamese result line a controller wants shown, or null.
         public string Detail { get; }
+        /// The chess attempt breakdown, or null for every other challenge and for results saved before it existed.
+        public ChessResultSummary Chess { get; }
 
         public ChallengeMetrics(float distance = 0f, float elapsed = 0f, int completedTargets = 0,
             int kicks = 0, int placement = 0, int mistakes = 0, bool hintUsed = false,
-            string detail = null)
+            string detail = null, ChessResultSummary chess = null)
         {
             Distance = distance;
             Elapsed = elapsed;
@@ -49,6 +51,7 @@ namespace KMA.Gameplay
             Mistakes = mistakes;
             HintUsed = hintUsed;
             Detail = detail;
+            Chess = chess;
         }
     }
 

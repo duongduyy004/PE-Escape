@@ -36,6 +36,13 @@ namespace KMA.Gameplay
         public float ChessThinkSeconds { get; private set; }
         public int ChessMistakes { get; private set; }
         public bool ChessHintUsed { get; private set; }
+        /// 0 for a chess record saved before the generated puzzles; the new fields below are then empty.
+        public int ChessScoringVersion { get; private set; }
+        public int ChessMovesUsed { get; private set; }
+        public int ChessMaxMoves { get; private set; }
+        public int ChessOptimalMoves { get; private set; }
+        public int ChessAllowedSeconds { get; private set; }
+        public string ChessGradeLabel { get; private set; }
         public int SupplementaryRounds { get; private set; }
         public bool IsSample { get; private set; }
 
@@ -58,6 +65,12 @@ namespace KMA.Gameplay
                 ChessThinkSeconds = chess.thinkSeconds,
                 ChessMistakes = chess.mistakes,
                 ChessHintUsed = chess.hintUsed,
+                ChessScoringVersion = chess.scoringVersion,
+                ChessMovesUsed = chess.movesUsed,
+                ChessMaxMoves = chess.maxMoves,
+                ChessOptimalMoves = chess.optimalMoves,
+                ChessAllowedSeconds = chess.allowedSeconds,
+                ChessGradeLabel = chess.gradeLabel,
                 SupplementaryRounds = session.Journey.SupplementaryRounds
             };
         }
@@ -75,6 +88,12 @@ namespace KMA.Gameplay
             ChessThinkSeconds = 42f,
             ChessMistakes = 1,
             ChessHintUsed = false,
+            ChessScoringVersion = ChessResultSummary.CurrentScoringVersion,
+            ChessMovesUsed = 2,
+            ChessMaxMoves = 3,
+            ChessOptimalMoves = 2,
+            ChessAllowedSeconds = 90,
+            ChessGradeLabel = "A+",
             IsSample = true
         };
 
