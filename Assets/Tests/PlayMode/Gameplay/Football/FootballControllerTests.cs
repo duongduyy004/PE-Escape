@@ -94,6 +94,12 @@ namespace KMA.Tests.Gameplay.Football
             Assert.That(fixture.controller.LastResult, Is.Not.Null);
             Assert.That(fixture.controller.LastResult.Pass, Is.False);
             Assert.That(fixture.resultPanel.IsVisible, Is.False, "The campaign router owns when the result panel opens.");
+            Assert.That(fixture.aim.gameObject.activeSelf, Is.False,
+                "the terminal result must own the screen instead of leaving the aim slider visible");
+            Assert.That(fixture.shoot.gameObject.activeSelf, Is.False,
+                "the terminal result must disable the shoot control");
+            Assert.That(fixture.root.transform.Find("Power").gameObject.activeSelf, Is.False,
+                "the terminal result must hide the power bar");
             TickPlay(2f);
             Assert.That(completed, Is.EqualTo(1));
         }

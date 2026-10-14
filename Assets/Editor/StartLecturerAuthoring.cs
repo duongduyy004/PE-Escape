@@ -102,14 +102,16 @@ namespace KMA.EditorTools
         static Placement PlaceInSprint(Scene scene)
         {
             float lowestLaneLineY = SprintTrackLayout.WorldYForRow(SprintTrackLayout.LaneLineRows[SprintTrackLayout.LaneCount]);
-            return new Placement(new Vector3(-5.8f, lowestLaneLineY - .55f, 0f), 1.3f, false, 50, 1.6f);
+            // BossPE has more transparent padding than the student sprites; compensate so her
+            // visible body reads at least as tall as a runner instead of appearing undersized.
+            return new Placement(new Vector3(-5.8f, lowestLaneLineY - .55f, 0f), 1.55f, false, 50, 1.6f);
         }
 
         /// Beside the left baseline, level with the far half of the court, looking right at the player.
         static Placement VolleyballPlacement()
         {
             var ground = new Vector2(-CourtSpace.HalfLength - 2.2f, 1.4f);
-            return new Placement(CourtSpace.ToWorld(ground, 0f), VolleyballSceneConfigurator.AthleteScale, false,
+            return new Placement(CourtSpace.ToWorld(ground, 0f), VolleyballSceneConfigurator.TeacherScale, false,
                 VolleyAthleteView.SortingOrderFor(ground.y));
         }
 
@@ -119,7 +121,7 @@ namespace KMA.EditorTools
             // The Football scene stretches every sprite to a display size; match the kicker's height.
             float kickerScale = FootballSceneConfigurator.KickerDisplayHeight * FootballPresentation.PixelToWorld /
                                 CharacterArt.Load(CharacterArt.Boss, "strictLook").bounds.size.y;
-            return new Placement(FootballPresentation.ScreenToWorld(880f, 545f), .9f * kickerScale, true, 22);
+            return new Placement(FootballPresentation.ScreenToWorld(1030f, 545f), .9f * kickerScale, true, 22);
         }
 
         /// In front of the track at the finish line, looking left back down the track at the student.

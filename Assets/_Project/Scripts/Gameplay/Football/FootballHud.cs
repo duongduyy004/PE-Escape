@@ -119,6 +119,8 @@ namespace KMA.Gameplay
         {
             if (rules == null)
                 return;
+            bool resultOverlayOwnsScreen = rules.State == FootballState.MatchResult;
+            SetGameplayControlsVisible(!resultOverlayOwnsScreen);
             bool overPower = rules.Power > OverPowerThreshold;
             int target = challenge != null ? challenge.TargetCount : rules.MaximumKicks ?? rules.RequiredGoals;
             if (scoreLabel) scoreLabel.text = VietText.Fix(challenge == null
@@ -128,7 +130,7 @@ namespace KMA.Gameplay
                 : "LUYỆN TẬP KHÔNG GIỚI HẠN LƯỢT");
             if (shotTimerLabel)
             {
-                bool visible = rules.IsShotWindowOpen;
+                bool visible = !resultOverlayOwnsScreen && rules.IsShotWindowOpen;
                 shotTimerLabel.gameObject.SetActive(visible);
                 if (visible)
                 {
@@ -143,7 +145,7 @@ namespace KMA.Gameplay
                 powerBar.SetFillColor(overPower ? MinigameUiTheme.Energy : MinigameUiTheme.Accent);
                 if (powerBar.Label) powerBar.Label.text = VietText.Fix(Mathf.RoundToInt(rules.Power * 100f) + "%");
             }
-            if (overPowerWarning) overPowerWarning.SetActive(overPower);
+            if (overPowerWarning) overPowerWarning.SetActive(!resultOverlayOwnsScreen && overPower);
             for (int i = 0; kickMarkers != null && i < kickMarkers.Length; i++)
             {
                 if (!kickMarkers[i]) continue;
@@ -156,7 +158,21 @@ namespace KMA.Gameplay
             if (directionSlider) directionSlider.SetValueWithoutNotify(rules.AimX);
             if (directionLabel) directionLabel.text = VietText.Fix(Mathf.Abs(rules.AimX) < .02f ? "GIỮA" :
                 (rules.AimX < 0f ? "TRÁI " : "PHẢI ") + Mathf.RoundToInt(Mathf.Abs(rules.AimX) * 100f) + "%");
-            if (shotFeedback) shotFeedback.text = VietText.Fix(OutcomeText(rules.Flight?.Outcome ?? rules.LastOutcome));
+            if (shotFeedback)
+            {
+                shotFeedback.gameObject.SetActive(!resultOverlayOwnsScreen);
+                shotFeedback.text = VietText.Fix(OutcomeText(rules.Flight?.Outcome ?? rules.LastOutcome));
+            }
+        }
+
+        /// ResultPanel is the highest-priority popup. Hide every football-only overlay/control so
+        /// an aim slider, power bar, or stale outcome cannot draw over the win/loss card or receive input.
+        void SetGameplayControlsVisible(bool visible)
+        {
+            if (directionSlider) directionSlider.gameObject.SetActive(visible);
+            if (shootButton) shootButton.gameObject.SetActive(visible);
+            if (powerBar) powerBar.gameObject.SetActive(visible);
+            if (directionLabel) directionLabel.gameObject.SetActive(visible);
         }
 
         static string OutcomeText(FootballOutcome? outcome) => outcome switch

@@ -255,8 +255,8 @@ namespace KMA.Tests.EditorTools
             EditorSceneManager.OpenScene("Assets/_Project/Scenes/MG_Volleyball.unity", OpenSceneMode.Single);
             var lecturer = Object.FindFirstObjectByType<StartLecturer>();
             Assert.That(lecturer, Is.Not.Null);
-            Assert.That(lecturer.transform.localScale.x, Is.EqualTo(VolleyballSceneConfigurator.AthleteScale),
-                "Teacher scale matches athlete scale");
+            Assert.That(lecturer.transform.localScale.x, Is.EqualTo(VolleyballSceneConfigurator.TeacherScale),
+                "Teacher scale compensates for BossPE transparent margins");
             // Teacher is to the left of baseline (-CourtSpace.HalfLength)
             float worldBaselineX = -CourtSpace.HalfLength * CourtSpace.PixelsPerMetreX / CourtSpace.BackgroundPixelsPerUnit * CourtSpace.WorldStretchX;
             Assert.That(lecturer.transform.position.x, Is.LessThan(worldBaselineX),

@@ -37,7 +37,14 @@ namespace KMA.Gameplay.Volleyball
         {
             if(!Playing)return;
             var kind=controller.CurrentChallenge?.Kind;
-            if(kind==ChallengeKind.Practice && pendingTiming){pendingTiming=false;EmitGap("vb.practice.badtime");}
+            // The late-timing reaction is a miss-only line ("Tớ đỡ lệch rồi").
+            // A late input can still be resolved as a player point, so do not
+            // enqueue the loss dialogue on a successful rally.
+            if(kind==ChallengeKind.Practice && pendingTiming)
+            {
+                pendingTiming=false;
+                if(winner==CourtSide.Opponent)EmitGap("vb.practice.badtime");
+            }
             if(winner==CourtSide.Opponent && kind==ChallengeKind.Learn)EmitGap("vb.learn.miss");
             else if(winner==CourtSide.Opponent && kind==ChallengeKind.Exam)EmitGap("vb.exam.lostpoint");
             if(kind==ChallengeKind.Exam && match.PlayerPoints==9 && !warned){warned=true;host.Emit("vb.exam.matchpoint",()=>Playing,budgetSeconds:3.7f);}

@@ -196,6 +196,10 @@ namespace KMA.Gameplay
             {
                 resultSubmitted = true;
                 inputBridge.SetEnabled(false, false);
+                // Apply the terminal HUD state before opening ResultPanel so no gameplay control
+                // survives for a frame and draws above the win/loss overlay.
+                hud.Render(rules);
+                presentation.Render(rules);
                 if (challengeDefinition != null && challengeContext != null)
                 {
                     ChallengeAttemptResult result = rules.BuildChallengeResult(challengeContext);

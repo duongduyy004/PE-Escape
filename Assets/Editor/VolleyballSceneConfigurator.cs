@@ -74,6 +74,9 @@ namespace KMA.EditorTools
         };
         // Character poses are 1.28 units tall; scaled up so the athletes read clearly on a phone.
         public const float AthleteScale = 2.3f;
+        // The lecturer pose has wider transparent margins than the athlete pack. A modest visual
+        // bump keeps her standing height at least comparable to the students in both idle and write poses.
+        public const float TeacherScale = AthleteScale * 1.15f;
         // Marker centre, in world units above the feet; its lowest point clears the tallest (spike contact) pose.
         const float MarkerWorldHeight = 3.25f;
         const string EnvironmentDir = "Assets/_Project/Art/Environments/Volleyball";
@@ -84,6 +87,8 @@ namespace KMA.EditorTools
         const float HorizonWorldY = 4.97f;
         const int HudSortingOrder = 500;
         const float NetWidth = .5f;
+        public const string JumpButtonArtPath = "Assets/_Project/Art/UI/Volleyball/btn-volleyball-jump.png";
+        public const string ActionButtonArtPath = "Assets/_Project/Art/UI/Volleyball/btn-volleyball-action-spike.png";
         public const float JoystickScale = 1.62f;
         public const float ButtonScale = 1.35f;
         static readonly Color GroundColor = new Color32(0xcf, 0xc8, 0xb8, 0xff); // schoolyard concrete
@@ -366,7 +371,7 @@ namespace KMA.EditorTools
             stick.Knob.rectTransform.sizeDelta = Vector2.one * MinigameUiTheme.JoystickKnob * JoystickScale;
             var joystick = area.gameObject.AddComponent<VirtualJoystick>();
             joystick.Configure(area, stick.Base.rectTransform, stick.Knob.rectTransform, 88f * JoystickScale,
-                new Vector2(-150f, -125f));
+                new Vector2(-180f, -160f));
 
             RectTransform buttonRect = UiRect("ActionButton", controls, Vector2.one, Vector2.one);
             buttonRect.anchorMin = buttonRect.anchorMax = buttonRect.pivot = new Vector2(1f, 0f);
@@ -454,11 +459,26 @@ namespace KMA.EditorTools
         static void BuildRoundIconButton(RectTransform hitArea, bool jump, float size)
         {
             RoundButtonHandle handle = UiKit.RoundIconButton(hitArea, size);
-            UiKitAssets assets = UiKitAssets.Load();
-            if (jump)
-                BuildJumpGlyph(handle.Root, assets.RoundRect24, size);
+            string path = jump ? JumpButtonArtPath : ActionButtonArtPath;
+            Sprite art = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            if (art != null)
+            {
+                // The supplied icons already contain the dark circular disc and white glyph. Keep
+                // the kit feedback target, but use the art as the face so the authored controls
+                // match the reference exactly.
+                handle.Face.sprite = art;
+                handle.Face.type = Image.Type.Simple;
+                handle.Face.preserveAspect = true;
+                handle.Face.color = Color.white;
+            }
             else
-                BuildHitGlyph(handle.Root, assets.RoundRect24, size);
+            {
+                UiKitAssets assets = UiKitAssets.Load();
+                if (jump)
+                    BuildJumpGlyph(handle.Root, assets.RoundRect24, size);
+                else
+                    BuildHitGlyph(handle.Root, assets.RoundRect24, size);
+            }
             handle.Root.gameObject.AddComponent<CanvasGroup>();
         }
 

@@ -85,6 +85,25 @@ namespace KMA.Tests.EditorTools
         }
 
         [Test]
+        public void ActionControlsUseSuppliedReferenceIconsAndStayNearBottomLeft()
+        {
+            VolleyballSceneConfigurator.BuildScene();
+            EditorSceneManager.OpenScene(VolleyballSceneConfigurator.ScenePath, OpenSceneMode.Single);
+            var jump = GameObject.Find("JumpButton");
+            var action = GameObject.Find("ActionButton");
+            Assert.That(jump, Is.Not.Null);
+            Assert.That(action, Is.Not.Null);
+            Assert.That(AssetDatabase.GetAssetPath(jump.transform.Find("RoundButton/Face").GetComponent<Image>().sprite),
+                Is.EqualTo(VolleyballSceneConfigurator.JumpButtonArtPath));
+            Assert.That(AssetDatabase.GetAssetPath(action.transform.Find("RoundButton/Face").GetComponent<Image>().sprite),
+                Is.EqualTo(VolleyballSceneConfigurator.ActionButtonArtPath));
+            var joystick = GameObject.Find("JoystickArea").GetComponent<VirtualJoystick>();
+            var serialized = new SerializedObject(joystick);
+            Assert.That(serialized.FindProperty("restPosition").vector2Value,
+                Is.EqualTo(new Vector2(-180f, -160f)));
+        }
+
+        [Test]
         public void OpponentHitsTheBallWithPlayPosesNotCelebrationPoses()
         {
             VolleyballSceneConfigurator.BuildScene();

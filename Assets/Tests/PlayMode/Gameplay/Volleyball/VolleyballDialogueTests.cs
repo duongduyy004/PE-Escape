@@ -49,6 +49,14 @@ namespace KMA.Tests.Gameplay.Volleyball
    var scheduler=(GameplayDialogueScheduler)typeof(GameplayDialogueHost).GetField("scheduler",F).GetValue(host);scheduler.Tick(2,false);
    Assert.That(host.IsIdle,Is.True,"old advice must end before the new rally");
   }
+  [Test] public void LateTimingAdviceIsNotShownWhenPlayerWinsPoint()
+  {
+   Setup("volleyball_practice");game.Match.ResetRally(CourtSide.Player);game.Match.PressAction();
+   game.Match.Tick(game.Match.Flight.ApexTime+.3f);
+   var decision=game.Match.PressAction();Assert.That(decision.Grade,Is.EqualTo(TimingGrade.Late));Assert.That(view.Seen,Is.Empty);
+   Point(CourtSide.Player);
+   Assert.That(view.Seen,Is.Empty,"the late/miss line must not play after a player point");
+  }
   [Test] public void NinePointsTriggersOneMatchpointWhileNotOver()
   {
    Setup("volleyball_exam");typeof(VolleyballMatch).GetField("<PlayerPoints>k__BackingField",F).SetValue(game.Match,8);Point(CourtSide.Player);
